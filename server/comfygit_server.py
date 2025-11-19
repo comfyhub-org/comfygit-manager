@@ -116,6 +116,22 @@ def get_current_state() -> dict:
     }
 
 
+def find_node_by_id_or_name(env, node_id: str):
+    """Find a node by its identifier or name (case-insensitive).
+
+    Returns:
+        tuple: (identifier, NodeInfo) or (None, None) if not found
+    """
+    existing_nodes = env.pyproject.nodes.get_existing()
+    node_id_lower = node_id.lower()
+
+    for identifier, node_info in existing_nodes.items():
+        if identifier == node_id or identifier.lower() == node_id_lower or node_info.name.lower() == node_id_lower:
+            return identifier, node_info
+
+    return None, None
+
+
 def get_installed_packs() -> dict[str, dict]:
     """Get installed custom nodes from the current environment."""
     env = get_environment_from_cwd()
@@ -125,14 +141,43 @@ def get_installed_packs() -> dict[str, dict]:
     try:
         existing_nodes = env.pyproject.nodes.get_existing()
         packs = {}
+
         for identifier, node_info in existing_nodes.items():
+            # Extract aux_id from repository URL ("user/repo" format)
+            aux_id = ""
+            if node_info.repository:
+                parts = node_info.repository.rstrip('/').split('/')
+                if len(parts) >= 2:
+                    aux_id = f"{parts[-2]}/{parts[-1]}"
+
+            # Determine cnr_id and version format based on source
+            if node_info.source == "registry":
+                cnr_id = node_info.registry_id or identifier
+                ver = node_info.version or "latest"
+            elif node_info.source == "git":
+                cnr_id = node_info.registry_id or ""  # Empty if pure git
+                ver = "nightly" if node_info.registry_id else "unknown"
+            elif node_info.source == "development":
+                cnr_id = ""
+                ver = "dev"
+            else:
+                cnr_id = identifier
+                ver = node_info.version or "unknown"
+
+            # Check enabled status from filesystem
+            dir_name = node_info.name
+            node_path = env.custom_nodes_path / dir_name
+            disabled_path = env.custom_nodes_path / f"{dir_name}.disabled"
+            enabled = node_path.exists() and not disabled_path.exists()
+
             packs[identifier] = {
-                "cnr_id": identifier,
-                "aux_id": node_info.repository or "",
-                "ver": node_info.version or "unknown",
-                "enabled": not identifier.endswith(".disabled"),
+                "cnr_id": cnr_id,
+                "aux_id": aux_id,
+                "ver": ver,
+                "enabled": enabled,
                 "name": node_info.name
             }
+
         return packs
     except Exception as e:
         print(f"[ComfyGit] Failed to get installed packs: {e}")
@@ -289,12 +334,28 @@ async def process_task(task: dict) -> dict:
 
 async def process_install(env, params: dict) -> dict:
     """Install a custom node."""
+    import shutil
     pack_id = params.get("id")
     version = params.get("selected_version") or params.get("version")
 
-    # Check if already installed (use same source as get_installed_packs)
+    # Check if already installed
     existing_nodes = env.pyproject.nodes.get_existing()
     is_installed = pack_id in existing_nodes
+
+    # If installed, check if it's disabled (needs re-enabling, not re-installing)
+    if is_installed:
+        node_info = existing_nodes[pack_id]
+        disabled_path = env.custom_nodes_path / f"{node_info.name}.disabled"
+        enabled_path = env.custom_nodes_path / node_info.name
+
+        if disabled_path.exists():
+            # Just re-enable by renaming
+            shutil.move(str(disabled_path), str(enabled_path))
+            return {
+                "status_str": "success",
+                "completed": True,
+                "messages": [f"Enabled {node_info.name}"]
+            }
 
     try:
         loop = asyncio.get_event_loop()
@@ -385,55 +446,77 @@ async def process_update(env, params: dict) -> dict:
 
 async def process_enable(env, params: dict) -> dict:
     """Enable a custom node."""
-    cnr_id = params.get("cnr_id")
+    import shutil
+    node_id = params.get("cnr_id")
 
-    try:
-        # Enable by renaming .disabled directory
-        custom_nodes_path = env.custom_nodes_path
-        disabled_path = custom_nodes_path / f"{cnr_id}.disabled"
-        enabled_path = custom_nodes_path / cnr_id
-
-        if disabled_path.exists():
-            import shutil
-            shutil.move(str(disabled_path), str(enabled_path))
-
-        return {
-            "status_str": "success",
-            "completed": True,
-            "messages": [f"Enabled {cnr_id}"]
-        }
-    except Exception as e:
+    _, node_info = find_node_by_id_or_name(env, node_id)
+    if not node_info:
         return {
             "status_str": "error",
             "completed": True,
-            "messages": [str(e)]
+            "messages": [f"Node '{node_id}' not found"]
+        }
+
+    dir_name = node_info.name
+    disabled_path = env.custom_nodes_path / f"{dir_name}.disabled"
+    enabled_path = env.custom_nodes_path / dir_name
+
+    if disabled_path.exists():
+        shutil.move(str(disabled_path), str(enabled_path))
+        return {
+            "status_str": "success",
+            "completed": True,
+            "messages": [f"Enabled {dir_name}"]
+        }
+    elif enabled_path.exists():
+        return {
+            "status_str": "success",
+            "completed": True,
+            "messages": [f"{dir_name} is already enabled"]
+        }
+    else:
+        return {
+            "status_str": "error",
+            "completed": True,
+            "messages": [f"Directory not found for {dir_name}"]
         }
 
 
 async def process_disable(env, params: dict) -> dict:
     """Disable a custom node."""
-    node_name = params.get("node_name")
+    import shutil
+    node_id = params.get("node_name")
 
-    try:
-        # Disable by renaming to .disabled
-        custom_nodes_path = env.custom_nodes_path
-        enabled_path = custom_nodes_path / node_name
-        disabled_path = custom_nodes_path / f"{node_name}.disabled"
-
-        if enabled_path.exists():
-            import shutil
-            shutil.move(str(enabled_path), str(disabled_path))
-
-        return {
-            "status_str": "success",
-            "completed": True,
-            "messages": [f"Disabled {node_name}"]
-        }
-    except Exception as e:
+    _, node_info = find_node_by_id_or_name(env, node_id)
+    if not node_info:
         return {
             "status_str": "error",
             "completed": True,
-            "messages": [str(e)]
+            "messages": [f"Node '{node_id}' not found"]
+        }
+
+    dir_name = node_info.name
+    enabled_path = env.custom_nodes_path / dir_name
+    disabled_path = env.custom_nodes_path / f"{dir_name}.disabled"
+
+    if enabled_path.exists():
+        shutil.move(str(enabled_path), str(disabled_path))
+        return {
+            "status_str": "success",
+            "completed": True,
+            "messages": [f"Disabled {dir_name}"]
+        }
+    elif disabled_path.exists():
+        return {
+            "status_str": "success",
+            "completed": True,
+            "messages": [f"{dir_name} is already disabled"]
+        }
+    else:
+        return {
+            "status_str": "error",
+            "completed": True,
+            "messages": [f"Directory not found for {dir_name}"]
         }
 
 
