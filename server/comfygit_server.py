@@ -181,7 +181,7 @@ async def start_queue(request):
         task_id = running_task.get("ui_id", str(uuid.uuid4()))
         task_history[task_id] = {
             **running_task,
-            "result": result.get("status", "unknown"),
+            "result": result.get("status_str", "unknown"),
             "status": result,
             "timestamp": datetime.utcnow().isoformat() + "Z"
         }
@@ -190,6 +190,7 @@ async def start_queue(request):
 
         # Broadcast task completed
         PromptServer.instance.send_sync("cm-task-completed", {
+            "ui_id": task_id,
             "state": get_current_state()
         })
 
@@ -256,7 +257,7 @@ async def process_task(task: dict) -> dict:
     env = get_environment_from_cwd()
     if not env:
         return {
-            "status": "error",
+            "status_str": "error",
             "completed": True,
             "messages": ["No ComfyGit environment detected"]
         }
@@ -274,13 +275,13 @@ async def process_task(task: dict) -> dict:
             return await process_disable(env, params)
         else:
             return {
-                "status": "error",
+                "status_str": "error",
                 "completed": True,
                 "messages": [f"Unknown task kind: {kind}"]
             }
     except Exception as e:
         return {
-            "status": "error",
+            "status_str": "error",
             "completed": True,
             "messages": [str(e)]
         }
@@ -305,7 +306,7 @@ async def process_install(env, params: dict) -> dict:
                 lambda: env.node_manager.update_node(pack_id, no_test=True)
             )
             return {
-                "status": "success",
+                "status_str": "success",
                 "completed": True,
                 "messages": [f"Successfully updated {pack_id} to latest"]
             }
@@ -322,13 +323,13 @@ async def process_install(env, params: dict) -> dict:
         )
 
         return {
-            "status": "success",
+            "status_str": "success",
             "completed": True,
             "messages": [f"Successfully installed {identifier}"]
         }
     except Exception as e:
         return {
-            "status": "error",
+            "status_str": "error",
             "completed": True,
             "messages": [str(e)]
         }
@@ -346,13 +347,13 @@ async def process_uninstall(env, params: dict) -> dict:
         )
 
         return {
-            "status": "success",
+            "status_str": "success",
             "completed": True,
             "messages": [f"Successfully uninstalled {node_name}"]
         }
     except Exception as e:
         return {
-            "status": "error",
+            "status_str": "error",
             "completed": True,
             "messages": [str(e)]
         }
@@ -370,13 +371,13 @@ async def process_update(env, params: dict) -> dict:
         )
 
         return {
-            "status": "success",
+            "status_str": "success",
             "completed": True,
             "messages": [f"Successfully updated {node_name}"]
         }
     except Exception as e:
         return {
-            "status": "error",
+            "status_str": "error",
             "completed": True,
             "messages": [str(e)]
         }
@@ -397,13 +398,13 @@ async def process_enable(env, params: dict) -> dict:
             shutil.move(str(disabled_path), str(enabled_path))
 
         return {
-            "status": "success",
+            "status_str": "success",
             "completed": True,
             "messages": [f"Enabled {cnr_id}"]
         }
     except Exception as e:
         return {
-            "status": "error",
+            "status_str": "error",
             "completed": True,
             "messages": [str(e)]
         }
@@ -424,13 +425,13 @@ async def process_disable(env, params: dict) -> dict:
             shutil.move(str(enabled_path), str(disabled_path))
 
         return {
-            "status": "success",
+            "status_str": "success",
             "completed": True,
             "messages": [f"Disabled {node_name}"]
         }
     except Exception as e:
         return {
-            "status": "error",
+            "status_str": "error",
             "completed": True,
             "messages": [str(e)]
         }
