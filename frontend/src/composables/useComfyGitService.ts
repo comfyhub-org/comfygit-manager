@@ -3,7 +3,12 @@ import type {
   ComfyGitStatus,
   CommitResult,
   LogResult,
-  ExportResult
+  ExportResult,
+  BranchesResult,
+  CommitDetail,
+  CheckoutResult,
+  CreateBranchResult,
+  SwitchBranchResult
 } from '@/types/comfygit'
 
 // Access ComfyUI's API
@@ -60,12 +65,52 @@ export function useComfyGitService() {
     })
   }
 
+  // Phase 2 APIs
+
+  async function getBranches(): Promise<BranchesResult> {
+    return fetchApi<BranchesResult>('/v2/comfygit/branches')
+  }
+
+  async function getCommitDetail(hash: string): Promise<CommitDetail> {
+    return fetchApi<CommitDetail>(`/v2/comfygit/commit/${hash}`)
+  }
+
+  async function checkout(ref: string, force = false): Promise<CheckoutResult> {
+    return fetchApi<CheckoutResult>('/v2/comfygit/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ref, force })
+    })
+  }
+
+  async function createBranch(name: string, startPoint = 'HEAD'): Promise<CreateBranchResult> {
+    return fetchApi<CreateBranchResult>('/v2/comfygit/branch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, start_point: startPoint })
+    })
+  }
+
+  async function switchBranch(branch: string, force = false): Promise<SwitchBranchResult> {
+    return fetchApi<SwitchBranchResult>('/v2/comfygit/switch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ branch, force })
+    })
+  }
+
   return {
     isLoading,
     error,
     getStatus,
     commit,
     getHistory,
-    exportEnv
+    exportEnv,
+    // Phase 2
+    getBranches,
+    getCommitDetail,
+    checkout,
+    createBranch,
+    switchBranch
   }
 }

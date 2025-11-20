@@ -33,7 +33,17 @@
       </div>
       <template v-else>
         <StatusSection :status="status" />
-        <HistorySection :commits="commits" />
+        <BranchSection
+          :branches="branches"
+          :current="status.branch"
+          @switch="handleBranchSwitch"
+          @create="handleBranchCreate"
+        />
+        <HistorySection
+          :commits="commits"
+          @select="handleCommitSelect"
+          @checkout="handleCheckout"
+        />
       </template>
     </div>
 
@@ -46,27 +56,82 @@
         Export
       </button>
     </div>
+
+    <!-- Commit Detail Modal -->
+    <CommitDetailModal
+      v-if="selectedCommit"
+      :commit="selectedCommit"
+      @close="selectedCommit = null"
+      @checkout="handleCheckout"
+      @createBranch="handleBranchFromCommit"
+    />
+
+    <!-- Confirm Dialog -->
+    <ConfirmDialog
+      v-if="confirmDialog"
+      :title="confirmDialog.title"
+      :message="confirmDialog.message"
+      :details="confirmDialog.details"
+      :warning="confirmDialog.warning"
+      :confirmLabel="confirmDialog.confirmLabel"
+      :cancelLabel="confirmDialog.cancelLabel"
+      :secondaryLabel="confirmDialog.secondaryLabel"
+      :secondaryAction="confirmDialog.secondaryAction"
+      :destructive="confirmDialog.destructive"
+      @confirm="confirmDialog.onConfirm"
+      @cancel="confirmDialog = null"
+      @secondary="confirmDialog.onSecondary"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import StatusSection from './StatusSection.vue'
+import BranchSection from './BranchSection.vue'
 import HistorySection from './HistorySection.vue'
+import CommitDetailModal from './CommitDetailModal.vue'
+import ConfirmDialog from './ConfirmDialog.vue'
 import { useComfyGitService } from '@/composables/useComfyGitService'
-import type { ComfyGitStatus, CommitInfo } from '@/types/comfygit'
+import type { ComfyGitStatus, CommitInfo, BranchInfo } from '@/types/comfygit'
 
 const emit = defineEmits<{
   close: []
   statusUpdate: [status: ComfyGitStatus]
 }>()
 
-const { getStatus, getHistory, exportEnv } = useComfyGitService()
+const {
+  getStatus,
+  getHistory,
+  exportEnv,
+  getBranches,
+  checkout,
+  createBranch,
+  switchBranch
+} = useComfyGitService()
 
 const status = ref<ComfyGitStatus | null>(null)
 const commits = ref<CommitInfo[]>([])
+const branches = ref<BranchInfo[]>([])
 const isLoading = ref(false)
 const error = ref<string | null>(null)
+const selectedCommit = ref<CommitInfo | null>(null)
+
+interface ConfirmDialogConfig {
+  title: string
+  message: string
+  details?: string[]
+  warning?: string
+  confirmLabel?: string
+  cancelLabel?: string
+  secondaryLabel?: string
+  secondaryAction?: boolean
+  destructive?: boolean
+  onConfirm: () => void
+  onSecondary?: () => void
+}
+
+const confirmDialog = ref<ConfirmDialogConfig | null>(null)
 
 const statusColor = computed(() => {
   if (!status.value) return 'neutral'
@@ -90,20 +155,111 @@ async function refresh() {
   error.value = null
 
   try {
-    const [statusRes, historyRes] = await Promise.all([
+    const [statusRes, historyRes, branchesRes] = await Promise.all([
       getStatus(),
-      getHistory()
+      getHistory(),
+      getBranches()
     ])
     status.value = statusRes
     commits.value = historyRes.commits
+    branches.value = branchesRes.branches
     emit('statusUpdate', statusRes)
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Failed to load status'
     status.value = null
     commits.value = []
+    branches.value = []
   } finally {
     isLoading.value = false
   }
+}
+
+function handleCommitSelect(commit: CommitInfo) {
+  selectedCommit.value = commit
+}
+
+async function handleCheckout(commit: CommitInfo) {
+  selectedCommit.value = null
+
+  const result = await checkout(commit.hash)
+
+  if (result.status === 'warning' && result.reason === 'uncommitted_changes') {
+    confirmDialog.value = {
+      title: 'Uncommitted Changes',
+      message: 'You have uncommitted changes that will be lost.',
+      details: getChangeDetails(),
+      warning: 'Checking out will discard these changes.',
+      confirmLabel: 'Discard & Checkout',
+      cancelLabel: 'Cancel',
+      destructive: true,
+      onConfirm: async () => {
+        confirmDialog.value = null
+        await checkout(commit.hash, true)
+        // Server will restart to sync
+      }
+    }
+  } else if (result.status === 'success') {
+    // Server will restart to sync
+  } else {
+    alert(result.message || 'Checkout failed')
+  }
+}
+
+async function handleBranchSwitch(branchName: string) {
+  const result = await switchBranch(branchName)
+
+  if (result.status === 'warning') {
+    if (result.reason === 'uncommitted_changes') {
+      confirmDialog.value = {
+        title: 'Uncommitted Changes',
+        message: 'You have uncommitted changes.',
+        details: getChangeDetails(),
+        warning: 'Switch anyway? Changes will remain in current branch.',
+        confirmLabel: 'Switch Anyway',
+        cancelLabel: 'Cancel',
+        onConfirm: async () => {
+          confirmDialog.value = null
+          // Force switch with uncommitted changes
+          await switchBranch(branchName, true)
+          // Server will restart after successful switch
+        }
+      }
+    }
+  } else if (result.status === 'success') {
+    // Server will restart to sync new branch
+  }
+}
+
+async function handleBranchCreate(name: string) {
+  const result = await createBranch(name)
+  if (result.status === 'success') {
+    await refresh()
+  } else {
+    alert(result.message || 'Failed to create branch')
+  }
+}
+
+async function handleBranchFromCommit(commit: CommitInfo) {
+  selectedCommit.value = null
+  const name = prompt('Enter branch name:')
+  if (name) {
+    const result = await createBranch(name, commit.hash)
+    if (result.status === 'success') {
+      await refresh()
+    } else {
+      alert(result.message || 'Failed to create branch')
+    }
+  }
+}
+
+function getChangeDetails(): string[] {
+  if (!status.value) return []
+  const details: string[] = []
+  const wf = status.value.workflows
+  if (wf.new.length) details.push(`${wf.new.length} new workflow(s)`)
+  if (wf.modified.length) details.push(`${wf.modified.length} modified workflow(s)`)
+  if (wf.deleted.length) details.push(`${wf.deleted.length} deleted workflow(s)`)
+  return details
 }
 
 async function handleExport() {
