@@ -1,6 +1,8 @@
 <template>
   <div class="history-section">
-    <h3 class="section-title">History</h3>
+    <div class="section-header">
+      <h4 class="section-title">Recent Commits</h4>
+    </div>
     <div class="history-card">
       <div v-if="commits.length === 0" class="empty">
         No commits yet
@@ -26,49 +28,63 @@ defineProps<{
 
 <style scoped>
 .history-section {
-  margin-bottom: 20px;
+  margin-bottom: 16px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
 }
 
 .section-title {
-  font-size: 14px;
+  font-size: 11px;
   font-weight: 600;
-  color: var(--input-text, #ddd);
-  margin: 0 0 12px 0;
+  text-transform: uppercase;
+  color: var(--descrip-text, #999);
+  margin: 0;
+  letter-spacing: 0.5px;
 }
 
 .history-card {
   background: var(--comfy-input-bg, #222);
   border: 1px solid var(--border-color, #4a4a4a);
   border-radius: 6px;
-  padding: 12px;
+  padding: 8px;
 }
 
 .empty {
   color: var(--descrip-text, #999);
-  font-size: 13px;
+  font-size: 12px;
   text-align: center;
-  padding: 8px;
+  padding: 12px;
 }
 
 .commit-list {
-  max-height: 200px;
+  max-height: 160px;
   overflow-y: auto;
 }
 
 .commit-item {
   display: flex;
-  align-items: flex-start;
-  padding: 8px 0;
-  border-bottom: 1px solid var(--border-color, #4a4a4a);
+  align-items: baseline;
+  padding: 6px 4px;
+  font-size: 11px;
+  border-bottom: 1px solid var(--border-color, #3a3a3a);
 }
 
 .commit-item:last-child {
   border-bottom: none;
 }
 
+.commit-item:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
 .commit-hash {
   font-family: monospace;
-  font-size: 12px;
+  font-size: 11px;
   color: #60a5fa;
   margin-right: 8px;
   flex-shrink: 0;
@@ -76,7 +92,6 @@ defineProps<{
 
 .commit-message {
   flex: 1;
-  font-size: 13px;
   color: var(--input-text, #ddd);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -84,10 +99,10 @@ defineProps<{
 }
 
 .commit-date {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--descrip-text, #999);
   white-space: nowrap;
-  margin-left: 12px;
+  margin-left: 8px;
   flex-shrink: 0;
 }
 </style>
