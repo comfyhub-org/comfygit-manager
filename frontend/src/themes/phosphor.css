@@ -477,7 +477,110 @@
 }
 
 /* === Selection === */
-[data-comfygit-theme="phosphor"] ::selection {
+[data-comfygit-theme="phosphor"] .comfygit-panel ::selection,
+[data-comfygit-theme="phosphor"] .toast ::selection,
+[data-comfygit-theme="phosphor"] .dialog-content ::selection,
+[data-comfygit-theme="phosphor"] .commit-popover ::selection {
   background: var(--cg-color-accent);
   color: var(--cg-color-bg-primary);
+}
+
+/* === Toast Notifications === */
+[data-comfygit-theme="phosphor"] .toast {
+  background: var(--cg-color-bg-primary);
+  border: 1px solid var(--cg-color-border);
+  font-family: var(--cg-font-mono);
+  box-shadow: var(--cg-shadow-md);
+}
+
+[data-comfygit-theme="phosphor"] .toast.info {
+  border-left: 3px solid var(--cg-color-info);
+}
+
+[data-comfygit-theme="phosphor"] .toast.success {
+  border-left: 3px solid var(--cg-color-success);
+}
+
+[data-comfygit-theme="phosphor"] .toast.warning {
+  border-left: 3px solid var(--cg-color-warning);
+}
+
+[data-comfygit-theme="phosphor"] .toast.error {
+  border-left: 3px solid var(--cg-color-error);
+}
+
+[data-comfygit-theme="phosphor"] .toast-icon {
+  font-family: var(--cg-font-mono);
+}
+
+[data-comfygit-theme="phosphor"] .toast-message::before {
+  content: '> ';
+  opacity: 0.5;
+}
+
+/* === Confirm Dialog === */
+[data-comfygit-theme="phosphor"] .dialog-content {
+  background: var(--cg-color-bg-primary);
+  border: 2px solid var(--cg-color-border);
+  box-shadow: var(--cg-shadow-lg);
+  font-family: var(--cg-font-mono);
+}
+
+[data-comfygit-theme="phosphor"] .dialog-title {
+  color: var(--cg-color-accent);
+  text-transform: uppercase;
+  letter-spacing: var(--cg-letter-spacing-wide);
+  font-size: var(--cg-font-size-sm);
+}
+
+[data-comfygit-theme="phosphor"] .dialog-title::before {
+  content: '> ';
+  opacity: 0.7;
+}
+
+[data-comfygit-theme="phosphor"] .dialog-message {
+  color: var(--cg-color-text-primary);
+}
+
+[data-comfygit-theme="phosphor"] .dialog-details {
+  background: var(--cg-color-bg-tertiary);
+  border: 1px solid var(--cg-color-border-subtle);
+}
+
+[data-comfygit-theme="phosphor"] .dialog-warning {
+  background: transparent;
+  border: 1px solid var(--cg-color-warning);
+  color: var(--cg-color-warning);
+}
+
+[data-comfygit-theme="phosphor"] .dialog-btn {
+  font-family: var(--cg-font-mono);
+  text-transform: uppercase;
+  letter-spacing: var(--cg-letter-spacing-wide);
+  font-size: var(--cg-font-size-xs);
+}
+
+[data-comfygit-theme="phosphor"] .dialog-btn.cancel {
+  background: transparent;
+  border: 1px solid var(--cg-color-border);
+  color: var(--cg-color-text-primary);
+}
+
+[data-comfygit-theme="phosphor"] .dialog-btn.cancel:hover {
+  border-color: var(--cg-color-accent);
+  color: var(--cg-color-accent);
+}
+
+[data-comfygit-theme="phosphor"] .dialog-btn.primary {
+  background: var(--cg-color-accent);
+  color: var(--cg-color-bg-primary);
+  box-shadow: var(--cg-shadow-sm);
+}
+
+[data-comfygit-theme="phosphor"] .dialog-btn.primary:hover {
+  box-shadow: var(--cg-shadow-md);
+}
+
+[data-comfygit-theme="phosphor"] .dialog-btn.primary.destructive {
+  background: var(--cg-color-error);
 }

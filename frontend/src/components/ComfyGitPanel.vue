@@ -87,6 +87,20 @@
       @cancel="confirmDialog = null"
       @secondary="confirmDialog.onSecondary"
     />
+
+    <!-- Toast Notifications -->
+    <div class="toast-container">
+      <transition-group name="toast">
+        <div
+          v-for="toast in toasts"
+          :key="toast.id"
+          :class="['toast', toast.type]"
+        >
+          <span class="toast-icon">{{ getToastIcon(toast.type) }}</span>
+          <span class="toast-message">{{ toast.message }}</span>
+        </div>
+      </transition-group>
+    </div>
   </div>
 </template>
 
@@ -148,6 +162,40 @@ interface ConfirmDialogConfig {
 
 const confirmDialog = ref<ConfirmDialogConfig | null>(null)
 
+// Toast notification system
+interface Toast {
+  id: number
+  message: string
+  type: 'info' | 'success' | 'warning' | 'error'
+}
+
+const toasts = ref<Toast[]>([])
+let toastId = 0
+
+function showToast(message: string, type: Toast['type'] = 'info', duration = 3000) {
+  const id = ++toastId
+  toasts.value.push({ id, message, type })
+  if (duration > 0) {
+    setTimeout(() => {
+      toasts.value = toasts.value.filter(t => t.id !== id)
+    }, duration)
+  }
+  return id
+}
+
+function removeToast(id: number) {
+  toasts.value = toasts.value.filter(t => t.id !== id)
+}
+
+function getToastIcon(type: Toast['type']): string {
+  switch (type) {
+    case 'success': return '✓'
+    case 'warning': return '!'
+    case 'error': return '✕'
+    default: return '→'
+  }
+}
+
 const statusColor = computed(() => {
   if (!status.value) return 'neutral'
   const wf = status.value.workflows
@@ -196,61 +244,89 @@ function handleCommitSelect(commit: CommitInfo) {
 async function handleCheckout(commit: CommitInfo) {
   selectedCommit.value = null
 
-  const result = await checkout(commit.hash)
+  const hasChanges = status.value && (
+    status.value.workflows.new.length > 0 ||
+    status.value.workflows.modified.length > 0 ||
+    status.value.workflows.deleted.length > 0 ||
+    status.value.has_changes
+  )
 
-  if (result.status === 'warning' && result.reason === 'uncommitted_changes') {
-    confirmDialog.value = {
-      title: 'Uncommitted Changes',
-      message: 'You have uncommitted changes that will be lost.',
-      details: getChangeDetails(),
-      warning: 'Checking out will discard these changes.',
-      confirmLabel: 'Discard & Checkout',
-      cancelLabel: 'Cancel',
-      destructive: true,
-      onConfirm: async () => {
-        confirmDialog.value = null
-        await checkout(commit.hash, true)
-        // Server will restart to sync
+  // Always confirm checkout since it restarts ComfyUI
+  confirmDialog.value = {
+    title: hasChanges ? 'Checkout with Uncommitted Changes' : 'Checkout Commit',
+    message: hasChanges
+      ? 'You have uncommitted changes that will be lost.'
+      : `Checkout commit ${commit.short_hash || commit.hash?.slice(0, 7)}?`,
+    details: hasChanges ? getChangeDetails() : undefined,
+    warning: 'This will restart ComfyUI to apply the changes.',
+    confirmLabel: hasChanges ? 'Discard & Checkout' : 'Checkout',
+    cancelLabel: 'Cancel',
+    destructive: hasChanges,
+    onConfirm: async () => {
+      confirmDialog.value = null
+      const toastId = showToast(`Checking out ${commit.short_hash || commit.hash?.slice(0, 7)}...`, 'info', 0)
+
+      const result = await checkout(commit.hash, hasChanges)
+      removeToast(toastId)
+
+      if (result.status === 'success') {
+        showToast('Restarting ComfyUI...', 'success')
+      } else {
+        showToast(result.message || 'Checkout failed', 'error')
       }
     }
-  } else if (result.status === 'success') {
-    // Server will restart to sync
-  } else {
-    alert(result.message || 'Checkout failed')
   }
 }
 
 async function handleBranchSwitch(branchName: string) {
-  const result = await switchBranch(branchName)
+  const hasChanges = status.value && (
+    status.value.workflows.new.length > 0 ||
+    status.value.workflows.modified.length > 0 ||
+    status.value.workflows.deleted.length > 0 ||
+    status.value.has_changes
+  )
 
-  if (result.status === 'warning') {
-    if (result.reason === 'uncommitted_changes') {
-      confirmDialog.value = {
-        title: 'Uncommitted Changes',
-        message: 'You have uncommitted changes.',
-        details: getChangeDetails(),
-        warning: 'Switch anyway? Changes will remain in current branch.',
-        confirmLabel: 'Switch Anyway',
-        cancelLabel: 'Cancel',
-        onConfirm: async () => {
-          confirmDialog.value = null
-          // Force switch with uncommitted changes
-          await switchBranch(branchName, true)
-          // Server will restart after successful switch
-        }
+  // Always confirm branch switch since it restarts ComfyUI
+  confirmDialog.value = {
+    title: hasChanges ? 'Switch Branch with Uncommitted Changes' : 'Switch Branch',
+    message: hasChanges
+      ? 'You have uncommitted changes.'
+      : `Switch to branch "${branchName}"?`,
+    details: hasChanges ? getChangeDetails() : undefined,
+    warning: hasChanges
+      ? 'This will restart ComfyUI. Changes will remain in current branch.'
+      : 'This will restart ComfyUI to apply the changes.',
+    confirmLabel: hasChanges ? 'Switch Anyway' : 'Switch',
+    cancelLabel: 'Cancel',
+    onConfirm: async () => {
+      confirmDialog.value = null
+      const toastId = showToast(`Switching to ${branchName}...`, 'info', 0)
+
+      const result = await switchBranch(branchName, hasChanges)
+      removeToast(toastId)
+
+      if (result.status === 'success') {
+        showToast('Restarting ComfyUI...', 'success')
+      } else if (result.status === 'warning' && result.reason === 'uncommitted_changes') {
+        // This shouldn't happen since we pass force flag, but handle it
+        showToast('Switch cancelled due to uncommitted changes', 'warning')
+      } else {
+        showToast(result.message || 'Branch switch failed', 'error')
       }
     }
-  } else if (result.status === 'success') {
-    // Server will restart to sync new branch
   }
 }
 
 async function handleBranchCreate(name: string) {
+  const toastId = showToast(`Creating branch ${name}...`, 'info', 0)
   const result = await createBranch(name)
+  removeToast(toastId)
+
   if (result.status === 'success') {
+    showToast(`Branch "${name}" created`, 'success')
     await refresh()
   } else {
-    alert(result.message || 'Failed to create branch')
+    showToast(result.message || 'Failed to create branch', 'error')
   }
 }
 
@@ -258,11 +334,15 @@ async function handleBranchFromCommit(commit: CommitInfo) {
   selectedCommit.value = null
   const name = prompt('Enter branch name:')
   if (name) {
+    const toastId = showToast(`Creating branch ${name}...`, 'info', 0)
     const result = await createBranch(name, commit.hash)
+    removeToast(toastId)
+
     if (result.status === 'success') {
+      showToast(`Branch "${name}" created from ${commit.short_hash}`, 'success')
       await refresh()
     } else {
-      alert(result.message || 'Failed to create branch')
+      showToast(result.message || 'Failed to create branch', 'error')
     }
   }
 }
@@ -278,14 +358,21 @@ function getChangeDetails(): string[] {
 }
 
 async function handleExport() {
+  const toastId = showToast('Exporting environment...', 'info', 0)
   try {
     const result = await exportEnv()
+    removeToast(toastId)
+
     if (result.status === 'success') {
+      showToast('Export complete', 'success')
       alert(`Export successful!\n\nSaved to: ${result.path}\n\nModels without sources: ${result.models_without_sources}`)
     } else {
+      showToast('Export failed', 'error')
       alert(`Export failed: ${result.message}`)
     }
   } catch (err) {
+    removeToast(toastId)
+    showToast('Export error', 'error')
     alert(`Export error: ${err instanceof Error ? err.message : 'Unknown error'}`)
   }
 }
@@ -436,5 +523,101 @@ onMounted(refresh)
 .export-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* Toast Notifications */
+.toast-container {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  z-index: 10004;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--cg-color-bg-primary, var(--comfy-menu-bg, #353535));
+  border: 1px solid var(--cg-color-border, var(--border-color, #4a4a4a));
+  border-radius: var(--cg-radius-md, 4px);
+  box-shadow: var(--cg-shadow-md, 0 4px 12px rgba(0, 0, 0, 0.3));
+  font-size: 12px;
+  color: var(--cg-color-text-primary, var(--input-text, #ddd));
+  pointer-events: auto;
+  min-width: 180px;
+  max-width: 300px;
+}
+
+.toast.info {
+  border-left: 3px solid var(--cg-color-info, #3b82f6);
+}
+
+.toast.success {
+  border-left: 3px solid var(--cg-color-success, #22c55e);
+}
+
+.toast.warning {
+  border-left: 3px solid var(--cg-color-warning, #fbbf24);
+}
+
+.toast.error {
+  border-left: 3px solid var(--cg-color-error, #ef4444);
+}
+
+.toast-icon {
+  font-size: 10px;
+  font-weight: bold;
+  width: 14px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.toast.info .toast-icon {
+  color: var(--cg-color-info, #3b82f6);
+}
+
+.toast.success .toast-icon {
+  color: var(--cg-color-success, #22c55e);
+}
+
+.toast.warning .toast-icon {
+  color: var(--cg-color-warning, #fbbf24);
+}
+
+.toast.error .toast-icon {
+  color: var(--cg-color-error, #ef4444);
+}
+
+.toast-message {
+  flex: 1;
+}
+
+/* Toast transitions */
+.toast-enter-active,
+.toast-leave-active {
+  transition: all 0.3s ease;
+}
+
+.toast-enter-from {
+  opacity: 0;
+  transform: translateX(100%);
+}
+
+.toast-leave-to {
+  opacity: 0;
+  transform: translateX(100%);
+}
+
+.toast-move {
+  transition: transform 0.3s ease;
 }
 </style>

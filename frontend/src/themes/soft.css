@@ -440,7 +440,10 @@
 }
 
 /* === Selection === */
-[data-comfygit-theme="soft"] ::selection {
+[data-comfygit-theme="soft"] .comfygit-panel ::selection,
+[data-comfygit-theme="soft"] .toast ::selection,
+[data-comfygit-theme="soft"] .dialog-content ::selection,
+[data-comfygit-theme="soft"] .commit-popover ::selection {
   background: var(--cg-color-accent);
   color: var(--cg-color-text-inverse);
 }

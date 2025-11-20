@@ -457,7 +457,10 @@
 }
 
 /* === Selection === */
-[data-comfygit-theme="brutal"] ::selection {
+[data-comfygit-theme="brutal"] .comfygit-panel ::selection,
+[data-comfygit-theme="brutal"] .toast ::selection,
+[data-comfygit-theme="brutal"] .dialog-content ::selection,
+[data-comfygit-theme="brutal"] .commit-popover ::selection {
   background: var(--cg-color-accent);
   color: var(--cg-color-text-primary);
 }

@@ -415,7 +415,10 @@
 }
 
 /* === Selection === */
-[data-comfygit-theme="swiss"] ::selection {
+[data-comfygit-theme="swiss"] .comfygit-panel ::selection,
+[data-comfygit-theme="swiss"] .toast ::selection,
+[data-comfygit-theme="swiss"] .dialog-content ::selection,
+[data-comfygit-theme="swiss"] .commit-popover ::selection {
   background: var(--cg-color-accent);
   color: var(--cg-color-text-inverse);
 }
