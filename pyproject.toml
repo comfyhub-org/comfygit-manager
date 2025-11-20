@@ -1,0 +1,18 @@
+[project]
+name = "comfygit-manager"
+version = "0.0.1"
+description = "ComfyGit Manager - Node for managing comfygit environments in ComfyUI"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "comfygit-core",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.1",
+    "pytest-mock>=3.15.1",
+]
+
+[tool.uv.sources]
+comfygit-core = { path = "../comfygit/packages/core" }

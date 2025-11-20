@@ -12,7 +12,7 @@ from unittest.mock import Mock, MagicMock
 class TestHealthChecking:
     """Test health check validation logic."""
 
-    def test_health_check_success(self, mocker):
+    def test_health_check_success(self, mocker, mock_workspace_factory):
         """Should pass health check when process running and port accessible."""
         from server.orchestrator import Orchestrator
 
@@ -25,7 +25,7 @@ class TestHealthChecking:
         mocker.patch("socket.socket", return_value=mock_socket)
 
         orch = Orchestrator(
-            workspace_root=Path("/test"),
+            workspace_root=mock_workspace_factory.path,
             initial_env="env1",
             args=["--port", "8188"]
         )
@@ -36,7 +36,7 @@ class TestHealthChecking:
         # Should require 3 consecutive successes
         assert mock_socket.connect.call_count >= 3
 
-    def test_health_check_process_died(self, mocker):
+    def test_health_check_process_died(self, mocker, mock_workspace_factory):
         """Should fail health check when process exits."""
         from server.orchestrator import Orchestrator
 
@@ -46,7 +46,7 @@ class TestHealthChecking:
         mock_proc.returncode = 1
 
         orch = Orchestrator(
-            workspace_root=Path("/test"),
+            workspace_root=mock_workspace_factory.path,
             initial_env="env1",
             args=["--port", "8188"]
         )
@@ -55,7 +55,7 @@ class TestHealthChecking:
 
         assert result is False
 
-    def test_health_check_timeout(self, mocker):
+    def test_health_check_timeout(self, mocker, mock_workspace_factory):
         """Should fail health check on timeout."""
         from server.orchestrator import Orchestrator
 
@@ -69,7 +69,7 @@ class TestHealthChecking:
         mocker.patch("socket.socket", return_value=mock_socket)
 
         orch = Orchestrator(
-            workspace_root=Path("/test"),
+            workspace_root=mock_workspace_factory.path,
             initial_env="env1",
             args=["--port", "8188"]
         )
@@ -78,7 +78,7 @@ class TestHealthChecking:
 
         assert result is False
 
-    def test_health_check_unstable_connection(self, mocker):
+    def test_health_check_unstable_connection(self, mocker, mock_workspace_factory):
         """Should fail if connection is unstable (not 3 consecutive successes)."""
         from server.orchestrator import Orchestrator
 
@@ -98,7 +98,7 @@ class TestHealthChecking:
         mocker.patch("socket.socket", return_value=mock_socket)
 
         orch = Orchestrator(
-            workspace_root=Path("/test"),
+            workspace_root=mock_workspace_factory.path,
             initial_env="env1",
             args=["--port", "8188"]
         )
@@ -107,7 +107,7 @@ class TestHealthChecking:
 
         assert result is False
 
-    def test_health_check_with_custom_port(self, mocker):
+    def test_health_check_with_custom_port(self, mocker, mock_workspace_factory):
         """Should check health on custom port from args."""
         from server.orchestrator import Orchestrator
 
@@ -118,7 +118,7 @@ class TestHealthChecking:
         mocker.patch("socket.socket", return_value=mock_socket)
 
         orch = Orchestrator(
-            workspace_root=Path("/test"),
+            workspace_root=mock_workspace_factory.path,
             initial_env="env1",
             args=["--port", "9999"]
         )
@@ -131,12 +131,12 @@ class TestHealthChecking:
         # First call should be to port 9999
         assert connect_calls[0][0][0] == ("127.0.0.1", 9999)
 
-    def test_check_port_connection_success(self):
+    def test_check_port_connection_success(self, mock_workspace_factory):
         """Should successfully connect to open port."""
         from server.orchestrator import Orchestrator
 
         orch = Orchestrator(
-            workspace_root=Path("/test"),
+            workspace_root=mock_workspace_factory.path,
             initial_env="env1",
             args=[]
         )
@@ -154,12 +154,12 @@ class TestHealthChecking:
         finally:
             server.close()
 
-    def test_check_port_connection_refused(self):
+    def test_check_port_connection_refused(self, mock_workspace_factory):
         """Should return False for closed port."""
         from server.orchestrator import Orchestrator
 
         orch = Orchestrator(
-            workspace_root=Path("/test"),
+            workspace_root=mock_workspace_factory.path,
             initial_env="env1",
             args=[]
         )
@@ -169,12 +169,12 @@ class TestHealthChecking:
 
         assert result is False
 
-    def test_check_port_connection_timeout(self, mocker):
+    def test_check_port_connection_timeout(self, mocker, mock_workspace_factory):
         """Should handle socket timeout gracefully."""
         from server.orchestrator import Orchestrator
 
         orch = Orchestrator(
-            workspace_root=Path("/test"),
+            workspace_root=mock_workspace_factory.path,
             initial_env="env1",
             args=[]
         )
@@ -189,7 +189,7 @@ class TestHealthChecking:
         assert result is False
 
     @pytest.mark.slow
-    def test_health_check_requires_stability_period(self, mocker):
+    def test_health_check_requires_stability_period(self, mocker, mock_workspace_factory):
         """Should require 3 consecutive successes over ~6 seconds."""
         from server.orchestrator import Orchestrator
 
@@ -210,7 +210,7 @@ class TestHealthChecking:
         mocker.patch("time.sleep", side_effect=lambda x: None)
 
         orch = Orchestrator(
-            workspace_root=Path("/test"),
+            workspace_root=mock_workspace_factory.path,
             initial_env="env1",
             args=["--port", "8188"]
         )

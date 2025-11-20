@@ -1,12 +1,18 @@
 """Shared pytest fixtures for orchestrator tests."""
 
 import os
+import sys
 import json
 import shutil
 import tempfile
 from pathlib import Path
 from typing import Generator
 import pytest
+
+# Add parent directory to Python path so tests can import server module
+parent_dir = Path(__file__).parent.parent
+if str(parent_dir) not in sys.path:
+    sys.path.insert(0, str(parent_dir))
 
 
 @pytest.fixture
@@ -40,6 +46,32 @@ environments = ["env1", "env2"]
     # Create metadata directory
     metadata_dir = workspace / ".metadata"
     metadata_dir.mkdir()
+
+    # Create workspace config
+    workspace_config = metadata_dir / "workspace.json"
+    workspace_config.write_text(json.dumps({
+        "version": 1,
+        "active_environment": "env1",
+        "created_at": "2025-01-20T00:00:00",
+        "global_model_directory": {
+            "path": str(workspace / "models"),
+            "added_at": "2025-01-20T00:00:00",
+            "last_sync": "2025-01-20T00:00:00"
+        },
+        "prefer_registry_cache": True
+    }))
+
+    # Create models directory
+    (workspace / "models").mkdir()
+
+    # Create cache directory with node mappings (required by Environment)
+    cache_dir = workspace / "comfygit_cache"
+    cache_dir.mkdir()
+    node_mappings = cache_dir / "node_mappings.json"
+    node_mappings.write_text(json.dumps({
+        "nodes": {},
+        "version": "1.0"
+    }))
 
     return workspace
 
@@ -120,8 +152,10 @@ def mock_orchestrator_venv(temp_dir: Path) -> Path:
 
 
 @pytest.fixture
-def metadata_dir(mock_workspace: Path) -> Path:
+def metadata_dir(mock_workspace: Path, monkeypatch) -> Path:
     """Get metadata directory for state files."""
+    # Set COMFYGIT_HOME so find_workspace_root() can locate the workspace
+    monkeypatch.setenv("COMFYGIT_HOME", str(mock_workspace))
     return mock_workspace / ".metadata"
 
 
@@ -173,3 +207,20 @@ def clean_env_vars():
 def mock_comfyui_args() -> list[str]:
     """Standard ComfyUI arguments for testing."""
     return ["--port", "8188", "--listen", "0.0.0.0"]
+
+
+@pytest.fixture
+def mock_workspace_factory(mocker, temp_dir):
+    """Mock WorkspaceFactory for tests that don't need real workspace."""
+    # Use temp directory so mkdir works
+    test_workspace = temp_dir / "test_workspace"
+    test_workspace.mkdir()
+    (test_workspace / ".metadata").mkdir()
+
+    mock_workspace_obj = mocker.Mock()
+    mock_workspace_obj.path = test_workspace
+    mock_workspace_obj.paths = mocker.Mock()
+    mock_workspace_obj.paths.metadata = test_workspace / ".metadata"
+
+    mocker.patch("server.orchestrator.WorkspaceFactory.find", return_value=mock_workspace_obj)
+    return mock_workspace_obj

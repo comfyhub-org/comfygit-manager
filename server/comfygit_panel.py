@@ -6,6 +6,7 @@ Provides /v2/comfygit/ endpoints for git operations, status, and environment man
 import asyncio
 import re
 import subprocess
+import sys
 from pathlib import Path
 from datetime import datetime
 
@@ -13,11 +14,52 @@ from aiohttp import web
 from server import PromptServer
 
 from comfygit_server import get_environment_from_cwd, _workspace
+from comfygit_core.core.environment import Environment
 
 routes = PromptServer.instance.routes
 
 RESTART_EXIT_CODE = 42
 SWITCH_ENV_EXIT_CODE = 43
+
+
+def spawn_orchestrator(env: Environment, target_env: str) -> None:
+    """
+    Spawn orchestrator daemon for first switch.
+
+    The orchestrator becomes the permanent supervisor from this point forward.
+    """
+    # Use bundled orchestrator venv
+    custom_node_root = Path(__file__).parent.parent
+    orchestrator_venv = custom_node_root / "server" / ".orchestrator_venv"
+    orchestrator_python = orchestrator_venv / "bin" / "python"
+    orchestrator_script = custom_node_root / "server" / "orchestrator.py"
+
+    if not orchestrator_python.exists():
+        raise RuntimeError("Orchestrator venv not found - run setup")
+
+    # Capture current ComfyUI args
+    comfyui_args = sys.argv[1:] if len(sys.argv) > 1 else []
+
+    # Build command
+    cmd = [
+        str(orchestrator_python),
+        str(orchestrator_script),
+        "--workspace", str(env.workspace.path),
+        "--environment", env.name,  # Current environment
+        "--args"
+    ] + comfyui_args
+
+    # Spawn detached orchestrator
+    subprocess.Popen(
+        cmd,
+        start_new_session=True,  # Detach from parent
+        stdin=subprocess.DEVNULL,
+        stdout=open("/tmp/comfygit_orchestrator.log", "a"),
+        stderr=subprocess.STDOUT,
+        cwd="/tmp"
+    )
+
+    print(f"[ComfyGit] Spawned orchestrator daemon")
 
 
 @routes.get("/v2/comfygit/status")
