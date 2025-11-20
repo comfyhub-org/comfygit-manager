@@ -1,619 +1,361 @@
-/**
- * ComfyGit Control Panel - Frontend extension for git operations
- * Adds a blue ComfyGit button that opens the Control Panel dialog
- */
-
-import { app } from "../../scripts/app.js";
-import { api } from "../../scripts/api.js";
-
-// Panel state
-let panelDialog = null;
-let currentStatus = null;
-let commits = [];
-
-// Create and inject styles
-const styles = document.createElement("style");
-styles.textContent = `
-    .comfygit-panel-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 10000;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+import { app as x } from "../../scripts/app.js";
+import { defineComponent as b, createElementBlock as l, openBlock as c, createElementVNode as t, toDisplayString as v, createCommentVNode as E, ref as g, computed as A, withDirectives as H, withKeys as I, vModelText as O, normalizeClass as N, Fragment as P, renderList as j, onMounted as R, createVNode as C, createApp as T, h as k } from "vue";
+const U = { class: "status-section" }, V = { class: "status-grid" }, z = { class: "status-column" }, B = { class: "status-item" }, D = { class: "count new" }, M = { class: "status-item" }, F = { class: "count modified" }, J = { class: "status-item" }, K = { class: "count deleted" }, q = { class: "status-item" }, Q = { class: "count synced" }, W = { class: "status-column" }, X = {
+  key: 0,
+  class: "status-item warn"
+}, Y = {
+  key: 1,
+  class: "status-item ok"
+}, Z = {
+  key: 2,
+  class: "status-item warn"
+}, tt = {
+  key: 3,
+  class: "status-item warn"
+}, et = /* @__PURE__ */ b({
+  __name: "StatusSection",
+  props: {
+    status: {}
+  },
+  setup(s) {
+    return (r, e) => (c(), l("div", U, [
+      e[8] || (e[8] = t("h3", { class: "section-title" }, "Status", -1)),
+      t("div", V, [
+        t("div", z, [
+          t("div", B, [
+            t("span", D, v(s.status.workflows.new.length), 1),
+            e[0] || (e[0] = t("span", null, "new", -1))
+          ]),
+          t("div", M, [
+            t("span", F, v(s.status.workflows.modified.length), 1),
+            e[1] || (e[1] = t("span", null, "modified", -1))
+          ]),
+          t("div", J, [
+            t("span", K, v(s.status.workflows.deleted.length), 1),
+            e[2] || (e[2] = t("span", null, "deleted", -1))
+          ]),
+          t("div", q, [
+            t("span", Q, v(s.status.workflows.synced.length), 1),
+            e[3] || (e[3] = t("span", null, "synced", -1))
+          ])
+        ]),
+        t("div", W, [
+          s.status.has_changes ? (c(), l("div", X, [...e[4] || (e[4] = [
+            t("span", { class: "icon" }, "⚠", -1),
+            t("span", null, "Uncommitted changes", -1)
+          ])])) : (c(), l("div", Y, [...e[5] || (e[5] = [
+            t("span", { class: "icon" }, "✓", -1),
+            t("span", null, "All committed", -1)
+          ])])),
+          s.status.missing_models_count > 0 ? (c(), l("div", Z, [
+            e[6] || (e[6] = t("span", { class: "icon" }, "⚠", -1)),
+            t("span", null, v(s.status.missing_models_count) + " missing model(s)", 1)
+          ])) : E("", !0),
+          s.status.comparison.is_synced ? E("", !0) : (c(), l("div", tt, [...e[7] || (e[7] = [
+            t("span", { class: "icon" }, "⚠", -1),
+            t("span", null, "Not synced", -1)
+          ])]))
+        ])
+      ])
+    ]));
+  }
+}), w = (s, r) => {
+  const e = s.__vccOpts || s;
+  for (const [a, i] of r)
+    e[a] = i;
+  return e;
+}, st = /* @__PURE__ */ w(et, [["__scopeId", "data-v-30464bdd"]]);
+function L() {
+  const s = g(!1), r = g(null);
+  async function e(n, u) {
+    var o;
+    if (!((o = window.app) != null && o.api))
+      throw new Error("ComfyUI API not available");
+    const h = await window.app.api.fetchApi(n, u);
+    if (!h.ok) {
+      const d = await h.json().catch(() => ({}));
+      throw new Error(d.error || d.message || `Request failed: ${h.status}`);
     }
-
-    .comfygit-panel {
-        background: var(--comfy-menu-bg, #353535);
-        border: 1px solid var(--border-color, #4a4a4a);
-        border-radius: 8px;
-        width: 600px;
-        max-width: 90vw;
-        max-height: 80vh;
-        display: flex;
-        flex-direction: column;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-    }
-
-    .comfygit-panel-header {
-        padding: 16px 20px;
-        border-bottom: 1px solid var(--border-color, #4a4a4a);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .comfygit-panel-title {
-        font-size: 18px;
-        font-weight: 600;
-        color: var(--input-text, #ddd);
-        margin: 0;
-    }
-
-    .comfygit-panel-subtitle {
-        font-size: 12px;
-        color: var(--descrip-text, #999);
-        margin-top: 4px;
-    }
-
-    .comfygit-panel-close {
-        background: transparent;
-        border: none;
-        color: var(--input-text, #ddd);
-        font-size: 20px;
-        cursor: pointer;
-        padding: 4px 8px;
-        border-radius: 4px;
-    }
-
-    .comfygit-panel-close:hover {
-        background: var(--comfy-input-bg, #222);
-    }
-
-    .comfygit-panel-content {
-        flex: 1;
-        overflow-y: auto;
-        padding: 20px;
-    }
-
-    .comfygit-section {
-        margin-bottom: 20px;
-    }
-
-    .comfygit-section-title {
-        font-size: 14px;
-        font-weight: 600;
-        color: var(--input-text, #ddd);
-        margin: 0 0 12px 0;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .comfygit-card {
-        background: var(--comfy-input-bg, #222);
-        border: 1px solid var(--border-color, #4a4a4a);
-        border-radius: 6px;
-        padding: 12px;
-    }
-
-    .comfygit-status-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 16px;
-    }
-
-    .comfygit-status-item {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 13px;
-        color: var(--input-text, #ddd);
-    }
-
-    .comfygit-status-count {
-        font-weight: 600;
-        min-width: 20px;
-    }
-
-    .comfygit-status-new { color: #4ade80; }
-    .comfygit-status-modified { color: #fbbf24; }
-    .comfygit-status-deleted { color: #f87171; }
-    .comfygit-status-synced { color: var(--descrip-text, #999); }
-    .comfygit-status-ok { color: #4ade80; }
-    .comfygit-status-warn { color: #fbbf24; }
-
-    .comfygit-commit-form {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-    }
-
-    .comfygit-input {
-        width: 100%;
-        padding: 10px 12px;
-        background: var(--comfy-input-bg, #222);
-        border: 1px solid var(--border-color, #4a4a4a);
-        border-radius: 4px;
-        color: var(--input-text, #ddd);
-        font-size: 13px;
-        box-sizing: border-box;
-    }
-
-    .comfygit-input:focus {
-        outline: none;
-        border-color: #3b82f6;
-    }
-
-    .comfygit-btn {
-        padding: 8px 16px;
-        border-radius: 4px;
-        font-size: 13px;
-        font-weight: 500;
-        cursor: pointer;
-        border: none;
-        transition: background 0.2s;
-    }
-
-    .comfygit-btn-primary {
-        background: #3b82f6;
-        color: white;
-    }
-
-    .comfygit-btn-primary:hover:not(:disabled) {
-        background: #2563eb;
-    }
-
-    .comfygit-btn-primary:disabled {
-        background: #1e40af;
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
-
-    .comfygit-btn-secondary {
-        background: var(--comfy-input-bg, #222);
-        color: var(--input-text, #ddd);
-        border: 1px solid var(--border-color, #4a4a4a);
-    }
-
-    .comfygit-btn-secondary:hover {
-        background: var(--border-color, #4a4a4a);
-    }
-
-    .comfygit-commit-list {
-        max-height: 200px;
-        overflow-y: auto;
-    }
-
-    .comfygit-commit-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        padding: 8px 0;
-        border-bottom: 1px solid var(--border-color, #4a4a4a);
-    }
-
-    .comfygit-commit-item:last-child {
-        border-bottom: none;
-    }
-
-    .comfygit-commit-hash {
-        font-family: monospace;
-        font-size: 12px;
-        color: #60a5fa;
-        margin-right: 8px;
-    }
-
-    .comfygit-commit-message {
-        flex: 1;
-        font-size: 13px;
-        color: var(--input-text, #ddd);
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    .comfygit-commit-date {
-        font-size: 11px;
-        color: var(--descrip-text, #999);
-        white-space: nowrap;
-        margin-left: 12px;
-    }
-
-    .comfygit-panel-footer {
-        padding: 16px 20px;
-        border-top: 1px solid var(--border-color, #4a4a4a);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .comfygit-loading {
-        text-align: center;
-        padding: 20px;
-        color: var(--descrip-text, #999);
-    }
-
-    .comfygit-error {
-        background: rgba(239, 68, 68, 0.1);
-        border: 1px solid #ef4444;
-        border-radius: 4px;
-        padding: 12px;
-        color: #fca5a5;
-        font-size: 13px;
-    }
-
-    .comfygit-success {
-        background: rgba(34, 197, 94, 0.1);
-        border: 1px solid #22c55e;
-        border-radius: 4px;
-        padding: 12px;
-        color: #86efac;
-        font-size: 13px;
-    }
-
-    .comfygit-toolbar-btn {
-        background: #3b82f6 !important;
-        color: white !important;
-        border: none !important;
-    }
-
-    .comfygit-toolbar-btn:hover {
-        background: #2563eb !important;
-    }
-
-    .comfygit-refresh-btn {
-        background: transparent;
-        border: none;
-        color: var(--input-text, #ddd);
-        cursor: pointer;
-        padding: 4px;
-        border-radius: 4px;
-        font-size: 16px;
-    }
-
-    .comfygit-refresh-btn:hover {
-        background: var(--comfy-input-bg, #222);
-    }
-
-    .comfygit-refresh-btn.spinning {
-        animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
-    }
-`;
-document.head.appendChild(styles);
-
-// API functions
-async function fetchStatus() {
-    const response = await api.fetchApi("/v2/comfygit/status");
-    if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.error || "Failed to fetch status");
-    }
-    return response.json();
-}
-
-async function fetchHistory(limit = 10) {
-    const response = await api.fetchApi(`/v2/comfygit/log?limit=${limit}`);
-    if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.error || "Failed to fetch history");
-    }
-    return response.json();
-}
-
-async function doCommit(message) {
-    const response = await api.fetchApi("/v2/comfygit/commit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message })
+    return h.json();
+  }
+  async function a() {
+    return e("/v2/comfygit/status");
+  }
+  async function i(n, u = !1) {
+    return e("/v2/comfygit/commit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: n, allow_issues: u })
     });
-    return response.json();
-}
-
-async function doExport() {
-    const response = await api.fetchApi("/v2/comfygit/export", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({})
+  }
+  async function m(n = 10, u = 0) {
+    return e(`/v2/comfygit/log?limit=${n}&offset=${u}`);
+  }
+  async function p(n) {
+    return e("/v2/comfygit/export", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ output_path: n })
     });
-    return response.json();
+  }
+  return {
+    isLoading: s,
+    error: r,
+    getStatus: a,
+    commit: i,
+    getHistory: m,
+    exportEnv: p
+  };
 }
-
-// UI rendering
-function renderPanel() {
-    const hasChanges = currentStatus && (
-        currentStatus.workflows.new.length > 0 ||
-        currentStatus.workflows.modified.length > 0 ||
-        currentStatus.workflows.deleted.length > 0 ||
-        currentStatus.has_changes
-    );
-
-    return `
-        <div class="comfygit-panel-header">
-            <div>
-                <h2 class="comfygit-panel-title">ComfyGit Control Panel</h2>
-                <div class="comfygit-panel-subtitle">
-                    ${currentStatus ? `${currentStatus.environment} (${currentStatus.branch || 'detached'})` : 'Loading...'}
-                </div>
-            </div>
-            <div style="display: flex; gap: 8px; align-items: center;">
-                <button class="comfygit-refresh-btn" onclick="window.comfyGitPanel.refresh()" title="Refresh">
-                    ↻
-                </button>
-                <button class="comfygit-panel-close" onclick="window.comfyGitPanel.close()">×</button>
-            </div>
-        </div>
-        <div class="comfygit-panel-content">
-            ${currentStatus ? renderStatus() : '<div class="comfygit-loading">Loading status...</div>'}
-            ${currentStatus ? renderCommitSection(hasChanges) : ''}
-            ${commits.length > 0 ? renderHistory() : ''}
-        </div>
-        <div class="comfygit-panel-footer">
-            <button class="comfygit-btn comfygit-btn-secondary" onclick="window.comfyGitPanel.export()">
-                Export Environment
-            </button>
-        </div>
-    `;
-}
-
-function renderStatus() {
-    const wf = currentStatus.workflows;
-    const hasWfChanges = wf.new.length > 0 || wf.modified.length > 0 || wf.deleted.length > 0;
-
-    return `
-        <div class="comfygit-section">
-            <h3 class="comfygit-section-title">Status</h3>
-            <div class="comfygit-card">
-                <div class="comfygit-status-grid">
-                    <div>
-                        <div class="comfygit-status-item">
-                            <span class="comfygit-status-count comfygit-status-new">${wf.new.length}</span>
-                            <span>new workflows</span>
-                        </div>
-                        <div class="comfygit-status-item">
-                            <span class="comfygit-status-count comfygit-status-modified">${wf.modified.length}</span>
-                            <span>modified</span>
-                        </div>
-                        <div class="comfygit-status-item">
-                            <span class="comfygit-status-count comfygit-status-deleted">${wf.deleted.length}</span>
-                            <span>deleted</span>
-                        </div>
-                        <div class="comfygit-status-item">
-                            <span class="comfygit-status-count comfygit-status-synced">${wf.synced.length}</span>
-                            <span>synced</span>
-                        </div>
-                    </div>
-                    <div>
-                        ${currentStatus.has_changes ? `
-                            <div class="comfygit-status-item comfygit-status-warn">
-                                ⚠ Uncommitted changes
-                            </div>
-                        ` : `
-                            <div class="comfygit-status-item comfygit-status-ok">
-                                ✓ All changes committed
-                            </div>
-                        `}
-                        ${currentStatus.missing_models_count > 0 ? `
-                            <div class="comfygit-status-item comfygit-status-warn">
-                                ⚠ ${currentStatus.missing_models_count} missing model(s)
-                            </div>
-                        ` : ''}
-                        ${!currentStatus.comparison.is_synced ? `
-                            <div class="comfygit-status-item comfygit-status-warn">
-                                ⚠ Environment not synced
-                            </div>
-                        ` : ''}
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-function renderCommitSection(hasChanges) {
-    return `
-        <div class="comfygit-section">
-            <h3 class="comfygit-section-title">Commit</h3>
-            <div class="comfygit-card">
-                <div class="comfygit-commit-form">
-                    <input
-                        type="text"
-                        class="comfygit-input"
-                        id="comfygit-commit-message"
-                        placeholder="${hasChanges ? 'Enter commit message...' : 'No changes to commit'}"
-                        ${!hasChanges ? 'disabled' : ''}
-                    >
-                    <button
-                        class="comfygit-btn comfygit-btn-primary"
-                        onclick="window.comfyGitPanel.commit()"
-                        ${!hasChanges ? 'disabled' : ''}
-                    >
-                        Commit
-                    </button>
-                    <div id="comfygit-commit-result"></div>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-function renderHistory() {
-    return `
-        <div class="comfygit-section">
-            <h3 class="comfygit-section-title">History</h3>
-            <div class="comfygit-card">
-                <div class="comfygit-commit-list">
-                    ${commits.map(c => `
-                        <div class="comfygit-commit-item">
-                            <span class="comfygit-commit-hash">${c.short_hash || c.hash?.slice(0, 7) || '?'}</span>
-                            <span class="comfygit-commit-message">${escapeHtml(c.message || '')}</span>
-                            <span class="comfygit-commit-date">${c.date_relative || c.relative_date || ''}</span>
-                        </div>
-                    `).join('')}
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-// Panel actions
-window.comfyGitPanel = {
-    async show() {
-        if (panelDialog) {
-            panelDialog.remove();
-        }
-
-        panelDialog = document.createElement("div");
-        panelDialog.className = "comfygit-panel-overlay";
-        panelDialog.innerHTML = `<div class="comfygit-panel">${renderPanel()}</div>`;
-
-        // Close on overlay click
-        panelDialog.addEventListener("click", (e) => {
-            if (e.target === panelDialog) {
-                this.close();
-            }
-        });
-
-        // Close on Escape
-        const escHandler = (e) => {
-            if (e.key === "Escape") {
-                this.close();
-                document.removeEventListener("keydown", escHandler);
-            }
-        };
-        document.addEventListener("keydown", escHandler);
-
-        document.body.appendChild(panelDialog);
-
-        // Load data
-        await this.refresh();
-    },
-
-    close() {
-        if (panelDialog) {
-            panelDialog.remove();
-            panelDialog = null;
-        }
-    },
-
-    async refresh() {
-        const refreshBtn = document.querySelector('.comfygit-refresh-btn');
-        if (refreshBtn) refreshBtn.classList.add('spinning');
-
+const ot = { class: "commit-section" }, nt = { class: "commit-card" }, at = ["placeholder", "disabled"], it = ["disabled"], lt = /* @__PURE__ */ b({
+  __name: "CommitSection",
+  props: {
+    status: {}
+  },
+  emits: ["committed"],
+  setup(s, { emit: r }) {
+    const e = s, a = r, { commit: i } = L(), m = g(""), p = g(!1), n = g(null), u = A(() => {
+      const o = e.status.workflows;
+      return o.new.length > 0 || o.modified.length > 0 || o.deleted.length > 0 || e.status.has_changes;
+    });
+    async function h() {
+      var o, d, _;
+      if (!(!u.value || !m.value.trim() || p.value)) {
+        p.value = !0, n.value = null;
         try {
-            const [status, history] = await Promise.all([
-                fetchStatus(),
-                fetchHistory()
+          const y = await i(m.value.trim());
+          y.status === "success" ? (n.value = {
+            type: "success",
+            message: `Committed: ${((o = y.summary) == null ? void 0 : o.new) || 0} new, ${((d = y.summary) == null ? void 0 : d.modified) || 0} modified, ${((_ = y.summary) == null ? void 0 : _.deleted) || 0} deleted`
+          }, m.value = "", a("committed")) : y.status === "no_changes" ? n.value = { type: "error", message: "No changes to commit" } : n.value = { type: "error", message: y.message || "Commit failed" };
+        } catch (y) {
+          n.value = { type: "error", message: y instanceof Error ? y.message : "Commit failed" };
+        } finally {
+          p.value = !1;
+        }
+      }
+    }
+    return (o, d) => (c(), l("div", ot, [
+      d[1] || (d[1] = t("h3", { class: "section-title" }, "Commit", -1)),
+      t("div", nt, [
+        H(t("input", {
+          "onUpdate:modelValue": d[0] || (d[0] = (_) => m.value = _),
+          type: "text",
+          class: "commit-input",
+          placeholder: u.value ? "Enter commit message..." : "No changes to commit",
+          disabled: !u.value || p.value,
+          onKeyup: I(h, ["enter"])
+        }, null, 40, at), [
+          [O, m.value]
+        ]),
+        t("button", {
+          class: "commit-btn",
+          disabled: !u.value || !m.value.trim() || p.value,
+          onClick: h
+        }, v(p.value ? "Committing..." : "Commit"), 9, it),
+        n.value ? (c(), l("div", {
+          key: 0,
+          class: N(["result", n.value.type])
+        }, v(n.value.message), 3)) : E("", !0)
+      ])
+    ]));
+  }
+}), ct = /* @__PURE__ */ w(lt, [["__scopeId", "data-v-f1eb73d8"]]), rt = { class: "history-section" }, dt = { class: "history-card" }, ut = {
+  key: 0,
+  class: "empty"
+}, mt = {
+  key: 1,
+  class: "commit-list"
+}, pt = { class: "commit-hash" }, vt = { class: "commit-message" }, ft = { class: "commit-date" }, ht = /* @__PURE__ */ b({
+  __name: "HistorySection",
+  props: {
+    commits: {}
+  },
+  setup(s) {
+    return (r, e) => (c(), l("div", rt, [
+      e[0] || (e[0] = t("h3", { class: "section-title" }, "History", -1)),
+      t("div", dt, [
+        s.commits.length === 0 ? (c(), l("div", ut, " No commits yet ")) : (c(), l("div", mt, [
+          (c(!0), l(P, null, j(s.commits, (a) => {
+            var i;
+            return c(), l("div", {
+              key: a.hash,
+              class: "commit-item"
+            }, [
+              t("span", pt, v(a.short_hash || ((i = a.hash) == null ? void 0 : i.slice(0, 7))), 1),
+              t("span", vt, v(a.message), 1),
+              t("span", ft, v(a.date_relative || a.relative_date), 1)
             ]);
-            currentStatus = status;
-            commits = history.commits || [];
-
-            if (panelDialog) {
-                const panel = panelDialog.querySelector('.comfygit-panel');
-                panel.innerHTML = renderPanel();
-            }
-        } catch (error) {
-            console.error("[ComfyGit Panel] Refresh error:", error);
-            currentStatus = null;
-            commits = [];
-            if (panelDialog) {
-                const panel = panelDialog.querySelector('.comfygit-panel');
-                panel.innerHTML = `
-                    <div class="comfygit-panel-header">
-                        <h2 class="comfygit-panel-title">ComfyGit Control Panel</h2>
-                        <button class="comfygit-panel-close" onclick="window.comfyGitPanel.close()">×</button>
-                    </div>
-                    <div class="comfygit-panel-content">
-                        <div class="comfygit-error">
-                            Error loading status: ${escapeHtml(error.message)}
-                        </div>
-                    </div>
-                `;
-            }
-        }
-    },
-
-    async commit() {
-        const input = document.getElementById('comfygit-commit-message');
-        const resultDiv = document.getElementById('comfygit-commit-result');
-        const message = input?.value?.trim();
-
-        if (!message) {
-            resultDiv.innerHTML = '<div class="comfygit-error">Please enter a commit message</div>';
-            return;
-        }
-
-        try {
-            const result = await doCommit(message);
-
-            if (result.status === 'success') {
-                resultDiv.innerHTML = `
-                    <div class="comfygit-success">
-                        Committed: ${result.summary.new} new, ${result.summary.modified} modified, ${result.summary.deleted} deleted
-                    </div>
-                `;
-                input.value = '';
-                // Refresh after commit
-                setTimeout(() => this.refresh(), 1000);
-            } else if (result.status === 'no_changes') {
-                resultDiv.innerHTML = '<div class="comfygit-error">No changes to commit</div>';
-            } else {
-                resultDiv.innerHTML = `<div class="comfygit-error">${escapeHtml(result.message || 'Commit failed')}</div>`;
-            }
-        } catch (error) {
-            resultDiv.innerHTML = `<div class="comfygit-error">Error: ${escapeHtml(error.message)}</div>`;
-        }
-    },
-
-    async export() {
-        try {
-            const result = await doExport();
-
-            if (result.status === 'success') {
-                alert(`Export successful!\n\nSaved to: ${result.path}\n\nModels without sources: ${result.models_without_sources}`);
-            } else {
-                alert(`Export failed: ${result.message}`);
-            }
-        } catch (error) {
-            alert(`Export error: ${error.message}`);
-        }
+          }), 128))
+        ]))
+      ])
+    ]));
+  }
+}), yt = /* @__PURE__ */ w(ht, [["__scopeId", "data-v-c8dfb066"]]), gt = { class: "comfygit-panel" }, _t = { class: "panel-header" }, bt = { class: "panel-subtitle" }, wt = { class: "panel-content" }, xt = {
+  key: 0,
+  class: "error-message"
+}, Ct = {
+  key: 1,
+  class: "loading"
+}, kt = { class: "panel-footer" }, $t = ["disabled"], Et = /* @__PURE__ */ b({
+  __name: "ComfyGitPanel",
+  setup(s) {
+    const { getStatus: r, getHistory: e, exportEnv: a } = L(), i = g(null), m = g([]), p = g(!1), n = g(null);
+    async function u() {
+      p.value = !0, n.value = null;
+      try {
+        const [o, d] = await Promise.all([
+          r(),
+          e()
+        ]);
+        i.value = o, m.value = d.commits;
+      } catch (o) {
+        n.value = o instanceof Error ? o.message : "Failed to load status", i.value = null, m.value = [];
+      } finally {
+        p.value = !1;
+      }
     }
-};
+    async function h() {
+      try {
+        const o = await a();
+        o.status === "success" ? alert(`Export successful!
 
-// Register extension
-app.registerExtension({
-    name: "Comfy.ComfyGitPanel",
+Saved to: ${o.path}
 
-    async setup() {
-        // Add ComfyGit button to the top menu bar (blue button)
-        const panelButton = document.createElement("button");
-        panelButton.className = "comfyui-button comfyui-menu-mobile-collapse comfygit-toolbar-btn";
-        panelButton.textContent = "ComfyGit";
-        panelButton.title = "ComfyGit Control Panel";
-
-        panelButton.onclick = () => {
-            window.comfyGitPanel.show();
-        };
-
-        // Insert before the Manager button (or settings if Manager not found)
-        if (app.menu?.settingsGroup?.element) {
-            app.menu.settingsGroup.element.before(panelButton);
-            console.log("[ComfyGit] Control Panel button added to toolbar");
-        }
+Models without sources: ${o.models_without_sources}`) : alert(`Export failed: ${o.message}`);
+      } catch (o) {
+        alert(`Export error: ${o instanceof Error ? o.message : "Unknown error"}`);
+      }
     }
+    return R(u), (o, d) => (c(), l("div", gt, [
+      t("div", _t, [
+        t("div", null, [
+          d[0] || (d[0] = t("h2", { class: "panel-title" }, "ComfyGit Control Panel", -1)),
+          t("div", bt, v(i.value ? `${i.value.environment} (${i.value.branch || "detached"})` : "Loading..."), 1)
+        ]),
+        t("button", {
+          class: N(["refresh-btn", { spinning: p.value }]),
+          onClick: u,
+          title: "Refresh"
+        }, " ↻ ", 2)
+      ]),
+      t("div", wt, [
+        n.value ? (c(), l("div", xt, v(n.value), 1)) : i.value ? (c(), l(P, { key: 2 }, [
+          C(st, { status: i.value }, null, 8, ["status"]),
+          C(ct, {
+            status: i.value,
+            onCommitted: u
+          }, null, 8, ["status"]),
+          C(yt, { commits: m.value }, null, 8, ["commits"])
+        ], 64)) : (c(), l("div", Ct, " Loading status... "))
+      ]),
+      t("div", kt, [
+        t("button", {
+          class: "export-btn",
+          onClick: h,
+          disabled: !i.value
+        }, " Export Environment ", 8, $t)
+      ])
+    ]));
+  }
+}), St = /* @__PURE__ */ w(Et, [["__scopeId", "data-v-9e127705"]]), S = document.createElement("link");
+S.rel = "stylesheet";
+S.href = new URL("./comfygit-panel.css", import.meta.url).href;
+document.head.appendChild(S);
+let f = null;
+function Nt() {
+  f && f.remove(), f = document.createElement("div"), f.className = "comfygit-panel-overlay";
+  const s = document.createElement("div");
+  s.className = "comfygit-panel-container", f.appendChild(s), f.addEventListener("click", (a) => {
+    a.target === f && $();
+  });
+  const r = (a) => {
+    a.key === "Escape" && ($(), document.removeEventListener("keydown", r));
+  };
+  document.addEventListener("keydown", r), T({
+    render: () => k("div", { class: "comfygit-panel-wrapper" }, [
+      k(St),
+      k("button", {
+        class: "panel-close-btn",
+        onClick: $
+      }, "×")
+    ])
+  }).mount(s), document.body.appendChild(f);
+}
+function $() {
+  f && (f.remove(), f = null);
+}
+const G = document.createElement("style");
+G.textContent = `
+  .comfygit-panel-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .comfygit-panel-container {
+    width: 600px;
+    max-width: 90vw;
+    max-height: 80vh;
+    display: flex;
+  }
+
+  .comfygit-panel-wrapper {
+    width: 100%;
+    height: 70vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--comfy-menu-bg, #353535);
+    border: 1px solid var(--border-color, #4a4a4a);
+    border-radius: 8px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .panel-close-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: transparent;
+    border: none;
+    color: var(--input-text, #ddd);
+    font-size: 24px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    line-height: 1;
+  }
+
+  .panel-close-btn:hover {
+    background: var(--comfy-input-bg, #222);
+  }
+
+  .comfygit-toolbar-btn {
+    background: #3b82f6 !important;
+    color: white !important;
+    border: none !important;
+  }
+
+  .comfygit-toolbar-btn:hover {
+    background: #2563eb !important;
+  }
+`;
+document.head.appendChild(G);
+x.registerExtension({
+  name: "Comfy.ComfyGitPanel",
+  async setup() {
+    var r, e;
+    const s = document.createElement("button");
+    s.className = "comfyui-button comfyui-menu-mobile-collapse comfygit-toolbar-btn", s.textContent = "ComfyGit", s.title = "ComfyGit Control Panel", s.onclick = () => {
+      Nt();
+    }, (e = (r = x.menu) == null ? void 0 : r.settingsGroup) != null && e.element && (x.menu.settingsGroup.element.before(s), console.log("[ComfyGit] Control Panel button added to toolbar"));
+  }
 });
