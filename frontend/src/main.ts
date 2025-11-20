@@ -3,12 +3,17 @@ import { createApp, h, ref, watch } from 'vue'
 import ComfyGitPanel from '@/components/ComfyGitPanel.vue'
 import CommitPopover from '@/components/CommitPopover.vue'
 import type { ComfyGitStatus } from '@/types/comfygit'
+import { getInitialTheme, applyTheme } from '@/themes'
 
 // Load component CSS
 const cssLink = document.createElement('link')
 cssLink.rel = 'stylesheet'
 cssLink.href = new URL('./comfygit-panel.css', import.meta.url).href
 document.head.appendChild(cssLink)
+
+// Apply initial theme
+const initialTheme = getInitialTheme()
+applyTheme(initialTheme)
 
 // Panel state
 let panelOverlay: HTMLElement | null = null
@@ -167,7 +172,7 @@ styles.textContent = `
   }
 
   .comfygit-panel-container {
-    width: 580px;
+    width: var(--cg-panel-width, 580px);
     max-width: 90vw;
     max-height: 80vh;
     display: flex;
@@ -180,15 +185,16 @@ styles.textContent = `
   }
 
   .comfygit-panel-btn {
-    background: linear-gradient(180deg, #fb923c 0%, #ea580c 100%) !important;
+    background: linear-gradient(180deg, var(--cg-btn-gradient-start, #fb923c) 0%, var(--cg-btn-gradient-end, #ea580c) 100%) !important;
     color: white !important;
     border: none !important;
     border-radius: 4px 0 0 4px !important;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0 rgba(0, 0, 0, 0.15) !important;
+    box-shadow: var(--cg-btn-shadow-inset, inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0 rgba(0, 0, 0, 0.15)) !important;
   }
 
   .comfygit-panel-btn:hover {
-    background: linear-gradient(180deg, #f97316 0%, #c2410c 100%) !important;
+    background: linear-gradient(180deg, var(--cg-btn-gradient-start, #fb923c) 0%, var(--cg-btn-gradient-end, #ea580c) 100%) !important;
+    filter: brightness(1.1);
   }
 
   .comfygit-commit-btn {

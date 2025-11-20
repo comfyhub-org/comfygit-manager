@@ -1,149 +1,153 @@
-import { app as z } from "../../scripts/app.js";
-import { defineComponent as P, computed as T, createElementBlock as o, openBlock as n, createElementVNode as e, createCommentVNode as p, toDisplayString as l, ref as C, nextTick as ue, withDirectives as X, withKeys as V, vModelText as Z, Fragment as S, renderList as B, normalizeClass as G, withModifiers as O, onMounted as ee, createTextVNode as te, createBlock as Q, createVNode as F, createApp as se, h as ne } from "vue";
-const me = { class: "status-section" }, he = { class: "status-grid" }, ve = { class: "status-column" }, ge = {
+import { app as q } from "../../scripts/app.js";
+import { defineComponent as P, computed as N, createElementBlock as a, openBlock as o, createElementVNode as t, createCommentVNode as b, toDisplayString as l, ref as C, nextTick as wt, withDirectives as nt, withKeys as K, vModelText as rt, Fragment as E, renderList as I, normalizeClass as D, withModifiers as j, onMounted as ct, createTextVNode as it, createBlock as st, createVNode as W, TransitionGroup as kt, withCtx as xt, createApp as lt, h as dt } from "vue";
+const Ct = { class: "status-section" }, $t = { class: "status-grid" }, _t = { class: "status-column" }, zt = {
   key: 0,
   class: "status-item"
-}, fe = { class: "count new" }, ye = {
+}, Lt = { class: "count new" }, St = {
   key: 1,
   class: "status-item"
-}, pe = { class: "count modified" }, we = {
+}, Bt = { class: "count modified" }, Et = {
   key: 2,
   class: "status-item"
-}, be = { class: "count deleted" }, ke = { class: "status-item synced-item" }, Ce = { class: "count synced" }, $e = { class: "status-column" }, _e = {
+}, It = { class: "count deleted" }, Tt = { class: "status-item synced-item" }, Mt = { class: "count synced" }, Nt = { class: "status-column" }, Pt = {
   key: 0,
   class: "status-item"
-}, xe = { class: "count new" }, Le = {
+}, At = { class: "count new" }, Ut = {
   key: 1,
   class: "status-item"
-}, Se = { class: "count deleted" }, Ee = {
+}, Gt = { class: "count deleted" }, Dt = {
   key: 2,
   class: "status-item"
-}, Be = {
+}, Ot = {
   key: 3,
   class: "status-item ok"
-}, Ne = {
+}, Ht = {
   key: 0,
   class: "warning-box"
-}, Pe = {
+}, Vt = {
   key: 1,
   class: "warning-box error"
-}, Ae = /* @__PURE__ */ P({
+}, jt = /* @__PURE__ */ P({
   __name: "StatusSection",
   props: {
     status: {}
   },
-  setup(t) {
-    const u = t, i = T(() => {
-      const s = u.status.git_changes;
-      return s.nodes_added.length > 0 || s.nodes_removed.length > 0 || s.workflow_changes || s.has_other_changes;
+  setup(e) {
+    const g = e, c = N(() => {
+      const h = g.status.git_changes;
+      return h.nodes_added.length > 0 || h.nodes_removed.length > 0 || h.workflow_changes || h.has_other_changes;
+    }), s = N(() => {
+      const h = g.status.git_changes, n = g.status.workflows;
+      return (h.workflow_changes || h.has_other_changes) && n.new.length === 0 && n.modified.length === 0 && n.deleted.length === 0;
     });
-    return (s, a) => (n(), o("div", me, [
-      e("div", he, [
-        e("div", ve, [
-          a[8] || (a[8] = e("h4", { class: "column-title" }, "Workflows", -1)),
-          t.status.workflows.new.length ? (n(), o("div", ge, [
-            a[0] || (a[0] = e("span", { class: "icon" }, "●", -1)),
-            e("span", fe, l(t.status.workflows.new.length), 1),
-            a[1] || (a[1] = e("span", { class: "label" }, "new", -1))
-          ])) : p("", !0),
-          t.status.workflows.modified.length ? (n(), o("div", ye, [
-            a[2] || (a[2] = e("span", { class: "icon" }, "●", -1)),
-            e("span", pe, l(t.status.workflows.modified.length), 1),
-            a[3] || (a[3] = e("span", { class: "label" }, "modified", -1))
-          ])) : p("", !0),
-          t.status.workflows.deleted.length ? (n(), o("div", we, [
-            a[4] || (a[4] = e("span", { class: "icon" }, "●", -1)),
-            e("span", be, l(t.status.workflows.deleted.length), 1),
-            a[5] || (a[5] = e("span", { class: "label" }, "deleted", -1))
-          ])) : p("", !0),
-          e("div", ke, [
-            a[6] || (a[6] = e("span", { class: "icon synced" }, "✓", -1)),
-            e("span", Ce, l(t.status.workflows.synced.length), 1),
-            a[7] || (a[7] = e("span", { class: "label" }, "synced", -1))
+    return (h, n) => (o(), a("div", Ct, [
+      n[18] || (n[18] = t("h3", { class: "section-title" }, "Status", -1)),
+      t("div", $t, [
+        t("div", _t, [
+          n[8] || (n[8] = t("h4", { class: "column-title" }, "Workflows", -1)),
+          e.status.workflows.new.length ? (o(), a("div", zt, [
+            n[0] || (n[0] = t("span", { class: "icon" }, "●", -1)),
+            t("span", Lt, l(e.status.workflows.new.length), 1),
+            n[1] || (n[1] = t("span", { class: "label" }, "new", -1))
+          ])) : b("", !0),
+          e.status.workflows.modified.length ? (o(), a("div", St, [
+            n[2] || (n[2] = t("span", { class: "icon" }, "●", -1)),
+            t("span", Bt, l(e.status.workflows.modified.length), 1),
+            n[3] || (n[3] = t("span", { class: "label" }, "modified", -1))
+          ])) : b("", !0),
+          e.status.workflows.deleted.length ? (o(), a("div", Et, [
+            n[4] || (n[4] = t("span", { class: "icon" }, "●", -1)),
+            t("span", It, l(e.status.workflows.deleted.length), 1),
+            n[5] || (n[5] = t("span", { class: "label" }, "deleted", -1))
+          ])) : b("", !0),
+          t("div", Tt, [
+            n[6] || (n[6] = t("span", { class: "icon synced" }, "✓", -1)),
+            t("span", Mt, l(e.status.workflows.synced.length), 1),
+            n[7] || (n[7] = t("span", { class: "label" }, "synced", -1))
           ])
         ]),
-        e("div", $e, [
-          a[15] || (a[15] = e("h4", { class: "column-title" }, "Git Changes", -1)),
-          t.status.git_changes.nodes_added.length ? (n(), o("div", _e, [
-            a[9] || (a[9] = e("span", { class: "icon" }, "●", -1)),
-            e("span", xe, l(t.status.git_changes.nodes_added.length), 1),
-            a[10] || (a[10] = e("span", { class: "label" }, "node added", -1))
-          ])) : p("", !0),
-          t.status.git_changes.nodes_removed.length ? (n(), o("div", Le, [
-            a[11] || (a[11] = e("span", { class: "icon" }, "●", -1)),
-            e("span", Se, l(t.status.git_changes.nodes_removed.length), 1),
-            a[12] || (a[12] = e("span", { class: "label" }, "node removed", -1))
-          ])) : p("", !0),
-          t.status.git_changes.workflow_changes ? (n(), o("div", Ee, [...a[13] || (a[13] = [
-            e("span", { class: "icon" }, "●", -1),
-            e("span", { class: "count modified" }, "●", -1),
-            e("span", { class: "label" }, "workflows changed", -1)
-          ])])) : p("", !0),
-          i.value ? p("", !0) : (n(), o("div", Be, [...a[14] || (a[14] = [
-            e("span", { class: "icon" }, "✓", -1),
-            e("span", { class: "label" }, "No uncommitted changes", -1)
+        t("div", Nt, [
+          n[15] || (n[15] = t("h4", { class: "column-title" }, "Git Changes", -1)),
+          e.status.git_changes.nodes_added.length ? (o(), a("div", Pt, [
+            n[9] || (n[9] = t("span", { class: "icon" }, "●", -1)),
+            t("span", At, l(e.status.git_changes.nodes_added.length), 1),
+            n[10] || (n[10] = t("span", { class: "label" }, "node added", -1))
+          ])) : b("", !0),
+          e.status.git_changes.nodes_removed.length ? (o(), a("div", Ut, [
+            n[11] || (n[11] = t("span", { class: "icon" }, "●", -1)),
+            t("span", Gt, l(e.status.git_changes.nodes_removed.length), 1),
+            n[12] || (n[12] = t("span", { class: "label" }, "node removed", -1))
+          ])) : b("", !0),
+          s.value ? (o(), a("div", Dt, [...n[13] || (n[13] = [
+            t("span", { class: "icon" }, "●", -1),
+            t("span", { class: "count modified" }, "●", -1),
+            t("span", { class: "label" }, "other changes", -1)
+          ])])) : b("", !0),
+          c.value ? b("", !0) : (o(), a("div", Ot, [...n[14] || (n[14] = [
+            t("span", { class: "icon" }, "✓", -1),
+            t("span", { class: "label" }, "No uncommitted changes", -1)
           ])]))
         ])
       ]),
-      t.status.missing_models_count > 0 ? (n(), o("div", Ne, [
-        a[16] || (a[16] = e("span", { class: "warning-icon" }, "⚠", -1)),
-        e("span", null, l(t.status.missing_models_count) + " missing model(s)", 1)
-      ])) : p("", !0),
-      t.status.comparison.is_synced ? p("", !0) : (n(), o("div", Pe, [...a[17] || (a[17] = [
-        e("span", { class: "warning-icon" }, "⚠", -1),
-        e("span", null, "Environment not synced", -1)
+      e.status.missing_models_count > 0 ? (o(), a("div", Ht, [
+        n[16] || (n[16] = t("span", { class: "warning-icon" }, "⚠", -1)),
+        t("span", null, l(e.status.missing_models_count) + " missing model(s)", 1)
+      ])) : b("", !0),
+      e.status.comparison.is_synced ? b("", !0) : (o(), a("div", Vt, [...n[17] || (n[17] = [
+        t("span", { class: "warning-icon" }, "⚠", -1),
+        t("span", null, "Environment not synced", -1)
       ])]))
     ]));
   }
-}), A = (t, u) => {
-  const i = t.__vccOpts || t;
-  for (const [s, a] of u)
-    i[s] = a;
-  return i;
-}, Ie = /* @__PURE__ */ A(Ae, [["__scopeId", "data-v-30ea4f72"]]), Te = { class: "branch-section" }, Me = { class: "section-header" }, De = { class: "branch-card" }, Ge = {
+}), A = (e, g) => {
+  const c = e.__vccOpts || e;
+  for (const [s, h] of g)
+    c[s] = h;
+  return c;
+}, Rt = /* @__PURE__ */ A(jt, [["__scopeId", "data-v-a72d538b"]]), Ft = { class: "branch-section" }, Jt = { class: "section-header" }, Wt = { class: "branch-card" }, Kt = {
   key: 0,
   class: "create-branch-row"
-}, Oe = ["disabled"], He = {
+}, Yt = ["disabled"], qt = {
   key: 1,
   class: "empty"
-}, Ue = {
+}, Qt = {
   key: 2,
   class: "branch-list"
-}, Ve = { class: "branch-indicator" }, je = { class: "branch-name" }, ze = ["onClick"], Fe = {
+}, Xt = { class: "branch-indicator" }, Zt = { class: "branch-name" }, te = ["onClick"], ee = {
   key: 1,
   class: "current-label"
-}, Re = /* @__PURE__ */ P({
+}, oe = /* @__PURE__ */ P({
   __name: "BranchSection",
   props: {
     branches: {},
     current: {}
   },
   emits: ["switch", "create"],
-  setup(t, { emit: u }) {
-    const i = u, s = C(!1), a = C(""), k = C(null);
-    function $() {
-      a.value.trim() && (i("create", a.value.trim()), v());
+  setup(e, { emit: g }) {
+    const c = g, s = C(!1), h = C(""), n = C(null);
+    function _() {
+      h.value.trim() && (c("create", h.value.trim()), f());
     }
-    function v() {
-      s.value = !1, a.value = "";
+    function f() {
+      s.value = !1, h.value = "";
     }
-    return ue(() => {
-      s.value && k.value && k.value.focus();
-    }), (c, w) => (n(), o("div", Te, [
-      e("div", Me, [
-        w[3] || (w[3] = e("h4", { class: "section-title" }, "Branches", -1)),
-        e("button", {
+    return wt(() => {
+      s.value && n.value && n.value.focus();
+    }), (m, x) => (o(), a("div", Ft, [
+      t("div", Jt, [
+        x[3] || (x[3] = t("h4", { class: "section-title" }, "Branches", -1)),
+        t("button", {
           class: "add-btn",
-          onClick: w[0] || (w[0] = (d) => s.value = !0),
+          onClick: x[0] || (x[0] = (i) => s.value = !0),
           title: "New Branch"
-        }, [...w[2] || (w[2] = [
-          e("svg", {
+        }, [...x[2] || (x[2] = [
+          t("svg", {
             width: "12",
             height: "12",
             viewBox: "0 0 16 16",
             fill: "currentColor"
           }, [
-            e("path", {
+            t("path", {
               d: "M8 2v12M2 8h12",
               stroke: "currentColor",
               "stroke-width": "2",
@@ -152,334 +156,334 @@ const me = { class: "status-section" }, he = { class: "status-grid" }, ve = { cl
           ], -1)
         ])])
       ]),
-      e("div", De, [
-        s.value ? (n(), o("div", Ge, [
-          X(e("input", {
+      t("div", Wt, [
+        s.value ? (o(), a("div", Kt, [
+          nt(t("input", {
             ref_key: "createInput",
-            ref: k,
-            "onUpdate:modelValue": w[1] || (w[1] = (d) => a.value = d),
+            ref: n,
+            "onUpdate:modelValue": x[1] || (x[1] = (i) => h.value = i),
             class: "branch-input",
             placeholder: "Branch name...",
             onKeyup: [
-              V($, ["enter"]),
-              V(v, ["escape"])
+              K(_, ["enter"]),
+              K(f, ["escape"])
             ]
           }, null, 544), [
-            [Z, a.value]
+            [rt, h.value]
           ]),
-          e("button", {
+          t("button", {
             class: "action-btn create",
-            onClick: $,
-            disabled: !a.value.trim()
-          }, " Create ", 8, Oe),
-          e("button", {
+            onClick: _,
+            disabled: !h.value.trim()
+          }, " Create ", 8, Yt),
+          t("button", {
             class: "action-btn cancel",
-            onClick: v
+            onClick: f
           }, " Cancel ")
-        ])) : p("", !0),
-        t.branches.length === 0 ? (n(), o("div", He, " No branches found ")) : (n(), o("div", Ue, [
-          (n(!0), o(S, null, B(t.branches, (d) => (n(), o("div", {
-            key: d.name,
-            class: G(["branch-item", { current: d.is_current }])
+        ])) : b("", !0),
+        e.branches.length === 0 ? (o(), a("div", qt, " No branches found ")) : (o(), a("div", Qt, [
+          (o(!0), a(E, null, I(e.branches, (i) => (o(), a("div", {
+            key: i.name,
+            class: D(["branch-item", { current: i.is_current }])
           }, [
-            e("span", Ve, l(d.is_current ? "●" : "○"), 1),
-            e("span", je, l(d.name), 1),
-            d.is_current ? (n(), o("span", Fe, "current")) : (n(), o("button", {
+            t("span", Xt, l(i.is_current ? "●" : "○"), 1),
+            t("span", Zt, l(i.name), 1),
+            i.is_current ? (o(), a("span", ee, "current")) : (o(), a("button", {
               key: 0,
               class: "switch-btn",
-              onClick: (g) => c.$emit("switch", d.name)
-            }, " Switch ", 8, ze))
+              onClick: (p) => m.$emit("switch", i.name)
+            }, " Switch ", 8, te))
           ], 2))), 128))
         ]))
       ])
     ]));
   }
-}), Je = /* @__PURE__ */ A(Re, [["__scopeId", "data-v-be3b0883"]]), Ke = { class: "history-section" }, We = { class: "history-card" }, Ye = {
+}), ae = /* @__PURE__ */ A(oe, [["__scopeId", "data-v-730a9c8a"]]), se = { class: "history-section" }, ne = { class: "history-card" }, re = {
   key: 0,
   class: "empty"
-}, qe = {
+}, ce = {
   key: 1,
   class: "commit-list"
-}, Qe = ["onClick"], Xe = { class: "commit-hash" }, Ze = { class: "commit-message" }, et = { class: "commit-date" }, tt = ["onClick"], st = /* @__PURE__ */ P({
+}, ie = ["onClick"], le = { class: "commit-hash" }, de = { class: "commit-message" }, me = { class: "commit-date" }, ge = ["onClick"], he = /* @__PURE__ */ P({
   __name: "HistorySection",
   props: {
     commits: {}
   },
   emits: ["select", "checkout"],
-  setup(t) {
-    return (u, i) => (n(), o("div", Ke, [
-      i[2] || (i[2] = e("div", { class: "section-header" }, [
-        e("h4", { class: "section-title" }, "History")
+  setup(e) {
+    return (g, c) => (o(), a("div", se, [
+      c[2] || (c[2] = t("div", { class: "section-header" }, [
+        t("h4", { class: "section-title" }, "History")
       ], -1)),
-      e("div", We, [
-        t.commits.length === 0 ? (n(), o("div", Ye, " No commits yet ")) : (n(), o("div", qe, [
-          (n(!0), o(S, null, B(t.commits, (s) => {
-            var a;
-            return n(), o("div", {
+      t("div", ne, [
+        e.commits.length === 0 ? (o(), a("div", re, " No commits yet ")) : (o(), a("div", ce, [
+          (o(!0), a(E, null, I(e.commits, (s) => {
+            var h;
+            return o(), a("div", {
               key: s.hash,
               class: "commit-item",
-              onClick: (k) => u.$emit("select", s)
+              onClick: (n) => g.$emit("select", s)
             }, [
-              e("span", Xe, l(s.short_hash || ((a = s.hash) == null ? void 0 : a.slice(0, 7))), 1),
-              e("span", Ze, l(s.message), 1),
-              e("span", et, l(s.date_relative || s.relative_date), 1),
-              e("div", {
+              t("span", le, l(s.short_hash || ((h = s.hash) == null ? void 0 : h.slice(0, 7))), 1),
+              t("span", de, l(s.message), 1),
+              t("span", me, l(s.date_relative || s.relative_date), 1),
+              t("div", {
                 class: "commit-actions",
-                onClick: i[0] || (i[0] = O(() => {
+                onClick: c[0] || (c[0] = j(() => {
                 }, ["stop"]))
               }, [
-                e("button", {
+                t("button", {
                   class: "action-btn",
-                  onClick: (k) => u.$emit("checkout", s),
+                  onClick: (n) => g.$emit("checkout", s),
                   title: "Checkout this commit"
-                }, [...i[1] || (i[1] = [
-                  e("svg", {
+                }, [...c[1] || (c[1] = [
+                  t("svg", {
                     width: "12",
                     height: "12",
                     viewBox: "0 0 16 16",
                     fill: "currentColor"
                   }, [
-                    e("path", { d: "M8 12L3 7h3V1h4v6h3L8 12z" })
+                    t("path", { d: "M8 12L3 7h3V1h4v6h3L8 12z" })
                   ], -1)
-                ])], 8, tt)
+                ])], 8, ge)
               ])
-            ], 8, Qe);
+            ], 8, ie);
           }), 128))
         ]))
       ])
     ]));
   }
-}), nt = /* @__PURE__ */ A(st, [["__scopeId", "data-v-3bb44122"]]);
-function K() {
-  const t = C(!1), u = C(null);
-  async function i(f, y) {
-    var h;
-    if (!((h = window.app) != null && h.api))
+}), ue = /* @__PURE__ */ A(he, [["__scopeId", "data-v-3bb44122"]]);
+function Z() {
+  const e = C(!1), g = C(null);
+  async function c(v, y) {
+    var u;
+    if (!((u = window.app) != null && u.api))
       throw new Error("ComfyUI API not available");
-    const x = await window.app.api.fetchApi(f, y);
-    if (!x.ok) {
-      const b = await x.json().catch(() => ({}));
-      throw new Error(b.error || b.message || `Request failed: ${x.status}`);
+    const S = await window.app.api.fetchApi(v, y);
+    if (!S.ok) {
+      const k = await S.json().catch(() => ({}));
+      throw new Error(k.error || k.message || `Request failed: ${S.status}`);
     }
-    return x.json();
+    return S.json();
   }
   async function s() {
-    return i("/v2/comfygit/status");
+    return c("/v2/comfygit/status");
   }
-  async function a(f, y = !1) {
-    return i("/v2/comfygit/commit", {
+  async function h(v, y = !1) {
+    return c("/v2/comfygit/commit", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: f, allow_issues: y })
+      body: JSON.stringify({ message: v, allow_issues: y })
     });
   }
-  async function k(f = 10, y = 0) {
-    return i(`/v2/comfygit/log?limit=${f}&offset=${y}`);
+  async function n(v = 10, y = 0) {
+    return c(`/v2/comfygit/log?limit=${v}&offset=${y}`);
   }
-  async function $(f) {
-    return i("/v2/comfygit/export", {
+  async function _(v) {
+    return c("/v2/comfygit/export", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ output_path: f })
+      body: JSON.stringify({ output_path: v })
     });
   }
-  async function v() {
-    return i("/v2/comfygit/branches");
+  async function f() {
+    return c("/v2/comfygit/branches");
   }
-  async function c(f) {
-    return i(`/v2/comfygit/commit/${f}`);
+  async function m(v) {
+    return c(`/v2/comfygit/commit/${v}`);
   }
-  async function w(f, y = !1) {
-    return i("/v2/comfygit/checkout", {
+  async function x(v, y = !1) {
+    return c("/v2/comfygit/checkout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ref: f, force: y })
+      body: JSON.stringify({ ref: v, force: y })
     });
   }
-  async function d(f, y = "HEAD") {
-    return i("/v2/comfygit/branch", {
+  async function i(v, y = "HEAD") {
+    return c("/v2/comfygit/branch", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: f, start_point: y })
+      body: JSON.stringify({ name: v, start_point: y })
     });
   }
-  async function g(f, y = !1) {
-    return i("/v2/comfygit/switch", {
+  async function p(v, y = !1) {
+    return c("/v2/comfygit/switch", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ branch: f, force: y })
+      body: JSON.stringify({ branch: v, force: y })
     });
   }
   return {
-    isLoading: t,
-    error: u,
+    isLoading: e,
+    error: g,
     getStatus: s,
-    commit: a,
-    getHistory: k,
-    exportEnv: $,
+    commit: h,
+    getHistory: n,
+    exportEnv: _,
     // Phase 2
-    getBranches: v,
-    getCommitDetail: c,
-    checkout: w,
-    createBranch: d,
-    switchBranch: g
+    getBranches: f,
+    getCommitDetail: m,
+    checkout: x,
+    createBranch: i,
+    switchBranch: p
   };
 }
-const ot = { class: "modal-content" }, at = { class: "modal-header" }, it = { class: "commit-info" }, lt = { class: "commit-hash" }, ct = {
+const pe = { class: "modal-content" }, fe = { class: "modal-header" }, ve = { class: "commit-info" }, ye = { class: "commit-hash" }, be = {
   key: 0,
   class: "commit-refs"
-}, rt = { class: "modal-body" }, dt = { class: "commit-message" }, ut = { class: "commit-date" }, mt = {
+}, we = { class: "modal-body" }, ke = { class: "commit-message" }, xe = { class: "commit-date" }, Ce = {
   key: 0,
   class: "loading"
-}, ht = {
+}, $e = {
   key: 1,
   class: "changes-section"
-}, vt = { class: "stats-row" }, gt = { class: "stat" }, ft = { class: "stat insertions" }, yt = { class: "stat deletions" }, pt = {
+}, _e = { class: "stats-row" }, ze = { class: "stat" }, Le = { class: "stat insertions" }, Se = { class: "stat deletions" }, Be = {
   key: 0,
   class: "change-group"
-}, wt = {
+}, Ee = {
   key: 1,
   class: "change-group"
-}, bt = {
+}, Ie = {
   key: 0,
   class: "version"
-}, kt = {
+}, Te = {
   key: 2,
   class: "change-group"
-}, Ct = { class: "change-item" }, $t = { class: "modal-footer" }, _t = /* @__PURE__ */ P({
+}, Me = { class: "change-item" }, Ne = { class: "modal-footer" }, Pe = /* @__PURE__ */ P({
   __name: "CommitDetailModal",
   props: {
     commit: {}
   },
   emits: ["close", "checkout", "createBranch"],
-  setup(t) {
-    const u = t, { getCommitDetail: i } = K(), s = C(null), a = C(!0), k = T(() => {
+  setup(e) {
+    const g = e, { getCommitDetail: c } = Z(), s = C(null), h = C(!0), n = N(() => {
       if (!s.value) return !1;
-      const v = s.value.changes.workflows;
-      return v.added.length > 0 || v.modified.length > 0 || v.deleted.length > 0;
-    }), $ = T(() => {
+      const f = s.value.changes.workflows;
+      return f.added.length > 0 || f.modified.length > 0 || f.deleted.length > 0;
+    }), _ = N(() => {
       if (!s.value) return !1;
-      const v = s.value.changes.nodes;
-      return v.added.length > 0 || v.removed.length > 0;
+      const f = s.value.changes.nodes;
+      return f.added.length > 0 || f.removed.length > 0;
     });
-    return ee(async () => {
+    return ct(async () => {
       try {
-        s.value = await i(u.commit.hash);
+        s.value = await c(g.commit.hash);
       } finally {
-        a.value = !1;
+        h.value = !1;
       }
-    }), (v, c) => {
-      var w, d, g, f, y, x;
-      return n(), o("div", {
+    }), (f, m) => {
+      var x, i, p, v, y, S;
+      return o(), a("div", {
         class: "modal-overlay",
-        onClick: c[3] || (c[3] = O((h) => v.$emit("close"), ["self"]))
+        onClick: m[3] || (m[3] = j((u) => f.$emit("close"), ["self"]))
       }, [
-        e("div", ot, [
-          e("div", at, [
-            e("div", it, [
-              e("span", lt, l(((w = s.value) == null ? void 0 : w.short_hash) || t.commit.short_hash || ((d = t.commit.hash) == null ? void 0 : d.slice(0, 7))), 1),
-              (f = (g = s.value) == null ? void 0 : g.refs) != null && f.length ? (n(), o("span", ct, [
-                (n(!0), o(S, null, B(s.value.refs, (h) => (n(), o("span", {
-                  key: h,
+        t("div", pe, [
+          t("div", fe, [
+            t("div", ve, [
+              t("span", ye, l(((x = s.value) == null ? void 0 : x.short_hash) || e.commit.short_hash || ((i = e.commit.hash) == null ? void 0 : i.slice(0, 7))), 1),
+              (v = (p = s.value) == null ? void 0 : p.refs) != null && v.length ? (o(), a("span", be, [
+                (o(!0), a(E, null, I(s.value.refs, (u) => (o(), a("span", {
+                  key: u,
                   class: "ref-badge"
-                }, l(h), 1))), 128))
-              ])) : p("", !0)
+                }, l(u), 1))), 128))
+              ])) : b("", !0)
             ]),
-            e("button", {
+            t("button", {
               class: "close-btn",
-              onClick: c[0] || (c[0] = (h) => v.$emit("close"))
-            }, [...c[4] || (c[4] = [
-              e("svg", {
+              onClick: m[0] || (m[0] = (u) => f.$emit("close"))
+            }, [...m[4] || (m[4] = [
+              t("svg", {
                 width: "14",
                 height: "14",
                 viewBox: "0 0 16 16",
                 fill: "currentColor"
               }, [
-                e("path", { d: "M4.28 3.22a.75.75 0 0 0-1.06 1.06L6.94 8l-3.72 3.72a.75.75 0 1 0 1.06 1.06L8 9.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L9.06 8l3.72-3.72a.75.75 0 0 0-1.06-1.06L8 6.94 4.28 3.22z" })
+                t("path", { d: "M4.28 3.22a.75.75 0 0 0-1.06 1.06L6.94 8l-3.72 3.72a.75.75 0 1 0 1.06 1.06L8 9.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L9.06 8l3.72-3.72a.75.75 0 0 0-1.06-1.06L8 6.94 4.28 3.22z" })
               ], -1)
             ])])
           ]),
-          e("div", rt, [
-            e("div", dt, l(((y = s.value) == null ? void 0 : y.message) || t.commit.message), 1),
-            e("div", ut, l(((x = s.value) == null ? void 0 : x.date_relative) || t.commit.date_relative || t.commit.relative_date), 1),
-            a.value ? (n(), o("div", mt, "Loading details...")) : s.value ? (n(), o("div", ht, [
-              e("div", vt, [
-                e("span", gt, l(s.value.stats.files_changed) + " files", 1),
-                e("span", ft, "+" + l(s.value.stats.insertions), 1),
-                e("span", yt, "-" + l(s.value.stats.deletions), 1)
+          t("div", we, [
+            t("div", ke, l(((y = s.value) == null ? void 0 : y.message) || e.commit.message), 1),
+            t("div", xe, l(((S = s.value) == null ? void 0 : S.date_relative) || e.commit.date_relative || e.commit.relative_date), 1),
+            h.value ? (o(), a("div", Ce, "Loading details...")) : s.value ? (o(), a("div", $e, [
+              t("div", _e, [
+                t("span", ze, l(s.value.stats.files_changed) + " files", 1),
+                t("span", Le, "+" + l(s.value.stats.insertions), 1),
+                t("span", Se, "-" + l(s.value.stats.deletions), 1)
               ]),
-              k.value ? (n(), o("div", pt, [
-                c[8] || (c[8] = e("h4", { class: "change-title" }, "Workflows", -1)),
-                (n(!0), o(S, null, B(s.value.changes.workflows.added, (h) => (n(), o("div", {
-                  key: "add-" + h,
+              n.value ? (o(), a("div", Be, [
+                m[8] || (m[8] = t("h4", { class: "change-title" }, "Workflows", -1)),
+                (o(!0), a(E, null, I(s.value.changes.workflows.added, (u) => (o(), a("div", {
+                  key: "add-" + u,
                   class: "change-item added"
                 }, [
-                  c[5] || (c[5] = e("span", { class: "change-icon" }, "+", -1)),
-                  e("span", null, l(h), 1)
+                  m[5] || (m[5] = t("span", { class: "change-icon" }, "+", -1)),
+                  t("span", null, l(u), 1)
                 ]))), 128)),
-                (n(!0), o(S, null, B(s.value.changes.workflows.modified, (h) => (n(), o("div", {
-                  key: "mod-" + h,
+                (o(!0), a(E, null, I(s.value.changes.workflows.modified, (u) => (o(), a("div", {
+                  key: "mod-" + u,
                   class: "change-item modified"
                 }, [
-                  c[6] || (c[6] = e("span", { class: "change-icon" }, "~", -1)),
-                  e("span", null, l(h), 1)
+                  m[6] || (m[6] = t("span", { class: "change-icon" }, "~", -1)),
+                  t("span", null, l(u), 1)
                 ]))), 128)),
-                (n(!0), o(S, null, B(s.value.changes.workflows.deleted, (h) => (n(), o("div", {
-                  key: "del-" + h,
+                (o(!0), a(E, null, I(s.value.changes.workflows.deleted, (u) => (o(), a("div", {
+                  key: "del-" + u,
                   class: "change-item deleted"
                 }, [
-                  c[7] || (c[7] = e("span", { class: "change-icon" }, "-", -1)),
-                  e("span", null, l(h), 1)
+                  m[7] || (m[7] = t("span", { class: "change-icon" }, "-", -1)),
+                  t("span", null, l(u), 1)
                 ]))), 128))
-              ])) : p("", !0),
-              $.value ? (n(), o("div", wt, [
-                c[11] || (c[11] = e("h4", { class: "change-title" }, "Nodes", -1)),
-                (n(!0), o(S, null, B(s.value.changes.nodes.added, (h) => (n(), o("div", {
-                  key: "add-" + h.name,
+              ])) : b("", !0),
+              _.value ? (o(), a("div", Ee, [
+                m[11] || (m[11] = t("h4", { class: "change-title" }, "Nodes", -1)),
+                (o(!0), a(E, null, I(s.value.changes.nodes.added, (u) => (o(), a("div", {
+                  key: "add-" + u.name,
                   class: "change-item added"
                 }, [
-                  c[9] || (c[9] = e("span", { class: "change-icon" }, "+", -1)),
-                  e("span", null, l(h.name), 1),
-                  h.version ? (n(), o("span", bt, "(" + l(h.version) + ")", 1)) : p("", !0)
+                  m[9] || (m[9] = t("span", { class: "change-icon" }, "+", -1)),
+                  t("span", null, l(u.name), 1),
+                  u.version ? (o(), a("span", Ie, "(" + l(u.version) + ")", 1)) : b("", !0)
                 ]))), 128)),
-                (n(!0), o(S, null, B(s.value.changes.nodes.removed, (h) => (n(), o("div", {
-                  key: "rem-" + h.name,
+                (o(!0), a(E, null, I(s.value.changes.nodes.removed, (u) => (o(), a("div", {
+                  key: "rem-" + u.name,
                   class: "change-item deleted"
                 }, [
-                  c[10] || (c[10] = e("span", { class: "change-icon" }, "-", -1)),
-                  e("span", null, l(h.name), 1)
+                  m[10] || (m[10] = t("span", { class: "change-icon" }, "-", -1)),
+                  t("span", null, l(u.name), 1)
                 ]))), 128))
-              ])) : p("", !0),
-              s.value.changes.models.resolved > 0 ? (n(), o("div", kt, [
-                c[13] || (c[13] = e("h4", { class: "change-title" }, "Models", -1)),
-                e("div", Ct, [
-                  c[12] || (c[12] = e("span", { class: "change-icon" }, "●", -1)),
-                  e("span", null, l(s.value.changes.models.resolved) + " model(s) resolved", 1)
+              ])) : b("", !0),
+              s.value.changes.models.resolved > 0 ? (o(), a("div", Te, [
+                m[13] || (m[13] = t("h4", { class: "change-title" }, "Models", -1)),
+                t("div", Me, [
+                  m[12] || (m[12] = t("span", { class: "change-icon" }, "●", -1)),
+                  t("span", null, l(s.value.changes.models.resolved) + " model(s) resolved", 1)
                 ])
-              ])) : p("", !0)
-            ])) : p("", !0)
+              ])) : b("", !0)
+            ])) : b("", !0)
           ]),
-          e("div", $t, [
-            e("button", {
+          t("div", Ne, [
+            t("button", {
               class: "action-btn secondary",
-              onClick: c[1] || (c[1] = (h) => v.$emit("createBranch", t.commit))
+              onClick: m[1] || (m[1] = (u) => f.$emit("createBranch", e.commit))
             }, " Create Branch "),
-            e("button", {
+            t("button", {
               class: "action-btn primary",
-              onClick: c[2] || (c[2] = (h) => v.$emit("checkout", t.commit))
+              onClick: m[2] || (m[2] = (u) => f.$emit("checkout", e.commit))
             }, " Checkout ")
           ])
         ])
       ]);
     };
   }
-}), xt = /* @__PURE__ */ A(_t, [["__scopeId", "data-v-9768f067"]]), Lt = { class: "dialog-content" }, St = { class: "dialog-header" }, Et = { class: "dialog-title" }, Bt = { class: "dialog-body" }, Nt = { class: "dialog-message" }, Pt = {
+}), Ae = /* @__PURE__ */ A(Pe, [["__scopeId", "data-v-9768f067"]]), Ue = { class: "dialog-content" }, Ge = { class: "dialog-header" }, De = { class: "dialog-title" }, Oe = { class: "dialog-body" }, He = { class: "dialog-message" }, Ve = {
   key: 0,
   class: "dialog-details"
-}, At = {
+}, je = {
   key: 1,
   class: "dialog-warning"
-}, It = { class: "dialog-footer" }, Tt = /* @__PURE__ */ P({
+}, Re = { class: "dialog-footer" }, Fe = /* @__PURE__ */ P({
   __name: "ConfirmDialog",
   props: {
     title: {},
@@ -493,440 +497,494 @@ const ot = { class: "modal-content" }, at = { class: "modal-header" }, it = { cl
     destructive: { type: Boolean, default: !1 }
   },
   emits: ["confirm", "cancel", "secondary"],
-  setup(t) {
-    return (u, i) => (n(), o("div", {
+  setup(e) {
+    return (g, c) => (o(), a("div", {
       class: "dialog-overlay",
-      onClick: i[3] || (i[3] = O((s) => u.$emit("cancel"), ["self"]))
+      onClick: c[3] || (c[3] = j((s) => g.$emit("cancel"), ["self"]))
     }, [
-      e("div", Lt, [
-        e("div", St, [
-          e("h3", Et, l(t.title), 1)
+      t("div", Ue, [
+        t("div", Ge, [
+          t("h3", De, l(e.title), 1)
         ]),
-        e("div", Bt, [
-          e("p", Nt, l(t.message), 1),
-          t.details && t.details.length ? (n(), o("div", Pt, [
-            (n(!0), o(S, null, B(t.details, (s, a) => (n(), o("div", {
-              key: a,
+        t("div", Oe, [
+          t("p", He, l(e.message), 1),
+          e.details && e.details.length ? (o(), a("div", Ve, [
+            (o(!0), a(E, null, I(e.details, (s, h) => (o(), a("div", {
+              key: h,
               class: "detail-item"
             }, " • " + l(s), 1))), 128))
-          ])) : p("", !0),
-          t.warning ? (n(), o("p", At, [
-            i[4] || (i[4] = e("span", { class: "warning-icon" }, "⚠", -1)),
-            te(" " + l(t.warning), 1)
-          ])) : p("", !0)
+          ])) : b("", !0),
+          e.warning ? (o(), a("p", je, [
+            c[4] || (c[4] = t("span", { class: "warning-icon" }, "⚠", -1)),
+            it(" " + l(e.warning), 1)
+          ])) : b("", !0)
         ]),
-        e("div", It, [
-          e("button", {
+        t("div", Re, [
+          t("button", {
             class: "dialog-btn cancel",
-            onClick: i[0] || (i[0] = (s) => u.$emit("cancel"))
-          }, l(t.cancelLabel), 1),
-          t.secondaryAction ? (n(), o("button", {
+            onClick: c[0] || (c[0] = (s) => g.$emit("cancel"))
+          }, l(e.cancelLabel), 1),
+          e.secondaryAction ? (o(), a("button", {
             key: 0,
             class: "dialog-btn secondary",
-            onClick: i[1] || (i[1] = (s) => u.$emit("secondary"))
-          }, l(t.secondaryLabel), 1)) : p("", !0),
-          e("button", {
-            class: G(["dialog-btn primary", { destructive: t.destructive }]),
-            onClick: i[2] || (i[2] = (s) => u.$emit("confirm"))
-          }, l(t.confirmLabel), 3)
+            onClick: c[1] || (c[1] = (s) => g.$emit("secondary"))
+          }, l(e.secondaryLabel), 1)) : b("", !0),
+          t("button", {
+            class: D(["dialog-btn primary", { destructive: e.destructive }]),
+            onClick: c[2] || (c[2] = (s) => g.$emit("confirm"))
+          }, l(e.confirmLabel), 3)
         ])
       ])
     ]));
   }
-}), Mt = /* @__PURE__ */ A(Tt, [["__scopeId", "data-v-d24c6c0b"]]), Dt = { class: "comfygit-panel" }, Gt = { class: "panel-header" }, Ot = { class: "header-left" }, Ht = {
+}), Je = /* @__PURE__ */ A(Fe, [["__scopeId", "data-v-d24c6c0b"]]), We = { class: "comfygit-panel" }, Ke = { class: "panel-header" }, Ye = { class: "header-left" }, qe = {
   key: 0,
   class: "header-info"
-}, Ut = { class: "env-name" }, Vt = { class: "branch-name" }, jt = ["title"], zt = {
+}, Qe = { class: "env-name" }, Xe = { class: "branch-name" }, Ze = ["title"], to = {
   key: 1,
   class: "header-info loading-text"
-}, Ft = { class: "header-actions" }, Rt = { class: "panel-content" }, Jt = {
+}, eo = { class: "header-actions" }, oo = { class: "panel-content" }, ao = {
   key: 0,
   class: "error-message"
-}, Kt = {
+}, so = {
   key: 1,
   class: "loading"
-}, Wt = { class: "panel-footer" }, Yt = ["disabled"], qt = /* @__PURE__ */ P({
+}, no = { class: "panel-footer" }, ro = ["disabled"], co = { class: "toast-container" }, io = { class: "toast-icon" }, lo = { class: "toast-message" }, mo = /* @__PURE__ */ P({
   __name: "ComfyGitPanel",
   emits: ["close", "statusUpdate"],
-  setup(t, { emit: u }) {
-    const i = u, {
+  setup(e, { emit: g }) {
+    const c = g, {
       getStatus: s,
-      getHistory: a,
-      exportEnv: k,
-      getBranches: $,
-      checkout: v,
-      createBranch: c,
-      switchBranch: w
-    } = K(), d = C(null), g = C([]), f = C([]), y = C(!1), x = C(null), h = C(null), b = C(null), H = T(() => {
-      if (!d.value) return "neutral";
-      const m = d.value.workflows, r = m.new.length > 0 || m.modified.length > 0 || m.deleted.length > 0 || d.value.has_changes;
-      return d.value.comparison.is_synced ? r ? "warning" : "success" : "error";
-    }), ae = T(() => d.value ? H.value === "success" ? "All synced" : H.value === "warning" ? "Uncommitted changes" : H.value === "error" ? "Not synced" : "" : "");
-    async function U() {
-      y.value = !0, x.value = null;
+      getHistory: h,
+      exportEnv: n,
+      getBranches: _,
+      checkout: f,
+      createBranch: m,
+      switchBranch: x
+    } = Z(), i = C(null), p = C([]), v = C([]), y = C(!1), S = C(null), u = C(null), k = C(null), U = C([]);
+    let gt = 0;
+    function $(d, r = "info", w = 3e3) {
+      const z = ++gt;
+      return U.value.push({ id: z, message: d, type: r }), w > 0 && setTimeout(() => {
+        U.value = U.value.filter((J) => J.id !== z);
+      }, w), z;
+    }
+    function G(d) {
+      U.value = U.value.filter((r) => r.id !== d);
+    }
+    function ht(d) {
+      switch (d) {
+        case "success":
+          return "✓";
+        case "warning":
+          return "!";
+        case "error":
+          return "✕";
+        default:
+          return "→";
+      }
+    }
+    const R = N(() => {
+      if (!i.value) return "neutral";
+      const d = i.value.workflows, r = d.new.length > 0 || d.modified.length > 0 || d.deleted.length > 0 || i.value.has_changes;
+      return i.value.comparison.is_synced ? r ? "warning" : "success" : "error";
+    }), ut = N(() => i.value ? R.value === "success" ? "All synced" : R.value === "warning" ? "Uncommitted changes" : R.value === "error" ? "Not synced" : "" : "");
+    async function F() {
+      y.value = !0, S.value = null;
       try {
-        const [m, r, N] = await Promise.all([
+        const [d, r, w] = await Promise.all([
           s(),
-          a(),
-          $()
+          h(),
+          _()
         ]);
-        d.value = m, g.value = r.commits, f.value = N.branches, i("statusUpdate", m);
-      } catch (m) {
-        x.value = m instanceof Error ? m.message : "Failed to load status", d.value = null, g.value = [], f.value = [];
+        i.value = d, p.value = r.commits, v.value = w.branches, c("statusUpdate", d);
+      } catch (d) {
+        S.value = d instanceof Error ? d.message : "Failed to load status", i.value = null, p.value = [], v.value = [];
       } finally {
         y.value = !1;
       }
     }
-    function ie(m) {
-      h.value = m;
+    function pt(d) {
+      u.value = d;
     }
-    async function Y(m) {
-      h.value = null;
-      const r = await v(m.hash);
-      r.status === "warning" && r.reason === "uncommitted_changes" ? b.value = {
-        title: "Uncommitted Changes",
-        message: "You have uncommitted changes that will be lost.",
-        details: q(),
-        warning: "Checking out will discard these changes.",
-        confirmLabel: "Discard & Checkout",
+    async function et(d) {
+      var w;
+      u.value = null;
+      const r = i.value && (i.value.workflows.new.length > 0 || i.value.workflows.modified.length > 0 || i.value.workflows.deleted.length > 0 || i.value.has_changes);
+      k.value = {
+        title: r ? "Checkout with Uncommitted Changes" : "Checkout Commit",
+        message: r ? "You have uncommitted changes that will be lost." : `Checkout commit ${d.short_hash || ((w = d.hash) == null ? void 0 : w.slice(0, 7))}?`,
+        details: r ? ot() : void 0,
+        warning: "This will restart ComfyUI to apply the changes.",
+        confirmLabel: r ? "Discard & Checkout" : "Checkout",
         cancelLabel: "Cancel",
-        destructive: !0,
+        destructive: r,
         onConfirm: async () => {
-          b.value = null, await v(m.hash, !0);
+          var at;
+          k.value = null;
+          const z = $(`Checking out ${d.short_hash || ((at = d.hash) == null ? void 0 : at.slice(0, 7))}...`, "info", 0), J = await f(d.hash, r);
+          G(z), J.status === "success" ? $("Restarting ComfyUI...", "success") : $(J.message || "Checkout failed", "error");
         }
-      } : r.status === "success" || alert(r.message || "Checkout failed");
+      };
     }
-    async function le(m) {
-      const r = await w(m);
-      r.status === "warning" ? r.reason === "uncommitted_changes" && (b.value = {
-        title: "Uncommitted Changes",
-        message: "You have uncommitted changes.",
-        details: q(),
-        warning: "Switch anyway? Changes will remain in current branch.",
-        confirmLabel: "Switch Anyway",
+    async function ft(d) {
+      const r = i.value && (i.value.workflows.new.length > 0 || i.value.workflows.modified.length > 0 || i.value.workflows.deleted.length > 0 || i.value.has_changes);
+      k.value = {
+        title: r ? "Switch Branch with Uncommitted Changes" : "Switch Branch",
+        message: r ? "You have uncommitted changes." : `Switch to branch "${d}"?`,
+        details: r ? ot() : void 0,
+        warning: r ? "This will restart ComfyUI. Changes will remain in current branch." : "This will restart ComfyUI to apply the changes.",
+        confirmLabel: r ? "Switch Anyway" : "Switch",
         cancelLabel: "Cancel",
         onConfirm: async () => {
-          b.value = null, await w(m, !0);
+          k.value = null;
+          const w = $(`Switching to ${d}...`, "info", 0), z = await x(d, r);
+          G(w), z.status === "success" ? $("Restarting ComfyUI...", "success") : z.status === "warning" && z.reason === "uncommitted_changes" ? $("Switch cancelled due to uncommitted changes", "warning") : $(z.message || "Branch switch failed", "error");
         }
-      }) : r.status;
+      };
     }
-    async function ce(m) {
-      const r = await c(m);
-      r.status === "success" ? await U() : alert(r.message || "Failed to create branch");
+    async function vt(d) {
+      const r = $(`Creating branch ${d}...`, "info", 0), w = await m(d);
+      G(r), w.status === "success" ? ($(`Branch "${d}" created`, "success"), await F()) : $(w.message || "Failed to create branch", "error");
     }
-    async function re(m) {
-      h.value = null;
+    async function yt(d) {
+      u.value = null;
       const r = prompt("Enter branch name:");
       if (r) {
-        const N = await c(r, m.hash);
-        N.status === "success" ? await U() : alert(N.message || "Failed to create branch");
+        const w = $(`Creating branch ${r}...`, "info", 0), z = await m(r, d.hash);
+        G(w), z.status === "success" ? ($(`Branch "${r}" created from ${d.short_hash}`, "success"), await F()) : $(z.message || "Failed to create branch", "error");
       }
     }
-    function q() {
-      if (!d.value) return [];
-      const m = [], r = d.value.workflows;
-      return r.new.length && m.push(`${r.new.length} new workflow(s)`), r.modified.length && m.push(`${r.modified.length} modified workflow(s)`), r.deleted.length && m.push(`${r.deleted.length} deleted workflow(s)`), m;
+    function ot() {
+      if (!i.value) return [];
+      const d = [], r = i.value.workflows;
+      return r.new.length && d.push(`${r.new.length} new workflow(s)`), r.modified.length && d.push(`${r.modified.length} modified workflow(s)`), r.deleted.length && d.push(`${r.deleted.length} deleted workflow(s)`), d;
     }
-    async function de() {
+    async function bt() {
+      const d = $("Exporting environment...", "info", 0);
       try {
-        const m = await k();
-        m.status === "success" ? alert(`Export successful!
+        const r = await n();
+        G(d), r.status === "success" ? ($("Export complete", "success"), alert(`Export successful!
 
-Saved to: ${m.path}
+Saved to: ${r.path}
 
-Models without sources: ${m.models_without_sources}`) : alert(`Export failed: ${m.message}`);
-      } catch (m) {
-        alert(`Export error: ${m instanceof Error ? m.message : "Unknown error"}`);
+Models without sources: ${r.models_without_sources}`)) : ($("Export failed", "error"), alert(`Export failed: ${r.message}`));
+      } catch (r) {
+        G(d), $("Export error", "error"), alert(`Export error: ${r instanceof Error ? r.message : "Unknown error"}`);
       }
     }
-    return ee(U), (m, r) => (n(), o("div", Dt, [
-      e("div", Gt, [
-        e("div", Ot, [
-          r[3] || (r[3] = e("h2", { class: "panel-title" }, "ComfyGit", -1)),
-          d.value ? (n(), o("div", Ht, [
-            e("span", Ut, l(d.value.environment), 1),
-            e("span", Vt, "(" + l(d.value.branch || "detached") + ")", 1),
-            e("span", {
-              class: G(["status-dot", H.value]),
-              title: ae.value
-            }, null, 10, jt)
-          ])) : (n(), o("div", zt, "Loading..."))
+    return ct(F), (d, r) => (o(), a("div", We, [
+      t("div", Ke, [
+        t("div", Ye, [
+          r[3] || (r[3] = t("h2", { class: "panel-title" }, "ComfyGit", -1)),
+          i.value ? (o(), a("div", qe, [
+            t("span", Qe, l(i.value.environment), 1),
+            t("span", Xe, "(" + l(i.value.branch || "detached") + ")", 1),
+            t("span", {
+              class: D(["status-dot", R.value]),
+              title: ut.value
+            }, null, 10, Ze)
+          ])) : (o(), a("div", to, "Loading..."))
         ]),
-        e("div", Ft, [
-          e("button", {
-            class: G(["icon-btn", { spinning: y.value }]),
-            onClick: U,
+        t("div", eo, [
+          t("button", {
+            class: D(["icon-btn", { spinning: y.value }]),
+            onClick: F,
             title: "Refresh"
           }, [...r[4] || (r[4] = [
-            e("svg", {
+            t("svg", {
               width: "16",
               height: "16",
               viewBox: "0 0 16 16",
               fill: "currentColor"
             }, [
-              e("path", { d: "M13.65 2.35a8 8 0 1 0 1.4 9.65h-2.25a5.75 5.75 0 1 1-1-6.45L9.5 8H16V1.5l-2.35 2.35z" })
+              t("path", { d: "M13.65 2.35a8 8 0 1 0 1.4 9.65h-2.25a5.75 5.75 0 1 1-1-6.45L9.5 8H16V1.5l-2.35 2.35z" })
             ], -1)
           ])], 2),
-          e("button", {
+          t("button", {
             class: "icon-btn",
-            onClick: r[0] || (r[0] = (N) => i("close")),
+            onClick: r[0] || (r[0] = (w) => c("close")),
             title: "Close"
           }, [...r[5] || (r[5] = [
-            e("svg", {
+            t("svg", {
               width: "16",
               height: "16",
               viewBox: "0 0 16 16",
               fill: "currentColor"
             }, [
-              e("path", { d: "M4.28 3.22a.75.75 0 0 0-1.06 1.06L6.94 8l-3.72 3.72a.75.75 0 1 0 1.06 1.06L8 9.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L9.06 8l3.72-3.72a.75.75 0 0 0-1.06-1.06L8 6.94 4.28 3.22z" })
+              t("path", { d: "M4.28 3.22a.75.75 0 0 0-1.06 1.06L6.94 8l-3.72 3.72a.75.75 0 1 0 1.06 1.06L8 9.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L9.06 8l3.72-3.72a.75.75 0 0 0-1.06-1.06L8 6.94 4.28 3.22z" })
             ], -1)
           ])])
         ])
       ]),
-      e("div", Rt, [
-        x.value ? (n(), o("div", Jt, l(x.value), 1)) : d.value ? (n(), o(S, { key: 2 }, [
-          F(Ie, { status: d.value }, null, 8, ["status"]),
-          F(Je, {
-            branches: f.value,
-            current: d.value.branch,
-            onSwitch: le,
-            onCreate: ce
+      t("div", oo, [
+        S.value ? (o(), a("div", ao, l(S.value), 1)) : i.value ? (o(), a(E, { key: 2 }, [
+          W(Rt, { status: i.value }, null, 8, ["status"]),
+          W(ae, {
+            branches: v.value,
+            current: i.value.branch,
+            onSwitch: ft,
+            onCreate: vt
           }, null, 8, ["branches", "current"]),
-          F(nt, {
-            commits: g.value,
-            onSelect: ie,
-            onCheckout: Y
+          W(ue, {
+            commits: p.value,
+            onSelect: pt,
+            onCheckout: et
           }, null, 8, ["commits"])
-        ], 64)) : (n(), o("div", Kt, " Loading status... "))
+        ], 64)) : (o(), a("div", so, " Loading status... "))
       ]),
-      e("div", Wt, [
-        e("button", {
+      t("div", no, [
+        t("button", {
           class: "export-btn",
-          onClick: de,
-          disabled: !d.value
+          onClick: bt,
+          disabled: !i.value
         }, [...r[6] || (r[6] = [
-          e("svg", {
+          t("svg", {
             width: "14",
             height: "14",
             viewBox: "0 0 16 16",
             fill: "currentColor"
           }, [
-            e("path", { d: "M8 12L3 7h3V1h4v6h3L8 12z" }),
-            e("path", { d: "M14 14H2v-2h12v2z" })
+            t("path", { d: "M8 12L3 7h3V1h4v6h3L8 12z" }),
+            t("path", { d: "M14 14H2v-2h12v2z" })
           ], -1),
-          te(" Export ", -1)
-        ])], 8, Yt)
+          it(" Export ", -1)
+        ])], 8, ro)
       ]),
-      h.value ? (n(), Q(xt, {
+      u.value ? (o(), st(Ae, {
         key: 0,
-        commit: h.value,
-        onClose: r[1] || (r[1] = (N) => h.value = null),
-        onCheckout: Y,
-        onCreateBranch: re
-      }, null, 8, ["commit"])) : p("", !0),
-      b.value ? (n(), Q(Mt, {
+        commit: u.value,
+        onClose: r[1] || (r[1] = (w) => u.value = null),
+        onCheckout: et,
+        onCreateBranch: yt
+      }, null, 8, ["commit"])) : b("", !0),
+      k.value ? (o(), st(Je, {
         key: 1,
-        title: b.value.title,
-        message: b.value.message,
-        details: b.value.details,
-        warning: b.value.warning,
-        confirmLabel: b.value.confirmLabel,
-        cancelLabel: b.value.cancelLabel,
-        secondaryLabel: b.value.secondaryLabel,
-        secondaryAction: b.value.secondaryAction,
-        destructive: b.value.destructive,
-        onConfirm: b.value.onConfirm,
-        onCancel: r[2] || (r[2] = (N) => b.value = null),
-        onSecondary: b.value.onSecondary
-      }, null, 8, ["title", "message", "details", "warning", "confirmLabel", "cancelLabel", "secondaryLabel", "secondaryAction", "destructive", "onConfirm", "onSecondary"])) : p("", !0)
+        title: k.value.title,
+        message: k.value.message,
+        details: k.value.details,
+        warning: k.value.warning,
+        confirmLabel: k.value.confirmLabel,
+        cancelLabel: k.value.cancelLabel,
+        secondaryLabel: k.value.secondaryLabel,
+        secondaryAction: k.value.secondaryAction,
+        destructive: k.value.destructive,
+        onConfirm: k.value.onConfirm,
+        onCancel: r[2] || (r[2] = (w) => k.value = null),
+        onSecondary: k.value.onSecondary
+      }, null, 8, ["title", "message", "details", "warning", "confirmLabel", "cancelLabel", "secondaryLabel", "secondaryAction", "destructive", "onConfirm", "onSecondary"])) : b("", !0),
+      t("div", co, [
+        W(kt, { name: "toast" }, {
+          default: xt(() => [
+            (o(!0), a(E, null, I(U.value, (w) => (o(), a("div", {
+              key: w.id,
+              class: D(["toast", w.type])
+            }, [
+              t("span", io, l(ht(w.type)), 1),
+              t("span", lo, l(w.message), 1)
+            ], 2))), 128))
+          ]),
+          _: 1
+        })
+      ])
     ]));
   }
-}), Qt = /* @__PURE__ */ A(qt, [["__scopeId", "data-v-6bcacee6"]]), Xt = { class: "commit-popover" }, Zt = { class: "popover-content" }, es = {
+}), go = /* @__PURE__ */ A(mo, [["__scopeId", "data-v-cb49f598"]]), ho = { class: "commit-popover" }, uo = { class: "popover-content" }, po = {
   key: 0,
   class: "changes-summary"
-}, ts = {
+}, fo = {
   key: 0,
   class: "change-item"
-}, ss = {
+}, vo = {
   key: 1,
   class: "change-item"
-}, ns = {
+}, yo = {
   key: 2,
   class: "change-item"
-}, os = {
+}, bo = {
   key: 3,
   class: "change-item"
-}, as = {
+}, wo = {
   key: 4,
   class: "change-item"
-}, is = {
+}, ko = {
   key: 1,
   class: "no-changes"
-}, ls = {
+}, xo = {
   key: 2,
   class: "loading"
-}, cs = { class: "message-section" }, rs = ["placeholder", "disabled", "onKeydown"], ds = { class: "popover-footer" }, us = ["disabled"], ms = /* @__PURE__ */ P({
+}, Co = { class: "message-section" }, $o = ["placeholder", "disabled", "onKeydown"], _o = { class: "popover-footer" }, zo = ["disabled"], Lo = /* @__PURE__ */ P({
   __name: "CommitPopover",
   props: {
     status: {}
   },
   emits: ["close", "committed"],
-  setup(t, { emit: u }) {
-    const i = t, s = u, { commit: a } = K(), k = C(""), $ = C(!1), v = C(null), c = T(() => {
-      if (!i.status) return !1;
-      const d = i.status.workflows;
-      return d.new.length > 0 || d.modified.length > 0 || d.deleted.length > 0 || i.status.has_changes;
+  setup(e, { emit: g }) {
+    const c = e, s = g, { commit: h } = Z(), n = C(""), _ = C(!1), f = C(null), m = N(() => {
+      if (!c.status) return !1;
+      const i = c.status.workflows;
+      return i.new.length > 0 || i.modified.length > 0 || i.deleted.length > 0 || c.status.has_changes;
     });
-    async function w() {
-      var d, g, f;
-      if (!(!c.value || !k.value.trim() || $.value)) {
-        $.value = !0, v.value = null;
+    async function x() {
+      var i, p, v;
+      if (!(!m.value || !n.value.trim() || _.value)) {
+        _.value = !0, f.value = null;
         try {
-          const y = await a(k.value.trim());
-          y.status === "success" ? (v.value = {
+          const y = await h(n.value.trim());
+          y.status === "success" ? (f.value = {
             type: "success",
-            message: `Committed: ${((d = y.summary) == null ? void 0 : d.new) || 0} new, ${((g = y.summary) == null ? void 0 : g.modified) || 0} modified, ${((f = y.summary) == null ? void 0 : f.deleted) || 0} deleted`
-          }, k.value = "", setTimeout(() => s("committed"), 1e3)) : y.status === "no_changes" ? v.value = { type: "error", message: "No changes to commit" } : v.value = { type: "error", message: y.message || "Commit failed" };
+            message: `Committed: ${((i = y.summary) == null ? void 0 : i.new) || 0} new, ${((p = y.summary) == null ? void 0 : p.modified) || 0} modified, ${((v = y.summary) == null ? void 0 : v.deleted) || 0} deleted`
+          }, n.value = "", setTimeout(() => s("committed"), 1e3)) : y.status === "no_changes" ? f.value = { type: "error", message: "No changes to commit" } : f.value = { type: "error", message: y.message || "Commit failed" };
         } catch (y) {
-          v.value = { type: "error", message: y instanceof Error ? y.message : "Commit failed" };
+          f.value = { type: "error", message: y instanceof Error ? y.message : "Commit failed" };
         } finally {
-          $.value = !1;
+          _.value = !1;
         }
       }
     }
-    return (d, g) => (n(), o("div", Xt, [
-      g[7] || (g[7] = e("div", { class: "popover-header" }, [
-        e("h3", { class: "popover-title" }, "Commit Changes")
+    return (i, p) => (o(), a("div", ho, [
+      p[7] || (p[7] = t("div", { class: "popover-header" }, [
+        t("h3", { class: "popover-title" }, "Commit Changes")
       ], -1)),
-      e("div", Zt, [
-        t.status && c.value ? (n(), o("div", es, [
-          t.status.workflows.new.length ? (n(), o("div", ts, [
-            g[2] || (g[2] = e("span", { class: "change-icon new" }, "+", -1)),
-            e("span", null, l(t.status.workflows.new.length) + " new workflow(s)", 1)
-          ])) : p("", !0),
-          t.status.workflows.modified.length ? (n(), o("div", ss, [
-            g[3] || (g[3] = e("span", { class: "change-icon modified" }, "~", -1)),
-            e("span", null, l(t.status.workflows.modified.length) + " modified", 1)
-          ])) : p("", !0),
-          t.status.workflows.deleted.length ? (n(), o("div", ns, [
-            g[4] || (g[4] = e("span", { class: "change-icon deleted" }, "-", -1)),
-            e("span", null, l(t.status.workflows.deleted.length) + " deleted", 1)
-          ])) : p("", !0),
-          t.status.git_changes.nodes_added.length ? (n(), o("div", os, [
-            g[5] || (g[5] = e("span", { class: "change-icon new" }, "+", -1)),
-            e("span", null, l(t.status.git_changes.nodes_added.length) + " node(s) added", 1)
-          ])) : p("", !0),
-          t.status.git_changes.nodes_removed.length ? (n(), o("div", as, [
-            g[6] || (g[6] = e("span", { class: "change-icon deleted" }, "-", -1)),
-            e("span", null, l(t.status.git_changes.nodes_removed.length) + " node(s) removed", 1)
-          ])) : p("", !0)
-        ])) : t.status ? (n(), o("div", is, " No changes to commit ")) : (n(), o("div", ls, " Loading... ")),
-        e("div", cs, [
-          X(e("textarea", {
-            "onUpdate:modelValue": g[0] || (g[0] = (f) => k.value = f),
+      t("div", uo, [
+        e.status && m.value ? (o(), a("div", po, [
+          e.status.workflows.new.length ? (o(), a("div", fo, [
+            p[2] || (p[2] = t("span", { class: "change-icon new" }, "+", -1)),
+            t("span", null, l(e.status.workflows.new.length) + " new workflow(s)", 1)
+          ])) : b("", !0),
+          e.status.workflows.modified.length ? (o(), a("div", vo, [
+            p[3] || (p[3] = t("span", { class: "change-icon modified" }, "~", -1)),
+            t("span", null, l(e.status.workflows.modified.length) + " modified", 1)
+          ])) : b("", !0),
+          e.status.workflows.deleted.length ? (o(), a("div", yo, [
+            p[4] || (p[4] = t("span", { class: "change-icon deleted" }, "-", -1)),
+            t("span", null, l(e.status.workflows.deleted.length) + " deleted", 1)
+          ])) : b("", !0),
+          e.status.git_changes.nodes_added.length ? (o(), a("div", bo, [
+            p[5] || (p[5] = t("span", { class: "change-icon new" }, "+", -1)),
+            t("span", null, l(e.status.git_changes.nodes_added.length) + " node(s) added", 1)
+          ])) : b("", !0),
+          e.status.git_changes.nodes_removed.length ? (o(), a("div", wo, [
+            p[6] || (p[6] = t("span", { class: "change-icon deleted" }, "-", -1)),
+            t("span", null, l(e.status.git_changes.nodes_removed.length) + " node(s) removed", 1)
+          ])) : b("", !0)
+        ])) : e.status ? (o(), a("div", ko, " No changes to commit ")) : (o(), a("div", xo, " Loading... ")),
+        t("div", Co, [
+          nt(t("textarea", {
+            "onUpdate:modelValue": p[0] || (p[0] = (v) => n.value = v),
             class: "commit-input",
-            placeholder: c.value ? "Describe your changes..." : "No changes",
-            disabled: !c.value || $.value,
+            placeholder: m.value ? "Describe your changes..." : "No changes",
+            disabled: !m.value || _.value,
             rows: "3",
             onKeydown: [
-              V(O(w, ["ctrl"]), ["enter"]),
-              V(O(w, ["meta"]), ["enter"])
+              K(j(x, ["ctrl"]), ["enter"]),
+              K(j(x, ["meta"]), ["enter"])
             ]
-          }, null, 40, rs), [
-            [Z, k.value]
+          }, null, 40, $o), [
+            [rt, n.value]
           ])
         ]),
-        v.value ? (n(), o("div", {
+        f.value ? (o(), a("div", {
           key: 3,
-          class: G(["result", v.value.type])
-        }, l(v.value.message), 3)) : p("", !0)
+          class: D(["result", f.value.type])
+        }, l(f.value.message), 3)) : b("", !0)
       ]),
-      e("div", ds, [
-        e("button", {
+      t("div", _o, [
+        t("button", {
           class: "cancel-btn",
-          onClick: g[1] || (g[1] = (f) => s("close"))
+          onClick: p[1] || (p[1] = (v) => s("close"))
         }, "Cancel"),
-        e("button", {
+        t("button", {
           class: "commit-btn",
-          disabled: !c.value || !k.value.trim() || $.value,
-          onClick: w
-        }, l($.value ? "Committing..." : "Commit"), 9, us)
+          disabled: !m.value || !n.value.trim() || _.value,
+          onClick: x
+        }, l(_.value ? "Committing..." : "Commit"), 9, zo)
       ])
     ]));
   }
-}), hs = /* @__PURE__ */ A(ms, [["__scopeId", "data-v-bf211fb8"]]), W = document.createElement("link");
-W.rel = "stylesheet";
-W.href = new URL("./comfygit-panel.css", import.meta.url).href;
-document.head.appendChild(W);
-let L = null, _ = null, D = null;
-const I = C(null);
-async function J() {
-  var t;
-  if (!((t = window.app) != null && t.api)) return null;
+}), So = /* @__PURE__ */ A(Lo, [["__scopeId", "data-v-940bff74"]]), Bo = '@import"https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap";[data-comfygit-theme=phosphor]{--cg-font-display: "IBM Plex Mono", ui-monospace, monospace;--cg-font-body: "IBM Plex Mono", ui-monospace, monospace;--cg-font-mono: "IBM Plex Mono", ui-monospace, monospace;--cg-font-size-xs: 12px;--cg-font-size-sm: 14px;--cg-font-size-base: 17px;--cg-font-size-lg: 20px;--cg-font-size-xl: 24px;--cg-font-size-2xl: 28px;--cg-panel-width: 754px;--cg-letter-spacing-normal: .02em;--cg-letter-spacing-wide: .08em;--cg-color-bg-primary: #0a0a0a;--cg-color-bg-secondary: #050505;--cg-color-bg-tertiary: #000000;--cg-color-bg-hover: #0f1f0f;--cg-color-bg-overlay: rgba(0, 0, 0, .85);--cg-color-text-primary: #00ff41;--cg-color-text-secondary: #00cc33;--cg-color-text-muted: #008f11;--cg-color-text-inverse: #000000;--cg-color-border: #00ff41;--cg-color-border-subtle: #003b00;--cg-color-border-strong: #00ff41;--cg-color-accent: #00ff41;--cg-color-accent-hover: #39ff14;--cg-color-accent-muted: rgba(0, 255, 65, .15);--cg-color-success: #00ff41;--cg-color-success-muted: rgba(0, 255, 65, .2);--cg-color-warning: #ffff00;--cg-color-warning-muted: rgba(255, 255, 0, .15);--cg-color-error: #ff0040;--cg-color-error-muted: rgba(255, 0, 64, .15);--cg-color-info: #00ffff;--cg-color-info-muted: rgba(0, 255, 255, .15);--cg-radius-none: 0;--cg-radius-sm: 0;--cg-radius-md: 0;--cg-radius-lg: 0;--cg-radius-xl: 0;--cg-radius-2xl: 0;--cg-radius-full: 0;--cg-shadow-sm: 0 0 4px rgba(0, 255, 65, .3);--cg-shadow-md: 0 0 8px rgba(0, 255, 65, .4);--cg-shadow-lg: 0 0 16px rgba(0, 255, 65, .5);--cg-shadow-xl: 0 0 32px rgba(0, 255, 65, .6);--cg-btn-gradient-start: #00ff41;--cg-btn-gradient-end: #00cc33;--cg-btn-shadow-inset: none}[data-comfygit-theme=phosphor] .comfygit-panel{position:relative;overflow:hidden}[data-comfygit-theme=phosphor] .comfygit-panel:before{content:"";position:absolute;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.15) 2px,rgba(0,0,0,.15) 3px);pointer-events:none;z-index:100}[data-comfygit-theme=phosphor] .comfygit-panel:after{content:"";position:absolute;top:0;left:0;right:0;bottom:0;background:#00ff4105;pointer-events:none;animation:phosphor-flicker 4s infinite;z-index:99}@keyframes phosphor-flicker{0%,to{opacity:1}50%{opacity:.98}52%{opacity:1}54%{opacity:.96}56%{opacity:1}}[data-comfygit-theme=phosphor] .comfygit-panel{background:var(--cg-color-bg-primary);border:2px solid var(--cg-color-border);box-shadow:var(--cg-shadow-lg),inset 0 0 100px #00ff4108;font-family:var(--cg-font-mono)}[data-comfygit-theme=phosphor] .panel-header{background:var(--cg-color-bg-tertiary);border-bottom:1px solid var(--cg-color-border);padding:var(--cg-space-3) var(--cg-space-4)}[data-comfygit-theme=phosphor] .panel-title{color:var(--cg-color-accent);text-transform:uppercase;letter-spacing:var(--cg-letter-spacing-wide);font-size:var(--cg-font-size-sm);text-shadow:0 0 8px var(--cg-color-accent)}[data-comfygit-theme=phosphor] .panel-title:before{content:"> ";opacity:.7}[data-comfygit-theme=phosphor] .env-name,[data-comfygit-theme=phosphor] .branch-name{color:var(--cg-color-text-secondary);font-size:var(--cg-font-size-xs)}[data-comfygit-theme=phosphor] .branch-name:before{content:"@";margin-right:2px}[data-comfygit-theme=phosphor] .status-dot{width:6px;height:12px;border-radius:0;animation:cursor-blink 1s step-end infinite}[data-comfygit-theme=phosphor] .status-dot.success{background:var(--cg-color-success)}[data-comfygit-theme=phosphor] .status-dot.warning{background:var(--cg-color-warning)}[data-comfygit-theme=phosphor] .status-dot.error{background:var(--cg-color-error)}@keyframes cursor-blink{50%{opacity:0}}[data-comfygit-theme=phosphor] .icon-btn{color:var(--cg-color-text-primary);border:1px solid transparent}[data-comfygit-theme=phosphor] .icon-btn:hover{background:var(--cg-color-bg-hover);border-color:var(--cg-color-border-subtle)}[data-comfygit-theme=phosphor] .status-section{margin-bottom:var(--cg-space-4)}[data-comfygit-theme=phosphor] .section-title{color:var(--cg-color-accent);font-size:var(--cg-font-size-xs);text-transform:uppercase;letter-spacing:var(--cg-letter-spacing-wide);text-shadow:0 0 8px var(--cg-color-accent);margin-bottom:var(--cg-space-2)}[data-comfygit-theme=phosphor] .section-title:before{content:"> ";opacity:.7}[data-comfygit-theme=phosphor] .count{font-size:var(--cg-font-size-base)}[data-comfygit-theme=phosphor] .status-grid{background:var(--cg-color-bg-tertiary);border:1px solid var(--cg-color-border-subtle)}[data-comfygit-theme=phosphor] .column-title{color:var(--cg-color-text-muted);font-size:var(--cg-font-size-xs);text-transform:uppercase;letter-spacing:var(--cg-letter-spacing-wider)}[data-comfygit-theme=phosphor] .column-title:before{content:"/* "}[data-comfygit-theme=phosphor] .column-title:after{content:" */"}[data-comfygit-theme=phosphor] .status-item{font-size:var(--cg-font-size-sm)}[data-comfygit-theme=phosphor] .status-item .icon{display:none}[data-comfygit-theme=phosphor] .status-item:before{content:"├─ ";color:var(--cg-color-border-subtle)}[data-comfygit-theme=phosphor] .synced-item:before{content:"└─ "}[data-comfygit-theme=phosphor] .count{font-weight:var(--cg-font-weight-bold)}[data-comfygit-theme=phosphor] .count.new{color:var(--cg-color-success);text-shadow:0 0 4px var(--cg-color-success)}[data-comfygit-theme=phosphor] .count.modified{color:var(--cg-color-warning);text-shadow:0 0 4px var(--cg-color-warning)}[data-comfygit-theme=phosphor] .count.deleted{color:var(--cg-color-error);text-shadow:0 0 4px var(--cg-color-error)}[data-comfygit-theme=phosphor] .count.synced{color:var(--cg-color-text-muted)}[data-comfygit-theme=phosphor] .warning-box{background:transparent;border:1px solid var(--cg-color-warning);color:var(--cg-color-warning);font-size:var(--cg-font-size-sm)}[data-comfygit-theme=phosphor] .warning-box:before{content:"[!] ";font-weight:700}[data-comfygit-theme=phosphor] .warning-box.error{border-color:var(--cg-color-error);color:var(--cg-color-error)}[data-comfygit-theme=phosphor] .branch-item,[data-comfygit-theme=phosphor] .branch-name{font-size:var(--cg-font-size-base)}[data-comfygit-theme=phosphor] .switch-btn,[data-comfygit-theme=phosphor] .current-label{font-size:var(--cg-font-size-sm)!important;padding:6px 12px!important}[data-comfygit-theme=phosphor] .switch-btn{background:transparent;border:1px solid var(--cg-color-border);color:var(--cg-color-text-primary)}[data-comfygit-theme=phosphor] .switch-btn:hover{border-color:var(--cg-color-accent);color:var(--cg-color-accent);box-shadow:var(--cg-shadow-sm)}[data-comfygit-theme=phosphor] .current-label{color:var(--cg-color-text-muted);border:1px solid var(--cg-color-border-subtle)}[data-comfygit-theme=phosphor] .history-section{font-size:var(--cg-font-size-base)}[data-comfygit-theme=phosphor] .history-title{color:var(--cg-color-text-muted);text-transform:uppercase;letter-spacing:var(--cg-letter-spacing-wide);font-size:var(--cg-font-size-xs)}[data-comfygit-theme=phosphor] .commit-item{background:transparent;border:none;border-left:2px solid var(--cg-color-border-subtle);padding-left:var(--cg-space-3);margin-left:var(--cg-space-2)}[data-comfygit-theme=phosphor] .commit-item:hover{border-left-color:var(--cg-color-accent);background:var(--cg-color-bg-hover)}[data-comfygit-theme=phosphor] .commit-hash{color:var(--cg-color-accent);font-weight:var(--cg-font-weight-bold);font-size:var(--cg-font-size-sm)}[data-comfygit-theme=phosphor] .commit-hash:before{content:"#"}[data-comfygit-theme=phosphor] .commit-message{color:var(--cg-color-text-primary);font-size:var(--cg-font-size-base)}[data-comfygit-theme=phosphor] .commit-date{color:var(--cg-color-text-muted);font-size:var(--cg-font-size-sm)}[data-comfygit-theme=phosphor] .panel-footer{border-top:1px solid var(--cg-color-border);background:var(--cg-color-bg-tertiary)}[data-comfygit-theme=phosphor] .export-btn{background:transparent;color:var(--cg-color-text-primary);border:1px solid var(--cg-color-border);text-transform:uppercase;letter-spacing:var(--cg-letter-spacing-wide);font-size:var(--cg-font-size-xs)}[data-comfygit-theme=phosphor] .export-btn:hover:not(:disabled){background:var(--cg-color-bg-hover);border-color:var(--cg-color-accent);color:var(--cg-color-accent);box-shadow:var(--cg-shadow-sm)}[data-comfygit-theme=phosphor] .commit-popover{background:var(--cg-color-bg-primary);border:2px solid var(--cg-color-border);box-shadow:var(--cg-shadow-lg)}[data-comfygit-theme=phosphor] .commit-input{background:var(--cg-color-bg-tertiary);border:1px solid var(--cg-color-border-subtle);color:var(--cg-color-text-primary);font-family:var(--cg-font-mono)}[data-comfygit-theme=phosphor] .commit-input:focus{border-color:var(--cg-color-accent);box-shadow:var(--cg-shadow-sm);outline:none}[data-comfygit-theme=phosphor] .comfygit-panel-btn{background:var(--cg-color-accent)!important;color:var(--cg-color-bg-primary)!important;border:none!important;text-transform:uppercase;letter-spacing:.1em;font-family:var(--cg-font-mono);font-size:11px;box-shadow:0 0 8px var(--cg-color-accent)!important}[data-comfygit-theme=phosphor] .comfygit-panel-btn:hover{box-shadow:0 0 16px var(--cg-color-accent)!important}[data-comfygit-theme=phosphor] .comfygit-commit-btn{background:var(--cg-color-bg-tertiary)!important;color:var(--cg-color-text-primary)!important;border:1px solid var(--cg-color-border-subtle)!important;font-family:var(--cg-font-mono)}[data-comfygit-theme=phosphor] .comfygit-commit-btn:hover{border-color:var(--cg-color-accent)!important;box-shadow:0 0 8px #00ff414d!important}[data-comfygit-theme=phosphor] .commit-indicator{background:var(--cg-color-warning);box-shadow:0 0 6px var(--cg-color-warning)}[data-comfygit-theme=phosphor] .panel-content::-webkit-scrollbar{width:8px}[data-comfygit-theme=phosphor] .panel-content::-webkit-scrollbar-track{background:var(--cg-color-bg-tertiary)}[data-comfygit-theme=phosphor] .panel-content::-webkit-scrollbar-thumb{background:var(--cg-color-border-subtle);border:1px solid var(--cg-color-bg-tertiary)}[data-comfygit-theme=phosphor] .panel-content::-webkit-scrollbar-thumb:hover{background:var(--cg-color-accent)}[data-comfygit-theme=phosphor] .comfygit-panel ::selection,[data-comfygit-theme=phosphor] .toast ::selection,[data-comfygit-theme=phosphor] .dialog-content ::selection,[data-comfygit-theme=phosphor] .commit-popover ::selection{background:var(--cg-color-accent);color:var(--cg-color-bg-primary)}[data-comfygit-theme=phosphor] .toast{background:var(--cg-color-bg-primary);border:1px solid var(--cg-color-border);font-family:var(--cg-font-mono);box-shadow:var(--cg-shadow-md)}[data-comfygit-theme=phosphor] .toast.info{border-left:3px solid var(--cg-color-info)}[data-comfygit-theme=phosphor] .toast.success{border-left:3px solid var(--cg-color-success)}[data-comfygit-theme=phosphor] .toast.warning{border-left:3px solid var(--cg-color-warning)}[data-comfygit-theme=phosphor] .toast.error{border-left:3px solid var(--cg-color-error)}[data-comfygit-theme=phosphor] .toast-icon{font-family:var(--cg-font-mono)}[data-comfygit-theme=phosphor] .toast-message:before{content:"> ";opacity:.5}[data-comfygit-theme=phosphor] .dialog-content{background:var(--cg-color-bg-primary);border:2px solid var(--cg-color-border);box-shadow:var(--cg-shadow-lg);font-family:var(--cg-font-mono)}[data-comfygit-theme=phosphor] .dialog-title{color:var(--cg-color-accent);text-transform:uppercase;letter-spacing:var(--cg-letter-spacing-wide);font-size:var(--cg-font-size-sm)}[data-comfygit-theme=phosphor] .dialog-title:before{content:"> ";opacity:.7}[data-comfygit-theme=phosphor] .dialog-message{color:var(--cg-color-text-primary)}[data-comfygit-theme=phosphor] .dialog-details{background:var(--cg-color-bg-tertiary);border:1px solid var(--cg-color-border-subtle)}[data-comfygit-theme=phosphor] .dialog-warning{background:transparent;border:1px solid var(--cg-color-warning);color:var(--cg-color-warning)}[data-comfygit-theme=phosphor] .dialog-btn{font-family:var(--cg-font-mono);text-transform:uppercase;letter-spacing:var(--cg-letter-spacing-wide);font-size:var(--cg-font-size-xs)}[data-comfygit-theme=phosphor] .dialog-btn.cancel{background:transparent;border:1px solid var(--cg-color-border);color:var(--cg-color-text-primary)}[data-comfygit-theme=phosphor] .dialog-btn.cancel:hover{border-color:var(--cg-color-accent);color:var(--cg-color-accent)}[data-comfygit-theme=phosphor] .dialog-btn.primary{background:var(--cg-color-accent);color:var(--cg-color-bg-primary);box-shadow:var(--cg-shadow-sm)}[data-comfygit-theme=phosphor] .dialog-btn.primary:hover{box-shadow:var(--cg-shadow-md)}[data-comfygit-theme=phosphor] .dialog-btn.primary.destructive{background:var(--cg-color-error)}[data-comfygit-theme=phosphor] .branch-input{background:var(--cg-color-bg-tertiary);border:1px solid var(--cg-color-border-subtle);color:var(--cg-color-text-primary);font-family:var(--cg-font-mono);font-size:var(--cg-font-size-sm)}[data-comfygit-theme=phosphor] .branch-input:focus{border-color:var(--cg-color-accent);box-shadow:var(--cg-shadow-sm)}[data-comfygit-theme=phosphor] .action-btn{font-family:var(--cg-font-mono);text-transform:uppercase;letter-spacing:var(--cg-letter-spacing-wide);font-size:var(--cg-font-size-xs)}[data-comfygit-theme=phosphor] .action-btn.create{background:var(--cg-color-accent);color:var(--cg-color-bg-primary);box-shadow:var(--cg-shadow-sm)}[data-comfygit-theme=phosphor] .action-btn.create:hover:not(:disabled){box-shadow:var(--cg-shadow-md);transform:none}[data-comfygit-theme=phosphor] .action-btn.cancel{background:transparent;border:1px solid var(--cg-color-border);color:var(--cg-color-text-primary)}[data-comfygit-theme=phosphor] .action-btn.cancel:hover{border-color:var(--cg-color-accent);color:var(--cg-color-accent);background:transparent}[data-comfygit-theme=phosphor] .commit-popover{background:var(--cg-color-bg-primary);border:2px solid var(--cg-color-border);box-shadow:var(--cg-shadow-lg);font-family:var(--cg-font-mono)}[data-comfygit-theme=phosphor] .popover-title{color:var(--cg-color-accent);text-transform:uppercase;letter-spacing:var(--cg-letter-spacing-wide);font-size:var(--cg-font-size-sm)}[data-comfygit-theme=phosphor] .popover-title:before{content:"> ";opacity:.7}[data-comfygit-theme=phosphor] .commit-input{background:var(--cg-color-bg-tertiary);border:1px solid var(--cg-color-border-subtle);color:var(--cg-color-text-primary);font-family:var(--cg-font-mono);font-size:var(--cg-font-size-sm)}[data-comfygit-theme=phosphor] .commit-input:focus{border-color:var(--cg-color-accent);box-shadow:var(--cg-shadow-sm)}[data-comfygit-theme=phosphor] .commit-input::placeholder{color:var(--cg-color-text-muted)}[data-comfygit-theme=phosphor] .changes-summary{background:var(--cg-color-bg-tertiary);border:1px solid var(--cg-color-border-subtle)}[data-comfygit-theme=phosphor] .change-item:before{content:"├─ ";color:var(--cg-color-border-subtle);margin-right:4px}[data-comfygit-theme=phosphor] .cancel-btn{font-family:var(--cg-font-mono);text-transform:uppercase;letter-spacing:var(--cg-letter-spacing-wide);font-size:var(--cg-font-size-xs);background:transparent;border:1px solid var(--cg-color-border);color:var(--cg-color-text-primary)}[data-comfygit-theme=phosphor] .cancel-btn:hover{border-color:var(--cg-color-accent);color:var(--cg-color-accent);background:transparent}[data-comfygit-theme=phosphor] .commit-btn{font-family:var(--cg-font-mono);text-transform:uppercase;letter-spacing:var(--cg-letter-spacing-wide);font-size:var(--cg-font-size-xs);background:var(--cg-color-accent);color:var(--cg-color-bg-primary);box-shadow:var(--cg-shadow-sm)}[data-comfygit-theme=phosphor] .commit-btn:hover:not(:disabled){box-shadow:var(--cg-shadow-md);transform:none}[data-comfygit-theme=phosphor] .result.success{background:transparent;border:1px solid var(--cg-color-success);color:var(--cg-color-success)}[data-comfygit-theme=phosphor] .result.error{background:transparent;border:1px solid var(--cg-color-error);color:var(--cg-color-error)}';
+let M = null;
+function Eo() {
+  return "phosphor";
+}
+function Io(e = "phosphor") {
+  M && M.remove(), M = document.createElement("style"), M.id = "comfygit-theme-styles", M.setAttribute("data-theme", "phosphor"), M.textContent = Bo, document.head.appendChild(M), document.body.setAttribute("data-comfygit-theme", "phosphor"), console.log("[ComfyGit] Applied theme: phosphor");
+}
+const tt = document.createElement("link");
+tt.rel = "stylesheet";
+tt.href = new URL("./comfygit-panel.css", import.meta.url).href;
+document.head.appendChild(tt);
+const To = Eo();
+Io(To);
+let B = null, L = null, V = null;
+const O = C(null);
+async function X() {
+  var e;
+  if (!((e = window.app) != null && e.api)) return null;
   try {
-    const u = await window.app.api.fetchApi("/v2/comfygit/status");
-    u.ok && (I.value = await u.json());
+    const g = await window.app.api.fetchApi("/v2/comfygit/status");
+    g.ok && (O.value = await g.json());
   } catch {
   }
 }
-function vs() {
-  if (!I.value) return !1;
-  const t = I.value.workflows;
-  return t.new.length > 0 || t.modified.length > 0 || t.deleted.length > 0 || I.value.has_changes;
+function Mo() {
+  if (!O.value) return !1;
+  const e = O.value.workflows;
+  return e.new.length > 0 || e.modified.length > 0 || e.deleted.length > 0 || O.value.has_changes;
 }
-function gs() {
-  L && L.remove(), L = document.createElement("div"), L.className = "comfygit-panel-overlay";
-  const t = document.createElement("div");
-  t.className = "comfygit-panel-container", L.appendChild(t), L.addEventListener("click", (s) => {
-    s.target === L && R();
+function No() {
+  B && B.remove(), B = document.createElement("div"), B.className = "comfygit-panel-overlay";
+  const e = document.createElement("div");
+  e.className = "comfygit-panel-container", B.appendChild(e), B.addEventListener("click", (s) => {
+    s.target === B && Q();
   });
-  const u = (s) => {
-    s.key === "Escape" && (R(), document.removeEventListener("keydown", u));
+  const g = (s) => {
+    s.key === "Escape" && (Q(), document.removeEventListener("keydown", g));
   };
-  document.addEventListener("keydown", u), se({
-    render: () => ne(Qt, {
-      onClose: R,
+  document.addEventListener("keydown", g), lt({
+    render: () => dt(go, {
+      onClose: Q,
       onStatusUpdate: (s) => {
-        I.value = s, j();
+        O.value = s, Y();
       }
     })
-  }).mount(t), document.body.appendChild(L);
+  }).mount(e), document.body.appendChild(B);
 }
-function R() {
-  L && (L.remove(), L = null);
+function Q() {
+  B && (B.remove(), B = null);
 }
-function fs(t) {
-  M(), _ = document.createElement("div"), _.className = "comfygit-commit-popover-container";
-  const u = t.getBoundingClientRect();
-  _.style.position = "fixed", _.style.top = `${u.bottom + 8}px`, _.style.right = `${window.innerWidth - u.right}px`, _.style.zIndex = "10001";
-  const i = (a) => {
-    _ && !_.contains(a.target) && a.target !== t && (M(), document.removeEventListener("mousedown", i));
+function Po(e) {
+  H(), L = document.createElement("div"), L.className = "comfygit-commit-popover-container";
+  const g = e.getBoundingClientRect();
+  L.style.position = "fixed", L.style.top = `${g.bottom + 8}px`, L.style.right = `${window.innerWidth - g.right}px`, L.style.zIndex = "10001";
+  const c = (h) => {
+    L && !L.contains(h.target) && h.target !== e && (H(), document.removeEventListener("mousedown", c));
   };
-  setTimeout(() => document.addEventListener("mousedown", i), 0);
-  const s = (a) => {
-    a.key === "Escape" && (M(), document.removeEventListener("keydown", s));
+  setTimeout(() => document.addEventListener("mousedown", c), 0);
+  const s = (h) => {
+    h.key === "Escape" && (H(), document.removeEventListener("keydown", s));
   };
-  document.addEventListener("keydown", s), D = se({
-    render: () => ne(hs, {
-      status: I.value,
-      onClose: M,
+  document.addEventListener("keydown", s), V = lt({
+    render: () => dt(So, {
+      status: O.value,
+      onClose: H,
       onCommitted: () => {
-        M(), J().then(j);
+        H(), X().then(Y);
       }
     })
-  }), D.mount(_), document.body.appendChild(_);
+  }), V.mount(L), document.body.appendChild(L);
 }
-function M() {
-  D && (D.unmount(), D = null), _ && (_.remove(), _ = null);
+function H() {
+  V && (V.unmount(), V = null), L && (L.remove(), L = null);
 }
-let E = null;
-function j() {
-  if (!E) return;
-  const t = E.querySelector(".commit-indicator");
-  t && (t.style.display = vs() ? "block" : "none");
+let T = null;
+function Y() {
+  if (!T) return;
+  const e = T.querySelector(".commit-indicator");
+  e && (e.style.display = Mo() ? "block" : "none");
 }
-const oe = document.createElement("style");
-oe.textContent = `
+const mt = document.createElement("style");
+mt.textContent = `
   .comfygit-panel-overlay {
     position: fixed;
     top: 0;
@@ -941,7 +999,7 @@ oe.textContent = `
   }
 
   .comfygit-panel-container {
-    width: 580px;
+    width: var(--cg-panel-width, 580px);
     max-width: 90vw;
     max-height: 80vh;
     display: flex;
@@ -954,15 +1012,16 @@ oe.textContent = `
   }
 
   .comfygit-panel-btn {
-    background: linear-gradient(180deg, #fb923c 0%, #ea580c 100%) !important;
+    background: linear-gradient(180deg, var(--cg-btn-gradient-start, #fb923c) 0%, var(--cg-btn-gradient-end, #ea580c) 100%) !important;
     color: white !important;
     border: none !important;
     border-radius: 4px 0 0 4px !important;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0 rgba(0, 0, 0, 0.15) !important;
+    box-shadow: var(--cg-btn-shadow-inset, inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0 rgba(0, 0, 0, 0.15)) !important;
   }
 
   .comfygit-panel-btn:hover {
-    background: linear-gradient(180deg, #f97316 0%, #c2410c 100%) !important;
+    background: linear-gradient(180deg, var(--cg-btn-gradient-start, #fb923c) 0%, var(--cg-btn-gradient-end, #ea580c) 100%) !important;
+    filter: brightness(1.1);
   }
 
   .comfygit-commit-btn {
@@ -1005,16 +1064,16 @@ oe.textContent = `
     }
   }
 `;
-document.head.appendChild(oe);
-z.registerExtension({
+document.head.appendChild(mt);
+q.registerExtension({
   name: "Comfy.ComfyGitPanel",
   async setup() {
-    var i, s;
-    const t = document.createElement("div");
-    t.className = "comfygit-btn-group";
-    const u = document.createElement("button");
-    u.className = "comfyui-button comfyui-menu-mobile-collapse comfygit-panel-btn", u.textContent = "ComfyGit", u.title = "ComfyGit Control Panel", u.onclick = gs, E = document.createElement("button"), E.className = "comfyui-button comfyui-menu-mobile-collapse comfygit-commit-btn", E.innerHTML = 'Commit <span class="commit-indicator"></span>', E.title = "Quick Commit", E.onclick = () => fs(E), t.appendChild(u), t.appendChild(E), (s = (i = z.menu) == null ? void 0 : i.settingsGroup) != null && s.element && (z.menu.settingsGroup.element.before(t), console.log("[ComfyGit] Control Panel buttons added to toolbar")), await J(), j(), setInterval(async () => {
-      await J(), j();
+    var c, s;
+    const e = document.createElement("div");
+    e.className = "comfygit-btn-group";
+    const g = document.createElement("button");
+    g.className = "comfyui-button comfyui-menu-mobile-collapse comfygit-panel-btn", g.textContent = "ComfyGit", g.title = "ComfyGit Control Panel", g.onclick = No, T = document.createElement("button"), T.className = "comfyui-button comfyui-menu-mobile-collapse comfygit-commit-btn", T.innerHTML = 'Commit <span class="commit-indicator"></span>', T.title = "Quick Commit", T.onclick = () => Po(T), e.appendChild(g), e.appendChild(T), (s = (c = q.menu) == null ? void 0 : c.settingsGroup) != null && s.element && (q.menu.settingsGroup.element.before(e), console.log("[ComfyGit] Control Panel buttons added to toolbar")), await X(), Y(), setInterval(async () => {
+      await X(), Y();
     }, 3e4);
   }
 });
