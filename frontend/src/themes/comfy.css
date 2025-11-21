@@ -398,3 +398,56 @@
 [data-comfygit-theme="comfy"] .view-title {
   text-shadow: none;
 }
+
+/* === Log Components === */
+
+/* Log level badges - rounded style */
+[data-comfygit-theme="comfy"] .log-level {
+  border-radius: var(--cg-radius-sm);
+  font-weight: var(--cg-font-weight-semibold);
+}
+
+/* Log items - subtle hover effect */
+[data-comfygit-theme="comfy"] .log-item {
+  border-radius: var(--cg-radius-md);
+  transition: all var(--cg-transition-fast);
+  margin-bottom: var(--cg-space-1);
+}
+
+[data-comfygit-theme="comfy"] .log-item:hover {
+  background: var(--cg-color-bg-hover);
+}
+
+/* Log context badge */
+[data-comfygit-theme="comfy"] .log-item__context {
+  border-radius: var(--cg-radius-sm);
+  font-weight: var(--cg-font-weight-medium);
+}
+
+/* Log filter bar - cleaner appearance */
+[data-comfygit-theme="comfy"] .log-filter-bar {
+  border-radius: var(--cg-radius-md);
+  background: var(--cg-color-bg-tertiary);
+  border: 1px solid var(--cg-color-border-subtle);
+  margin-bottom: var(--cg-space-3);
+}
+
+[data-comfygit-theme="comfy"] .filter-option {
+  border-radius: var(--cg-radius-sm);
+  transition: all var(--cg-transition-fast);
+}
+
+[data-comfygit-theme="comfy"] .filter-option:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--cg-shadow-sm);
+}
+
+[data-comfygit-theme="comfy"] .filter-option.active {
+  box-shadow: 0 0 8px var(--cg-shadow-accent);
+}
+
+/* Log list container */
+[data-comfygit-theme="comfy"] .log-list {
+  border-radius: var(--cg-radius-md);
+  overflow: hidden;
+}

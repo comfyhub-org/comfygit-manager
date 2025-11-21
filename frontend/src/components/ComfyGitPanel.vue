@@ -213,10 +213,7 @@
           <WorkspaceSettingsSection v-else-if="currentView === 'settings'" />
 
           <!-- Debug (Workspace) View -->
-          <div v-else-if="currentView === 'debug-workspace'" class="view-placeholder">
-            <h3 class="view-title">DEBUG (WORKSPACE LOGS)</h3>
-            <p>Workspace logs view coming soon...</p>
-          </div>
+          <WorkspaceDebugSection v-else-if="currentView === 'debug-workspace'" />
 
           <!-- Export View -->
           <div v-else-if="currentView === 'export'" class="view-placeholder">
@@ -339,6 +336,7 @@ import ModelsEnvSection from './ModelsEnvSection.vue'
 import ModelIndexSection from './ModelIndexSection.vue'
 import NodesSection from './NodesSection.vue'
 import WorkspaceSettingsSection from './WorkspaceSettingsSection.vue'
+import WorkspaceDebugSection from './WorkspaceDebugSection.vue'
 import CommitDetailModal from './CommitDetailModal.vue'
 import ConfirmDialog from './ConfirmDialog.vue'
 import { useComfyGitService } from '@/composables/useComfyGitService'
