@@ -1,5 +1,5 @@
 import { app as Se } from "../../scripts/app.js";
-import { defineComponent as X, computed as I, createElementBlock as s, openBlock as t, createElementVNode as e, createCommentVNode as g, toDisplayString as n, ref as w, nextTick as Ge, withDirectives as $e, withKeys as _e, vModelText as xe, Fragment as N, renderList as V, normalizeClass as U, withModifiers as ye, onMounted as re, onUnmounted as Ke, createBlock as q, Teleport as je, renderSlot as fe, resolveDynamicComponent as Fe, withCtx as D, createVNode as G, createTextVNode as A, TransitionGroup as qe, createApp as De, h as Te } from "vue";
+import { defineComponent as X, computed as I, createElementBlock as s, openBlock as t, createElementVNode as e, createCommentVNode as g, toDisplayString as n, ref as w, nextTick as Ge, withDirectives as $e, withKeys as _e, vModelText as xe, Fragment as N, renderList as V, normalizeClass as U, withModifiers as ye, onMounted as re, onUnmounted as Ke, createBlock as q, Teleport as je, renderSlot as fe, resolveDynamicComponent as Fe, withCtx as T, createVNode as F, createTextVNode as A, TransitionGroup as qe, createApp as De, h as Te } from "vue";
 const Ye = { class: "status-section" }, Ze = { class: "status-grid" }, Xe = { class: "status-column" }, Je = {
   key: 0,
   class: "status-item"
@@ -606,9 +606,9 @@ const Ye = { class: "status-section" }, Ze = { class: "status-grid" }, Xe = { cl
     message: "Resolving workflow dependencies",
     context: { workflow: "sdxl-lightning.json", node_count: 8 }
   }
-], j = {
+], K = {
   // Environment Management
-  getEnvironments: async () => (await F(300), [
+  getEnvironments: async () => (await j(300), [
     {
       name: "production",
       is_current: !0,
@@ -652,17 +652,17 @@ const Ye = { class: "status-section" }, Ze = { class: "status-grid" }, Xe = { cl
     }
   ]),
   switchEnvironment: async (o) => {
-    await F(500), console.log(`[MOCK] Switching to environment: ${o}`);
+    await j(500), console.log(`[MOCK] Switching to environment: ${o}`);
   },
   createEnvironment: async (o, v, c) => {
-    await F(1e3), console.log(`[MOCK] Creating environment: ${o} with backend ${v}`, c ? `cloned from ${c}` : "");
+    await j(1e3), console.log(`[MOCK] Creating environment: ${o} with backend ${v}`, c ? `cloned from ${c}` : "");
   },
   deleteEnvironment: async (o) => {
-    await F(500), console.log(`[MOCK] Deleting environment: ${o}`);
+    await j(500), console.log(`[MOCK] Deleting environment: ${o}`);
   },
   // Workflow Management
-  getWorkflows: async () => (await F(400), Oe),
-  getWorkflowDetails: async (o) => (await F(300), Ut[o] || {
+  getWorkflows: async () => (await j(400), Oe),
+  getWorkflowDetails: async (o) => (await j(300), Ut[o] || {
     name: o,
     status: "synced",
     nodes: [],
@@ -672,7 +672,7 @@ const Ye = { class: "status-section" }, Ze = { class: "status-grid" }, Xe = { cl
    * Resolve Workflow - Return resolution plan
    * Based on ResolutionResult structure (lines 1763-1788)
    */
-  resolveWorkflow: async (o) => (await F(800), {
+  resolveWorkflow: async (o) => (await j(800), {
     workflow_name: o,
     // Nodes resolved with confidence scores
     nodes_resolved: [
@@ -776,36 +776,36 @@ const Ye = { class: "status-section" }, Ze = { class: "status-grid" }, Xe = { cl
     estimated_time_seconds: 120
   }),
   installWorkflowDeps: async (o, v, c) => {
-    await F(2e3), console.log(`[MOCK] Installing deps for ${o}: nodes=${v}, models=${c}`);
+    await j(2e3), console.log(`[MOCK] Installing deps for ${o}: nodes=${v}, models=${c}`);
   },
   setModelImportance: async (o, v, c) => {
-    await F(200), console.log(`[MOCK] Setting ${v} importance to ${c} in ${o}`);
+    await j(200), console.log(`[MOCK] Setting ${v} importance to ${c} in ${o}`);
   },
   // Model Management
-  getEnvironmentModels: async () => (await F(350), Ne),
-  getWorkspaceModels: async () => (await F(400), At),
+  getEnvironmentModels: async () => (await j(350), Ne),
+  getWorkspaceModels: async () => (await j(400), At),
   updateModelSource: async (o, v) => {
-    await F(300), console.log(`[MOCK] Updating source for ${o}: ${v}`);
+    await j(300), console.log(`[MOCK] Updating source for ${o}: ${v}`);
   },
   deleteModel: async (o) => {
-    await F(500), console.log(`[MOCK] Deleting model: ${o}`);
+    await j(500), console.log(`[MOCK] Deleting model: ${o}`);
   },
   downloadModel: async (o) => {
-    await F(3e3), console.log("[MOCK] Downloading model:", o);
+    await j(3e3), console.log("[MOCK] Downloading model:", o);
   },
   // Settings & Debug
-  getConfig: async () => (await F(200), {
+  getConfig: async () => (await j(200), {
     civitai_api_key: "",
     huggingface_token: "",
     models_path: "/workspace/models",
     auto_sync_models: !0
   }),
   updateConfig: async (o) => {
-    await F(300), console.log("[MOCK] Updating config:", o);
+    await j(300), console.log("[MOCK] Updating config:", o);
   },
-  getEnvironmentLogs: async (o, v) => (await F(250), (o ? we.filter((i) => i.level === o) : we).slice(0, v || 100)),
+  getEnvironmentLogs: async (o, v) => (await j(250), (o ? we.filter((i) => i.level === o) : we).slice(0, v || 100)),
   getWorkspaceLogs: async (o, v) => {
-    await F(300);
+    await j(300);
     const c = [...we, ...we.map((p) => ({
       ...p,
       context: { ...p.context, environment: "testing" }
@@ -817,7 +817,7 @@ const Ye = { class: "status-section" }, Ze = { class: "status-grid" }, Xe = { cl
    * Get Environment Status - Matching ComfyGitStatus type
    * See frontend/src/types/comfygit.ts lines 22-32
    */
-  getStatus: async () => (await F(400), {
+  getStatus: async () => (await j(400), {
     environment: "production",
     branch: "main",
     is_detached_head: !1,
@@ -843,8 +843,8 @@ const Ye = { class: "status-section" }, Ze = { class: "status-grid" }, Xe = { cl
     },
     missing_models_count: 1
   }),
-  getCommitHistory: async (o = 10) => (await F(300), Vt.slice(0, o)),
-  getBranches: async () => (await F(250), {
+  getCommitHistory: async (o = 10) => (await j(300), Vt.slice(0, o)),
+  getBranches: async () => (await j(250), {
     branches: [
       { name: "main", is_current: !0 },
       { name: "develop", is_current: !1 },
@@ -853,7 +853,7 @@ const Ye = { class: "status-section" }, Ze = { class: "status-grid" }, Xe = { cl
     current: "main"
   })
 };
-function F(o) {
+function j(o) {
   return new Promise((v) => setTimeout(v, o));
 }
 function ie() {
@@ -870,7 +870,7 @@ function ie() {
     return ee.json();
   }
   async function i() {
-    return j.getStatus();
+    return K.getStatus();
   }
   async function p(E, W = !1) {
     return c("/v2/comfygit/commit", {
@@ -881,7 +881,7 @@ function ie() {
   }
   async function d(E = 10, W = 0) {
     {
-      const ee = await j.getCommitHistory(E);
+      const ee = await K.getCommitHistory(E);
       return {
         commits: ee,
         total: ee.length,
@@ -897,7 +897,7 @@ function ie() {
     });
   }
   async function y() {
-    return j.getBranches();
+    return K.getBranches();
   }
   async function f(E) {
     return c(`/v2/comfygit/commit/${E}`);
@@ -924,61 +924,61 @@ function ie() {
     });
   }
   async function S() {
-    return j.getEnvironments();
+    return K.getEnvironments();
   }
   async function O(E) {
-    return j.switchEnvironment(E);
+    return K.switchEnvironment(E);
   }
   async function Y() {
     return null;
   }
   async function B(E, W, ee) {
-    return await j.createEnvironment(E, W, ee), { status: "success" };
+    return await K.createEnvironment(E, W, ee), { status: "success" };
   }
   async function x(E) {
-    return await j.deleteEnvironment(E), { status: "success" };
+    return await K.deleteEnvironment(E), { status: "success" };
   }
   async function M() {
-    return j.getWorkflows();
+    return K.getWorkflows();
   }
   async function P(E) {
-    return j.getWorkflowDetails(E);
+    return K.getWorkflowDetails(E);
   }
   async function Z(E) {
-    return j.resolveWorkflow(E);
+    return K.resolveWorkflow(E);
   }
   async function L(E, W, ee) {
-    return await j.installWorkflowDeps(E, W, ee), { status: "success" };
+    return await K.installWorkflowDeps(E, W, ee), { status: "success" };
   }
   async function u(E, W, ee) {
-    return j.setModelImportance(E, W, ee);
+    return K.setModelImportance(E, W, ee);
   }
   async function a() {
-    return j.getEnvironmentModels();
+    return K.getEnvironmentModels();
   }
   async function r() {
-    return j.getWorkspaceModels();
+    return K.getWorkspaceModels();
   }
   async function b(E, W) {
-    return j.updateModelSource(E, W);
+    return K.updateModelSource(E, W);
   }
   async function H(E) {
-    return j.deleteModel(E);
+    return K.deleteModel(E);
   }
   async function ce(E) {
-    return await j.downloadModel(E), { status: "success" };
+    return await K.downloadModel(E), { status: "success" };
   }
   async function C() {
-    return j.getConfig();
+    return K.getConfig();
   }
-  async function T(E) {
-    return j.updateConfig(E);
+  async function D(E) {
+    return K.updateConfig(E);
   }
   async function R(E, W) {
-    return j.getEnvironmentLogs(E, W);
+    return K.getEnvironmentLogs(E, W);
   }
   async function se(E, W) {
-    return j.getWorkspaceLogs(E, W);
+    return K.getWorkspaceLogs(E, W);
   }
   return {
     isLoading: o,
@@ -1013,7 +1013,7 @@ function ie() {
     downloadModel: ce,
     // Settings
     getConfig: C,
-    updateConfig: T,
+    updateConfig: D,
     // Debug/Logs
     getEnvironmentLogs: R,
     getWorkspaceLogs: se
@@ -1132,7 +1132,7 @@ const Ht = { class: "base-modal-header" }, Pt = {
     return (v, c) => (t(), q(Fe(`h${o.level}`), {
       class: U(["base-title", o.variant])
     }, {
-      default: D(() => [
+      default: T(() => [
         fe(v.$slots, "default", {}, void 0, !0),
         o.count !== void 0 ? (t(), s("span", Jt, "(" + n(o.count) + ")", 1)) : g("", !0)
       ]),
@@ -1248,11 +1248,11 @@ const Ht = { class: "base-modal-header" }, Pt = {
       error: f.value || void 0,
       onClose: x[2] || (x[2] = (M) => i("close"))
     }, {
-      body: D(() => [
+      body: T(() => [
         h.value ? (t(), s(N, { key: 0 }, [
           e("section", lo, [
-            G(le, { variant: "section" }, {
-              default: D(() => [
+            F(le, { variant: "section" }, {
+              default: T(() => [
                 A("MODELS USED (" + n(h.value.models.length) + ")", 1)
               ]),
               _: 1
@@ -1275,7 +1275,7 @@ const Ht = { class: "base-modal-header" }, Pt = {
                 ]),
                 e("div", go, [
                   x[5] || (x[5] = e("span", { class: "label" }, "Importance:", -1)),
-                  G(no, {
+                  F(no, {
                     "model-value": _.value[M.hash] || M.importance,
                     options: m,
                     "onUpdate:modelValue": (P) => O(M.hash, P)
@@ -1291,12 +1291,12 @@ const Ht = { class: "base-modal-header" }, Pt = {
                 ])) : g("", !0)
               ]),
               M.status === "missing" ? (t(), s("div", yo, [
-                G(te, {
+                F(te, {
                   variant: "secondary",
                   size: "sm",
                   onClick: x[0] || (x[0] = (P) => i("resolve"))
                 }, {
-                  default: D(() => [...x[8] || (x[8] = [
+                  default: T(() => [...x[8] || (x[8] = [
                     A(" Resolve ", -1)
                   ])]),
                   _: 1
@@ -1322,8 +1322,8 @@ const Ht = { class: "base-modal-header" }, Pt = {
             ])
           ], -1)),
           e("section", bo, [
-            G(le, { variant: "section" }, {
-              default: D(() => [
+            F(le, { variant: "section" }, {
+              default: T(() => [
                 A("NODES USED (" + n(h.value.nodes.length) + ")", 1)
               ]),
               _: 1
@@ -1342,12 +1342,12 @@ const Ht = { class: "base-modal-header" }, Pt = {
           ])
         ], 64)) : g("", !0)
       ]),
-      footer: D(() => [
-        G(te, {
+      footer: T(() => [
+        F(te, {
           variant: "secondary",
           onClick: x[1] || (x[1] = (M) => i("close"))
         }, {
-          default: D(() => [...x[10] || (x[10] = [
+          default: T(() => [...x[10] || (x[10] = [
             A(" Close ", -1)
           ])]),
           _: 1
@@ -1357,7 +1357,7 @@ const Ht = { class: "base-modal-header" }, Pt = {
           variant: "primary",
           onClick: Y
         }, {
-          default: D(() => [...x[11] || (x[11] = [
+          default: T(() => [...x[11] || (x[11] = [
             A(" Save Changes ", -1)
           ])]),
           _: 1
@@ -1474,12 +1474,12 @@ const Ht = { class: "base-modal-header" }, Pt = {
       error: $.value || void 0,
       onClose: a[1] || (a[1] = (r) => i("close"))
     }, {
-      body: D(() => [
+      body: T(() => [
         h.value ? (t(), s(N, { key: 0 }, [
           a[5] || (a[5] = e("div", { class: "intro-message" }, " This workflow needs the following to work: ", -1)),
           h.value.nodes_unresolved.length > 0 ? (t(), s("section", Co, [
-            G(le, { variant: "section" }, {
-              default: D(() => [
+            F(le, { variant: "section" }, {
+              default: T(() => [
                 A("NODES (" + n(h.value.nodes_unresolved.length) + ")", 1)
               ]),
               _: 1
@@ -1512,8 +1512,8 @@ const Ht = { class: "base-modal-header" }, Pt = {
             ])
           ])) : g("", !0),
           h.value.models_unresolved.length > 0 ? (t(), s("section", Do, [
-            G(le, { variant: "section" }, {
-              default: D(() => [
+            F(le, { variant: "section" }, {
+              default: T(() => [
                 A("MODELS (" + n(h.value.models_unresolved.length) + ")", 1)
               ]),
               _: 1
@@ -1547,8 +1547,8 @@ const Ht = { class: "base-modal-header" }, Pt = {
             ])
           ])) : g("", !0),
           h.value.nodes_resolved.length > 0 || h.value.models_resolved.length > 0 ? (t(), s("section", Go, [
-            G(le, { variant: "section" }, {
-              default: D(() => [
+            F(le, { variant: "section" }, {
+              default: T(() => [
                 A(" ALREADY AVAILABLE (" + n(h.value.nodes_resolved.length + h.value.models_resolved.length) + ") ", 1)
               ]),
               _: 1
@@ -1566,12 +1566,12 @@ const Ht = { class: "base-modal-header" }, Pt = {
           ])
         ], 64)) : g("", !0)
       ]),
-      footer: D(() => [
-        G(te, {
+      footer: T(() => [
+        F(te, {
           variant: "secondary",
           onClick: a[0] || (a[0] = (r) => i("close"))
         }, {
-          default: D(() => [...a[6] || (a[6] = [
+          default: T(() => [...a[6] || (a[6] = [
             A(" Cancel ", -1)
           ])]),
           _: 1
@@ -1583,7 +1583,7 @@ const Ht = { class: "base-modal-header" }, Pt = {
           loading: f.value,
           onClick: Z
         }, {
-          default: D(() => [...a[7] || (a[7] = [
+          default: T(() => [...a[7] || (a[7] = [
             A(" Install Nodes Only ", -1)
           ])]),
           _: 1
@@ -1595,7 +1595,7 @@ const Ht = { class: "base-modal-header" }, Pt = {
           loading: f.value,
           onClick: L
         }, {
-          default: D(() => [...a[8] || (a[8] = [
+          default: T(() => [...a[8] || (a[8] = [
             A(" Install All ", -1)
           ])]),
           _: 1
@@ -1643,7 +1643,7 @@ const Ht = { class: "base-modal-header" }, Pt = {
     ), M = I(() => {
       if (!y.value.trim()) return p.value;
       const C = y.value.toLowerCase();
-      return p.value.filter((T) => T.name.toLowerCase().includes(C));
+      return p.value.filter((D) => D.name.toLowerCase().includes(C));
     }), P = I(
       () => O.value.filter(
         (C) => !y.value.trim() || C.name.toLowerCase().includes(y.value.toLowerCase())
@@ -1683,9 +1683,9 @@ const Ht = { class: "base-modal-header" }, Pt = {
     function ce() {
       c("refresh");
     }
-    return re(a), (C, T) => (t(), s("div", es, [
+    return re(a), (C, D) => (t(), s("div", es, [
       e("div", ts, [
-        T[7] || (T[7] = e("h3", { class: "view-title" }, "WORKFLOWS", -1)),
+        D[7] || (D[7] = e("h3", { class: "view-title" }, "WORKFLOWS", -1)),
         O.value.length > 0 ? (t(), s("button", {
           key: 0,
           class: "resolve-all-btn",
@@ -1694,7 +1694,7 @@ const Ht = { class: "base-modal-header" }, Pt = {
       ]),
       e("div", os, [
         $e(e("input", {
-          "onUpdate:modelValue": T[0] || (T[0] = (R) => y.value = R),
+          "onUpdate:modelValue": D[0] || (D[0] = (R) => y.value = R),
           type: "text",
           placeholder: "🔍 Search workflows...",
           class: "search-input"
@@ -1733,7 +1733,7 @@ const Ht = { class: "base-modal-header" }, Pt = {
           }, [
             e("div", fs, [
               e("div", ps, "● " + n(R.name), 1),
-              T[8] || (T[8] = e("div", { class: "workflow-status" }, "✓ Ready", -1))
+              D[8] || (D[8] = e("div", { class: "workflow-status" }, "✓ Ready", -1))
             ]),
             e("div", ys, [
               e("button", {
@@ -1751,7 +1751,7 @@ const Ht = { class: "base-modal-header" }, Pt = {
           }, [
             e("div", ks, [
               e("div", $s, "⚡ " + n(R.name), 1),
-              T[9] || (T[9] = e("div", { class: "workflow-status" }, "✓ Ready", -1))
+              D[9] || (D[9] = e("div", { class: "workflow-status" }, "✓ Ready", -1))
             ]),
             e("div", xs, [
               e("button", {
@@ -1764,7 +1764,7 @@ const Ht = { class: "base-modal-header" }, Pt = {
         u.value.length ? (t(), s("section", Ss, [
           e("h4", {
             class: "group-title clickable",
-            onClick: T[1] || (T[1] = (R) => f.value = !f.value)
+            onClick: D[1] || (D[1] = (R) => f.value = !f.value)
           }, " SYNCED (" + n(u.value.length) + ") " + n(f.value ? "▼" : "▸"), 1),
           f.value ? (t(), s(N, { key: 0 }, [
             (t(!0), s(N, null, V(u.value.slice(0, $.value ? void 0 : 5), (R) => (t(), s("div", {
@@ -1773,7 +1773,7 @@ const Ht = { class: "base-modal-header" }, Pt = {
             }, [
               e("div", Es, [
                 e("div", Ls, n(R.name), 1),
-                T[10] || (T[10] = e("div", { class: "workflow-status" }, "✓ Ready", -1))
+                D[10] || (D[10] = e("div", { class: "workflow-status" }, "✓ Ready", -1))
               ]),
               e("div", Ms, [
                 e("button", {
@@ -1785,7 +1785,7 @@ const Ht = { class: "base-modal-header" }, Pt = {
             !$.value && u.value.length > 5 ? (t(), s("button", {
               key: 0,
               class: "show-more-btn",
-              onClick: T[2] || (T[2] = (R) => $.value = !0)
+              onClick: D[2] || (D[2] = (R) => $.value = !0)
             }, " View all " + n(u.value.length) + " → ", 1)) : g("", !0)
           ], 64)) : g("", !0)
         ])) : g("", !0),
@@ -1796,15 +1796,15 @@ const Ht = { class: "base-modal-header" }, Pt = {
       _.value && S.value ? (t(), q(xo, {
         key: 3,
         "workflow-name": S.value,
-        onClose: T[3] || (T[3] = (R) => _.value = !1),
-        onResolve: T[4] || (T[4] = (R) => b(S.value))
+        onClose: D[3] || (D[3] = (R) => _.value = !1),
+        onResolve: D[4] || (D[4] = (R) => b(S.value))
       }, null, 8, ["workflow-name"])) : g("", !0),
       m.value && S.value ? (t(), q(Qo, {
         key: 4,
         "workflow-name": S.value,
-        onClose: T[5] || (T[5] = (R) => m.value = !1),
+        onClose: D[5] || (D[5] = (R) => m.value = !1),
         onInstall: ce,
-        onRefresh: T[6] || (T[6] = (R) => c("refresh"))
+        onRefresh: D[6] || (D[6] = (R) => c("refresh"))
       }, null, 8, ["workflow-name"])) : g("", !0)
     ]));
   }
@@ -2406,16 +2406,11 @@ This will free ${S(u.size_mb || 0)} of space.`
       "show-close-button": !1,
       onClose: f[3] || (f[3] = ($) => y.$emit("close"))
     }, {
-      header: D(() => {
+      header: T(() => {
         var $, _, m, S;
         return [
           e("div", Jn, [
-            G(le, { variant: "dialog" }, {
-              default: D(() => [...f[4] || (f[4] = [
-                A("COMMIT DETAILS", -1)
-              ])]),
-              _: 1
-            }),
+            f[4] || (f[4] = e("h3", { class: "header-title" }, "COMMIT DETAILS", -1)),
             e("span", Qn, n((($ = i.value) == null ? void 0 : $.short_hash) || o.commit.short_hash || ((_ = o.commit.hash) == null ? void 0 : _.slice(0, 7))), 1),
             (S = (m = i.value) == null ? void 0 : m.refs) != null && S.length ? (t(), s("span", el, [
               (t(!0), s(N, null, V(i.value.refs, (O) => (t(), s("span", {
@@ -2424,12 +2419,12 @@ This will free ${S(u.size_mb || 0)} of space.`
               }, n(O), 1))), 128))
             ])) : g("", !0)
           ]),
-          G(te, {
+          F(te, {
             variant: "ghost",
             size: "sm",
             onClick: f[0] || (f[0] = (O) => y.$emit("close"))
           }, {
-            default: D(() => [...f[5] || (f[5] = [
+            default: T(() => [...f[5] || (f[5] = [
               e("svg", {
                 width: "16",
                 height: "16",
@@ -2443,7 +2438,7 @@ This will free ${S(u.size_mb || 0)} of space.`
           })
         ];
       }),
-      body: D(() => {
+      body: T(() => {
         var $, _;
         return [
           e("div", tl, n((($ = i.value) == null ? void 0 : $.message) || o.commit.message), 1),
@@ -2455,8 +2450,8 @@ This will free ${S(u.size_mb || 0)} of space.`
               e("span", il, "-" + n(i.value.stats.deletions), 1)
             ]),
             d.value ? (t(), s("div", cl, [
-              G(le, { variant: "section" }, {
-                default: D(() => [...f[6] || (f[6] = [
+              F(le, { variant: "section" }, {
+                default: T(() => [...f[6] || (f[6] = [
                   A("WORKFLOWS", -1)
                 ])]),
                 _: 1
@@ -2484,8 +2479,8 @@ This will free ${S(u.size_mb || 0)} of space.`
               ]))), 128))
             ])) : g("", !0),
             h.value ? (t(), s("div", dl, [
-              G(le, { variant: "section" }, {
-                default: D(() => [...f[10] || (f[10] = [
+              F(le, { variant: "section" }, {
+                default: T(() => [...f[10] || (f[10] = [
                   A("NODES", -1)
                 ])]),
                 _: 1
@@ -2507,8 +2502,8 @@ This will free ${S(u.size_mb || 0)} of space.`
               ]))), 128))
             ])) : g("", !0),
             i.value.changes.models.resolved > 0 ? (t(), s("div", ml, [
-              G(le, { variant: "section" }, {
-                default: D(() => [...f[13] || (f[13] = [
+              F(le, { variant: "section" }, {
+                default: T(() => [...f[13] || (f[13] = [
                   A("MODELS", -1)
                 ])]),
                 _: 1
@@ -2521,21 +2516,21 @@ This will free ${S(u.size_mb || 0)} of space.`
           ])) : g("", !0)
         ];
       }),
-      footer: D(() => [
-        G(te, {
+      footer: T(() => [
+        F(te, {
           variant: "secondary",
           onClick: f[1] || (f[1] = ($) => y.$emit("createBranch", o.commit))
         }, {
-          default: D(() => [...f[15] || (f[15] = [
+          default: T(() => [...f[15] || (f[15] = [
             A(" Create Branch From Here ", -1)
           ])]),
           _: 1
         }),
-        G(te, {
+        F(te, {
           variant: "primary",
           onClick: f[2] || (f[2] = ($) => y.$emit("checkout", o.commit))
         }, {
-          default: D(() => [...f[16] || (f[16] = [
+          default: T(() => [...f[16] || (f[16] = [
             A(" Checkout ", -1)
           ])]),
           _: 1
@@ -2544,7 +2539,7 @@ This will free ${S(u.size_mb || 0)} of space.`
       _: 1
     }));
   }
-}), vl = /* @__PURE__ */ J(hl, [["__scopeId", "data-v-d8d3a88d"]]), fl = { class: "dialog-message" }, pl = {
+}), vl = /* @__PURE__ */ J(hl, [["__scopeId", "data-v-d256ff6d"]]), fl = { class: "dialog-message" }, pl = {
   key: 0,
   class: "dialog-details"
 }, yl = {
@@ -2570,7 +2565,7 @@ This will free ${S(u.size_mb || 0)} of space.`
       size: "sm",
       onClose: c[3] || (c[3] = (i) => v.$emit("cancel"))
     }, {
-      body: D(() => [
+      body: T(() => [
         e("p", fl, n(o.message), 1),
         o.details && o.details.length ? (t(), s("div", pl, [
           (t(!0), s(N, null, V(o.details, (i, p) => (t(), s("div", {
@@ -2583,12 +2578,12 @@ This will free ${S(u.size_mb || 0)} of space.`
           A(" " + n(o.warning), 1)
         ])) : g("", !0)
       ]),
-      footer: D(() => [
-        G(te, {
+      footer: T(() => [
+        F(te, {
           variant: "secondary",
           onClick: c[0] || (c[0] = (i) => v.$emit("cancel"))
         }, {
-          default: D(() => [
+          default: T(() => [
             A(n(o.cancelLabel), 1)
           ]),
           _: 1
@@ -2598,16 +2593,16 @@ This will free ${S(u.size_mb || 0)} of space.`
           variant: "secondary",
           onClick: c[1] || (c[1] = (i) => v.$emit("secondary"))
         }, {
-          default: D(() => [
+          default: T(() => [
             A(n(o.secondaryLabel), 1)
           ]),
           _: 1
         })) : g("", !0),
-        G(te, {
+        F(te, {
           variant: o.destructive ? "danger" : "primary",
           onClick: c[2] || (c[2] = (i) => v.$emit("confirm"))
         }, {
-          default: D(() => [
+          default: T(() => [
             A(n(o.confirmLabel), 1)
           ]),
           _: 1
@@ -2673,20 +2668,20 @@ This will free ${S(u.size_mb || 0)} of space.`
       L.value = k, u.value = l;
     }
     function r(k) {
-      const K = {
+      const G = {
         "model-index": { view: "model-index", section: "all-envs" }
       }[k];
-      K && a(K.view, K.section);
+      G && a(G.view, G.section);
     }
     const b = w(null), H = w([]);
     let ce = 0;
-    function C(k, l = "info", K = 3e3) {
+    function C(k, l = "info", G = 3e3) {
       const Q = ++ce;
-      return H.value.push({ id: Q, message: k, type: l }), K > 0 && setTimeout(() => {
+      return H.value.push({ id: Q, message: k, type: l }), G > 0 && setTimeout(() => {
         H.value = H.value.filter((de) => de.id !== Q);
-      }, K), Q;
+      }, G), Q;
     }
-    function T(k) {
+    function D(k) {
       H.value = H.value.filter((l) => l.id !== k);
     }
     function R(k) {
@@ -2709,13 +2704,13 @@ This will free ${S(u.size_mb || 0)} of space.`
     async function W() {
       x.value = !0, M.value = null;
       try {
-        const [k, l, K, Q] = await Promise.all([
+        const [k, l, G, Q] = await Promise.all([
           i(),
           p(),
           h(),
           _()
         ]);
-        m.value = k, S.value = l.commits, O.value = K.branches, Y.value = Q, c("statusUpdate", k);
+        m.value = k, S.value = l.commits, O.value = G.branches, Y.value = Q, c("statusUpdate", k);
       } catch (k) {
         M.value = k instanceof Error ? k.message : "Failed to load status", m.value = null, S.value = [], O.value = [];
       } finally {
@@ -2726,12 +2721,12 @@ This will free ${S(u.size_mb || 0)} of space.`
       P.value = k;
     }
     async function ge(k) {
-      var K;
+      var G;
       P.value = null;
       const l = m.value && (m.value.workflows.new.length > 0 || m.value.workflows.modified.length > 0 || m.value.workflows.deleted.length > 0 || m.value.has_changes);
       b.value = {
         title: l ? "Checkout with Uncommitted Changes" : "Checkout Commit",
-        message: l ? "You have uncommitted changes that will be lost." : `Checkout commit ${k.short_hash || ((K = k.hash) == null ? void 0 : K.slice(0, 7))}?`,
+        message: l ? "You have uncommitted changes that will be lost." : `Checkout commit ${k.short_hash || ((G = k.hash) == null ? void 0 : G.slice(0, 7))}?`,
         details: l ? Ie() : void 0,
         warning: "This will restart ComfyUI to apply the changes.",
         confirmLabel: l ? "Discard & Checkout" : "Checkout",
@@ -2741,7 +2736,7 @@ This will free ${S(u.size_mb || 0)} of space.`
           var he;
           b.value = null;
           const Q = C(`Checking out ${k.short_hash || ((he = k.hash) == null ? void 0 : he.slice(0, 7))}...`, "info", 0), de = await y(k.hash, l);
-          T(Q), de.status === "success" ? C("Restarting ComfyUI...", "success") : C(de.message || "Checkout failed", "error");
+          D(Q), de.status === "success" ? C("Restarting ComfyUI...", "success") : C(de.message || "Checkout failed", "error");
         }
       };
     }
@@ -2756,21 +2751,21 @@ This will free ${S(u.size_mb || 0)} of space.`
         cancelLabel: "Cancel",
         onConfirm: async () => {
           b.value = null;
-          const K = C(`Switching to ${k}...`, "info", 0), Q = await $(k, l);
-          T(K), Q.status === "success" ? C("Restarting ComfyUI...", "success") : C(Q.message || "Branch switch failed", "error");
+          const G = C(`Switching to ${k}...`, "info", 0), Q = await $(k, l);
+          D(G), Q.status === "success" ? C("Restarting ComfyUI...", "success") : C(Q.message || "Branch switch failed", "error");
         }
       };
     }
     async function Ae(k) {
-      const l = C(`Creating branch ${k}...`, "info", 0), K = await f(k);
-      T(l), K.status === "success" ? (C(`Branch "${k}" created`, "success"), await W()) : C(K.message || "Failed to create branch", "error");
+      const l = C(`Creating branch ${k}...`, "info", 0), G = await f(k);
+      D(l), G.status === "success" ? (C(`Branch "${k}" created`, "success"), await W()) : C(G.message || "Failed to create branch", "error");
     }
     async function Ve(k) {
       P.value = null;
       const l = prompt("Enter branch name:");
       if (l) {
-        const K = C(`Creating branch ${l}...`, "info", 0), Q = await f(l, k.hash);
-        T(K), Q.status === "success" ? (C(`Branch "${l}" created from ${k.short_hash}`, "success"), await W()) : C(Q.message || "Failed to create branch", "error");
+        const G = C(`Creating branch ${l}...`, "info", 0), Q = await f(l, k.hash);
+        D(G), Q.status === "success" ? (C(`Branch "${l}" created from ${k.short_hash}`, "success"), await W()) : C(Q.message || "Failed to create branch", "error");
       }
     }
     async function He(k) {
@@ -2785,23 +2780,23 @@ This will free ${S(u.size_mb || 0)} of space.`
       const k = C("Exporting environment...", "info", 0);
       try {
         const l = await d();
-        T(k), l.status === "success" ? (C("Export complete", "success"), alert(`Export successful!
+        D(k), l.status === "success" ? (C("Export complete", "success"), alert(`Export successful!
 
 Saved to: ${l.path}
 
 Models without sources: ${l.models_without_sources}`)) : (C("Export failed", "error"), alert(`Export failed: ${l.message}`));
       } catch (l) {
-        T(k), C("Export error", "error"), alert(`Export error: ${l instanceof Error ? l.message : "Unknown error"}`);
+        D(k), C("Export error", "error"), alert(`Export error: ${l instanceof Error ? l.message : "Unknown error"}`);
       }
     }
     return re(W), (k, l) => {
-      var K, Q, de, he;
+      var G, Q, de, he;
       return t(), s("div", _l, [
         e("div", kl, [
           e("div", $l, [
             l[20] || (l[20] = e("h2", { class: "panel-title" }, "ComfyGit", -1)),
             m.value ? (t(), s("div", xl, [
-              e("span", Cl, n(((K = B.value) == null ? void 0 : K.name) || m.value.environment), 1),
+              e("span", Cl, n(((G = B.value) == null ? void 0 : G.name) || m.value.environment), 1),
               e("span", Sl, n(m.value.branch || "detached"), 1),
               e("span", {
                 class: U(["status-dot", se.value]),
@@ -3055,8 +3050,8 @@ Models without sources: ${l.models_without_sources}`)) : (C("Export failed", "er
           ])
         ])) : g("", !0),
         e("div", ar, [
-          G(qe, { name: "toast" }, {
-            default: D(() => [
+          F(qe, { name: "toast" }, {
+            default: T(() => [
               (t(!0), s(N, null, V(H.value, (z) => (t(), s("div", {
                 key: z.id,
                 class: U(["toast", z.type])
@@ -3197,7 +3192,7 @@ Models without sources: ${l.models_without_sources}`)) : (C("Export failed", "er
           ])) : g("", !0)
         ])) : o.status ? (t(), s("div", $r, " No changes to commit ")) : (t(), s("div", xr, " Loading... ")),
         e("div", Cr, [
-          G(gr, {
+          F(gr, {
             modelValue: d.value,
             "onUpdate:modelValue": m[1] || (m[1] = (S) => d.value = S),
             placeholder: f.value ? "Describe your changes..." : "No changes",
@@ -3212,22 +3207,22 @@ Models without sources: ${l.models_without_sources}`)) : (C("Export failed", "er
         }, n(y.value.message), 3)) : g("", !0)
       ]),
       e("div", Sr, [
-        G(te, {
+        F(te, {
           variant: "secondary",
           onClick: m[2] || (m[2] = (S) => i("close"))
         }, {
-          default: D(() => [...m[10] || (m[10] = [
+          default: T(() => [...m[10] || (m[10] = [
             A(" Cancel ", -1)
           ])]),
           _: 1
         }),
-        G(te, {
+        F(te, {
           variant: "primary",
           disabled: !f.value || !d.value.trim() || h.value,
           loading: h.value,
           onClick: $
         }, {
-          default: D(() => [
+          default: T(() => [
             A(n(h.value ? "Committing..." : "Commit"), 1)
           ]),
           _: 1

@@ -6,7 +6,7 @@
   >
     <template #header>
       <div class="header-info">
-        <BaseTitle variant="dialog">COMMIT DETAILS</BaseTitle>
+        <h3 class="header-title">COMMIT DETAILS</h3>
         <span class="commit-hash">{{ detail?.short_hash || commit.short_hash || commit.hash?.slice(0, 7) }}</span>
         <span v-if="detail?.refs?.length" class="commit-refs">
           <span v-for="ref in detail.refs" :key="ref" class="ref-badge">{{ ref }}</span>
@@ -136,6 +136,15 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   gap: 6px;
+}
+
+.header-title {
+  color: var(--cg-color-accent);
+  text-transform: uppercase;
+  letter-spacing: var(--cg-letter-spacing-wide);
+  font-size: var(--cg-font-size-sm);
+  margin: 0;
+  font-weight: var(--cg-font-weight-normal);
 }
 
 .commit-hash {
