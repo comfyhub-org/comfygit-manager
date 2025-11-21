@@ -166,6 +166,38 @@
   box-shadow: var(--cg-shadow-sm);
 }
 
+/* Issue cards - actionable warnings/errors */
+[data-comfygit-theme="comfy"] .issue-card {
+  border-radius: var(--cg-radius-lg);
+  box-shadow: var(--cg-shadow-sm);
+  transition: all var(--cg-transition-fast);
+}
+
+[data-comfygit-theme="comfy"] .issue-card:hover {
+  box-shadow: var(--cg-shadow-md);
+}
+
+[data-comfygit-theme="comfy"] .issue-card--warning {
+  border-left-width: 4px;
+}
+
+[data-comfygit-theme="comfy"] .issue-card--error {
+  border-left-width: 4px;
+}
+
+[data-comfygit-theme="comfy"] .issue-card--info {
+  border-left-width: 4px;
+}
+
+/* Branch indicator */
+[data-comfygit-theme="comfy"] .branch-indicator {
+  border-radius: var(--cg-radius-md);
+}
+
+[data-comfygit-theme="comfy"] .branch-indicator__name {
+  font-weight: var(--cg-font-weight-semibold);
+}
+
 /* Commit items */
 [data-comfygit-theme="comfy"] .commit-item {
   border-radius: var(--cg-radius-md);

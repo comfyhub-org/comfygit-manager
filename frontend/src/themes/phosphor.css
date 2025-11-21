@@ -353,6 +353,103 @@
   color: var(--cg-color-error);
 }
 
+/* === Issue Cards === */
+[data-comfygit-theme="phosphor"] .issue-card {
+  background: transparent;
+  border: 1px solid;
+  box-shadow: var(--cg-shadow-sm);
+  transition: all var(--cg-transition-fast);
+}
+
+[data-comfygit-theme="phosphor"] .issue-card:hover {
+  box-shadow: var(--cg-shadow-md);
+}
+
+[data-comfygit-theme="phosphor"] .issue-card--warning {
+  border-color: var(--cg-color-warning);
+}
+
+[data-comfygit-theme="phosphor"] .issue-card--warning .issue-card__icon,
+[data-comfygit-theme="phosphor"] .issue-card--warning .issue-card__title {
+  text-shadow: 0 0 8px var(--cg-color-warning);
+}
+
+[data-comfygit-theme="phosphor"] .issue-card--error {
+  border-color: var(--cg-color-error);
+}
+
+[data-comfygit-theme="phosphor"] .issue-card--error .issue-card__icon,
+[data-comfygit-theme="phosphor"] .issue-card--error .issue-card__title {
+  text-shadow: 0 0 8px var(--cg-color-error);
+}
+
+[data-comfygit-theme="phosphor"] .issue-card--info {
+  border-color: var(--cg-color-accent);
+}
+
+[data-comfygit-theme="phosphor"] .issue-card--info .issue-card__icon,
+[data-comfygit-theme="phosphor"] .issue-card--info .issue-card__title {
+  text-shadow: 0 0 8px var(--cg-color-accent);
+}
+
+/* === Status Items === */
+[data-comfygit-theme="phosphor"] .status-item__icon {
+  display: none;
+}
+
+[data-comfygit-theme="phosphor"] .status-item::before {
+  content: '├─ ';
+  color: var(--cg-color-border-subtle);
+}
+
+[data-comfygit-theme="phosphor"] .status-item.is-separator::before {
+  content: '└─ ';
+}
+
+[data-comfygit-theme="phosphor"] .status-item__count {
+  font-weight: var(--cg-font-weight-bold);
+}
+
+[data-comfygit-theme="phosphor"] .status-item--new .status-item__count {
+  text-shadow: 0 0 4px var(--cg-color-success);
+}
+
+[data-comfygit-theme="phosphor"] .status-item--modified .status-item__count {
+  text-shadow: 0 0 4px var(--cg-color-warning);
+}
+
+[data-comfygit-theme="phosphor"] .status-item--deleted .status-item__count {
+  text-shadow: 0 0 4px var(--cg-color-error);
+}
+
+/* === Branch Indicator === */
+[data-comfygit-theme="phosphor"] .branch-indicator__label::before {
+  content: '/* ';
+  color: var(--cg-color-text-muted);
+}
+
+[data-comfygit-theme="phosphor"] .branch-indicator__label::after {
+  content: ' */';
+  color: var(--cg-color-text-muted);
+}
+
+[data-comfygit-theme="phosphor"] .branch-indicator__name {
+  font-weight: var(--cg-font-weight-bold);
+  text-shadow: 0 0 8px var(--cg-color-accent);
+}
+
+[data-comfygit-theme="phosphor"] .branch-indicator__remote {
+  opacity: 0.7;
+}
+
+[data-comfygit-theme="phosphor"] .branch-indicator__ahead {
+  text-shadow: 0 0 4px var(--cg-color-success);
+}
+
+[data-comfygit-theme="phosphor"] .branch-indicator__behind {
+  text-shadow: 0 0 4px var(--cg-color-warning);
+}
+
 /* === Branch Section === */
 [data-comfygit-theme="phosphor"] .branch-item {
   font-size: var(--cg-font-size-base);
