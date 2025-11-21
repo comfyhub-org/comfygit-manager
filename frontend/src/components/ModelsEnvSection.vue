@@ -1,15 +1,41 @@
 <template>
   <div class="models-env-section">
-    <h3 class="view-title">MODELS IN THIS ENVIRONMENT</h3>
-
-    <div class="section-intro">
-      <p class="intro-text">
-        These are models currently used by workflows in "{{ environmentName }}".
-        All models are symlinked from the workspace model index.
-      </p>
-      <button class="link-btn" @click="$emit('navigate', 'model-index')">
-        View Workspace Model Index ↗
+    <div class="title-row">
+      <h3 class="view-title">MODELS IN THIS ENVIRONMENT</h3>
+      <button
+        ref="infoButton"
+        class="info-icon"
+        @click="togglePopover"
+        title="About this section"
+      >
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+          <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5" fill="none"/>
+          <text x="8" y="11" text-anchor="middle" font-size="10" font-weight="bold" fill="currentColor">i</text>
+        </svg>
       </button>
+    </div>
+
+    <!-- Info Popover -->
+    <div v-if="showPopover" class="popover-overlay" @click="showPopover = false">
+      <div
+        ref="popover"
+        class="popover"
+        @click.stop
+      >
+        <div class="popover-header">
+          <h4 class="popover-title">About Environment Models</h4>
+          <button class="popover-close" @click="showPopover = false">✕</button>
+        </div>
+        <div class="popover-content">
+          <p class="popover-text">
+            These are models currently used by workflows in <strong>"{{ environmentName }}"</strong>.
+            All models are symlinked from the workspace model index.
+          </p>
+          <button class="popover-link-btn" @click="navigateToIndex">
+            View Workspace Model Index ↗
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Search bar -->
@@ -192,6 +218,18 @@ const environmentName = ref('production')
 const loading = ref(false)
 const error = ref<string | null>(null)
 const searchQuery = ref('')
+const showPopover = ref(false)
+const infoButton = ref<HTMLElement | null>(null)
+const popover = ref<HTMLElement | null>(null)
+
+function togglePopover() {
+  showPopover.value = !showPopover.value
+}
+
+function navigateToIndex() {
+  showPopover.value = false
+  emit('navigate', 'model-index')
+}
 
 // Computed filters
 const checkpoints = computed(() =>
@@ -291,30 +329,130 @@ onMounted(loadModels)
   height: 100%;
 }
 
+.title-row {
+  display: flex;
+  align-items: center;
+  gap: var(--cg-space-2);
+  margin-bottom: var(--cg-space-4);
+}
+
 .view-title {
   color: var(--cg-color-accent);
   font-size: var(--cg-font-size-lg);
   text-transform: uppercase;
   letter-spacing: var(--cg-letter-spacing-wide);
-  margin: 0 0 var(--cg-space-4) 0;
+  margin: 0;
 }
 
-.section-intro {
-  background: var(--cg-color-bg-tertiary);
-  border: 1px solid var(--cg-color-border-subtle);
-  padding: var(--cg-space-3);
-  margin-bottom: var(--cg-space-4);
+.view-title::before {
+  content: '> ';
+  opacity: 0.7;
 }
 
-.intro-text {
+.info-icon {
+  background: transparent;
+  border: none;
+  color: var(--cg-color-text-muted);
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--cg-transition-fast);
+}
+
+.info-icon:hover {
+  color: var(--cg-color-accent);
+  transform: scale(1.1);
+}
+
+/* Popover styles */
+.popover-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--cg-color-bg-overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--cg-z-modal);
+}
+
+.popover {
+  background: var(--cg-color-bg-secondary);
+  border: 1px solid var(--cg-color-border);
+  border-radius: var(--cg-radius-md);
+  box-shadow: var(--cg-shadow-lg);
+  max-width: 400px;
+  width: 90%;
+  animation: popoverFadeIn var(--cg-transition-normal);
+}
+
+@keyframes popoverFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.popover-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--cg-space-3) var(--cg-space-4);
+  border-bottom: 1px solid var(--cg-color-border-subtle);
+}
+
+.popover-title {
+  color: var(--cg-color-text-primary);
+  font-size: var(--cg-font-size-base);
+  font-weight: var(--cg-font-weight-semibold);
+  margin: 0;
+}
+
+.popover-close {
+  background: transparent;
+  border: none;
+  color: var(--cg-color-text-muted);
+  font-size: var(--cg-font-size-lg);
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--cg-transition-fast);
+}
+
+.popover-close:hover {
+  color: var(--cg-color-text-primary);
+}
+
+.popover-content {
+  padding: var(--cg-space-4);
+}
+
+.popover-text {
   color: var(--cg-color-text-secondary);
   font-size: var(--cg-font-size-sm);
-  margin: 0 0 var(--cg-space-2) 0;
-  line-height: 1.5;
+  line-height: var(--cg-line-height-normal);
+  margin: 0 0 var(--cg-space-3) 0;
 }
 
-.link-btn {
-  padding: 4px 10px;
+.popover-text strong {
+  color: var(--cg-color-accent);
+  font-weight: var(--cg-font-weight-semibold);
+}
+
+.popover-link-btn {
+  padding: 6px 12px;
   background: transparent;
   color: var(--cg-color-info);
   border: 1px solid var(--cg-color-info);
@@ -323,11 +461,13 @@ onMounted(loadModels)
   text-transform: uppercase;
   letter-spacing: var(--cg-letter-spacing-wide);
   cursor: pointer;
+  transition: all var(--cg-transition-fast);
+  width: 100%;
 }
 
-.link-btn:hover {
+.popover-link-btn:hover {
   background: var(--cg-color-bg-hover);
-  box-shadow: 0 0 8px rgba(0, 168, 255, 0.3);
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.3);
 }
 
 .search-bar {

@@ -1,6 +1,6 @@
 <template>
   <div class="status-section">
-    <h3 class="section-title">Status</h3>
+    <h3 class="view-title">STATUS</h3>
     <div class="status-grid">
       <!-- Workflow column -->
       <div class="status-column">
@@ -91,118 +91,124 @@ const hasOtherWorkflowChanges = computed(() => {
 
 <style scoped>
 .status-section {
-  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
-.section-title {
-  font-size: 11px;
-  font-weight: 600;
+.view-title {
+  color: var(--cg-color-accent);
+  font-size: var(--cg-font-size-lg);
   text-transform: uppercase;
-  color: var(--descrip-text, #999);
-  margin: 0 0 8px 0;
-  letter-spacing: 0.5px;
+  letter-spacing: var(--cg-letter-spacing-wide);
+  margin: 0 0 var(--cg-space-4) 0;
+}
+
+.view-title::before {
+  content: '> ';
+  opacity: 0.7;
 }
 
 .status-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0;
-  background: var(--comfy-input-bg, #222);
-  border: 1px solid var(--border-color, #4a4a4a);
-  border-radius: 6px;
+  background: var(--cg-color-bg-tertiary);
+  border: 1px solid var(--cg-color-border-subtle);
+  border-radius: var(--cg-radius-md);
 }
 
 .status-column {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 12px 16px;
+  gap: var(--cg-space-1);
+  padding: var(--cg-space-3) var(--cg-space-4);
 }
 
 .status-column:first-child {
-  border-right: 1px solid var(--border-color, #4a4a4a);
+  border-right: 1px solid var(--cg-color-border-subtle);
 }
 
 .column-title {
-  font-size: 11px;
-  font-weight: 600;
+  font-size: var(--cg-font-size-xs);
+  font-weight: var(--cg-font-weight-semibold);
   text-transform: uppercase;
-  color: var(--descrip-text, #999);
-  margin: 0 0 6px 0;
-  letter-spacing: 0.5px;
+  color: var(--cg-color-text-muted);
+  margin: 0 0 var(--cg-space-2) 0;
+  letter-spacing: var(--cg-letter-spacing-wide);
 }
 
 .status-item {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--input-text, #ddd);
+  gap: var(--cg-space-2);
+  font-size: var(--cg-font-size-sm);
+  color: var(--cg-color-text-primary);
 }
 
 .status-item .icon {
-  font-size: 8px;
+  font-size: var(--cg-font-size-xs);
   opacity: 0.7;
 }
 
 .status-item .icon.synced {
-  color: var(--descrip-text, #999);
-  font-size: 10px;
+  color: var(--cg-color-text-muted);
+  font-size: var(--cg-font-size-xs);
 }
 
 .synced-item {
-  margin-top: 4px;
-  padding-top: 4px;
-  border-top: 1px solid var(--border-color, #3a3a3a);
+  margin-top: var(--cg-space-1);
+  padding-top: var(--cg-space-1);
+  border-top: 1px solid var(--cg-color-border-subtle);
 }
 
 .count {
-  font-weight: 600;
+  font-weight: var(--cg-font-weight-semibold);
   min-width: 16px;
 }
 
-.count.new { color: #4ade80; }
-.count.modified { color: #fbbf24; }
-.count.deleted { color: #f87171; }
-.count.synced { color: var(--descrip-text, #999); }
+.count.new { color: var(--cg-color-success); }
+.count.modified { color: var(--cg-color-warning); }
+.count.deleted { color: var(--cg-color-error); }
+.count.synced { color: var(--cg-color-text-muted); }
 
 .label {
-  color: var(--descrip-text, #999);
+  color: var(--cg-color-text-secondary);
 }
 
 .status-item.ok {
-  color: #4ade80;
+  color: var(--cg-color-success);
 }
 
 .status-item.ok .icon {
-  font-size: 10px;
+  font-size: var(--cg-font-size-xs);
   opacity: 1;
 }
 
 .status-item.ok .label {
-  color: #4ade80;
+  color: var(--cg-color-success);
 }
 
 .warning-box {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-top: 8px;
-  padding: 8px 10px;
-  background: rgba(251, 191, 36, 0.1);
-  border: 1px solid #fbbf24;
-  border-radius: 4px;
-  font-size: 12px;
-  color: #fbbf24;
+  gap: var(--cg-space-2);
+  margin-top: var(--cg-space-2);
+  padding: var(--cg-space-2) var(--cg-space-3);
+  background: var(--cg-color-warning-muted);
+  border: 1px solid var(--cg-color-warning);
+  border-radius: var(--cg-radius-md);
+  font-size: var(--cg-font-size-sm);
+  color: var(--cg-color-warning);
 }
 
 .warning-box.error {
-  background: rgba(239, 68, 68, 0.1);
-  border-color: #ef4444;
-  color: #f87171;
+  background: var(--cg-color-error-muted);
+  border-color: var(--cg-color-error);
+  color: var(--cg-color-error);
 }
 
 .warning-icon {
-  font-size: 14px;
+  font-size: var(--cg-font-size-base);
 }
 </style>
