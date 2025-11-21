@@ -70,7 +70,9 @@ import type {
   ConfigSettings,
   LogEntry,
   EnvironmentStatus,
-  GitCommit
+  GitCommit,
+  NodeInfo,
+  NodesResult
 } from '@/types/comfygit'
 
 // =============================================================================
@@ -368,6 +370,112 @@ const MOCK_WORKSPACE_MODELS: ModelInfo[] = [
   }
 ]
 
+/**
+ * Mock Node Data - Git-tracked custom nodes
+ * Based on NodeInfo structure from types/comfygit.ts
+ */
+const MOCK_NODES: NodeInfo[] = [
+  {
+    name: 'ComfyUI-Manager',
+    installed: true,
+    registry_id: 'comfyui-manager',
+    repository: 'https://github.com/ltdrdata/ComfyUI-Manager',
+    version: '2.8.5',
+    source: 'registry',
+    download_url: null,
+    description: 'ComfyUI extension for managing custom nodes',
+    used_in_workflows: ['flux-dev-img2img.json', 'sdxl-lightning.json', 'flux-schnell.json']
+  },
+  {
+    name: 'comfyui_flux',
+    installed: true,
+    registry_id: 'comfyui_flux',
+    repository: 'https://github.com/black-forest-labs/flux',
+    version: '1.2.0',
+    source: 'registry',
+    download_url: null,
+    description: 'FLUX.1 model support for ComfyUI',
+    used_in_workflows: ['flux-dev-img2img.json', 'flux-schnell.json']
+  },
+  {
+    name: 'comfyui-controlnet-aux',
+    installed: true,
+    registry_id: 'comfyui-controlnet-aux',
+    repository: 'https://github.com/Fannovel16/comfyui_controlnet_aux',
+    version: '1.0.3',
+    source: 'registry',
+    download_url: null,
+    description: 'ControlNet auxiliary preprocessors',
+    used_in_workflows: ['controlnet-pose.json']
+  },
+  {
+    name: 'rgthree-comfy',
+    installed: false,
+    registry_id: 'rgthree-comfy',
+    repository: 'https://github.com/rgthree/rgthree-comfy',
+    version: null,
+    source: 'registry',
+    download_url: 'https://github.com/rgthree/rgthree-comfy/archive/refs/heads/main.zip',
+    description: 'Power user nodes for ComfyUI workflows',
+    used_in_workflows: ['flux-dev-img2img.json']
+  },
+  {
+    name: 'comfyui-image-saver',
+    installed: false,
+    registry_id: 'comfyui-image-saver',
+    repository: 'https://github.com/girish946/ComfyUI-Image-Saver',
+    version: null,
+    source: 'registry',
+    download_url: 'https://github.com/girish946/ComfyUI-Image-Saver/archive/refs/heads/main.zip',
+    description: 'Advanced image saving options',
+    used_in_workflows: ['flux-dev-img2img.json']
+  },
+  {
+    name: 'comfyui-impact-pack',
+    installed: true,
+    registry_id: 'comfyui-impact-pack',
+    repository: 'https://github.com/ltdrdata/ComfyUI-Impact-Pack',
+    version: '4.12.1',
+    source: 'registry',
+    download_url: null,
+    description: 'Custom nodes for ComfyUI impact pack',
+    used_in_workflows: ['sd15-upscale.json']
+  },
+  {
+    name: 'ComfyUI-KJNodes',
+    installed: true,
+    registry_id: 'comfyui-kjnodes',
+    repository: 'https://github.com/kijai/ComfyUI-KJNodes',
+    version: '1.1.2',
+    source: 'registry',
+    download_url: null,
+    description: 'KJ utility nodes collection',
+    used_in_workflows: []
+  },
+  {
+    name: 'custom-dev-nodes',
+    installed: true,
+    registry_id: undefined,
+    repository: undefined,
+    version: '0.1.0-dev',
+    source: 'development',
+    download_url: null,
+    description: 'Local development nodes',
+    used_in_workflows: []
+  },
+  {
+    name: 'comfyui-easy-use',
+    installed: false,
+    registry_id: 'comfyui-easy-use',
+    repository: 'https://github.com/yolain/ComfyUI-Easy-Use',
+    version: null,
+    source: 'registry',
+    download_url: 'https://github.com/yolain/ComfyUI-Easy-Use/archive/refs/heads/main.zip',
+    description: 'Simplified workflow nodes',
+    used_in_workflows: ['sd15-upscale.json']
+  }
+]
+
 const MOCK_COMMITS: GitCommit[] = [
   {
     hash: 'e719c9c',
@@ -655,6 +763,34 @@ export const mockApi = {
   downloadModel: async (request: any): Promise<void> => {
     await delay(3000)
     console.log(`[MOCK] Downloading model:`, request)
+  },
+
+  // Node Management
+  getNodes: async (): Promise<NodesResult> => {
+    await delay(350)
+    const installed = MOCK_NODES.filter(n => n.installed)
+    const missing = MOCK_NODES.filter(n => !n.installed)
+    return {
+      nodes: MOCK_NODES,
+      total_count: MOCK_NODES.length,
+      installed_count: installed.length,
+      missing_count: missing.length
+    }
+  },
+
+  installNode: async (nodeName: string): Promise<void> => {
+    await delay(2500)
+    console.log(`[MOCK] Installing node: ${nodeName}`)
+  },
+
+  updateNode: async (nodeName: string): Promise<void> => {
+    await delay(2000)
+    console.log(`[MOCK] Updating node: ${nodeName}`)
+  },
+
+  uninstallNode: async (nodeName: string): Promise<void> => {
+    await delay(1000)
+    console.log(`[MOCK] Uninstalling node: ${nodeName}`)
   },
 
   // Settings & Debug

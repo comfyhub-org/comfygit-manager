@@ -18,7 +18,9 @@ import type {
   ModelInfo,
   DownloadModelRequest,
   ConfigSettings,
-  LogEntry
+  LogEntry,
+  NodeInfo,
+  NodesResult
 } from '@/types/comfygit'
 import { mockApi, isMockApi } from '@/services/mockApi'
 
@@ -357,6 +359,55 @@ export function useComfyGitService() {
     }
   }
 
+  // Node Management
+  async function getNodes(): Promise<NodesResult> {
+    if (USE_MOCK) return mockApi.getNodes()
+
+    try {
+      return fetchApi<NodesResult>('/v2/comfygit/nodes')
+    } catch {
+      return {
+        nodes: [],
+        total_count: 0,
+        installed_count: 0,
+        missing_count: 0
+      }
+    }
+  }
+
+  async function installNode(nodeName: string): Promise<{ status: 'success' | 'error', message?: string }> {
+    if (USE_MOCK) {
+      await mockApi.installNode(nodeName)
+      return { status: 'success' }
+    }
+
+    return fetchApi(`/v2/comfygit/nodes/${encodeURIComponent(nodeName)}/install`, {
+      method: 'POST'
+    })
+  }
+
+  async function updateNode(nodeName: string): Promise<{ status: 'success' | 'error', message?: string }> {
+    if (USE_MOCK) {
+      await mockApi.updateNode(nodeName)
+      return { status: 'success' }
+    }
+
+    return fetchApi(`/v2/comfygit/nodes/${encodeURIComponent(nodeName)}/update`, {
+      method: 'POST'
+    })
+  }
+
+  async function uninstallNode(nodeName: string): Promise<{ status: 'success' | 'error', message?: string }> {
+    if (USE_MOCK) {
+      await mockApi.uninstallNode(nodeName)
+      return { status: 'success' }
+    }
+
+    return fetchApi(`/v2/comfygit/nodes/${encodeURIComponent(nodeName)}`, {
+      method: 'DELETE'
+    })
+  }
+
   return {
     isLoading,
     error,
@@ -393,6 +444,11 @@ export function useComfyGitService() {
     updateConfig,
     // Debug/Logs
     getEnvironmentLogs,
-    getWorkspaceLogs
+    getWorkspaceLogs,
+    // Node Management
+    getNodes,
+    installNode,
+    updateNode,
+    uninstallNode
   }
 }

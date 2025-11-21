@@ -192,10 +192,7 @@
           />
 
           <!-- Nodes View -->
-          <div v-else-if="currentView === 'nodes'" class="view-placeholder">
-            <h3 class="view-title">NODES (GIT-TRACKED)</h3>
-            <p>Git-tracked nodes view coming soon...</p>
-          </div>
+          <NodesSection v-else-if="currentView === 'nodes'" />
 
           <!-- Debug (Environment) View -->
           <div v-else-if="currentView === 'debug-env'" class="view-placeholder">
@@ -343,6 +340,7 @@ import HistorySection from './HistorySection.vue'
 import WorkflowsSection from './WorkflowsSection.vue'
 import ModelsEnvSection from './ModelsEnvSection.vue'
 import ModelIndexSection from './ModelIndexSection.vue'
+import NodesSection from './NodesSection.vue'
 import CommitDetailModal from './CommitDetailModal.vue'
 import ConfirmDialog from './ConfirmDialog.vue'
 import { useComfyGitService } from '@/composables/useComfyGitService'

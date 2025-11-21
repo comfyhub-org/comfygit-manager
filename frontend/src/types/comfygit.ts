@@ -230,6 +230,26 @@ export interface ConfigSettings {
   confirm_destructive: boolean
 }
 
+// Node Management Types
+export interface NodeInfo {
+  name: string
+  installed: boolean
+  registry_id?: string
+  repository?: string
+  version?: string | null
+  source: 'registry' | 'git' | 'development' | 'unknown'
+  download_url?: string | null
+  description?: string
+  used_in_workflows?: string[]
+}
+
+export interface NodesResult {
+  nodes: NodeInfo[]
+  total_count: number
+  installed_count: number
+  missing_count: number
+}
+
 // Debug/Logs Types
 export interface LogEntry {
   timestamp: string
