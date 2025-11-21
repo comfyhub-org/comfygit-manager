@@ -27,7 +27,7 @@
     <!-- Environment Switcher -->
     <div class="env-switcher">
       <div class="env-switcher-label">CURRENT ENVIRONMENT</div>
-      <button class="env-switcher-btn" @click="showEnvironmentSelector = true">
+      <button class="env-switcher-btn" @click="selectView('environments', 'all-envs')">
         <div v-if="status" class="header-info">
           <span>{{ currentEnvironment?.name || status?.environment || 'Loading...' }}</span>
           <span class="branch-name">({{ status.branch || 'detached' }})</span>
