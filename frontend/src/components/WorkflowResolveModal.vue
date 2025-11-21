@@ -1,26 +1,20 @@
 <template>
-  <div class="dialog-overlay" @click.self="emit('close')">
-    <div class="dialog-content workflow-resolve-modal">
-      <div class="dialog-header">
-        <h3 class="dialog-title">RESOLVE DEPENDENCIES: {{ workflowName }}</h3>
-        <button class="icon-btn" @click="emit('close')">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-            <path d="M4.28 3.22a.75.75 0 0 0-1.06 1.06L6.94 8l-3.72 3.72a.75.75 0 1 0 1.06 1.06L8 9.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L9.06 8l3.72-3.72a.75.75 0 0 0-1.06-1.06L8 6.94 4.28 3.22z"/>
-          </svg>
-        </button>
-      </div>
-
-      <div class="dialog-body">
-        <div v-if="loading" class="loading">Analyzing dependencies...</div>
-        <div v-else-if="error" class="error-message">{{ error }}</div>
-        <template v-else-if="resolution">
+  <BaseModal
+    :title="`RESOLVE DEPENDENCIES: ${workflowName}`"
+    size="lg"
+    :loading="loading"
+    :error="error || undefined"
+    @close="emit('close')"
+  >
+    <template #body>
+        <template v-if="resolution">
           <div class="intro-message">
             This workflow needs the following to work:
           </div>
 
           <!-- Nodes Section -->
           <section v-if="resolution.nodes_unresolved.length > 0" class="resolve-section">
-            <h4 class="section-title">/* NODES ({{ resolution.nodes_unresolved.length }}) */</h4>
+            <BaseTitle variant="section">NODES ({{ resolution.nodes_unresolved.length }})</BaseTitle>
             <div class="resolve-card success-card">
               <div class="card-header">
                 <span class="status-icon">✓</span>
@@ -49,7 +43,7 @@
 
           <!-- Models Section -->
           <section v-if="resolution.models_unresolved.length > 0" class="resolve-section">
-            <h4 class="section-title">/* MODELS ({{ resolution.models_unresolved.length }}) */</h4>
+            <BaseTitle variant="section">MODELS ({{ resolution.models_unresolved.length }})</BaseTitle>
             <div class="resolve-card warning-card">
               <div class="card-header">
                 <span class="status-icon">⚠</span>
@@ -85,9 +79,9 @@
 
           <!-- Already Resolved -->
           <section v-if="resolution.nodes_resolved.length > 0 || resolution.models_resolved.length > 0" class="resolve-section">
-            <h4 class="section-title">
-              /* ALREADY AVAILABLE ({{ resolution.nodes_resolved.length + resolution.models_resolved.length }}) */
-            </h4>
+            <BaseTitle variant="section">
+              ALREADY AVAILABLE ({{ resolution.nodes_resolved.length + resolution.models_resolved.length }})
+            </BaseTitle>
             <div class="info-text">
               {{ resolution.nodes_resolved.length }} nodes and {{ resolution.models_resolved.length }} models are already installed
             </div>
@@ -112,35 +106,41 @@
             </div>
           </div>
         </template>
-      </div>
+    </template>
 
-      <div class="dialog-footer">
-        <button class="btn secondary" @click="emit('close')">Cancel</button>
-        <button
-          v-if="resolution && resolution.nodes_to_install.length && resolution.models_to_download.length"
-          class="btn primary"
-          :disabled="installing"
-          @click="handleInstallNodesOnly"
-        >
-          {{ installing ? 'Installing...' : 'Install Nodes Only' }}
-        </button>
-        <button
-          v-if="resolution && (resolution.nodes_to_install.length || resolution.models_to_download.length)"
-          class="btn primary"
-          :disabled="installing || (resolution.models_to_download.length > 0 && !allModelsCanDownload)"
-          @click="handleInstallAll"
-        >
-          {{ installing ? 'Installing...' : 'Install All' }}
-        </button>
-      </div>
-    </div>
-  </div>
+    <template #footer>
+      <BaseButton variant="secondary" @click="emit('close')">
+        Cancel
+      </BaseButton>
+      <BaseButton
+        v-if="resolution && resolution.nodes_to_install.length && resolution.models_to_download.length"
+        variant="secondary"
+        :disabled="installing"
+        :loading="installing"
+        @click="handleInstallNodesOnly"
+      >
+        Install Nodes Only
+      </BaseButton>
+      <BaseButton
+        v-if="resolution && (resolution.nodes_to_install.length || resolution.models_to_download.length)"
+        variant="primary"
+        :disabled="installing || (resolution.models_to_download.length > 0 && !allModelsCanDownload)"
+        :loading="installing"
+        @click="handleInstallAll"
+      >
+        Install All
+      </BaseButton>
+    </template>
+  </BaseModal>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useComfyGitService } from '@/composables/useComfyGitService'
 import type { WorkflowResolutionPlan, UnresolvedNode } from '@/types/comfygit'
+import BaseModal from './base/BaseModal.vue'
+import BaseButton from './base/BaseButton.vue'
+import BaseTitle from './base/BaseTitle.vue'
 
 const props = defineProps<{
   workflowName: string
@@ -262,80 +262,6 @@ onMounted(loadResolution)
 </script>
 
 <style scoped>
-.dialog-overlay {
-  position: fixed;
-  inset: 0;
-  background: var(--cg-color-bg-overlay);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10003;
-}
-
-.dialog-content {
-  background: var(--cg-color-bg-primary);
-  border: 2px solid var(--cg-color-border);
-  box-shadow: var(--cg-shadow-xl);
-  max-width: 700px;
-  width: 90vw;
-  max-height: 80vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.dialog-header {
-  padding: var(--cg-space-4);
-  border-bottom: 1px solid var(--cg-color-border);
-  background: var(--cg-color-bg-tertiary);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.dialog-title {
-  color: var(--cg-color-accent);
-  text-transform: uppercase;
-  letter-spacing: var(--cg-letter-spacing-wide);
-  font-size: var(--cg-font-size-sm);
-  text-shadow: 0 0 8px var(--cg-color-accent);
-  margin: 0;
-}
-
-.icon-btn {
-  background: transparent;
-  border: 1px solid transparent;
-  color: var(--cg-color-text-primary);
-  cursor: pointer;
-  padding: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.icon-btn:hover {
-  background: var(--cg-color-bg-hover);
-  border-color: var(--cg-color-border-subtle);
-}
-
-.dialog-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: var(--cg-space-4);
-}
-
-.loading,
-.error-message {
-  text-align: center;
-  padding: var(--cg-space-4);
-  color: var(--cg-color-text-muted);
-}
-
-.error-message {
-  color: var(--cg-color-error);
-  border: 1px solid var(--cg-color-error);
-  background: transparent;
-}
-
 .intro-message {
   color: var(--cg-color-text-primary);
   font-size: var(--cg-font-size-base);
@@ -344,15 +270,6 @@ onMounted(loadResolution)
 
 .resolve-section {
   margin-bottom: var(--cg-space-4);
-}
-
-.section-title {
-  color: var(--cg-color-text-muted);
-  font-size: var(--cg-font-size-sm);
-  text-transform: uppercase;
-  letter-spacing: var(--cg-letter-spacing-wide);
-  margin: 0 0 var(--cg-space-2) 0;
-  font-weight: var(--cg-font-weight-normal);
 }
 
 .resolve-card {
@@ -515,69 +432,5 @@ onMounted(loadResolution)
   font-size: var(--cg-font-size-sm);
   margin-top: var(--cg-space-2);
   font-style: italic;
-}
-
-.dialog-footer {
-  padding: var(--cg-space-4);
-  border-top: 1px solid var(--cg-color-border);
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  background: var(--cg-color-bg-tertiary);
-}
-
-.btn {
-  padding: 8px 16px;
-  font-family: var(--cg-font-mono);
-  font-size: var(--cg-font-size-xs);
-  text-transform: uppercase;
-  letter-spacing: var(--cg-letter-spacing-wide);
-  cursor: pointer;
-  border: 1px solid;
-}
-
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.btn.secondary {
-  background: transparent;
-  color: var(--cg-color-text-secondary);
-  border-color: var(--cg-color-border);
-}
-
-.btn.secondary:hover:not(:disabled) {
-  color: var(--cg-color-text-primary);
-  border-color: var(--cg-color-text-primary);
-}
-
-.btn.primary {
-  background: transparent;
-  color: var(--cg-color-accent);
-  border-color: var(--cg-color-accent);
-}
-
-.btn.primary:hover:not(:disabled) {
-  background: var(--cg-color-bg-hover);
-  box-shadow: 0 0 8px rgba(0, 255, 65, 0.3);
-}
-
-/* Scrollbar */
-.dialog-body::-webkit-scrollbar {
-  width: 8px;
-}
-
-.dialog-body::-webkit-scrollbar-track {
-  background: var(--cg-color-bg-tertiary);
-}
-
-.dialog-body::-webkit-scrollbar-thumb {
-  background: var(--cg-color-border-subtle);
-  border: 1px solid var(--cg-color-bg-tertiary);
-}
-
-.dialog-body::-webkit-scrollbar-thumb:hover {
-  background: var(--cg-color-accent);
 }
 </style>

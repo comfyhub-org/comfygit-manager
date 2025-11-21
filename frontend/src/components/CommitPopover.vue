@@ -1,10 +1,15 @@
 <template>
   <div class="commit-popover">
     <div class="popover-header">
-      <h3 class="popover-title">Commit Changes</h3>
+      <h3 class="popover-title">COMMIT CHANGES</h3>
+      <button class="close-btn" @click="emit('close')">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+          <path d="M4.28 3.22a.75.75 0 0 0-1.06 1.06L6.94 8l-3.72 3.72a.75.75 0 1 0 1.06 1.06L8 9.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L9.06 8l3.72-3.72a.75.75 0 0 0-1.06-1.06L8 6.94 4.28 3.22z"/>
+        </svg>
+      </button>
     </div>
 
-    <div class="popover-content">
+    <div class="popover-body">
       <!-- Changes summary -->
       <div v-if="status && hasChanges" class="changes-summary">
         <div v-if="status.workflows.new.length" class="change-item">
@@ -37,15 +42,13 @@
 
       <!-- Commit message -->
       <div class="message-section">
-        <textarea
+        <BaseTextarea
           v-model="message"
-          class="commit-input"
           :placeholder="hasChanges ? 'Describe your changes...' : 'No changes'"
           :disabled="!hasChanges || isLoading"
-          rows="3"
-          @keydown.ctrl.enter="handleCommit"
-          @keydown.meta.enter="handleCommit"
-        ></textarea>
+          :rows="3"
+          @ctrl-enter="handleCommit"
+        />
       </div>
 
       <!-- Result message -->
@@ -55,14 +58,17 @@
     </div>
 
     <div class="popover-footer">
-      <button class="cancel-btn" @click="emit('close')">Cancel</button>
-      <button
-        class="commit-btn"
+      <BaseButton variant="secondary" @click="emit('close')">
+        Cancel
+      </BaseButton>
+      <BaseButton
+        variant="primary"
         :disabled="!hasChanges || !message.trim() || isLoading"
+        :loading="isLoading"
         @click="handleCommit"
       >
         {{ isLoading ? 'Committing...' : 'Commit' }}
-      </button>
+      </BaseButton>
     </div>
   </div>
 </template>
@@ -71,6 +77,8 @@
 import { ref, computed } from 'vue'
 import type { ComfyGitStatus } from '@/types/comfygit'
 import { useComfyGitService } from '@/composables/useComfyGitService'
+import BaseButton from './base/BaseButton.vue'
+import BaseTextarea from './base/BaseTextarea.vue'
 
 const props = defineProps<{
   status: ComfyGitStatus | null
@@ -108,7 +116,6 @@ async function handleCommit() {
         message: `Committed: ${res.summary?.new || 0} new, ${res.summary?.modified || 0} modified, ${res.summary?.deleted || 0} deleted`
       }
       message.value = ''
-      // Auto close after success
       setTimeout(() => emit('committed'), 1000)
     } else if (res.status === 'no_changes') {
       result.value = { type: 'error', message: 'No changes to commit' }
@@ -125,35 +132,71 @@ async function handleCommit() {
 
 <style scoped>
 .commit-popover {
-  width: 360px;
-  background: var(--comfy-menu-bg, #353535);
-  border: 1px solid var(--border-color, #4a4a4a);
-  border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-  color: var(--input-text, #ddd);
+  background: var(--cg-color-bg-primary);
+  border: 2px solid var(--cg-color-border);
+  box-shadow: var(--cg-shadow-xl);
+  min-width: 400px;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
 }
 
 .popover-header {
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border-color, #4a4a4a);
+  padding: var(--cg-space-3);
+  border-bottom: 1px solid var(--cg-color-border);
+  background: var(--cg-color-bg-tertiary);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .popover-title {
+  color: var(--cg-color-accent);
+  text-transform: uppercase;
+  letter-spacing: var(--cg-letter-spacing-wide);
+  font-size: var(--cg-font-size-sm);
   margin: 0;
-  font-size: 14px;
-  font-weight: 600;
+  flex: 1;
 }
 
-.popover-content {
-  padding: 12px 16px;
+.close-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--cg-color-text-primary);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.close-btn:hover {
+  background: var(--cg-color-bg-hover);
+  border-color: var(--cg-color-border-subtle);
+}
+
+.popover-body {
+  padding: var(--cg-space-3);
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.popover-footer {
+  padding: var(--cg-space-3);
+  border-top: 1px solid var(--cg-color-border);
+  background: var(--cg-color-bg-tertiary);
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
 .changes-summary {
-  background: var(--comfy-input-bg, #222);
-  border-radius: 4px;
+  background: var(--cg-color-bg-tertiary);
+  border-radius: var(--cg-radius-md);
   padding: 8px;
   margin-bottom: 12px;
-  font-size: 12px;
+  font-size: var(--cg-font-size-xs);
 }
 
 .change-item {
@@ -170,116 +213,38 @@ async function handleCommit() {
   text-align: center;
 }
 
-.change-icon.new { color: #4ade80; }
-.change-icon.modified { color: #fbbf24; }
-.change-icon.deleted { color: #f87171; }
+.change-icon.new { color: var(--cg-color-success); }
+.change-icon.modified { color: var(--cg-color-warning); }
+.change-icon.deleted { color: var(--cg-color-error); }
 
-.no-changes {
-  text-align: center;
-  padding: 12px;
-  color: var(--descrip-text, #999);
-  font-size: 13px;
-}
-
+.no-changes,
 .loading {
   text-align: center;
   padding: 12px;
-  color: var(--descrip-text, #999);
-  font-size: 13px;
+  color: var(--cg-color-text-muted);
+  font-size: var(--cg-font-size-sm);
 }
 
 .message-section {
   margin-bottom: 8px;
 }
 
-.commit-input {
-  width: 100%;
-  padding: 10px 12px;
-  background: var(--cg-color-bg-tertiary, var(--comfy-input-bg, #222));
-  border: 1px solid var(--cg-color-border, var(--border-color, #4a4a4a));
-  border-radius: 4px;
-  color: var(--cg-color-text-primary, var(--input-text, #ddd));
-  font-size: 13px;
-  font-family: inherit;
-  resize: vertical;
-  box-sizing: border-box;
-  line-height: 1.4;
-}
-
-.commit-input:focus {
-  outline: none;
-  border-color: var(--cg-color-accent, #f97316);
-  box-shadow: 0 0 0 2px var(--cg-color-accent-muted, rgba(249, 115, 22, 0.2));
-}
-
-.commit-input:disabled {
-  opacity: 0.5;
-}
-
 .result {
   padding: 6px 8px;
-  border-radius: 4px;
-  font-size: 11px;
+  border-radius: var(--cg-radius-md);
+  font-size: var(--cg-font-size-xs);
   margin-top: 8px;
 }
 
 .result.success {
-  background: rgba(34, 197, 94, 0.1);
-  border: 1px solid #22c55e;
+  background: var(--cg-color-success-muted);
+  border: 1px solid var(--cg-color-success);
   color: #86efac;
 }
 
 .result.error {
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid #ef4444;
+  background: var(--cg-color-error-muted);
+  border: 1px solid var(--cg-color-error);
   color: #fca5a5;
-}
-
-.popover-footer {
-  padding: 12px 16px;
-  border-top: 1px solid var(--border-color, #4a4a4a);
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-}
-
-.cancel-btn {
-  padding: 8px 16px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  background: transparent;
-  color: var(--cg-color-text-secondary, var(--input-text, #ddd));
-  border: 1px solid var(--cg-color-border, var(--border-color, #4a4a4a));
-  transition: all 0.15s ease;
-}
-
-.cancel-btn:hover {
-  background: var(--cg-color-bg-hover, var(--comfy-input-bg, #222));
-  border-color: var(--cg-color-border-strong, var(--border-color, #5a5a5a));
-}
-
-.commit-btn {
-  padding: 8px 16px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  border: none;
-  background: var(--cg-color-accent, #f97316);
-  color: var(--cg-color-text-inverse, white);
-  transition: all 0.15s ease;
-}
-
-.commit-btn:hover:not(:disabled) {
-  background: var(--cg-color-accent-hover, #ea580c);
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px var(--cg-color-accent-muted, rgba(249, 115, 22, 0.3));
-}
-
-.commit-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
 }
 </style>

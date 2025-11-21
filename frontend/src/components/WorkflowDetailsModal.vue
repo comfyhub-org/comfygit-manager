@@ -1,22 +1,16 @@
 <template>
-  <div class="dialog-overlay" @click.self="emit('close')">
-    <div class="dialog-content workflow-details-modal">
-      <div class="dialog-header">
-        <h3 class="dialog-title">WORKFLOW DETAILS: {{ workflowName }}</h3>
-        <button class="icon-btn" @click="emit('close')">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-            <path d="M4.28 3.22a.75.75 0 0 0-1.06 1.06L6.94 8l-3.72 3.72a.75.75 0 1 0 1.06 1.06L8 9.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L9.06 8l3.72-3.72a.75.75 0 0 0-1.06-1.06L8 6.94 4.28 3.22z"/>
-          </svg>
-        </button>
-      </div>
-
-      <div class="dialog-body">
-        <div v-if="loading" class="loading">Loading workflow details...</div>
-        <div v-else-if="error" class="error-message">{{ error }}</div>
-        <template v-else-if="details">
+  <BaseModal
+    :title="`WORKFLOW DETAILS: ${workflowName}`"
+    size="lg"
+    :loading="loading"
+    :error="error || undefined"
+    @close="emit('close')"
+  >
+    <template #body>
+        <template v-if="details">
           <!-- Models Section -->
           <section class="detail-section">
-            <h4 class="section-title">/* MODELS USED ({{ details.models.length }}) */</h4>
+            <BaseTitle variant="section">MODELS USED ({{ details.models.length }})</BaseTitle>
             <div v-if="details.models.length === 0" class="empty-message">
               No models used in this workflow
             </div>
@@ -38,15 +32,11 @@
                 </div>
                 <div class="model-row">
                   <span class="label">Importance:</span>
-                  <select
-                    :value="model.importance"
-                    class="importance-select"
-                    @change="handleImportanceChange(model.hash, ($event.target as HTMLSelectElement).value)"
-                  >
-                    <option value="required">Required</option>
-                    <option value="flexible">Flexible</option>
-                    <option value="optional">Optional</option>
-                  </select>
+                  <BaseSelect
+                    :model-value="importanceChanges[model.hash] || model.importance"
+                    :options="importanceOptions"
+                    @update:model-value="handleImportanceChange(model.hash, $event)"
+                  />
                 </div>
                 <div v-if="model.node_type" class="model-row">
                   <span class="label">Used in:</span>
@@ -58,9 +48,9 @@
                 </div>
               </div>
               <div v-if="model.status === 'missing'" class="model-actions">
-                <button class="action-btn" @click="emit('resolve')">
+                <BaseButton variant="secondary" size="sm" @click="emit('resolve')">
                   Resolve
-                </button>
+                </BaseButton>
               </div>
             </div>
           </section>
@@ -77,7 +67,7 @@
 
           <!-- Nodes Section -->
           <section class="detail-section">
-            <h4 class="section-title">/* NODES USED ({{ details.nodes.length }}) */</h4>
+            <BaseTitle variant="section">NODES USED ({{ details.nodes.length }})</BaseTitle>
             <div v-if="details.nodes.length === 0" class="empty-message">
               No custom nodes used in this workflow
             </div>
@@ -94,26 +84,31 @@
             </div>
           </section>
         </template>
-      </div>
+    </template>
 
-      <div class="dialog-footer">
-        <button class="btn secondary" @click="emit('close')">Close</button>
-        <button
-          v-if="hasChanges"
-          class="btn primary"
-          @click="handleSave"
-        >
-          Save Changes
-        </button>
-      </div>
-    </div>
-  </div>
+    <template #footer>
+      <BaseButton variant="secondary" @click="emit('close')">
+        Close
+      </BaseButton>
+      <BaseButton
+        v-if="hasChanges"
+        variant="primary"
+        @click="handleSave"
+      >
+        Save Changes
+      </BaseButton>
+    </template>
+  </BaseModal>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useComfyGitService } from '@/composables/useComfyGitService'
 import type { WorkflowDetails } from '@/types/comfygit'
+import BaseModal from './base/BaseModal.vue'
+import BaseButton from './base/BaseButton.vue'
+import BaseTitle from './base/BaseTitle.vue'
+import BaseSelect from './base/BaseSelect.vue'
 
 const props = defineProps<{
   workflowName: string
@@ -131,6 +126,12 @@ const loading = ref(false)
 const error = ref<string | null>(null)
 const hasChanges = ref(false)
 const importanceChanges = ref<Record<string, string>>({})
+
+const importanceOptions = [
+  { label: 'Required', value: 'required' },
+  { label: 'Flexible', value: 'flexible' },
+  { label: 'Optional', value: 'optional' }
+]
 
 async function loadDetails() {
   loading.value = true
@@ -175,92 +176,14 @@ onMounted(loadDetails)
 </script>
 
 <style scoped>
-.dialog-overlay {
-  position: fixed;
-  inset: 0;
-  background: var(--cg-color-bg-overlay);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10003;
-}
-
-.dialog-content {
-  background: var(--cg-color-bg-primary);
-  border: 2px solid var(--cg-color-border);
-  box-shadow: 0 0 16px rgba(0, 255, 65, 0.5);
-  max-width: 700px;
-  width: 90vw;
-  max-height: 80vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.dialog-header {
-  padding: var(--cg-space-4);
-  border-bottom: 1px solid var(--cg-color-border);
-  background: var(--cg-color-bg-tertiary);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.dialog-title {
-  color: var(--cg-color-accent);
-  text-transform: uppercase;
-  letter-spacing: var(--cg-letter-spacing-wide);
-  font-size: var(--cg-font-size-sm);
-  text-shadow: 0 0 8px var(--cg-color-accent);
-  margin: 0;
-}
-
-.icon-btn {
-  background: transparent;
-  border: 1px solid transparent;
-  color: var(--cg-color-text-primary);
-  cursor: pointer;
-  padding: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.icon-btn:hover {
-  background: var(--cg-color-bg-hover);
-  border-color: var(--cg-color-border-subtle);
-}
-
-.dialog-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: var(--cg-space-4);
-}
-
-.loading,
-.error-message,
 .empty-message {
   text-align: center;
   padding: var(--cg-space-4);
   color: var(--cg-color-text-muted);
 }
 
-.error-message {
-  color: var(--cg-color-error);
-  border: 1px solid var(--cg-color-error);
-  background: transparent;
-}
-
 .detail-section {
   margin-bottom: var(--cg-space-5);
-}
-
-.section-title {
-  color: var(--cg-color-text-muted);
-  font-size: var(--cg-font-size-sm);
-  text-transform: uppercase;
-  letter-spacing: var(--cg-letter-spacing-wide);
-  margin: 0 0 var(--cg-space-3) 0;
-  font-weight: var(--cg-font-weight-normal);
 }
 
 .model-card {
@@ -318,45 +241,8 @@ onMounted(loadDetails)
   color: var(--cg-color-error);
 }
 
-.importance-select {
-  background: var(--cg-color-bg-primary);
-  border: 1px solid var(--cg-color-border-subtle);
-  color: var(--cg-color-text-primary);
-  padding: 4px 8px;
-  font-family: var(--cg-font-mono);
-  font-size: var(--cg-font-size-sm);
-  cursor: pointer;
-}
-
-.importance-select:hover {
-  border-color: var(--cg-color-accent);
-}
-
-.importance-select:focus {
-  outline: none;
-  border-color: var(--cg-color-accent);
-  box-shadow: 0 0 8px rgba(0, 255, 65, 0.2);
-}
-
 .model-actions {
   margin-top: var(--cg-space-2);
-}
-
-.action-btn {
-  padding: 6px 12px;
-  background: transparent;
-  color: var(--cg-color-accent);
-  border: 1px solid var(--cg-color-accent);
-  font-family: var(--cg-font-mono);
-  font-size: var(--cg-font-size-xs);
-  text-transform: uppercase;
-  letter-spacing: var(--cg-letter-spacing-wide);
-  cursor: pointer;
-}
-
-.action-btn:hover {
-  background: var(--cg-color-bg-hover);
-  box-shadow: 0 0 8px rgba(0, 255, 65, 0.3);
 }
 
 .info-box {
@@ -416,64 +302,5 @@ onMounted(loadDetails)
 .node-version {
   color: var(--cg-color-text-muted);
   font-size: var(--cg-font-size-xs);
-}
-
-.dialog-footer {
-  padding: var(--cg-space-4);
-  border-top: 1px solid var(--cg-color-border);
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  background: var(--cg-color-bg-tertiary);
-}
-
-.btn {
-  padding: 8px 16px;
-  font-family: var(--cg-font-mono);
-  font-size: var(--cg-font-size-xs);
-  text-transform: uppercase;
-  letter-spacing: var(--cg-letter-spacing-wide);
-  cursor: pointer;
-  border: 1px solid;
-}
-
-.btn.secondary {
-  background: transparent;
-  color: var(--cg-color-text-secondary);
-  border-color: var(--cg-color-border);
-}
-
-.btn.secondary:hover {
-  color: var(--cg-color-text-primary);
-  border-color: var(--cg-color-text-primary);
-}
-
-.btn.primary {
-  background: transparent;
-  color: var(--cg-color-accent);
-  border-color: var(--cg-color-accent);
-}
-
-.btn.primary:hover {
-  background: var(--cg-color-bg-hover);
-  box-shadow: 0 0 8px rgba(0, 255, 65, 0.3);
-}
-
-/* Scrollbar */
-.dialog-body::-webkit-scrollbar {
-  width: 8px;
-}
-
-.dialog-body::-webkit-scrollbar-track {
-  background: var(--cg-color-bg-tertiary);
-}
-
-.dialog-body::-webkit-scrollbar-thumb {
-  background: var(--cg-color-border-subtle);
-  border: 1px solid var(--cg-color-bg-tertiary);
-}
-
-.dialog-body::-webkit-scrollbar-thumb:hover {
-  background: var(--cg-color-accent);
 }
 </style>
