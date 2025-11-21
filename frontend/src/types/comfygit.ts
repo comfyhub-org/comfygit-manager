@@ -143,14 +143,17 @@ export interface EnvironmentInfo {
 }
 
 export interface SwitchEnvironmentProgress {
-  state: 'waiting_for_old_server' | 'starting_new_server' | 'waiting_for_health' | 'healthy' | 'failed' | 'complete'
+  state: 'idle' | 'preparing' | 'syncing' | 'starting' | 'validating' | 'complete' | 'rolled_back' | 'critical_failure'
   target_env: string
+  source_env?: string
   old_pid?: number
   new_pid?: number
   progress: number
   message: string
-  started_at: string
-  updated_at: string
+  started_at?: string
+  updated_at?: string
+  error?: string
+  recovery_command?: string
 }
 
 export interface CreateEnvironmentResult {

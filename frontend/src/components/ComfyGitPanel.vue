@@ -252,6 +252,22 @@
       @secondary="confirmDialog.onSecondary"
     />
 
+    <!-- Environment Switching Modals -->
+    <ConfirmSwitchModal
+      :show="showConfirmSwitch"
+      :from-environment="currentEnvironment?.name || 'unknown'"
+      :to-environment="targetEnvironment"
+      @confirm="confirmEnvironmentSwitch"
+      @close="cancelEnvironmentSwitch"
+    />
+
+    <SwitchProgressModal
+      :show="showSwitchProgress"
+      :state="switchProgress.state"
+      :progress="switchProgress.progress"
+      :message="switchProgress.message"
+    />
+
     <!-- Environment Selector Modal -->
     <div v-if="showEnvironmentSelector" class="dialog-overlay" @click.self="showEnvironmentSelector = false">
       <div class="dialog-content env-selector-dialog">
@@ -329,6 +345,8 @@ import ExportSection from './ExportSection.vue'
 import ImportSection from './ImportSection.vue'
 import CommitDetailModal from './CommitDetailModal.vue'
 import ConfirmDialog from './ConfirmDialog.vue'
+import ConfirmSwitchModal from './base/molecules/ConfirmSwitchModal.vue'
+import SwitchProgressModal from './base/molecules/SwitchProgressModal.vue'
 import { useComfyGitService } from '@/composables/useComfyGitService'
 import type { ComfyGitStatus, CommitInfo, BranchInfo, EnvironmentInfo } from '@/types/comfygit'
 
@@ -344,7 +362,9 @@ const {
   checkout,
   createBranch,
   switchBranch,
-  getEnvironments
+  getEnvironments,
+  switchEnvironment,
+  getSwitchProgress
 } = useComfyGitService()
 
 type ViewName = 'status' | 'workflows' | 'models-env' | 'branches' | 'history' | 'nodes' | 'debug-env' |
@@ -362,6 +382,13 @@ const isLoading = ref(false)
 const error = ref<string | null>(null)
 const selectedCommit = ref<CommitInfo | null>(null)
 const showEnvironmentSelector = ref(false)
+
+// Environment switching modals
+const showConfirmSwitch = ref(false)
+const showSwitchProgress = ref(false)
+const targetEnvironment = ref<string>('')
+const switchProgress = ref({ state: 'idle', progress: 0, message: '' })
+let switchPollInterval: number | null = null
 
 const currentView = ref<ViewName>('status')
 const currentSection = ref<SectionName>('this-env')
@@ -583,10 +610,84 @@ async function handleBranchFromCommit(commit: CommitInfo) {
   }
 }
 
+// Environment switching flow
 async function handleEnvironmentSwitch(envName: string) {
   showEnvironmentSelector.value = false
-  showToast(`Environment switching not yet implemented`, 'warning')
-  // TODO: Implement orchestrator daemon flow
+  targetEnvironment.value = envName
+  showConfirmSwitch.value = true
+}
+
+async function confirmEnvironmentSwitch() {
+  showConfirmSwitch.value = false
+  showSwitchProgress.value = true
+  switchProgress.value = { state: 'preparing', progress: 10, message: 'Initiating switch...' }
+
+  try {
+    // Initiate the switch
+    await switchEnvironment(targetEnvironment.value)
+
+    // Start polling for progress
+    startSwitchPolling()
+  } catch (err) {
+    showSwitchProgress.value = false
+    showToast(`Failed to initiate switch: ${err instanceof Error ? err.message : 'Unknown error'}`, 'error')
+    switchProgress.value = { state: 'idle', progress: 0, message: '' }
+  }
+}
+
+function startSwitchPolling() {
+  if (switchPollInterval) return
+
+  switchPollInterval = window.setInterval(async () => {
+    try {
+      const progress = await getSwitchProgress()
+
+      if (!progress) {
+        // No progress info available, keep current state
+        return
+      }
+
+      switchProgress.value = {
+        state: progress.state,
+        progress: progress.progress,
+        message: progress.message || ''
+      }
+
+      // Handle terminal states
+      if (progress.state === 'complete') {
+        stopSwitchPolling()
+        showSwitchProgress.value = false
+        showToast(`✓ Switched to ${targetEnvironment.value}`, 'success')
+        await refresh()
+        targetEnvironment.value = ''
+      } else if (progress.state === 'rolled_back') {
+        stopSwitchPolling()
+        showSwitchProgress.value = false
+        showToast('Switch failed, restored previous environment', 'warning')
+        targetEnvironment.value = ''
+      } else if (progress.state === 'critical_failure') {
+        stopSwitchPolling()
+        showSwitchProgress.value = false
+        showToast(`Critical error during switch: ${progress.message}`, 'error')
+        targetEnvironment.value = ''
+      }
+    } catch (err) {
+      console.error('Failed to poll switch progress:', err)
+      // Continue polling - server might be restarting
+    }
+  }, 1000) // Poll every 1 second
+}
+
+function stopSwitchPolling() {
+  if (switchPollInterval) {
+    clearInterval(switchPollInterval)
+    switchPollInterval = null
+  }
+}
+
+function cancelEnvironmentSwitch() {
+  showConfirmSwitch.value = false
+  targetEnvironment.value = ''
 }
 
 async function handleEnvironmentCreate(envName: string) {
