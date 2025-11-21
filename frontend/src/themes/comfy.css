@@ -1,0 +1,561 @@
+/* ============================================
+   COMFY THEME
+
+   Aesthetic: Clean, modern developer tool
+   Character: Professional, functional, readable
+   Inspired by: ComfyUI Manager design system
+   ============================================ */
+
+/* Import Inter font for better readability */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+[data-comfygit-theme="comfy"] {
+  /* === Typography === */
+  /* Inter for UI text, monospace for code/technical content */
+  --cg-font-display: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --cg-font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --cg-font-mono: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, monospace;
+
+  /* Sizing scaled 1.3x for readability */
+  --cg-font-size-xs: 14.3px;
+  --cg-font-size-sm: 16.9px;
+  --cg-font-size-base: 18.2px;
+  --cg-font-size-lg: 20.8px;
+  --cg-font-size-xl: 23.4px;
+  --cg-font-size-2xl: 26px;
+
+  /* Font weights */
+  --cg-font-weight-normal: 400;
+  --cg-font-weight-medium: 500;
+  --cg-font-weight-semibold: 600;
+  --cg-font-weight-bold: 700;
+
+  /* Panel width scaled 1.3x */
+  --cg-panel-width: 884px;
+
+  /* Spacing - scaled 1.3x for proportional feel */
+  --cg-space-1: 5.2px;
+  --cg-space-2: 10.4px;
+  --cg-space-3: 15.6px;
+  --cg-space-4: 20.8px;
+  --cg-space-5: 26px;
+  --cg-space-6: 31.2px;
+  --cg-space-8: 41.6px;
+  --cg-space-10: 52px;
+  --cg-space-12: 62.4px;
+
+  --cg-letter-spacing-normal: 0;
+  --cg-letter-spacing-wide: 0.025em;
+
+  /* === Transitions === */
+  --cg-transition-fast: 0.15s ease;
+  --cg-transition-base: 0.2s ease;
+  --cg-transition-slow: 0.3s ease;
+
+  /* === Colors - Charcoal Base === */
+  /* Inspired by ComfyUI's charcoal palette */
+  --cg-color-bg-primary: #2d2e32;      /* charcoal-500 */
+  --cg-color-bg-secondary: #262729;    /* charcoal-600 */
+  --cg-color-bg-tertiary: #202121;     /* charcoal-700 */
+  --cg-color-bg-hover: #3c3d42;        /* charcoal-300 */
+  --cg-color-bg-overlay: rgba(0, 0, 0, 0.75);
+
+  /* Text - clean and readable */
+  --cg-color-text-primary: #ffffff;
+  --cg-color-text-secondary: #c5c5c5;  /* gray-500 */
+  --cg-color-text-muted: #8a8a8a;      /* gray-800 */
+  --cg-color-text-inverse: #000000;
+
+  /* Borders - subtle separation */
+  --cg-color-border: #55565e;          /* charcoal-100 */
+  --cg-color-border-subtle: #3c3d42;   /* charcoal-300 */
+  --cg-color-border-strong: #828282;   /* stone-100 */
+
+  /* === Colors - Semantic === */
+  /* Blue accent for primary actions */
+  --cg-color-accent: #31b9f4;          /* blue-200 */
+  --cg-color-accent-hover: #0b8ce9;    /* blue-100 */
+  --cg-color-accent-muted: rgba(49, 185, 244, 0.15);
+
+  /* Semantic states */
+  --cg-color-success: #47e469;         /* success-200 */
+  --cg-color-success-muted: rgba(71, 228, 105, 0.15);
+  --cg-color-warning: #fcbf64;         /* warning-200 */
+  --cg-color-warning-muted: rgba(252, 191, 100, 0.15);
+  --cg-color-error: #dd424e;           /* coral-red-400 */
+  --cg-color-error-muted: rgba(221, 66, 78, 0.15);
+  --cg-color-info: #31b9f4;            /* blue-200 */
+  --cg-color-info-muted: rgba(49, 185, 244, 0.15);
+
+  /* === Borders - Modern Rounded === */
+  --cg-radius-none: 0;
+  --cg-radius-sm: 4px;
+  --cg-radius-md: 6px;
+  --cg-radius-lg: 8px;
+  --cg-radius-xl: 12px;
+  --cg-radius-2xl: 16px;
+  --cg-radius-full: 9999px;
+
+  /* === Shadows - Subtle Elevation === */
+  --cg-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --cg-shadow-md: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --cg-shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.5);
+  --cg-shadow-xl: 0 8px 32px rgba(0, 0, 0, 0.6);
+
+  /* === Button === */
+  --cg-btn-gradient-start: #31b9f4;
+  --cg-btn-gradient-end: #0b8ce9;
+  --cg-btn-shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+
+  /* === Decorations - Clean Modern UI === */
+  /* No terminal-style decorations in comfy theme */
+  --cg-decoration-title-prefix: '';
+  --cg-decoration-label-prefix: '';
+  --cg-decoration-label-suffix: '';
+  --cg-decoration-status-animation: none;
+  --cg-decoration-status-shape: circle;
+
+  /* === Shadow/Glow Effects === */
+  /* Blue-themed shadows matching the comfy accent color */
+  --cg-shadow-accent: rgba(49, 185, 244, 0.3);
+  --cg-shadow-accent-strong: rgba(49, 185, 244, 0.5);
+  --cg-shadow-error: rgba(221, 66, 78, 0.3);
+  --cg-shadow-success: rgba(71, 228, 105, 0.3);
+
+  /* No text shadows in comfy theme - clean and modern */
+  --cg-text-shadow-title: none;
+  --cg-text-shadow-accent: none;
+}
+
+/* === Component-Specific Overrides === */
+
+/* Panel gets subtle elevation */
+[data-comfygit-theme="comfy"] .comfygit-panel {
+  box-shadow: var(--cg-shadow-lg);
+  border: 1px solid var(--cg-color-border-subtle);
+}
+
+/* Sidebar styling */
+[data-comfygit-theme="comfy"] .sidebar {
+  background: var(--cg-color-bg-secondary);
+  border-right: 1px solid var(--cg-color-border-subtle);
+}
+
+/* Sidebar items - softer interaction */
+[data-comfygit-theme="comfy"] .sidebar-item {
+  border-radius: var(--cg-radius-md);
+  transition: background var(--cg-transition-fast), color var(--cg-transition-fast);
+}
+
+[data-comfygit-theme="comfy"] .sidebar-item:hover {
+  background: var(--cg-color-bg-hover);
+}
+
+[data-comfygit-theme="comfy"] .sidebar-item.active {
+  background: var(--cg-color-accent-muted);
+  color: var(--cg-color-accent);
+  font-weight: var(--cg-font-weight-medium);
+}
+
+/* Buttons - modern rounded style */
+[data-comfygit-theme="comfy"] button {
+  border-radius: var(--cg-radius-md);
+}
+
+[data-comfygit-theme="comfy"] .icon-btn {
+  border-radius: var(--cg-radius-md);
+  transition: all var(--cg-transition-fast);
+}
+
+[data-comfygit-theme="comfy"] .icon-btn:hover {
+  background: var(--cg-color-bg-hover);
+}
+
+/* Status section cards */
+[data-comfygit-theme="comfy"] .status-grid {
+  border-radius: var(--cg-radius-lg);
+  box-shadow: var(--cg-shadow-sm);
+}
+
+/* Issue cards - actionable warnings/errors */
+[data-comfygit-theme="comfy"] .issue-card {
+  border-radius: var(--cg-radius-lg);
+  box-shadow: var(--cg-shadow-sm);
+  transition: all var(--cg-transition-fast);
+}
+
+[data-comfygit-theme="comfy"] .issue-card:hover {
+  box-shadow: var(--cg-shadow-md);
+}
+
+[data-comfygit-theme="comfy"] .issue-card--warning {
+  border-left-width: 4px;
+}
+
+[data-comfygit-theme="comfy"] .issue-card--error {
+  border-left-width: 4px;
+}
+
+[data-comfygit-theme="comfy"] .issue-card--info {
+  border-left-width: 4px;
+}
+
+/* Branch indicator */
+[data-comfygit-theme="comfy"] .branch-indicator {
+  border-radius: var(--cg-radius-md);
+}
+
+[data-comfygit-theme="comfy"] .branch-indicator__name {
+  font-weight: var(--cg-font-weight-semibold);
+}
+
+/* Commit components */
+[data-comfygit-theme="comfy"] .commit-list {
+  border-radius: var(--cg-radius-md);
+}
+
+[data-comfygit-theme="comfy"] .commit-item {
+  transition: all var(--cg-transition-fast);
+}
+
+[data-comfygit-theme="comfy"] .commit-item:hover {
+  background: var(--cg-color-bg-hover);
+}
+
+/* Branch items */
+[data-comfygit-theme="comfy"] .branch-item,
+[data-comfygit-theme="comfy"] .branch-list-item {
+  border-radius: var(--cg-radius-md);
+  transition: all var(--cg-transition-fast);
+}
+
+[data-comfygit-theme="comfy"] .branch-item:hover,
+[data-comfygit-theme="comfy"] .branch-list-item:hover {
+  background: var(--cg-color-bg-hover);
+}
+
+/* Branch list container */
+[data-comfygit-theme="comfy"] .branch-list {
+  border-radius: var(--cg-radius-md);
+  overflow: hidden;
+}
+
+/* Branch create form */
+[data-comfygit-theme="comfy"] .branch-create-form {
+  border-radius: var(--cg-radius-md);
+  box-shadow: var(--cg-shadow-sm);
+}
+
+/* Environment create form */
+[data-comfygit-theme="comfy"] .create-form {
+  border-radius: var(--cg-radius-md);
+  box-shadow: var(--cg-shadow-sm);
+}
+
+/* Text input component */
+[data-comfygit-theme="comfy"] .text-input {
+  border-radius: var(--cg-radius-md);
+}
+
+/* Input fields */
+[data-comfygit-theme="comfy"] input[type="text"],
+[data-comfygit-theme="comfy"] textarea {
+  border-radius: var(--cg-radius-md);
+  border: 1px solid var(--cg-color-border);
+  transition: border-color var(--cg-transition-fast), box-shadow var(--cg-transition-fast);
+}
+
+[data-comfygit-theme="comfy"] input[type="text"]:focus,
+[data-comfygit-theme="comfy"] textarea:focus {
+  border-color: var(--cg-color-accent);
+  box-shadow: 0 0 0 3px var(--cg-color-accent-muted);
+}
+
+/* Dialogs */
+[data-comfygit-theme="comfy"] .dialog-content {
+  border-radius: var(--cg-radius-xl);
+  box-shadow: var(--cg-shadow-xl);
+  border: 1px solid var(--cg-color-border-subtle);
+}
+
+/* Status badges */
+[data-comfygit-theme="comfy"] .status-badge {
+  border-radius: var(--cg-radius-sm);
+  font-size: var(--cg-font-size-xs);
+  font-weight: var(--cg-font-weight-medium);
+  padding: 2px 8px;
+}
+
+/* Warning boxes */
+[data-comfygit-theme="comfy"] .warning-box {
+  border-radius: var(--cg-radius-md);
+  border-left: 4px solid var(--cg-color-warning);
+  background: var(--cg-color-warning-muted);
+}
+
+/* Environment switcher */
+[data-comfygit-theme="comfy"] .env-switcher-btn {
+  border-radius: var(--cg-radius-md);
+  transition: all var(--cg-transition-fast);
+}
+
+[data-comfygit-theme="comfy"] .env-switcher-btn:hover {
+  background: var(--cg-color-bg-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--cg-shadow-sm);
+}
+
+/* Section titles - cleaner, less "terminal-y" */
+[data-comfygit-theme="comfy"] .section-title {
+  font-weight: var(--cg-font-weight-semibold);
+  letter-spacing: var(--cg-letter-spacing-wide);
+  color: var(--cg-color-text-secondary);
+}
+
+/* Use monospace only for technical content */
+[data-comfygit-theme="comfy"] .commit-hash,
+[data-comfygit-theme="comfy"] .branch-name-mono,
+[data-comfygit-theme="comfy"] .file-path {
+  font-family: var(--cg-font-mono);
+}
+
+/* Settings components */
+[data-comfygit-theme="comfy"] .settings-section {
+  border-radius: var(--cg-radius-md);
+  background: var(--cg-color-bg-secondary);
+}
+
+[data-comfygit-theme="comfy"] .setting-row {
+  transition: background var(--cg-transition-fast);
+}
+
+[data-comfygit-theme="comfy"] .setting-row:hover {
+  background: var(--cg-color-bg-hover);
+}
+
+/* Toggle component styling */
+[data-comfygit-theme="comfy"] .toggle-slider {
+  border-radius: var(--cg-radius-full);
+}
+
+/* Keep commit hashes with accent color */
+[data-comfygit-theme="comfy"] .commit-hash {
+  color: var(--cg-color-accent);
+  font-weight: var(--cg-font-weight-medium);
+}
+
+/* Status indicators - use semantic colors */
+[data-comfygit-theme="comfy"] .status-dot.success {
+  background: var(--cg-color-success);
+}
+
+[data-comfygit-theme="comfy"] .status-dot.warning {
+  background: var(--cg-color-warning);
+}
+
+[data-comfygit-theme="comfy"] .status-dot.error {
+  background: var(--cg-color-error);
+}
+
+/* Scrollbar styling (subtle) */
+[data-comfygit-theme="comfy"] ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+[data-comfygit-theme="comfy"] ::-webkit-scrollbar-track {
+  background: var(--cg-color-bg-secondary);
+}
+
+[data-comfygit-theme="comfy"] ::-webkit-scrollbar-thumb {
+  background: var(--cg-color-border);
+  border-radius: var(--cg-radius-sm);
+}
+
+[data-comfygit-theme="comfy"] ::-webkit-scrollbar-thumb:hover {
+  background: var(--cg-color-border-strong);
+}
+
+/* === Remove Terminal Decorations === */
+/* Override any hardcoded terminal-style elements */
+
+/* No title prefixes */
+[data-comfygit-theme="comfy"] .view-title::before,
+[data-comfygit-theme="comfy"] .panel-title::before,
+[data-comfygit-theme="comfy"] .section-title::before {
+  content: '';
+}
+
+/* Status dot is a circle, no blinking */
+[data-comfygit-theme="comfy"] .status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  animation: none;
+}
+
+/* Clean labels without comment syntax */
+[data-comfygit-theme="comfy"] .env-switcher-label {
+  font-weight: var(--cg-font-weight-semibold);
+}
+
+/* No glow effects on titles */
+[data-comfygit-theme="comfy"] .panel-title,
+[data-comfygit-theme="comfy"] .view-title {
+  text-shadow: none;
+}
+
+/* === Log Components === */
+
+/* Log level badges - rounded style */
+[data-comfygit-theme="comfy"] .log-level {
+  border-radius: var(--cg-radius-sm);
+  font-weight: var(--cg-font-weight-semibold);
+}
+
+/* Log items - subtle hover effect */
+[data-comfygit-theme="comfy"] .log-item {
+  border-radius: var(--cg-radius-md);
+  transition: all var(--cg-transition-fast);
+  margin-bottom: var(--cg-space-1);
+}
+
+[data-comfygit-theme="comfy"] .log-item:hover {
+  background: var(--cg-color-bg-hover);
+}
+
+/* Log context badge */
+[data-comfygit-theme="comfy"] .log-item__context {
+  border-radius: var(--cg-radius-sm);
+  font-weight: var(--cg-font-weight-medium);
+}
+
+/* Log filter bar - cleaner appearance */
+[data-comfygit-theme="comfy"] .log-filter-bar {
+  border-radius: var(--cg-radius-md);
+  background: var(--cg-color-bg-tertiary);
+  border: 1px solid var(--cg-color-border-subtle);
+  margin-bottom: var(--cg-space-3);
+}
+
+[data-comfygit-theme="comfy"] .filter-option {
+  border-radius: var(--cg-radius-sm);
+  transition: all var(--cg-transition-fast);
+}
+
+[data-comfygit-theme="comfy"] .filter-option:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--cg-shadow-sm);
+}
+
+[data-comfygit-theme="comfy"] .filter-option.active {
+  box-shadow: 0 0 8px var(--cg-shadow-accent);
+}
+
+/* Log list container */
+[data-comfygit-theme="comfy"] .log-list {
+  border-radius: var(--cg-radius-md);
+  overflow: hidden;
+}
+
+/* Remotes components */
+[data-comfygit-theme="comfy"] .remote-form {
+  border-radius: var(--cg-radius-md);
+  box-shadow: var(--cg-shadow-sm);
+}
+
+[data-comfygit-theme="comfy"] .remote-url-display {
+  background: var(--cg-color-bg-secondary);
+  padding: var(--cg-space-1) var(--cg-space-2);
+  border-radius: var(--cg-radius-sm);
+}
+
+[data-comfygit-theme="comfy"] .default-badge {
+  border-radius: var(--cg-radius-sm);
+}
+
+[data-comfygit-theme="comfy"] .copy-btn {
+  border-radius: var(--cg-radius-sm);
+}
+
+/* Export components */
+[data-comfygit-theme="comfy"] .file-path {
+  border-radius: var(--cg-radius-md);
+}
+
+[data-comfygit-theme="comfy"] .export-warning {
+  border-radius: var(--cg-radius-md);
+}
+
+/* === Import Panel Components === */
+
+/* File drop zone */
+[data-comfygit-theme="comfy"] .file-drop-zone {
+  border-radius: var(--cg-radius-lg);
+  transition: all var(--cg-transition-base);
+}
+
+[data-comfygit-theme="comfy"] .file-drop-zone.drop-active {
+  transform: scale(1.01);
+}
+
+[data-comfygit-theme="comfy"] .file-drop-zone.has-file {
+  border-radius: var(--cg-radius-md);
+}
+
+/* Import preview */
+[data-comfygit-theme="comfy"] .import-preview {
+  border-radius: var(--cg-radius-lg);
+  box-shadow: var(--cg-shadow-sm);
+}
+
+/* Import options */
+[data-comfygit-theme="comfy"] .import-options {
+  border-radius: var(--cg-radius-lg);
+  box-shadow: var(--cg-shadow-sm);
+}
+
+[data-comfygit-theme="comfy"] .option-item {
+  border-radius: var(--cg-radius-md);
+}
+
+[data-comfygit-theme="comfy"] .option-item:hover {
+  transform: translateX(2px);
+}
+
+/* Selected file bar */
+[data-comfygit-theme="comfy"] .selected-file-bar {
+  border-radius: var(--cg-radius-md);
+  box-shadow: var(--cg-shadow-sm);
+}
+
+/* Import help */
+[data-comfygit-theme="comfy"] .import-help {
+  border-radius: var(--cg-radius-lg);
+  box-shadow: var(--cg-shadow-sm);
+}
+
+[data-comfygit-theme="comfy"] .help-number {
+  border-radius: var(--cg-radius-md);
+  box-shadow: var(--cg-shadow-sm);
+}
+
+/* Progress bar */
+[data-comfygit-theme="comfy"] .progress-bar {
+  border-radius: var(--cg-radius-full);
+  overflow: hidden;
+}
+
+[data-comfygit-theme="comfy"] .progress-bar-fill {
+  border-radius: var(--cg-radius-full);
+  box-shadow: 0 0 8px var(--cg-shadow-accent-strong);
+}
+
+/* Complete icon */
+[data-comfygit-theme="comfy"] .complete-icon.success {
+  box-shadow: 0 0 16px var(--cg-shadow-success);
+}
+
+[data-comfygit-theme="comfy"] .complete-icon.error {
+  box-shadow: 0 0 16px var(--cg-shadow-error);
+}

@@ -15,6 +15,21 @@ document.head.appendChild(cssLink)
 const initialTheme = getInitialTheme()
 applyTheme(initialTheme)
 
+// Expose theme switcher to console for easy testing
+// Usage: window.ComfyGit.setTheme('comfy') or window.ComfyGit.setTheme('phosphor')
+import { switchTheme, getCurrentTheme, type ThemeName } from '@/themes'
+;(window as any).ComfyGit = {
+  setTheme: (theme: ThemeName) => {
+    console.log(`[ComfyGit] Switching to theme: ${theme}`)
+    switchTheme(theme)
+  },
+  getTheme: () => {
+    const current = getCurrentTheme()
+    console.log(`[ComfyGit] Current theme: ${current}`)
+    return current
+  }
+}
+
 // Panel state
 let panelOverlay: HTMLElement | null = null
 let commitPopover: HTMLElement | null = null
