@@ -33,6 +33,6 @@ defineEmits<{
 
 <style scoped>
 .search-bar {
-  margin-bottom: var(--cg-space-4);
+  margin-bottom: var(--cg-space-2);
 }
 </style>

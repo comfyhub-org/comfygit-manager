@@ -1,5 +1,5 @@
 <template>
-  <div class="panel-header">
+  <div :class="['panel-header', { stacked }]">
     <div class="header-left">
       <PanelTitle :show-prefix="showPrefix">{{ title }}</PanelTitle>
       <InfoButton v-if="showInfo" @click="$emit('info-click')" />
@@ -18,9 +18,11 @@ withDefaults(defineProps<{
   title: string
   showInfo?: boolean
   showPrefix?: boolean
+  stacked?: boolean  // Stack title and actions vertically
 }>(), {
   showInfo: false,
-  showPrefix: false
+  showPrefix: false,
+  stacked: false
 })
 
 defineEmits<{
@@ -36,6 +38,13 @@ defineEmits<{
   margin-bottom: var(--cg-space-4);
 }
 
+/* Stacked layout: title on top, actions below */
+.panel-header.stacked {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--cg-space-3);
+}
+
 .header-left {
   display: flex;
   align-items: center;
@@ -45,5 +54,6 @@ defineEmits<{
 .header-actions {
   display: flex;
   gap: var(--cg-space-2);
+  flex-wrap: wrap;
 }
 </style>

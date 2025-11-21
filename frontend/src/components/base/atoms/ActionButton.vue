@@ -40,7 +40,7 @@ defineEmits<{
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: var(--cg-space-1);
   white-space: nowrap;
   border: 1px solid;
 }
@@ -69,17 +69,17 @@ defineEmits<{
 
 /* Sizes */
 .action-btn.xs {
-  padding: 4px 8px;
+  padding: var(--cg-space-1) var(--cg-space-2);
   font-size: var(--cg-font-size-xs);
 }
 
 .action-btn.sm {
-  padding: 6px 12px;
+  padding: var(--cg-space-1) var(--cg-space-3);
   font-size: var(--cg-font-size-xs);
 }
 
 .action-btn.md {
-  padding: 8px 16px;
+  padding: var(--cg-space-2) var(--cg-space-4);
   font-size: var(--cg-font-size-sm);
 }
 

@@ -124,12 +124,6 @@
   border: 1px solid var(--cg-color-border-subtle);
 }
 
-/* Header styling */
-[data-comfygit-theme="comfy"] .panel-header {
-  background: var(--cg-color-bg-tertiary);
-  border-bottom: 1px solid var(--cg-color-border-subtle);
-}
-
 /* Sidebar styling */
 [data-comfygit-theme="comfy"] .sidebar {
   background: var(--cg-color-bg-secondary);

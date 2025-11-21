@@ -19,7 +19,7 @@ withDefaults(defineProps<{
   border: 1px solid var(--cg-color-border-subtle);
   color: var(--cg-color-text-muted);
   font-size: var(--cg-font-size-sm);
-  margin-top: var(--cg-space-4);
+  margin-bottom: var(--cg-space-4);
 }
 
 .summary-bar.compact {

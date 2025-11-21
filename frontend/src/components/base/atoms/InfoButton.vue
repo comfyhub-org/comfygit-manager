@@ -27,7 +27,7 @@ defineEmits<{
   border: none;
   color: var(--cg-color-text-muted);
   cursor: pointer;
-  padding: 2px;
+  padding: var(--cg-space-0-5);
   display: flex;
   align-items: center;
   justify-content: center;

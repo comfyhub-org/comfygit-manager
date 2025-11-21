@@ -78,8 +78,8 @@ onMounted(() => {
 
 .search-input {
   width: 100%;
-  padding: 8px 12px;
-  padding-right: 32px;
+  padding: var(--cg-space-2) var(--cg-space-3);
+  padding-right: var(--cg-space-8);
   background: var(--cg-color-bg-tertiary);
   border: 1px solid var(--cg-color-border-subtle);
   color: var(--cg-color-text-primary);
@@ -95,14 +95,14 @@ onMounted(() => {
 
 .clear-button {
   position: absolute;
-  right: 8px;
+  right: var(--cg-space-2);
   top: 50%;
   transform: translateY(-50%);
   background: transparent;
   border: none;
   color: var(--cg-color-text-muted);
   cursor: pointer;
-  padding: 4px;
+  padding: var(--cg-space-1);
   font-size: var(--cg-font-size-sm);
   display: flex;
   align-items: center;

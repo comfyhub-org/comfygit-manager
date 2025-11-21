@@ -169,12 +169,6 @@
 }
 
 /* === Header === */
-[data-comfygit-theme="phosphor"] .panel-header {
-  background: var(--cg-color-bg-tertiary);
-  border-bottom: 1px solid var(--cg-color-border);
-  padding: var(--cg-space-3) var(--cg-space-4);
-}
-
 [data-comfygit-theme="phosphor"] .panel-title {
   color: var(--cg-color-accent);
   text-transform: uppercase;

@@ -46,7 +46,7 @@ defineEmits<{
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: var(--cg-z-popover);
+  z-index: 10001; /* Above ComfyGit panel (10000) */
 }
 
 .popover {

@@ -64,6 +64,7 @@
   --cg-color-info-muted: rgba(59, 130, 246, 0.15);
 
   /* === Spacing === */
+  --cg-space-0-5: 2px;
   --cg-space-1: 4px;
   --cg-space-2: 8px;
   --cg-space-3: 12px;
