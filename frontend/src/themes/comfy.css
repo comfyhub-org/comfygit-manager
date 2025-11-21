@@ -24,6 +24,12 @@
   --cg-font-size-xl: 23.4px;
   --cg-font-size-2xl: 26px;
 
+  /* Font weights */
+  --cg-font-weight-normal: 400;
+  --cg-font-weight-medium: 500;
+  --cg-font-weight-semibold: 600;
+  --cg-font-weight-bold: 700;
+
   /* Panel width scaled 1.3x */
   --cg-panel-width: 884px;
 
@@ -40,6 +46,11 @@
 
   --cg-letter-spacing-normal: 0;
   --cg-letter-spacing-wide: 0.025em;
+
+  /* === Transitions === */
+  --cg-transition-fast: 0.15s ease;
+  --cg-transition-base: 0.2s ease;
+  --cg-transition-slow: 0.3s ease;
 
   /* === Colors - Charcoal Base === */
   /* Inspired by ComfyUI's charcoal palette */
@@ -198,15 +209,16 @@
   font-weight: var(--cg-font-weight-semibold);
 }
 
-/* Commit items */
-[data-comfygit-theme="comfy"] .commit-item {
+/* Commit components */
+[data-comfygit-theme="comfy"] .commit-list {
   border-radius: var(--cg-radius-md);
-  border-left: 3px solid var(--cg-color-border-subtle);
+}
+
+[data-comfygit-theme="comfy"] .commit-item {
   transition: all var(--cg-transition-fast);
 }
 
 [data-comfygit-theme="comfy"] .commit-item:hover {
-  border-left-color: var(--cg-color-accent);
   background: var(--cg-color-bg-hover);
 }
 
