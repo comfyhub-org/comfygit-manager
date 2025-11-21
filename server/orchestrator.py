@@ -283,6 +283,100 @@ def read_startup_state(metadata_dir: Path) -> Optional[dict]:
 
 
 # ============================================================================
+# File Polling & Command Communication (Phase 1 - Control Endpoints)
+# ============================================================================
+
+def safe_write_command(metadata_dir: Path, command: dict) -> None:
+    """
+    Atomically write command file (thread-safe).
+
+    Uses atomic rename pattern to prevent partial reads.
+    """
+    import tempfile
+
+    # Write to temp file in same directory (atomic rename requirement)
+    temp_file = metadata_dir / f".cmd.tmp.{os.getpid()}"
+
+    try:
+        with open(temp_file, 'w') as f:
+            json.dump(command, f)
+
+        # Atomic rename (POSIX + Windows 3.3+)
+        temp_file.replace(metadata_dir / ".cmd")
+    finally:
+        # Clean up temp file if rename failed
+        if temp_file.exists():
+            temp_file.unlink()
+
+
+def cleanup_stale_temp_files(metadata_dir: Path) -> None:
+    """Remove stale temp files from previous runs."""
+    for temp_file in metadata_dir.glob(".cmd.tmp.*"):
+        try:
+            temp_file.unlink()
+        except OSError:
+            pass  # Ignore errors on cleanup
+
+
+# ============================================================================
+# Workspace Configuration (Phase 1 - Control Endpoints)
+# ============================================================================
+
+DEFAULT_CONFIG = {
+    "version": "1.0",
+    "orchestrator": {
+        "control_port": 8189,
+        "control_port_range": [8189, 8199],
+        "enable_control_server": True,
+        "log_level": "info",
+        "health_check_timeout_s": 90,
+        "sync_timeout_s": 600,
+    },
+    "comfyui": {
+        "default_port": 8188,
+        "default_host": "127.0.0.1",
+    },
+    "frontend": {
+        "emergency_threshold_normal_s": 10,
+        "emergency_threshold_switching_s": 60,
+    }
+}
+
+
+def load_workspace_config(metadata_dir: Path) -> dict:
+    """Load workspace configuration, falling back to defaults."""
+    config_file = metadata_dir / "workspace_config.json"
+
+    if not config_file.exists():
+        # Create default config
+        with open(config_file, 'w') as f:
+            json.dump(DEFAULT_CONFIG, f, indent=2)
+        print(f"[Orchestrator] Created default config: {config_file}")
+        return DEFAULT_CONFIG.copy()
+
+    try:
+        with open(config_file) as f:
+            user_config = json.load(f)
+
+        # Deep merge with defaults (create fresh copy to avoid mutation)
+        import copy
+        config = copy.deepcopy(DEFAULT_CONFIG)
+        for section in user_config:
+            if section in config and isinstance(config[section], dict):
+                config[section].update(user_config[section])
+            else:
+                config[section] = user_config[section]
+
+        return config
+
+    except Exception as e:
+        print(f"[Orchestrator] Error loading config: {e}")
+        print(f"[Orchestrator] Using default configuration")
+        import copy
+        return copy.deepcopy(DEFAULT_CONFIG)
+
+
+# ============================================================================
 # Orchestrator Venv Setup
 # ============================================================================
 
@@ -369,8 +463,26 @@ class Orchestrator:
         self.metadata_dir = self.workspace.path / ".metadata"
         self.metadata_dir.mkdir(exist_ok=True)
 
+        # Load workspace configuration
+        self.config = load_workspace_config(self.metadata_dir)
+
+        # Setup flags for command coordination
+        self._shutdown_requested = False
+        self._restart_requested = False
+
+        # Cleanup stale temp files from previous runs
+        cleanup_stale_temp_files(self.metadata_dir)
+
+        # Track current process and start time
+        self.current_process = None
+        self._process_start_time = 0
+
         # Write PID file
         write_orchestrator_pid(self.metadata_dir)
+
+        # Start control server (if enabled in config)
+        if self.config["orchestrator"]["enable_control_server"]:
+            self._start_control_server()
 
         # Setup signal handlers
         signal.signal(signal.SIGTERM, self._handle_sigterm)
@@ -546,6 +658,10 @@ class Orchestrator:
             stdout=sys.stdout,  # Inherit stdout (shows in terminal)
             stderr=sys.stderr   # Inherit stderr
         )
+
+        # Track current process and start time (Phase 1 - Control Endpoints)
+        self.current_process = proc
+        self._process_start_time = time.time()
 
         return proc
 
@@ -800,6 +916,267 @@ class Orchestrator:
     def _cleanup(self):
         """Clean up orchestrator state."""
         cleanup_orchestrator_pid(self.metadata_dir)
+
+    # ========================================================================
+    # File Polling Methods (Phase 1 - Control Endpoints)
+    # ========================================================================
+
+    def _check_command_file(self) -> Optional[dict]:
+        """Check for command file and process if exists."""
+        cmd_file = self.metadata_dir / ".cmd"
+        if not cmd_file.exists():
+            return None
+
+        try:
+            with open(cmd_file) as f:
+                cmd = json.load(f)
+
+            # Delete immediately (idempotent)
+            cmd_file.unlink()
+
+            return cmd
+
+        except (json.JSONDecodeError, IOError) as e:
+            # Partial write or corrupted file - ignore and delete
+            print(f"[Orchestrator] Command file error: {e}")
+            if cmd_file.exists():
+                cmd_file.unlink()
+            return None
+
+    def _wait_with_polling(self, proc: subprocess.Popen) -> Optional[int]:
+        """
+        Wait for process to exit, checking for commands periodically.
+
+        Returns:
+            Exit code of process, or None if shutdown requested
+        """
+        while True:
+            # Check for shutdown FIRST (highest priority)
+            if self._shutdown_requested:
+                print("[Orchestrator] Shutdown requested during wait")
+                return None
+
+            # Check if process exited (non-blocking)
+            exit_code = proc.poll()
+            if exit_code is not None:
+                return exit_code
+
+            # Check for commands
+            cmd = self._check_command_file()
+            if cmd:
+                command = cmd.get("command")
+                if command == "restart":
+                    self._handle_restart_command()
+                elif command == "shutdown":
+                    self._handle_shutdown_command()
+                else:
+                    print(f"[Orchestrator] Unknown command: {command}")
+
+            # Brief sleep (500ms = good balance of responsiveness vs overhead)
+            time.sleep(0.5)
+
+    def _handle_restart_command(self):
+        """Handle restart command from control server."""
+        print("[Orchestrator] Restart command received")
+        self._restart_requested = True
+
+        # Kill current ComfyUI gracefully
+        if self.current_process and self.current_process.poll() is None:
+            print("[Orchestrator] Terminating ComfyUI...")
+            self.current_process.terminate()
+
+            try:
+                self.current_process.wait(timeout=5)
+                print("[Orchestrator] ComfyUI terminated gracefully")
+            except subprocess.TimeoutExpired:
+                print("[Orchestrator] Timeout, force killing...")
+                self.current_process.kill()
+                self.current_process.wait(timeout=2)  # Reap zombie
+
+    def _handle_shutdown_command(self):
+        """Handle shutdown command from control server."""
+        print("[Orchestrator] Shutdown command received")
+        self._shutdown_requested = True
+
+        # Kill current ComfyUI (don't wait - we're shutting down)
+        if self.current_process and self.current_process.poll() is None:
+            print("[Orchestrator] Terminating ComfyUI for shutdown...")
+            self.current_process.terminate()
+
+    # ========================================================================
+    # HTTP Control Server (Phase 1 - Control Endpoints)
+    # ========================================================================
+
+    def _start_control_server(self):
+        """Start HTTP control server with automatic port selection."""
+        from http.server import HTTPServer, BaseHTTPRequestHandler
+        import threading
+
+        # Get port range from config
+        start_port, end_port = self.config["orchestrator"]["control_port_range"]
+
+        orchestrator = self  # Closure reference
+
+        class ControlHandler(BaseHTTPRequestHandler):
+            ALLOWED_ORIGINS = [
+                'http://127.0.0.1:8188',
+                'http://localhost:8188',
+            ]
+
+            def log_message(self, format, *args):
+                """Add timestamps to logs."""
+                from datetime import datetime
+                timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                message = format % args
+                print(f"[{timestamp}] [ControlServer] {message}")
+
+            def _check_origin(self) -> bool:
+                """Check if request origin is allowed (CORS protection)."""
+                origin = self.headers.get('Origin')
+                if not origin:
+                    return True  # Non-browser requests (curl) allowed
+                return origin in self.ALLOWED_ORIGINS
+
+            def do_OPTIONS(self):
+                """Handle CORS preflight."""
+                origin = self.headers.get('Origin')
+
+                if origin in self.ALLOWED_ORIGINS:
+                    self.send_response(200)
+                    self.send_header('Access-Control-Allow-Origin', origin)
+                    self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+                    self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+                    self.send_header('Access-Control-Max-Age', '86400')
+                    self.end_headers()
+                else:
+                    self.send_error(403, "Origin not allowed")
+
+            def do_GET(self):
+                """Handle GET requests."""
+                if not self._check_origin():
+                    self.send_error(403, "Origin not allowed")
+                    return
+
+                if self.path == '/health':
+                    current_proc = orchestrator.current_process
+
+                    health_data = {
+                        "status": "alive",
+                        "pid": os.getpid(),
+                        "current_env": orchestrator.current_env_name,
+                        "supervised": current_proc is not None,
+                    }
+
+                    # Add ComfyUI process state
+                    if current_proc:
+                        health_data["comfyui"] = {
+                            "pid": current_proc.pid,
+                            "running": current_proc.poll() is None,
+                            "uptime_seconds": int(time.time() - orchestrator._process_start_time),
+                        }
+
+                    self._send_json_with_cors(health_data)
+
+                elif self.path == '/status':
+                    # Read status from file
+                    status = read_switch_status(orchestrator.metadata_dir)
+                    if status:
+                        self._send_json_with_cors(status)
+                    else:
+                        self._send_json_with_cors({
+                            "state": "idle",
+                            "current_env": orchestrator.current_env_name,
+                            "message": "No switch in progress"
+                        })
+
+                else:
+                    self.send_error(404, "Not Found")
+
+            def do_POST(self):
+                """Handle POST requests."""
+                if not self._check_origin():
+                    self.send_error(403, "Origin not allowed")
+                    return
+
+                if self.path == '/restart':
+                    # Write restart command (atomic)
+                    safe_write_command(orchestrator.metadata_dir, {
+                        "command": "restart",
+                        "timestamp": time.time()
+                    })
+
+                    self._send_json_with_cors({
+                        "status": "restart_requested",
+                        "message": "Restart command queued (will process within 500ms)"
+                    })
+
+                elif self.path == '/kill':
+                    # Write shutdown command (atomic)
+                    safe_write_command(orchestrator.metadata_dir, {
+                        "command": "shutdown",
+                        "timestamp": time.time()
+                    })
+
+                    self._send_json_with_cors({
+                        "status": "shutting_down",
+                        "message": "Shutdown command queued (will process within 500ms)"
+                    })
+
+                else:
+                    self.send_error(404, "Not Found")
+
+            def _send_json_with_cors(self, data: dict):
+                """Send JSON response with appropriate CORS headers."""
+                origin = self.headers.get('Origin')
+
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+
+                if origin in self.ALLOWED_ORIGINS:
+                    self.send_header('Access-Control-Allow-Origin', origin)
+                    self.send_header('Access-Control-Allow-Credentials', 'true')
+
+                self.end_headers()
+                self.wfile.write(json.dumps(data).encode())
+
+        # Try ports in configured range
+        for port in range(start_port, end_port + 1):
+            try:
+                server = HTTPServer(('127.0.0.1', port), ControlHandler)
+
+                # Success! Write port to file for frontend discovery
+                port_file = self.metadata_dir / ".control_port"
+                port_file.write_text(str(port))
+
+                # Start server thread
+                thread = threading.Thread(
+                    target=server.serve_forever,
+                    daemon=True,
+                    name="OrchestratorControlServer"
+                )
+                thread.start()
+
+                # Store for cleanup
+                self.control_server = server
+                self.control_port = port
+
+                print(f"[Orchestrator] Control server listening on http://127.0.0.1:{port}")
+                return
+
+            except OSError as e:
+                # Port already in use - try next
+                if e.errno in (48, 98, 10048):  # EADDRINUSE on macOS/Linux/Windows
+                    continue
+                else:
+                    print(f"[Orchestrator] Port {port} failed: {e}")
+                    continue
+
+        # All ports exhausted
+        print(f"[Orchestrator] WARNING: Could not bind control server (ports {start_port}-{end_port} all in use)")
+        print("[Orchestrator] Emergency controls will not be available via UI")
+
+        self.control_server = None
+        self.control_port = None
 
     def _handle_sigterm(self, signum, frame):
         """Handle SIGTERM gracefully."""

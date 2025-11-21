@@ -59,5 +59,8 @@ frontend/*.local
 frontend/dist/
 *.tsbuildinfo
 
+# Server
+server/.orchestrator_venv
+
 # Built frontend output (served by ComfyUI)
 web/
