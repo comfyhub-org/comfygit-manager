@@ -405,6 +405,7 @@
   text-shadow: none;
 }
 
+<<<<<<< HEAD
 /* === Log Components === */
 
 /* Log level badges - rounded style */
@@ -476,4 +477,13 @@
 
 [data-comfygit-theme="comfy"] .copy-btn {
   border-radius: var(--cg-radius-sm);
+}
+
+/* Export components */
+[data-comfygit-theme="comfy"] .file-path {
+  border-radius: var(--cg-radius-md);
+}
+
+[data-comfygit-theme="comfy"] .export-warning {
+  border-radius: var(--cg-radius-md);
 }

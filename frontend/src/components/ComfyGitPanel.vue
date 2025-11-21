@@ -216,16 +216,7 @@
           <WorkspaceDebugSection v-else-if="currentView === 'debug-workspace'" />
 
           <!-- Export View -->
-          <div v-else-if="currentView === 'export'" class="view-placeholder">
-            <h3 class="view-title">EXPORT</h3>
-            <button class="export-btn" @click="handleExport">
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-                <path d="M8 12L3 7h3V1h4v6h3L8 12z"/>
-                <path d="M14 14H2v-2h12v2z"/>
-              </svg>
-              EXPORT ENVIRONMENT
-            </button>
-          </div>
+          <ExportSection v-else-if="currentView === 'export'" />
 
           <!-- Import View -->
           <div v-else-if="currentView === 'import'" class="view-placeholder">
@@ -337,6 +328,7 @@ import WorkspaceSettingsSection from './WorkspaceSettingsSection.vue'
 import WorkspaceDebugSection from './WorkspaceDebugSection.vue'
 import DebugEnvSection from './DebugEnvSection.vue'
 import EnvironmentsSection from './EnvironmentsSection.vue'
+import ExportSection from './ExportSection.vue'
 import CommitDetailModal from './CommitDetailModal.vue'
 import ConfirmDialog from './ConfirmDialog.vue'
 import { useComfyGitService } from '@/composables/useComfyGitService'
@@ -350,7 +342,6 @@ const emit = defineEmits<{
 const {
   getStatus,
   getHistory,
-  exportEnv,
   getBranches,
   checkout,
   createBranch,
@@ -633,26 +624,6 @@ function getChangeDetails(): string[] {
   return details
 }
 
-async function handleExport() {
-  const toastId = showToast('Exporting environment...', 'info', 0)
-  try {
-    const result = await exportEnv()
-    removeToast(toastId)
-
-    if (result.status === 'success') {
-      showToast('Export complete', 'success')
-      alert(`Export successful!\n\nSaved to: ${result.path}\n\nModels without sources: ${result.models_without_sources}`)
-    } else {
-      showToast('Export failed', 'error')
-      alert(`Export failed: ${result.message}`)
-    }
-  } catch (err) {
-    removeToast(toastId)
-    showToast('Export error', 'error')
-    alert(`Export error: ${err instanceof Error ? err.message : 'Unknown error'}`)
-  }
-}
-
 onMounted(refresh)
 </script>
 
@@ -891,28 +862,6 @@ onMounted(refresh)
 .view-placeholder p {
   color: var(--cg-color-text-secondary);
   font-size: var(--cg-font-size-base);
-}
-
-.export-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  background: transparent;
-  color: var(--cg-color-text-primary);
-  border: 1px solid var(--cg-color-border);
-  text-transform: uppercase;
-  letter-spacing: var(--cg-letter-spacing-wide);
-  font-size: var(--cg-font-size-xs);
-  font-family: var(--cg-font-mono);
-  cursor: pointer;
-}
-
-.export-btn:hover {
-  background: var(--cg-color-bg-hover);
-  border-color: var(--cg-color-accent);
-  color: var(--cg-color-accent);
-  box-shadow: 0 0 8px rgba(0, 255, 65, 0.3);
 }
 
 /* Environment Selector Dialog */
