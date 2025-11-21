@@ -156,7 +156,11 @@
         </div>
         <template v-else>
           <!-- Status View -->
-          <StatusSection v-if="currentView === 'status'" :status="status!" />
+          <StatusSection
+            v-if="currentView === 'status'"
+            :status="status!"
+            @switch-branch="handleSwitchBranchClick"
+          />
 
           <!-- Workflows View -->
           <WorkflowsSection
@@ -392,6 +396,10 @@ function handleNavigate(view: string) {
   if (target) {
     selectView(target.view, target.section)
   }
+}
+
+function handleSwitchBranchClick() {
+  selectView('branches', 'this-env')
 }
 
 interface ConfirmDialogConfig {

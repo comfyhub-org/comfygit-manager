@@ -72,6 +72,19 @@
         </template>
       </StatusGrid>
 
+      <!-- Current Branch Section -->
+      <div style="margin-top: var(--cg-space-1);">
+        <BranchIndicator
+          :branch-name="status.current_branch || 'main'"
+        >
+          <template #actions>
+            <ActionButton variant="secondary" size="sm" @click="$emit('switch-branch')">
+              Switch Branch
+            </ActionButton>
+          </template>
+        </BranchIndicator>
+      </div>
+
       <!-- Issues Detected Section -->
       <div v-if="hasIssues" style="margin-top: var(--cg-space-4)">
         <SectionTitle level="4" style="margin-bottom: var(--cg-space-2)">
@@ -141,18 +154,6 @@
         style="margin-top: var(--cg-space-4)"
       />
 
-      <!-- Current Branch Section -->
-      <div style="margin-top: var(--cg-space-6); padding-top: var(--cg-space-4); border-top: 1px solid var(--cg-color-border-subtle)">
-        <BranchIndicator
-          :branch-name="status.current_branch || 'main'"
-        >
-          <template #actions>
-            <ActionButton variant="secondary" size="sm" @click="$emit('switch-branch')">
-              Switch Branch
-            </ActionButton>
-          </template>
-        </BranchIndicator>
-      </div>
     </template>
   </PanelLayout>
 </template>
