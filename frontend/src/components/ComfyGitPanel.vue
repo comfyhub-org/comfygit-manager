@@ -219,10 +219,7 @@
           <ExportSection v-else-if="currentView === 'export'" />
 
           <!-- Import View -->
-          <div v-else-if="currentView === 'import'" class="view-placeholder">
-            <h3 class="view-title">IMPORT</h3>
-            <p>Import UI coming soon...</p>
-          </div>
+          <ImportSection v-else-if="currentView === 'import'" />
 
           <!-- Remotes View -->
           <RemotesSection v-else-if="currentView === 'remotes'" />
@@ -329,6 +326,7 @@ import WorkspaceDebugSection from './WorkspaceDebugSection.vue'
 import DebugEnvSection from './DebugEnvSection.vue'
 import EnvironmentsSection from './EnvironmentsSection.vue'
 import ExportSection from './ExportSection.vue'
+import ImportSection from './ImportSection.vue'
 import CommitDetailModal from './CommitDetailModal.vue'
 import ConfirmDialog from './ConfirmDialog.vue'
 import { useComfyGitService } from '@/composables/useComfyGitService'

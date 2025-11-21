@@ -405,7 +405,6 @@
   text-shadow: none;
 }
 
-<<<<<<< HEAD
 /* === Log Components === */
 
 /* Log level badges - rounded style */
@@ -486,4 +485,77 @@
 
 [data-comfygit-theme="comfy"] .export-warning {
   border-radius: var(--cg-radius-md);
+}
+
+/* === Import Panel Components === */
+
+/* File drop zone */
+[data-comfygit-theme="comfy"] .file-drop-zone {
+  border-radius: var(--cg-radius-lg);
+  transition: all var(--cg-transition-base);
+}
+
+[data-comfygit-theme="comfy"] .file-drop-zone.drop-active {
+  transform: scale(1.01);
+}
+
+[data-comfygit-theme="comfy"] .file-drop-zone.has-file {
+  border-radius: var(--cg-radius-md);
+}
+
+/* Import preview */
+[data-comfygit-theme="comfy"] .import-preview {
+  border-radius: var(--cg-radius-lg);
+  box-shadow: var(--cg-shadow-sm);
+}
+
+/* Import options */
+[data-comfygit-theme="comfy"] .import-options {
+  border-radius: var(--cg-radius-lg);
+  box-shadow: var(--cg-shadow-sm);
+}
+
+[data-comfygit-theme="comfy"] .option-item {
+  border-radius: var(--cg-radius-md);
+}
+
+[data-comfygit-theme="comfy"] .option-item:hover {
+  transform: translateX(2px);
+}
+
+/* Selected file bar */
+[data-comfygit-theme="comfy"] .selected-file-bar {
+  border-radius: var(--cg-radius-md);
+  box-shadow: var(--cg-shadow-sm);
+}
+
+/* Import help */
+[data-comfygit-theme="comfy"] .import-help {
+  border-radius: var(--cg-radius-lg);
+  box-shadow: var(--cg-shadow-sm);
+}
+
+[data-comfygit-theme="comfy"] .help-number {
+  border-radius: var(--cg-radius-md);
+  box-shadow: var(--cg-shadow-sm);
+}
+
+/* Progress bar */
+[data-comfygit-theme="comfy"] .progress-bar {
+  border-radius: var(--cg-radius-full);
+  overflow: hidden;
+}
+
+[data-comfygit-theme="comfy"] .progress-bar-fill {
+  border-radius: var(--cg-radius-full);
+  box-shadow: 0 0 8px var(--cg-shadow-accent-strong);
+}
+
+/* Complete icon */
+[data-comfygit-theme="comfy"] .complete-icon.success {
+  box-shadow: 0 0 16px var(--cg-shadow-success);
+}
+
+[data-comfygit-theme="comfy"] .complete-icon.error {
+  box-shadow: 0 0 16px var(--cg-shadow-error);
 }
