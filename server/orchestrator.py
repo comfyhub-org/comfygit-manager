@@ -133,6 +133,97 @@ def should_spawn_orchestrator_for_switch() -> bool:
     return True
 
 
+def detect_manual_start_during_orchestrator() -> bool:
+    """
+    Detect if user manually started ComfyUI while orchestrator is active.
+
+    Returns True if:
+    - Orchestrator is running (PID file exists)
+    - We are NOT supervised (COMFYGIT_SUPERVISED != 1)
+    - Orchestrator is in middle of a switch (lock file exists)
+    """
+    workspace_root = find_workspace_root()
+    if not workspace_root:
+        return False
+
+    metadata_dir = workspace_root / ".metadata"
+
+    # Check if orchestrator is running
+    orch_pid_file = metadata_dir / ".orchestrator.pid"
+    if not orch_pid_file.exists():
+        return False
+
+    try:
+        orch_pid = int(orch_pid_file.read_text())
+        os.kill(orch_pid, 0)  # Check if alive
+    except (ProcessLookupError, ValueError):
+        return False  # Orchestrator dead
+
+    # Check if we're supervised by that orchestrator
+    if os.environ.get("COMFYGIT_SUPERVISED") == "1":
+        return False  # We're the child process of orchestrator - normal
+
+    # Check if orchestrator is mid-switch
+    lock_file = metadata_dir / ".switch.lock"
+    if lock_file.exists():
+        # Orchestrator is doing a switch, but we're a manual start
+        return True
+
+    return False
+
+
+def force_cleanup_orchestrator_state(metadata_dir: Path) -> None:
+    """
+    Force cleanup of orchestrator state files.
+
+    ⚠️ ONLY use if orchestrator is confirmed dead/stuck.
+    """
+    print("[ComfyGit] Force cleaning orchestrator state...")
+
+    files_to_remove = [
+        ".switch.lock",
+        ".switch_status.json",
+        ".switch_request.json",
+    ]
+
+    for filename in files_to_remove:
+        file_path = metadata_dir / filename
+        if file_path.exists():
+            try:
+                file_path.unlink()
+                print(f"[ComfyGit]   ✓ Removed {filename}")
+            except Exception as e:
+                print(f"[ComfyGit]   ✗ Could not remove {filename}: {e}")
+
+    # Try to kill orchestrator process
+    pid_file = metadata_dir / ".orchestrator.pid"
+    if pid_file.exists():
+        try:
+            pid = int(pid_file.read_text())
+            print(f"[ComfyGit]   Attempting to kill orchestrator process {pid}")
+
+            try:
+                os.kill(pid, signal.SIGTERM)
+                time.sleep(2)
+
+                # Check if still alive
+                try:
+                    os.kill(pid, 0)
+                    # Still alive - force kill
+                    print(f"[ComfyGit]   Process didn't exit, force killing...")
+                    os.kill(pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    print(f"[ComfyGit]   ✓ Process terminated successfully")
+            except ProcessLookupError:
+                print(f"[ComfyGit]   Process already dead")
+
+            pid_file.unlink()
+        except Exception as e:
+            print(f"[ComfyGit]   Could not kill orchestrator: {e}")
+
+    print("[ComfyGit] Force cleanup complete")
+
+
 # ============================================================================
 # File Communication (IPC)
 # ============================================================================
@@ -969,6 +1060,8 @@ class Orchestrator:
                     self._handle_restart_command()
                 elif command == "shutdown":
                     self._handle_shutdown_command()
+                elif command == "abort_switch":
+                    self._handle_abort_switch_command(cmd)
                 else:
                     print(f"[Orchestrator] Unknown command: {command}")
 
@@ -1002,6 +1095,62 @@ class Orchestrator:
         if self.current_process and self.current_process.poll() is None:
             print("[Orchestrator] Terminating ComfyUI for shutdown...")
             self.current_process.terminate()
+
+    def _handle_abort_switch_command(self, cmd: dict):
+        """
+        Handle abort switch command from manual ComfyUI start.
+
+        This means user got impatient and manually started ComfyUI.
+        We should:
+        1. Kill the new environment process (if running)
+        2. Clean up state files
+        3. Shut down orchestrator gracefully
+        """
+        print("[Orchestrator] ⚠️  Abort switch command received")
+        print(f"[Orchestrator] Reason: {cmd.get('reason')}")
+        print(f"[Orchestrator] Manual process PID: {cmd.get('pid')}")
+
+        # Check if we're actually in a switch
+        status = read_switch_status(self.metadata_dir)
+
+        if status and status.get("state") in ["complete", "rolled_back"]:
+            print("[Orchestrator] Abort received but switch already finished")
+            print("[Orchestrator] Shutting down to avoid conflict with manual process")
+            self._shutdown_requested = True
+            return
+
+        # Kill the environment we were trying to start
+        if self.current_process and self.current_process.poll() is None:
+            print(f"[Orchestrator] Terminating {self.current_env_name} process...")
+            self.current_process.terminate()
+
+            try:
+                self.current_process.wait(timeout=3)
+            except subprocess.TimeoutExpired:
+                print("[Orchestrator] Force killing...")
+                self.current_process.kill()
+                self.current_process.wait(timeout=2)
+
+        # Update switch status to aborted
+        write_switch_status(
+            self.metadata_dir,
+            state="aborted",
+            progress=100,
+            message="Switch aborted by user (manual restart detected)",
+            target_env=getattr(self, '_switch_target_env', 'unknown'),
+            source_env=getattr(self, '_switch_source_env', 'unknown')
+        )
+
+        # Clean up state files
+        release_switch_lock(self.metadata_dir)
+
+        # Wait a moment for status to be visible
+        time.sleep(2)
+        cleanup_switch_status(self.metadata_dir)
+
+        # Set shutdown flag
+        print("[Orchestrator] Shutting down to allow manual process to take over")
+        self._shutdown_requested = True
 
     # ========================================================================
     # HTTP Control Server (Phase 1 - Control Endpoints)

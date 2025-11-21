@@ -773,4 +773,50 @@ async def list_environments(request):
         }, status=500)
 
 
+# ============================================================================
+# Phase 2 - Orchestrator Control Endpoints
+# ============================================================================
+
+@routes.get("/v2/comfygit/workspace_config")
+async def get_workspace_config(request):
+    """Get workspace configuration for frontend."""
+    is_managed, workspace, env = orchestrator.detect_environment_type()
+
+    if not is_managed or not workspace:
+        return web.json_response({"error": "Not managed"}, status=404)
+
+    config_file = workspace.path / ".metadata" / "workspace_config.json"
+
+    if not config_file.exists():
+        # Return defaults
+        return web.json_response(orchestrator.DEFAULT_CONFIG)
+
+    try:
+        with open(config_file) as f:
+            config = json.load(f)
+        return web.json_response(config)
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)
+
+
+@routes.get("/v2/comfygit/orchestrator_port")
+async def orchestrator_port_endpoint(request):
+    """Get orchestrator control server port."""
+    is_managed, workspace, environment = orchestrator.detect_environment_type()
+
+    if not is_managed or not workspace:
+        return web.json_response({"error": "Not managed"}, status=404)
+
+    port_file = workspace.path / ".metadata" / ".control_port"
+
+    if not port_file.exists():
+        return web.json_response({"error": "Control server not running"}, status=404)
+
+    try:
+        port = int(port_file.read_text().strip())
+        return web.json_response({"port": port})
+    except Exception:
+        return web.json_response({"error": "Invalid port file"}, status=500)
+
+
 print("[ComfyGit] Control Panel API endpoints registered")
