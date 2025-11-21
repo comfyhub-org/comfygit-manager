@@ -210,10 +210,7 @@
           <ModelIndexSection v-else-if="currentView === 'model-index'" />
 
           <!-- Settings View -->
-          <div v-else-if="currentView === 'settings'" class="view-placeholder">
-            <h3 class="view-title">SETTINGS</h3>
-            <p>Settings UI coming soon...</p>
-          </div>
+          <WorkspaceSettingsSection v-else-if="currentView === 'settings'" />
 
           <!-- Debug (Workspace) View -->
           <div v-else-if="currentView === 'debug-workspace'" class="view-placeholder">
@@ -341,6 +338,7 @@ import WorkflowsSection from './WorkflowsSection.vue'
 import ModelsEnvSection from './ModelsEnvSection.vue'
 import ModelIndexSection from './ModelIndexSection.vue'
 import NodesSection from './NodesSection.vue'
+import WorkspaceSettingsSection from './WorkspaceSettingsSection.vue'
 import CommitDetailModal from './CommitDetailModal.vue'
 import ConfirmDialog from './ConfirmDialog.vue'
 import { useComfyGitService } from '@/composables/useComfyGitService'

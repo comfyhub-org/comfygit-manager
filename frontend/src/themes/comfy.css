@@ -313,6 +313,25 @@
   font-family: var(--cg-font-mono);
 }
 
+/* Settings components */
+[data-comfygit-theme="comfy"] .settings-section {
+  border-radius: var(--cg-radius-md);
+  background: var(--cg-color-bg-secondary);
+}
+
+[data-comfygit-theme="comfy"] .setting-row {
+  transition: background var(--cg-transition-fast);
+}
+
+[data-comfygit-theme="comfy"] .setting-row:hover {
+  background: var(--cg-color-bg-hover);
+}
+
+/* Toggle component styling */
+[data-comfygit-theme="comfy"] .toggle-slider {
+  border-radius: var(--cg-radius-full);
+}
+
 /* Keep commit hashes with accent color */
 [data-comfygit-theme="comfy"] .commit-hash {
   color: var(--cg-color-accent);
