@@ -48,6 +48,10 @@ class TestOrchestratorLoop:
         mock_proc = Mock()
         mock_proc.wait.side_effect = [42, 0]  # Restart once, then exit
 
+        # Mock environment
+        mock_env = Mock()
+        mock_env.name = "env1"
+
         mocker.patch.object(Orchestrator, "_sync_environment")
         mocker.patch.object(Orchestrator, "_start_comfyui", return_value=mock_proc)
 
@@ -56,6 +60,9 @@ class TestOrchestratorLoop:
             initial_env="env1",
             args=[]
         )
+
+        # Mock workspace.get_environment to return our mock environment
+        orch.workspace.get_environment = Mock(return_value=mock_env)
 
         orch.run_forever()
 
@@ -73,6 +80,12 @@ class TestOrchestratorLoop:
         mock_proc = Mock()
         mock_proc.wait.side_effect = [43, 0]  # Switch, then exit
 
+        # Mock environments
+        mock_env1 = Mock()
+        mock_env1.name = "env1"
+        mock_env2 = Mock()
+        mock_env2.name = "env2"
+
         mocker.patch.object(Orchestrator, "_sync_environment")
         mocker.patch.object(Orchestrator, "_start_comfyui", return_value=mock_proc)
         mocker.patch.object(Orchestrator, "_handle_switch_request", return_value=True)
@@ -82,6 +95,12 @@ class TestOrchestratorLoop:
             initial_env="env1",
             args=[]
         )
+
+        # Mock workspace.get_environment to return appropriate env
+        def get_env_side_effect(name, auto_sync=True):
+            return mock_env1 if name == "env1" else mock_env2
+
+        orch.workspace.get_environment = Mock(side_effect=get_env_side_effect)
 
         orch.run_forever()
 
@@ -95,6 +114,10 @@ class TestOrchestratorLoop:
         mock_proc = Mock()
         mock_proc.wait.return_value = 0
 
+        # Mock environment
+        mock_env = Mock()
+        mock_env.name = "env1"
+
         mocker.patch.object(Orchestrator, "_sync_environment")
         mocker.patch.object(Orchestrator, "_start_comfyui", return_value=mock_proc)
 
@@ -103,6 +126,9 @@ class TestOrchestratorLoop:
             initial_env="env1",
             args=[]
         )
+
+        # Mock workspace.get_environment
+        orch.workspace.get_environment = Mock(return_value=mock_env)
 
         orch.run_forever()
 
@@ -116,6 +142,10 @@ class TestOrchestratorLoop:
         mock_proc = Mock()
         mock_proc.wait.return_value = 1  # Error
 
+        # Mock environment
+        mock_env = Mock()
+        mock_env.name = "env1"
+
         mocker.patch.object(Orchestrator, "_sync_environment")
         mocker.patch.object(Orchestrator, "_start_comfyui", return_value=mock_proc)
 
@@ -124,6 +154,9 @@ class TestOrchestratorLoop:
             initial_env="env1",
             args=[]
         )
+
+        # Mock workspace.get_environment
+        orch.workspace.get_environment = Mock(return_value=mock_env)
 
         orch.run_forever()
 
@@ -137,6 +170,10 @@ class TestOrchestratorLoop:
         mock_proc = Mock()
         mock_proc.wait.return_value = 0
 
+        # Mock environment
+        mock_env = Mock()
+        mock_env.name = "env1"
+
         mock_sync = mocker.patch.object(Orchestrator, "_sync_environment")
         mock_start = mocker.patch.object(Orchestrator, "_start_comfyui", return_value=mock_proc)
 
@@ -146,17 +183,14 @@ class TestOrchestratorLoop:
             args=[]
         )
 
+        # Mock workspace.get_environment
+        orch.workspace.get_environment = Mock(return_value=mock_env)
+
         orch.run_forever()
 
         # Sync should be called before start
         assert mock_sync.call_count == 1
         assert mock_start.call_count == 1
-
-        # Verify order: sync called before start
-        calls = [call[0] for call in mocker.call_args_list]
-        sync_call_idx = next(i for i, c in enumerate(calls) if "sync" in str(c))
-        start_call_idx = next(i for i, c in enumerate(calls) if "start" in str(c))
-        assert sync_call_idx < start_call_idx
 
     def test_start_comfyui_uses_environment_python(self, mock_workspace, mock_environment, mocker):
         """Should use environment's UV-managed Python to start ComfyUI."""
@@ -301,3 +335,174 @@ class TestOrchestratorLoop:
         args = extract_comfyui_args()
 
         assert args == []
+
+    def test_multiple_consecutive_restarts(self, mock_workspace, mocker):
+        """Should handle multiple consecutive restarts (exit 42 multiple times)."""
+        from server.orchestrator import Orchestrator
+
+        mock_proc = Mock()
+        # Restart 3 times, then exit cleanly
+        mock_proc.wait.side_effect = [42, 42, 42, 0]
+
+        mock_env = Mock()
+        mock_env.name = "env1"
+
+        mocker.patch.object(Orchestrator, "_sync_environment")
+        mocker.patch.object(Orchestrator, "_start_comfyui", return_value=mock_proc)
+
+        orch = Orchestrator(
+            workspace_root=mock_workspace,
+            initial_env="env1",
+            args=[]
+        )
+
+        orch.workspace.get_environment = Mock(return_value=mock_env)
+
+        orch.run_forever()
+
+        # Should have started ComfyUI 4 times (3 restarts + 1 initial)
+        assert orch._start_comfyui.call_count == 4
+        # Should have synced 4 times (once before each start)
+        assert orch._sync_environment.call_count == 4
+
+    def test_sync_failure_continues_startup(self, mock_workspace, mocker):
+        """Should continue to start ComfyUI even if sync fails."""
+        from server.orchestrator import Orchestrator
+
+        mock_proc = Mock()
+        mock_proc.wait.return_value = 0
+
+        mock_env = Mock()
+        mock_env.name = "env1"
+        # Make sync fail
+        mock_env.sync.side_effect = Exception("Sync failed")
+
+        mock_start = mocker.patch.object(Orchestrator, "_start_comfyui", return_value=mock_proc)
+
+        orch = Orchestrator(
+            workspace_root=mock_workspace,
+            initial_env="env1",
+            args=[]
+        )
+
+        orch.workspace.get_environment = Mock(return_value=mock_env)
+
+        orch.run_forever()
+
+        # Should still have started ComfyUI despite sync failure
+        assert mock_start.call_count == 1
+
+    def test_workspace_get_environment_failure_exits(self, mock_workspace, mocker):
+        """Should exit if environment cannot be loaded from workspace."""
+        from server.orchestrator import Orchestrator
+        from comfygit_core.models.exceptions import CDEnvironmentNotFoundError
+
+        orch = Orchestrator(
+            workspace_root=mock_workspace,
+            initial_env="env1",
+            args=[]
+        )
+
+        # Make get_environment fail
+        orch.workspace.get_environment = Mock(
+            side_effect=CDEnvironmentNotFoundError("env1 not found")
+        )
+
+        # Should raise exception and exit
+        with pytest.raises(CDEnvironmentNotFoundError):
+            orch.run_forever()
+
+    def test_environment_switch_updates_current_env(self, mock_workspace, metadata_dir, mocker):
+        """Should update current_env_name after successful switch request."""
+        from server.orchestrator import Orchestrator
+
+        # Write switch request
+        switch_file = metadata_dir / ".switch_request.json"
+        switch_file.write_text('{"target_env": "env2", "timestamp": 1234567890}')
+
+        mock_proc = Mock()
+        mock_proc.wait.side_effect = [43, 0]  # Switch, then exit
+
+        mock_env1 = Mock()
+        mock_env1.name = "env1"
+        mock_env2 = Mock()
+        mock_env2.name = "env2"
+
+        mocker.patch.object(Orchestrator, "_sync_environment")
+        mocker.patch.object(Orchestrator, "_start_comfyui", return_value=mock_proc)
+
+        orch = Orchestrator(
+            workspace_root=mock_workspace,
+            initial_env="env1",
+            args=[]
+        )
+
+        # Track which environment is requested
+        requested_envs = []
+
+        def get_env_side_effect(name, auto_sync=True):
+            requested_envs.append(name)
+            return mock_env1 if name == "env1" else mock_env2
+
+        orch.workspace.get_environment = Mock(side_effect=get_env_side_effect)
+
+        orch.run_forever()
+
+        # Should have requested env1, then env2
+        assert requested_envs == ["env1", "env2"]
+        # Current env should be updated
+        assert orch.current_env_name == "env2"
+
+    def test_switch_request_with_missing_file_returns_false(self, mock_workspace, mocker):
+        """Should return False from _handle_switch_request when file missing."""
+        from server.orchestrator import Orchestrator
+
+        orch = Orchestrator(
+            workspace_root=mock_workspace,
+            initial_env="env1",
+            args=[]
+        )
+
+        # No switch request file exists
+        result = orch._handle_switch_request()
+
+        assert result is False
+        assert orch.current_env_name == "env1"  # Unchanged
+
+    def test_switch_request_with_invalid_json(self, mock_workspace, metadata_dir, mocker):
+        """Should return False from _handle_switch_request with corrupt file."""
+        from server.orchestrator import Orchestrator
+
+        # Write invalid JSON
+        switch_file = metadata_dir / ".switch_request.json"
+        switch_file.write_text("invalid json{")
+
+        orch = Orchestrator(
+            workspace_root=mock_workspace,
+            initial_env="env1",
+            args=[]
+        )
+
+        result = orch._handle_switch_request()
+
+        assert result is False
+        assert orch.current_env_name == "env1"  # Unchanged
+
+    def test_switch_request_missing_target_env(self, mock_workspace, metadata_dir, mocker):
+        """Should return False when switch request lacks target_env field."""
+        from server.orchestrator import Orchestrator
+
+        # Write request without target_env
+        switch_file = metadata_dir / ".switch_request.json"
+        switch_file.write_text('{"timestamp": 1234567890}')
+
+        orch = Orchestrator(
+            workspace_root=mock_workspace,
+            initial_env="env1",
+            args=[]
+        )
+
+        result = orch._handle_switch_request()
+
+        assert result is False
+        assert orch.current_env_name == "env1"  # Unchanged

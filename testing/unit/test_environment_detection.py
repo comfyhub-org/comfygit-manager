@@ -3,6 +3,7 @@
 import os
 from pathlib import Path
 import pytest
+from unittest.mock import Mock
 
 
 @pytest.mark.unit
@@ -154,3 +155,71 @@ class TestEnvironmentDetection:
         assert should_spawn is True
         # Stale PID file should be cleaned up
         assert not pid_file.exists()
+
+    def test_detect_environment_workspace_factory_error(self, mock_workspace, monkeypatch, mocker):
+        """Should return unmanaged when WorkspaceFactory.find() raises error."""
+        from server.orchestrator import detect_environment_type
+        from comfygit_core.models.exceptions import CDWorkspaceNotFoundError
+
+        # Set up location but make factory fail
+        monkeypatch.setenv("COMFYGIT_HOME", str(mock_workspace))
+        mocker.patch("server.orchestrator.WorkspaceFactory.find",
+                    side_effect=CDWorkspaceNotFoundError("Invalid workspace"))
+
+        is_managed, workspace, environment = detect_environment_type()
+
+        assert is_managed is False
+        assert workspace is None
+        assert environment is None
+
+    def test_detect_environment_get_environment_error(self, mock_workspace, mock_environment, monkeypatch, mocker):
+        """Should return unmanaged when workspace.get_environment() fails."""
+        from server.orchestrator import detect_environment_type
+        from comfygit_core.models.exceptions import CDEnvironmentNotFoundError
+
+        comfyui_path = mock_environment / "ComfyUI"
+        monkeypatch.chdir(comfyui_path)
+
+        # Mock workspace that fails to get environment
+        mock_workspace_obj = Mock()
+        mock_workspace_obj.path = mock_workspace
+        mock_workspace_obj.get_environment.side_effect = CDEnvironmentNotFoundError("env1")
+
+        mocker.patch("server.orchestrator.WorkspaceFactory.find", return_value=mock_workspace_obj)
+
+        is_managed, workspace, environment = detect_environment_type()
+
+        assert is_managed is False
+        # Workspace is found, but environment is not
+        assert workspace is not None
+        assert environment is None
+
+    def test_detect_unmanaged_in_workspace_but_not_in_comfyui_dir(self, mock_workspace, mock_environment, monkeypatch):
+        """Should detect unmanaged when in workspace/environments/env1 but not ComfyUI subdir."""
+        from server.orchestrator import detect_environment_type
+
+        # Change to environment root, not ComfyUI subdir
+        env_path = mock_environment
+        monkeypatch.chdir(env_path)
+
+        is_managed, workspace, environment = detect_environment_type()
+
+        assert is_managed is False
+        assert environment is None
+
+    def test_detect_unmanaged_in_workspace_environments_comfyui_no_parent_env(self, mock_workspace, monkeypatch):
+        """Should detect unmanaged when structure is workspace/environments/ComfyUI (missing env name)."""
+        from server.orchestrator import detect_environment_type
+
+        # Create ComfyUI directly under environments (missing env name level)
+        comfyui_path = mock_workspace / "environments" / "ComfyUI"
+        comfyui_path.mkdir(parents=True)
+        (comfyui_path / "main.py").touch()
+
+        monkeypatch.chdir(comfyui_path)
+
+        is_managed, workspace, environment = detect_environment_type()
+
+        # Structure is wrong, should be unmanaged
+        assert is_managed is False
+        assert environment is None

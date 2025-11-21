@@ -20,9 +20,13 @@ class TestHealthChecking:
         mock_proc = Mock()
         mock_proc.poll.return_value = None  # Still running
 
-        # Mock successful socket connection
-        mock_socket = MagicMock()
-        mocker.patch("socket.socket", return_value=mock_socket)
+        # Mock successful socket connection (context manager)
+        mock_socket_instance = MagicMock()
+        mock_socket_instance.__enter__ = Mock(return_value=mock_socket_instance)
+        mock_socket_instance.__exit__ = Mock(return_value=False)
+
+        mock_socket_class = Mock(return_value=mock_socket_instance)
+        mocker.patch("socket.socket", mock_socket_class)
 
         orch = Orchestrator(
             workspace_root=mock_workspace_factory.path,
@@ -34,7 +38,7 @@ class TestHealthChecking:
 
         assert result is True
         # Should require 3 consecutive successes
-        assert mock_socket.connect.call_count >= 3
+        assert mock_socket_instance.connect.call_count >= 3
 
     def test_health_check_process_died(self, mocker, mock_workspace_factory):
         """Should fail health check when process exits."""
@@ -63,10 +67,14 @@ class TestHealthChecking:
         mock_proc = Mock()
         mock_proc.poll.return_value = None
 
-        # Mock connection that always fails
-        mock_socket = MagicMock()
-        mock_socket.connect.side_effect = ConnectionRefusedError()
-        mocker.patch("socket.socket", return_value=mock_socket)
+        # Mock connection that always fails (context manager)
+        mock_socket_instance = MagicMock()
+        mock_socket_instance.__enter__ = Mock(return_value=mock_socket_instance)
+        mock_socket_instance.__exit__ = Mock(return_value=False)
+        mock_socket_instance.connect.side_effect = ConnectionRefusedError()
+
+        mock_socket_class = Mock(return_value=mock_socket_instance)
+        mocker.patch("socket.socket", mock_socket_class)
 
         orch = Orchestrator(
             workspace_root=mock_workspace_factory.path,
@@ -86,7 +94,6 @@ class TestHealthChecking:
         mock_proc.poll.return_value = None
 
         # Alternate between success and failure
-        mock_socket = MagicMock()
         call_count = [0]
 
         def connect_side_effect(*args):
@@ -94,8 +101,13 @@ class TestHealthChecking:
             if call_count[0] % 2 == 0:
                 raise ConnectionRefusedError()
 
-        mock_socket.connect.side_effect = connect_side_effect
-        mocker.patch("socket.socket", return_value=mock_socket)
+        mock_socket_instance = MagicMock()
+        mock_socket_instance.__enter__ = Mock(return_value=mock_socket_instance)
+        mock_socket_instance.__exit__ = Mock(return_value=False)
+        mock_socket_instance.connect.side_effect = connect_side_effect
+
+        mock_socket_class = Mock(return_value=mock_socket_instance)
+        mocker.patch("socket.socket", mock_socket_class)
 
         orch = Orchestrator(
             workspace_root=mock_workspace_factory.path,
@@ -114,8 +126,12 @@ class TestHealthChecking:
         mock_proc = Mock()
         mock_proc.poll.return_value = None
 
-        mock_socket = MagicMock()
-        mocker.patch("socket.socket", return_value=mock_socket)
+        mock_socket_instance = MagicMock()
+        mock_socket_instance.__enter__ = Mock(return_value=mock_socket_instance)
+        mock_socket_instance.__exit__ = Mock(return_value=False)
+
+        mock_socket_class = Mock(return_value=mock_socket_instance)
+        mocker.patch("socket.socket", mock_socket_class)
 
         orch = Orchestrator(
             workspace_root=mock_workspace_factory.path,
@@ -126,7 +142,7 @@ class TestHealthChecking:
         orch._wait_for_health(mock_proc, timeout=5)
 
         # Check that we connected to the custom port
-        connect_calls = mock_socket.connect.call_args_list
+        connect_calls = mock_socket_instance.connect.call_args_list
         assert len(connect_calls) > 0
         # First call should be to port 9999
         assert connect_calls[0][0][0] == ("127.0.0.1", 9999)
@@ -179,10 +195,14 @@ class TestHealthChecking:
             args=[]
         )
 
-        # Mock socket that times out
-        mock_socket = MagicMock()
-        mock_socket.connect.side_effect = socket.timeout()
-        mocker.patch("socket.socket", return_value=mock_socket)
+        # Mock socket that times out (context manager)
+        mock_socket_instance = MagicMock()
+        mock_socket_instance.__enter__ = Mock(return_value=mock_socket_instance)
+        mock_socket_instance.__exit__ = Mock(return_value=False)
+        mock_socket_instance.connect.side_effect = socket.timeout()
+
+        mock_socket_class = Mock(return_value=mock_socket_instance)
+        mocker.patch("socket.socket", mock_socket_class)
 
         result = orch._check_port_connection(8188)
 
@@ -202,9 +222,13 @@ class TestHealthChecking:
         def track_connect(*args):
             connect_times.append(time.time())
 
-        mock_socket = MagicMock()
-        mock_socket.connect.side_effect = track_connect
-        mocker.patch("socket.socket", return_value=mock_socket)
+        mock_socket_instance = MagicMock()
+        mock_socket_instance.__enter__ = Mock(return_value=mock_socket_instance)
+        mock_socket_instance.__exit__ = Mock(return_value=False)
+        mock_socket_instance.connect.side_effect = track_connect
+
+        mock_socket_class = Mock(return_value=mock_socket_instance)
+        mocker.patch("socket.socket", mock_socket_class)
 
         # Speed up sleep for testing
         mocker.patch("time.sleep", side_effect=lambda x: None)
@@ -220,3 +244,104 @@ class TestHealthChecking:
         assert result is True
         # Should have exactly 3 connection attempts
         assert len(connect_times) >= 3
+
+    def test_health_check_process_dies_after_two_successes(self, mocker, mock_workspace_factory):
+        """Should fail if process dies after 2 successful checks (before reaching 3)."""
+        from server.orchestrator import Orchestrator
+
+        call_count = [0]
+
+        def poll_side_effect():
+            call_count[0] += 1
+            # Die after 2 successful connection attempts (before 3rd)
+            # Each health check iteration: poll + connect
+            # We want to succeed twice, then die before 3rd check
+            return 1 if call_count[0] > 2 else None
+
+        mock_proc = Mock()
+        mock_proc.poll.side_effect = poll_side_effect
+        mock_proc.returncode = 1
+
+        mock_socket_instance = MagicMock()
+        mock_socket_instance.__enter__ = Mock(return_value=mock_socket_instance)
+        mock_socket_instance.__exit__ = Mock(return_value=False)
+
+        mock_socket_class = Mock(return_value=mock_socket_instance)
+        mocker.patch("socket.socket", mock_socket_class)
+
+        # Speed up sleep for testing
+        mocker.patch("time.sleep", side_effect=lambda x: None)
+
+        orch = Orchestrator(
+            workspace_root=mock_workspace_factory.path,
+            initial_env="env1",
+            args=["--port", "8188"]
+        )
+
+        result = orch._wait_for_health(mock_proc, timeout=10)
+
+        assert result is False
+
+    def test_health_check_resets_counter_on_failed_connection(self, mocker, mock_workspace_factory):
+        """Should reset consecutive success counter when connection fails."""
+        from server.orchestrator import Orchestrator
+
+        mock_proc = Mock()
+        mock_proc.poll.return_value = None
+
+        # Pattern: success, success, fail, success, success, success
+        call_count = [0]
+
+        def connect_side_effect(*args):
+            call_count[0] += 1
+            # Fail on 3rd attempt
+            if call_count[0] == 3:
+                raise ConnectionRefusedError()
+
+        mock_socket_instance = MagicMock()
+        mock_socket_instance.__enter__ = Mock(return_value=mock_socket_instance)
+        mock_socket_instance.__exit__ = Mock(return_value=False)
+        mock_socket_instance.connect.side_effect = connect_side_effect
+
+        mock_socket_class = Mock(return_value=mock_socket_instance)
+        mocker.patch("socket.socket", mock_socket_class)
+
+        orch = Orchestrator(
+            workspace_root=mock_workspace_factory.path,
+            initial_env="env1",
+            args=["--port", "8188"]
+        )
+
+        result = orch._wait_for_health(mock_proc, timeout=20)
+
+        # Should succeed eventually (after reset)
+        assert result is True
+        # Should have taken 6 attempts (2 + fail + 3)
+        assert call_count[0] >= 6
+
+    def test_health_check_default_port_8188_when_no_args(self, mocker, mock_workspace_factory):
+        """Should use default port 8188 when no --port in args."""
+        from server.orchestrator import Orchestrator
+
+        mock_proc = Mock()
+        mock_proc.poll.return_value = None
+
+        mock_socket_instance = MagicMock()
+        mock_socket_instance.__enter__ = Mock(return_value=mock_socket_instance)
+        mock_socket_instance.__exit__ = Mock(return_value=False)
+
+        mock_socket_class = Mock(return_value=mock_socket_instance)
+        mocker.patch("socket.socket", mock_socket_class)
+
+        orch = Orchestrator(
+            workspace_root=mock_workspace_factory.path,
+            initial_env="env1",
+            args=[]  # No port specified
+        )
+
+        orch._wait_for_health(mock_proc, timeout=5)
+
+        # Should have tried to connect to port 8188
+        connect_calls = mock_socket_instance.connect.call_args_list
+        assert len(connect_calls) > 0
+        assert connect_calls[0][0][0] == ("127.0.0.1", 8188)
