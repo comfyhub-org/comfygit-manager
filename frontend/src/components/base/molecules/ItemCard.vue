@@ -98,7 +98,7 @@ const statusClass = computed(() => {
 .item-header {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
+  gap: var(--cg-space-2);
   margin-bottom: var(--cg-space-2);
 }
 
@@ -119,7 +119,7 @@ const statusClass = computed(() => {
 .item-title {
   color: var(--cg-color-text-primary);
   font-size: var(--cg-font-size-base);
-  margin-bottom: 2px;
+  margin-bottom: var(--cg-space-1);
 }
 
 .item-subtitle {
@@ -130,7 +130,7 @@ const statusClass = computed(() => {
 .item-details {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--cg-space-1);
   margin-bottom: var(--cg-space-2);
 }
 

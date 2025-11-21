@@ -90,7 +90,7 @@ onMounted(() => {
 .search-input:focus {
   outline: none;
   border-color: var(--cg-color-accent);
-  box-shadow: 0 0 8px rgba(0, 255, 65, 0.2);
+  box-shadow: 0 0 8px var(--cg-shadow-accent);
 }
 
 .clear-button {

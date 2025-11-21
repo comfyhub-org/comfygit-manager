@@ -4,6 +4,7 @@
     :class="['panel-title', variant]"
   >
     <span v-if="showPrefix" class="panel-title-prefix">{{ prefix }}</span>
+    <span v-else class="panel-title-prefix-theme"></span>
     <slot></slot>
   </component>
 </template>
@@ -26,6 +27,7 @@ withDefaults(defineProps<{
 .panel-title {
   margin: 0;
   font-weight: var(--cg-font-weight-normal);
+  text-shadow: var(--cg-text-shadow-title);
 }
 
 /* View variant - Main panel titles */
@@ -45,6 +47,12 @@ withDefaults(defineProps<{
 }
 
 .panel-title-prefix {
+  opacity: 0.7;
+}
+
+/* Theme-controlled prefix via CSS variable */
+.panel-title-prefix-theme::before {
+  content: var(--cg-decoration-title-prefix);
   opacity: 0.7;
 }
 </style>

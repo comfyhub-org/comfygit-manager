@@ -35,6 +35,15 @@ defineEmits<{
   letter-spacing: var(--cg-letter-spacing-wide);
   margin: 0;
   font-weight: var(--cg-font-weight-normal);
+  text-shadow: var(--cg-text-shadow-accent);
+}
+
+.section-title::before {
+  content: var(--cg-decoration-label-prefix);
+}
+
+.section-title::after {
+  content: var(--cg-decoration-label-suffix);
 }
 
 .section-title.clickable {
@@ -47,11 +56,11 @@ defineEmits<{
 }
 
 .section-title-count {
-  margin-left: 4px;
+  margin-left: var(--cg-space-1);
 }
 
 .section-title-icon {
-  margin-left: 6px;
+  margin-left: var(--cg-space-2);
   font-size: var(--cg-font-size-xs);
 }
 </style>

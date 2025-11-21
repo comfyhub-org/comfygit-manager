@@ -98,6 +98,17 @@
   --cg-decoration-label-suffix: ' */';
   --cg-decoration-status-animation: cursor-blink 1s step-end infinite;
   --cg-decoration-status-shape: cursor;
+
+  /* === Shadow/Glow Effects === */
+  /* Green phosphor glow shadows */
+  --cg-shadow-accent: rgba(0, 255, 65, 0.3);
+  --cg-shadow-accent-strong: rgba(0, 255, 65, 0.5);
+  --cg-shadow-error: rgba(255, 0, 64, 0.3);
+  --cg-shadow-success: rgba(0, 255, 65, 0.3);
+
+  /* Text shadows for phosphor glow effect */
+  --cg-text-shadow-title: 0 0 8px var(--cg-color-accent);
+  --cg-text-shadow-accent: 0 0 8px var(--cg-color-accent);
 }
 
 /* === Global Phosphor Effects === */

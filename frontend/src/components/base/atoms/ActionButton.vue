@@ -92,7 +92,7 @@ defineEmits<{
 
 .action-btn.primary:hover:not(:disabled) {
   background: var(--cg-color-bg-hover);
-  box-shadow: 0 0 8px rgba(0, 255, 65, 0.3);
+  box-shadow: 0 0 8px var(--cg-shadow-accent);
 }
 
 /* Secondary variant */
@@ -116,7 +116,7 @@ defineEmits<{
 
 .action-btn.destructive:hover:not(:disabled) {
   background: var(--cg-color-bg-hover);
-  box-shadow: 0 0 8px rgba(239, 68, 68, 0.3);
+  box-shadow: 0 0 8px var(--cg-shadow-error);
 }
 
 /* Ghost variant */

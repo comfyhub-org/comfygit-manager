@@ -103,6 +103,17 @@
   --cg-decoration-label-suffix: '';
   --cg-decoration-status-animation: none;
   --cg-decoration-status-shape: circle;
+
+  /* === Shadow/Glow Effects === */
+  /* Blue-themed shadows matching the comfy accent color */
+  --cg-shadow-accent: rgba(49, 185, 244, 0.3);
+  --cg-shadow-accent-strong: rgba(49, 185, 244, 0.5);
+  --cg-shadow-error: rgba(221, 66, 78, 0.3);
+  --cg-shadow-success: rgba(71, 228, 105, 0.3);
+
+  /* No text shadows in comfy theme - clean and modern */
+  --cg-text-shadow-title: none;
+  --cg-text-shadow-accent: none;
 }
 
 /* === Component-Specific Overrides === */
