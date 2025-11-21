@@ -1,55 +1,53 @@
 <template>
   <div class="branch-section">
     <div class="section-header">
-      <h4 class="section-title">Branches</h4>
+      <h3 class="view-title">BRANCHES</h3>
       <button class="add-btn" @click="showCreateInput = true" title="New Branch">
-        <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
           <path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="2" fill="none"/>
         </svg>
       </button>
     </div>
 
-    <div class="branch-card">
-      <!-- Create branch input -->
-      <div v-if="showCreateInput" class="create-branch-row">
-        <input
-          ref="createInput"
-          v-model="newBranchName"
-          class="branch-input"
-          placeholder="Branch name..."
-          @keyup.enter="handleCreate"
-          @keyup.escape="cancelCreate"
-        >
-        <button class="action-btn create" @click="handleCreate" :disabled="!newBranchName.trim()">
-          Create
-        </button>
-        <button class="action-btn cancel" @click="cancelCreate">
-          Cancel
-        </button>
-      </div>
+    <!-- Create branch input -->
+    <div v-if="showCreateInput" class="create-branch-row">
+      <input
+        ref="createInput"
+        v-model="newBranchName"
+        class="branch-input"
+        placeholder="Branch name..."
+        @keyup.enter="handleCreate"
+        @keyup.escape="cancelCreate"
+      >
+      <button class="action-btn create" @click="handleCreate" :disabled="!newBranchName.trim()">
+        Create
+      </button>
+      <button class="action-btn cancel" @click="cancelCreate">
+        Cancel
+      </button>
+    </div>
 
-      <!-- Branch list -->
-      <div v-if="branches.length === 0" class="empty">
-        No branches found
-      </div>
-      <div v-else class="branch-list">
-        <div
-          v-for="branch in branches"
-          :key="branch.name"
-          class="branch-item"
-          :class="{ current: branch.is_current }"
+    <!-- Branch list -->
+    <div v-if="branches.length === 0" class="empty">
+      No branches found
+    </div>
+    <div v-else class="branch-list">
+      <div
+        v-for="branch in branches"
+        :key="branch.name"
+        class="branch-item"
+        :class="{ current: branch.is_current }"
+      >
+        <span class="branch-indicator">{{ branch.is_current ? '●' : '○' }}</span>
+        <span class="branch-name">{{ branch.name }}</span>
+        <button
+          v-if="!branch.is_current"
+          class="switch-btn"
+          @click="$emit('switch', branch.name)"
         >
-          <span class="branch-indicator">{{ branch.is_current ? '●' : '○' }}</span>
-          <span class="branch-name">{{ branch.name }}</span>
-          <button
-            v-if="!branch.is_current"
-            class="switch-btn"
-            @click="$emit('switch', branch.name)"
-          >
-            Switch
-          </button>
-          <span v-else class="current-label">current</span>
-        </div>
+          Switch
+        </button>
+        <span v-else class="current-label">current</span>
       </div>
     </div>
   </div>
@@ -95,93 +93,87 @@ nextTick(() => {
 
 <style scoped>
 .branch-section {
-  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: var(--cg-space-4);
 }
 
-.section-title {
-  font-size: 11px;
-  font-weight: 600;
+.view-title {
+  color: var(--cg-color-accent);
+  font-size: var(--cg-font-size-lg);
   text-transform: uppercase;
-  color: var(--descrip-text, #999);
+  letter-spacing: var(--cg-letter-spacing-wide);
   margin: 0;
-  letter-spacing: 0.5px;
 }
 
 .add-btn {
   background: transparent;
-  border: none;
-  color: var(--descrip-text, #999);
+  border: 1px solid transparent;
+  color: var(--cg-color-text-muted);
   cursor: pointer;
-  padding: 4px;
-  border-radius: 4px;
+  padding: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .add-btn:hover {
-  background: var(--border-color, #4a4a4a);
-  color: var(--input-text, #ddd);
-}
-
-.branch-card {
-  background: var(--comfy-input-bg, #222);
-  border: 1px solid var(--border-color, #4a4a4a);
-  border-radius: 6px;
-  padding: 8px;
+  background: var(--cg-color-bg-hover);
+  border-color: var(--cg-color-border-subtle);
+  color: var(--cg-color-accent);
 }
 
 .create-branch-row {
   display: flex;
   gap: 8px;
-  padding-bottom: 12px;
-  margin-bottom: 10px;
-  border-bottom: 1px solid var(--border-color, #3a3a3a);
+  padding: var(--cg-space-3);
+  margin-bottom: var(--cg-space-3);
+  background: var(--cg-color-bg-tertiary);
+  border: 1px solid var(--cg-color-border-subtle);
 }
 
 .branch-input {
   flex: 1;
   padding: 8px 12px;
-  background: var(--comfy-menu-bg, #353535);
-  border: 1px solid var(--border-color, #4a4a4a);
-  border-radius: 4px;
-  color: var(--input-text, #ddd);
-  font-size: 13px;
-  font-family: inherit;
+  background: var(--cg-color-bg-primary);
+  border: 1px solid var(--cg-color-border-subtle);
+  color: var(--cg-color-text-primary);
+  font-size: var(--cg-font-size-sm);
+  font-family: var(--cg-font-mono);
 }
 
 .branch-input:focus {
   outline: none;
-  border-color: var(--cg-color-accent, #f97316);
-  box-shadow: 0 0 0 2px var(--cg-color-accent-muted, rgba(249, 115, 22, 0.2));
+  border-color: var(--cg-color-accent);
+  box-shadow: 0 0 8px rgba(0, 255, 65, 0.2);
 }
 
 .action-btn {
-  padding: 8px 16px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 500;
+  padding: 8px 14px;
+  font-size: var(--cg-font-size-xs);
+  font-family: var(--cg-font-mono);
+  text-transform: uppercase;
+  letter-spacing: var(--cg-letter-spacing-wide);
   cursor: pointer;
-  border: none;
-  transition: all 0.15s ease;
+  border: 1px solid;
 }
 
 .action-btn.create {
-  background: var(--cg-color-accent, #f97316);
-  color: var(--cg-color-text-inverse, white);
+  background: transparent;
+  color: var(--cg-color-accent);
+  border-color: var(--cg-color-accent);
 }
 
 .action-btn.create:hover:not(:disabled) {
-  background: var(--cg-color-accent-hover, #ea580c);
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px var(--cg-color-accent-muted, rgba(249, 115, 22, 0.3));
+  background: var(--cg-color-bg-hover);
+  box-shadow: 0 0 8px rgba(0, 255, 65, 0.3);
 }
 
 .action-btn.create:disabled {
@@ -191,75 +183,107 @@ nextTick(() => {
 
 .action-btn.cancel {
   background: transparent;
-  color: var(--cg-color-text-secondary, var(--descrip-text, #999));
-  border: 1px solid var(--cg-color-border, var(--border-color, #4a4a4a));
+  color: var(--cg-color-text-secondary);
+  border-color: var(--cg-color-border);
 }
 
 .action-btn.cancel:hover {
-  background: var(--cg-color-bg-hover, var(--border-color, #4a4a4a));
-  border-color: var(--cg-color-border-strong, var(--border-color, #5a5a5a));
+  color: var(--cg-color-text-primary);
+  border-color: var(--cg-color-text-primary);
 }
 
 .empty {
-  color: var(--descrip-text, #999);
-  font-size: 12px;
+  color: var(--cg-color-text-muted);
+  font-size: var(--cg-font-size-sm);
   text-align: center;
-  padding: 12px;
+  padding: var(--cg-space-6);
 }
 
 .branch-list {
-  max-height: 120px;
+  flex: 1;
   overflow-y: auto;
+  background: var(--cg-color-bg-tertiary);
+  border: 1px solid var(--cg-color-border-subtle);
 }
 
 .branch-item {
   display: flex;
   align-items: center;
-  padding: 6px 4px;
-  font-size: 12px;
-  border-radius: 4px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--cg-color-border-subtle);
+  font-size: var(--cg-font-size-sm);
+}
+
+.branch-item:last-child {
+  border-bottom: none;
 }
 
 .branch-item:hover {
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--cg-color-bg-hover);
 }
 
 .branch-item.current {
-  background: rgba(249, 115, 22, 0.1);
+  background: rgba(0, 255, 65, 0.1);
+  border-left: 3px solid var(--cg-color-accent);
+  padding-left: 9px;
 }
 
 .branch-indicator {
-  font-size: 8px;
-  margin-right: 8px;
-  color: var(--descrip-text, #999);
+  font-size: 10px;
+  margin-right: 10px;
+  color: var(--cg-color-text-muted);
 }
 
 .branch-item.current .branch-indicator {
-  color: #f97316;
+  color: var(--cg-color-accent);
 }
 
 .branch-name {
   flex: 1;
-  color: var(--input-text, #ddd);
+  color: var(--cg-color-text-primary);
+  font-family: var(--cg-font-mono);
 }
 
 .switch-btn {
-  padding: 2px 8px;
-  border-radius: 3px;
-  font-size: 10px;
+  padding: 4px 10px;
+  font-size: var(--cg-font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--cg-letter-spacing-wide);
   cursor: pointer;
-  background: var(--border-color, #4a4a4a);
-  color: var(--input-text, #ddd);
-  border: none;
+  background: transparent;
+  color: var(--cg-color-text-secondary);
+  border: 1px solid var(--cg-color-border);
+  font-family: var(--cg-font-mono);
 }
 
 .switch-btn:hover {
-  background: #525252;
+  color: var(--cg-color-text-primary);
+  border-color: var(--cg-color-text-primary);
 }
 
 .current-label {
-  font-size: 10px;
-  color: var(--descrip-text, #999);
-  padding: 2px 8px;
+  font-size: var(--cg-font-size-xs);
+  color: var(--cg-color-text-muted);
+  padding: 4px 10px;
+  text-transform: uppercase;
+  letter-spacing: var(--cg-letter-spacing-wide);
+}
+
+/* Scrollbar */
+.branch-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.branch-list::-webkit-scrollbar-track {
+  background: var(--cg-color-bg-tertiary);
+}
+
+.branch-list::-webkit-scrollbar-thumb {
+  background: var(--cg-color-border-subtle);
+  border: 1px solid var(--cg-color-bg-tertiary);
+}
+
+.branch-list::-webkit-scrollbar-thumb:hover {
+  background: var(--cg-color-accent);
 }
 </style>

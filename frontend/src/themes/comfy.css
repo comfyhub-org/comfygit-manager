@@ -1,0 +1,302 @@
+/* ============================================
+   COMFY THEME
+
+   Aesthetic: Clean, modern developer tool
+   Character: Professional, functional, readable
+   Inspired by: ComfyUI Manager design system
+   ============================================ */
+
+/* Import Inter font for better readability */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+[data-comfygit-theme="comfy"] {
+  /* === Typography === */
+  /* Inter for UI text, monospace for code/technical content */
+  --cg-font-display: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --cg-font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --cg-font-mono: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, monospace;
+
+  /* Standard sizing for readability */
+  --cg-font-size-xs: 11px;
+  --cg-font-size-sm: 13px;
+  --cg-font-size-base: 14px;
+  --cg-font-size-lg: 16px;
+  --cg-font-size-xl: 18px;
+  --cg-font-size-2xl: 20px;
+
+  /* Standard panel width */
+  --cg-panel-width: 680px;
+
+  --cg-letter-spacing-normal: 0;
+  --cg-letter-spacing-wide: 0.025em;
+
+  /* === Colors - Charcoal Base === */
+  /* Inspired by ComfyUI's charcoal palette */
+  --cg-color-bg-primary: #2d2e32;      /* charcoal-500 */
+  --cg-color-bg-secondary: #262729;    /* charcoal-600 */
+  --cg-color-bg-tertiary: #202121;     /* charcoal-700 */
+  --cg-color-bg-hover: #3c3d42;        /* charcoal-300 */
+  --cg-color-bg-overlay: rgba(0, 0, 0, 0.75);
+
+  /* Text - clean and readable */
+  --cg-color-text-primary: #ffffff;
+  --cg-color-text-secondary: #c5c5c5;  /* gray-500 */
+  --cg-color-text-muted: #8a8a8a;      /* gray-800 */
+  --cg-color-text-inverse: #000000;
+
+  /* Borders - subtle separation */
+  --cg-color-border: #55565e;          /* charcoal-100 */
+  --cg-color-border-subtle: #3c3d42;   /* charcoal-300 */
+  --cg-color-border-strong: #828282;   /* stone-100 */
+
+  /* === Colors - Semantic === */
+  /* Blue accent for primary actions */
+  --cg-color-accent: #31b9f4;          /* blue-200 */
+  --cg-color-accent-hover: #0b8ce9;    /* blue-100 */
+  --cg-color-accent-muted: rgba(49, 185, 244, 0.15);
+
+  /* Semantic states */
+  --cg-color-success: #47e469;         /* success-200 */
+  --cg-color-success-muted: rgba(71, 228, 105, 0.15);
+  --cg-color-warning: #fcbf64;         /* warning-200 */
+  --cg-color-warning-muted: rgba(252, 191, 100, 0.15);
+  --cg-color-error: #dd424e;           /* coral-red-400 */
+  --cg-color-error-muted: rgba(221, 66, 78, 0.15);
+  --cg-color-info: #31b9f4;            /* blue-200 */
+  --cg-color-info-muted: rgba(49, 185, 244, 0.15);
+
+  /* === Borders - Modern Rounded === */
+  --cg-radius-none: 0;
+  --cg-radius-sm: 4px;
+  --cg-radius-md: 6px;
+  --cg-radius-lg: 8px;
+  --cg-radius-xl: 12px;
+  --cg-radius-2xl: 16px;
+  --cg-radius-full: 9999px;
+
+  /* === Shadows - Subtle Elevation === */
+  --cg-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --cg-shadow-md: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --cg-shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.5);
+  --cg-shadow-xl: 0 8px 32px rgba(0, 0, 0, 0.6);
+
+  /* === Button === */
+  --cg-btn-gradient-start: #31b9f4;
+  --cg-btn-gradient-end: #0b8ce9;
+  --cg-btn-shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+
+  /* === Decorations - Clean Modern UI === */
+  /* No terminal-style decorations in comfy theme */
+  --cg-decoration-title-prefix: '';
+  --cg-decoration-label-prefix: '';
+  --cg-decoration-label-suffix: '';
+  --cg-decoration-status-animation: none;
+  --cg-decoration-status-shape: circle;
+}
+
+/* === Component-Specific Overrides === */
+
+/* Panel gets subtle elevation */
+[data-comfygit-theme="comfy"] .comfygit-panel {
+  box-shadow: var(--cg-shadow-lg);
+  border: 1px solid var(--cg-color-border-subtle);
+}
+
+/* Header styling */
+[data-comfygit-theme="comfy"] .panel-header {
+  background: var(--cg-color-bg-tertiary);
+  border-bottom: 1px solid var(--cg-color-border-subtle);
+}
+
+/* Sidebar styling */
+[data-comfygit-theme="comfy"] .sidebar {
+  background: var(--cg-color-bg-secondary);
+  border-right: 1px solid var(--cg-color-border-subtle);
+}
+
+/* Sidebar items - softer interaction */
+[data-comfygit-theme="comfy"] .sidebar-item {
+  border-radius: var(--cg-radius-md);
+  transition: background var(--cg-transition-fast), color var(--cg-transition-fast);
+}
+
+[data-comfygit-theme="comfy"] .sidebar-item:hover {
+  background: var(--cg-color-bg-hover);
+}
+
+[data-comfygit-theme="comfy"] .sidebar-item.active {
+  background: var(--cg-color-accent-muted);
+  color: var(--cg-color-accent);
+  font-weight: var(--cg-font-weight-medium);
+}
+
+/* Buttons - modern rounded style */
+[data-comfygit-theme="comfy"] button {
+  border-radius: var(--cg-radius-md);
+}
+
+[data-comfygit-theme="comfy"] .icon-btn {
+  border-radius: var(--cg-radius-md);
+  transition: all var(--cg-transition-fast);
+}
+
+[data-comfygit-theme="comfy"] .icon-btn:hover {
+  background: var(--cg-color-bg-hover);
+}
+
+/* Status section cards */
+[data-comfygit-theme="comfy"] .status-grid {
+  border-radius: var(--cg-radius-lg);
+  box-shadow: var(--cg-shadow-sm);
+}
+
+/* Commit items */
+[data-comfygit-theme="comfy"] .commit-item {
+  border-radius: var(--cg-radius-md);
+  border-left: 3px solid var(--cg-color-border-subtle);
+  transition: all var(--cg-transition-fast);
+}
+
+[data-comfygit-theme="comfy"] .commit-item:hover {
+  border-left-color: var(--cg-color-accent);
+  background: var(--cg-color-bg-hover);
+}
+
+/* Branch items */
+[data-comfygit-theme="comfy"] .branch-item {
+  border-radius: var(--cg-radius-md);
+  transition: all var(--cg-transition-fast);
+}
+
+[data-comfygit-theme="comfy"] .branch-item:hover {
+  background: var(--cg-color-bg-hover);
+}
+
+/* Input fields */
+[data-comfygit-theme="comfy"] input[type="text"],
+[data-comfygit-theme="comfy"] textarea {
+  border-radius: var(--cg-radius-md);
+  border: 1px solid var(--cg-color-border);
+  transition: border-color var(--cg-transition-fast), box-shadow var(--cg-transition-fast);
+}
+
+[data-comfygit-theme="comfy"] input[type="text"]:focus,
+[data-comfygit-theme="comfy"] textarea:focus {
+  border-color: var(--cg-color-accent);
+  box-shadow: 0 0 0 3px var(--cg-color-accent-muted);
+}
+
+/* Dialogs */
+[data-comfygit-theme="comfy"] .dialog-content {
+  border-radius: var(--cg-radius-xl);
+  box-shadow: var(--cg-shadow-xl);
+  border: 1px solid var(--cg-color-border-subtle);
+}
+
+/* Status badges */
+[data-comfygit-theme="comfy"] .status-badge {
+  border-radius: var(--cg-radius-sm);
+  font-size: var(--cg-font-size-xs);
+  font-weight: var(--cg-font-weight-medium);
+  padding: 2px 8px;
+}
+
+/* Warning boxes */
+[data-comfygit-theme="comfy"] .warning-box {
+  border-radius: var(--cg-radius-md);
+  border-left: 4px solid var(--cg-color-warning);
+  background: var(--cg-color-warning-muted);
+}
+
+/* Environment switcher */
+[data-comfygit-theme="comfy"] .env-switcher-btn {
+  border-radius: var(--cg-radius-md);
+  transition: all var(--cg-transition-fast);
+}
+
+[data-comfygit-theme="comfy"] .env-switcher-btn:hover {
+  background: var(--cg-color-bg-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--cg-shadow-sm);
+}
+
+/* Section titles - cleaner, less "terminal-y" */
+[data-comfygit-theme="comfy"] .section-title {
+  font-weight: var(--cg-font-weight-semibold);
+  letter-spacing: var(--cg-letter-spacing-wide);
+  color: var(--cg-color-text-secondary);
+}
+
+/* Use monospace only for technical content */
+[data-comfygit-theme="comfy"] .commit-hash,
+[data-comfygit-theme="comfy"] .branch-name-mono,
+[data-comfygit-theme="comfy"] .file-path {
+  font-family: var(--cg-font-mono);
+}
+
+/* Keep commit hashes with accent color */
+[data-comfygit-theme="comfy"] .commit-hash {
+  color: var(--cg-color-accent);
+  font-weight: var(--cg-font-weight-medium);
+}
+
+/* Status indicators - use semantic colors */
+[data-comfygit-theme="comfy"] .status-dot.success {
+  background: var(--cg-color-success);
+}
+
+[data-comfygit-theme="comfy"] .status-dot.warning {
+  background: var(--cg-color-warning);
+}
+
+[data-comfygit-theme="comfy"] .status-dot.error {
+  background: var(--cg-color-error);
+}
+
+/* Scrollbar styling (subtle) */
+[data-comfygit-theme="comfy"] ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+[data-comfygit-theme="comfy"] ::-webkit-scrollbar-track {
+  background: var(--cg-color-bg-secondary);
+}
+
+[data-comfygit-theme="comfy"] ::-webkit-scrollbar-thumb {
+  background: var(--cg-color-border);
+  border-radius: var(--cg-radius-sm);
+}
+
+[data-comfygit-theme="comfy"] ::-webkit-scrollbar-thumb:hover {
+  background: var(--cg-color-border-strong);
+}
+
+/* === Remove Terminal Decorations === */
+/* Override any hardcoded terminal-style elements */
+
+/* No title prefixes */
+[data-comfygit-theme="comfy"] .view-title::before,
+[data-comfygit-theme="comfy"] .panel-title::before,
+[data-comfygit-theme="comfy"] .section-title::before {
+  content: '';
+}
+
+/* Status dot is a circle, no blinking */
+[data-comfygit-theme="comfy"] .status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  animation: none;
+}
+
+/* Clean labels without comment syntax */
+[data-comfygit-theme="comfy"] .env-switcher-label {
+  font-weight: var(--cg-font-weight-semibold);
+}
+
+/* No glow effects on titles */
+[data-comfygit-theme="comfy"] .panel-title,
+[data-comfygit-theme="comfy"] .view-title {
+  text-shadow: none;
+}

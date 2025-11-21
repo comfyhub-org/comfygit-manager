@@ -79,6 +79,14 @@
   --cg-btn-gradient-start: #00ff41;
   --cg-btn-gradient-end: #00cc33;
   --cg-btn-shadow-inset: none;
+
+  /* === Decorations - Terminal Aesthetic === */
+  /* Enable all terminal-style visual elements */
+  --cg-decoration-title-prefix: '> ';
+  --cg-decoration-label-prefix: '/* ';
+  --cg-decoration-label-suffix: ' */';
+  --cg-decoration-status-animation: cursor-blink 1s step-end infinite;
+  --cg-decoration-status-shape: cursor;
 }
 
 /* === Global Phosphor Effects === */
@@ -154,7 +162,16 @@
 }
 
 [data-comfygit-theme="phosphor"] .panel-title::before {
-  content: '> ';
+  content: var(--cg-decoration-title-prefix);
+  opacity: 0.7;
+}
+
+[data-comfygit-theme="phosphor"] .view-title {
+  text-shadow: 0 0 8px var(--cg-color-accent);
+}
+
+[data-comfygit-theme="phosphor"] .view-title::before {
+  content: var(--cg-decoration-title-prefix);
   opacity: 0.7;
 }
 
@@ -169,12 +186,30 @@
   margin-right: 2px;
 }
 
+/* === Environment Switcher === */
+[data-comfygit-theme="phosphor"] .env-switcher-label::before {
+  content: var(--cg-decoration-label-prefix);
+}
+
+[data-comfygit-theme="phosphor"] .env-switcher-label::after {
+  content: var(--cg-decoration-label-suffix);
+}
+
+/* === Group Titles (Workflows, Models) === */
+[data-comfygit-theme="phosphor"] .group-title::before {
+  content: var(--cg-decoration-label-prefix);
+}
+
+[data-comfygit-theme="phosphor"] .group-title::after {
+  content: var(--cg-decoration-label-suffix);
+}
+
 /* === Status Dot - Blinking Cursor Style === */
 [data-comfygit-theme="phosphor"] .status-dot {
   width: 6px;
   height: 12px;
   border-radius: 0;
-  animation: cursor-blink 1s step-end infinite;
+  animation: var(--cg-decoration-status-animation);
 }
 
 [data-comfygit-theme="phosphor"] .status-dot.success { background: var(--cg-color-success); }

@@ -115,4 +115,12 @@
   --cg-btn-gradient-start: #fb923c;
   --cg-btn-gradient-end: #ea580c;
   --cg-btn-shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+
+  /* === Theme Decorations === */
+  /* These control terminal-style visual elements that can be enabled per theme */
+  --cg-decoration-title-prefix: '';
+  --cg-decoration-label-prefix: '';
+  --cg-decoration-label-suffix: '';
+  --cg-decoration-status-animation: none;
+  --cg-decoration-status-shape: circle;  /* 'circle' or 'cursor' */
 }

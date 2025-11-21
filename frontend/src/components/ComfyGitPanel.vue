@@ -1,5 +1,5 @@
 <template>
-  <div class="comfygit-panel" data-comfygit-theme="phosphor">
+  <div class="comfygit-panel">
     <!-- Header -->
     <div class="panel-header">
       <div class="header-left">
@@ -26,7 +26,7 @@
 
     <!-- Environment Switcher -->
     <div class="env-switcher">
-      <div class="env-switcher-label">/* CURRENT ENVIRONMENT */</div>
+      <div class="env-switcher-label">CURRENT ENVIRONMENT</div>
       <button class="env-switcher-btn" @click="showEnvironmentSelector = true">
         <span>{{ currentEnvironment?.name || status?.environment || 'Loading...' }}</span>
         <span class="switch-indicator">SWITCH ▸</span>
@@ -154,16 +154,16 @@
           <StatusSection v-if="currentView === 'status'" :status="status!" />
 
           <!-- Workflows View -->
-          <div v-else-if="currentView === 'workflows'" class="view-placeholder">
-            <h3 class="view-title">WORKFLOWS</h3>
-            <p>Workflow management UI coming soon...</p>
-          </div>
+          <WorkflowsSection
+            v-else-if="currentView === 'workflows'"
+            @refresh="refresh"
+          />
 
           <!-- Models (Environment) View -->
-          <div v-else-if="currentView === 'models-env'" class="view-placeholder">
-            <h3 class="view-title">MODELS (THIS ENVIRONMENT)</h3>
-            <p>Environment-scoped model view coming soon...</p>
-          </div>
+          <ModelsEnvSection
+            v-else-if="currentView === 'models-env'"
+            @navigate="handleNavigate"
+          />
 
           <!-- Branches View -->
           <BranchSection
@@ -201,10 +201,7 @@
           </div>
 
           <!-- Model Index View -->
-          <div v-else-if="currentView === 'model-index'" class="view-placeholder">
-            <h3 class="view-title">MODEL INDEX (WORKSPACE)</h3>
-            <p>Workspace-wide model index coming soon...</p>
-          </div>
+          <ModelIndexSection v-else-if="currentView === 'model-index'" />
 
           <!-- Settings View -->
           <div v-else-if="currentView === 'settings'" class="view-placeholder">
@@ -334,6 +331,9 @@ import { ref, computed, onMounted } from 'vue'
 import StatusSection from './StatusSection.vue'
 import BranchSection from './BranchSection.vue'
 import HistorySection from './HistorySection.vue'
+import WorkflowsSection from './WorkflowsSection.vue'
+import ModelsEnvSection from './ModelsEnvSection.vue'
+import ModelIndexSection from './ModelIndexSection.vue'
 import CommitDetailModal from './CommitDetailModal.vue'
 import ConfirmDialog from './ConfirmDialog.vue'
 import { useComfyGitService } from '@/composables/useComfyGitService'
@@ -377,6 +377,16 @@ const currentSection = ref<SectionName>('this-env')
 function selectView(view: ViewName, section: SectionName) {
   currentView.value = view
   currentSection.value = section
+}
+
+function handleNavigate(view: string) {
+  const viewMap: Record<string, { view: ViewName; section: SectionName }> = {
+    'model-index': { view: 'model-index', section: 'all-envs' }
+  }
+  const target = viewMap[view]
+  if (target) {
+    selectView(target.view, target.section)
+  }
 }
 
 interface ConfirmDialogConfig {
@@ -654,7 +664,6 @@ onMounted(refresh)
   color: var(--cg-color-accent);
   text-transform: uppercase;
   letter-spacing: var(--cg-letter-spacing-wide);
-  text-shadow: 0 0 8px var(--cg-color-accent);
 }
 
 .header-info {
@@ -673,20 +682,15 @@ onMounted(refresh)
 }
 
 .status-dot {
-  width: 6px;
-  height: 12px;
-  border-radius: 0;
-  animation: cursor-blink 1s step-end infinite;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
 }
 
 .status-dot.success { background: var(--cg-color-success); }
 .status-dot.warning { background: var(--cg-color-warning); }
 .status-dot.error { background: var(--cg-color-error); }
 .status-dot.neutral { background: var(--cg-color-text-muted); }
-
-@keyframes cursor-blink {
-  50% { opacity: 0; }
-}
 
 .header-actions {
   display: flex;
@@ -851,13 +855,7 @@ onMounted(refresh)
   font-size: var(--cg-font-size-lg);
   text-transform: uppercase;
   letter-spacing: var(--cg-letter-spacing-wide);
-  text-shadow: 0 0 8px var(--cg-color-accent);
   margin: 0 0 var(--cg-space-4) 0;
-}
-
-.view-title::before {
-  content: '> ';
-  opacity: 0.7;
 }
 
 .view-placeholder p {

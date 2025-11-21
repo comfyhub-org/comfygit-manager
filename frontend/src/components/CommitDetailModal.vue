@@ -1,21 +1,22 @@
 <template>
-  <div class="modal-overlay" @click.self="$emit('close')">
-    <div class="modal-content">
-      <div class="modal-header">
-        <div class="commit-info">
+  <div class="dialog-overlay" @click.self="$emit('close')">
+    <div class="dialog-content">
+      <div class="dialog-header">
+        <div class="header-info">
+          <h3 class="dialog-title">COMMIT DETAILS</h3>
           <span class="commit-hash">{{ detail?.short_hash || commit.short_hash || commit.hash?.slice(0, 7) }}</span>
           <span v-if="detail?.refs?.length" class="commit-refs">
             <span v-for="ref in detail.refs" :key="ref" class="ref-badge">{{ ref }}</span>
           </span>
         </div>
-        <button class="close-btn" @click="$emit('close')">
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+        <button class="icon-btn" @click="$emit('close')">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
             <path d="M4.28 3.22a.75.75 0 0 0-1.06 1.06L6.94 8l-3.72 3.72a.75.75 0 1 0 1.06 1.06L8 9.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L9.06 8l3.72-3.72a.75.75 0 0 0-1.06-1.06L8 6.94 4.28 3.22z"/>
           </svg>
         </button>
       </div>
 
-      <div class="modal-body">
+      <div class="dialog-body">
         <div class="commit-message">{{ detail?.message || commit.message }}</div>
         <div class="commit-date">{{ detail?.date_relative || commit.date_relative || commit.relative_date }}</div>
 
@@ -31,7 +32,7 @@
 
           <!-- Workflow changes -->
           <div v-if="hasWorkflowChanges" class="change-group">
-            <h4 class="change-title">Workflows</h4>
+            <h4 class="change-title">/* WORKFLOWS */</h4>
             <div v-for="wf in detail.changes.workflows.added" :key="'add-'+wf" class="change-item added">
               <span class="change-icon">+</span>
               <span>{{ wf }}</span>
@@ -48,7 +49,7 @@
 
           <!-- Node changes -->
           <div v-if="hasNodeChanges" class="change-group">
-            <h4 class="change-title">Nodes</h4>
+            <h4 class="change-title">/* NODES */</h4>
             <div v-for="node in detail.changes.nodes.added" :key="'add-'+node.name" class="change-item added">
               <span class="change-icon">+</span>
               <span>{{ node.name }}</span>
@@ -62,7 +63,7 @@
 
           <!-- Model changes -->
           <div v-if="detail.changes.models.resolved > 0" class="change-group">
-            <h4 class="change-title">Models</h4>
+            <h4 class="change-title">/* MODELS */</h4>
             <div class="change-item">
               <span class="change-icon">●</span>
               <span>{{ detail.changes.models.resolved }} model(s) resolved</span>
@@ -71,11 +72,11 @@
         </div>
       </div>
 
-      <div class="modal-footer">
-        <button class="action-btn secondary" @click="$emit('createBranch', commit)">
-          Create Branch
+      <div class="dialog-footer">
+        <button class="btn secondary" @click="$emit('createBranch', commit)">
+          Create Branch From Here
         </button>
-        <button class="action-btn primary" @click="$emit('checkout', commit)">
+        <button class="btn primary" @click="$emit('checkout', commit)">
           Checkout
         </button>
       </div>
@@ -125,201 +126,265 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.modal-overlay {
+.dialog-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
-  z-index: 10002;
+  inset: 0;
+  background: var(--cg-color-bg-overlay);
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 10003;
 }
 
-.modal-content {
-  width: 420px;
-  max-width: 90vw;
-  max-height: 70vh;
-  background: var(--comfy-menu-bg, #353535);
-  border: 1px solid var(--border-color, #4a4a4a);
-  border-radius: 8px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+.dialog-content {
+  background: var(--cg-color-bg-primary);
+  border: 2px solid var(--cg-color-border);
+  box-shadow: 0 0 16px rgba(0, 255, 65, 0.5);
+  max-width: 600px;
+  width: 90vw;
+  max-height: 80vh;
   display: flex;
   flex-direction: column;
 }
 
-.modal-header {
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border-color, #4a4a4a);
+.dialog-header {
+  padding: var(--cg-space-4);
+  border-bottom: 1px solid var(--cg-color-border);
+  background: var(--cg-color-bg-tertiary);
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
 }
 
-.commit-info {
+.header-info {
+  flex: 1;
   display: flex;
-  align-items: center;
-  gap: 8px;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dialog-title {
+  color: var(--cg-color-accent);
+  text-transform: uppercase;
+  letter-spacing: var(--cg-letter-spacing-wide);
+  font-size: var(--cg-font-size-sm);
+  text-shadow: 0 0 8px var(--cg-color-accent);
+  margin: 0;
 }
 
 .commit-hash {
-  font-family: monospace;
-  font-size: 13px;
-  color: #60a5fa;
-  font-weight: 600;
+  font-family: var(--cg-font-mono);
+  font-size: var(--cg-font-size-base);
+  color: var(--cg-color-info);
+  font-weight: var(--cg-font-weight-semibold);
 }
 
 .commit-refs {
   display: flex;
-  gap: 4px;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 
 .ref-badge {
-  padding: 2px 6px;
-  background: rgba(249, 115, 22, 0.2);
-  border-radius: 3px;
-  font-size: 10px;
-  color: #f97316;
-}
-
-.close-btn {
+  padding: 2px 8px;
   background: transparent;
-  border: none;
-  color: var(--input-text, #ddd);
+  border: 1px solid var(--cg-color-accent);
+  color: var(--cg-color-accent);
+  font-size: var(--cg-font-size-xs);
+  font-family: var(--cg-font-mono);
+  text-transform: uppercase;
+  letter-spacing: var(--cg-letter-spacing-wide);
+}
+
+.icon-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--cg-color-text-primary);
   cursor: pointer;
-  padding: 4px;
-  border-radius: 4px;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: var(--cg-space-2);
 }
 
-.close-btn:hover {
-  background: var(--border-color, #4a4a4a);
+.icon-btn:hover {
+  background: var(--cg-color-bg-hover);
+  border-color: var(--cg-color-border-subtle);
 }
 
-.modal-body {
+.dialog-body {
   flex: 1;
   overflow-y: auto;
-  padding: 16px;
+  padding: var(--cg-space-4);
 }
 
 .commit-message {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--input-text, #ddd);
-  margin-bottom: 4px;
+  font-size: var(--cg-font-size-base);
+  font-weight: var(--cg-font-weight-semibold);
+  color: var(--cg-color-text-primary);
+  margin-bottom: 6px;
 }
 
 .commit-date {
-  font-size: 11px;
-  color: var(--descrip-text, #999);
-  margin-bottom: 16px;
+  font-size: var(--cg-font-size-xs);
+  color: var(--cg-color-text-muted);
+  margin-bottom: var(--cg-space-4);
 }
 
 .loading {
   text-align: center;
-  padding: 20px;
-  color: var(--descrip-text, #999);
-  font-size: 12px;
+  padding: var(--cg-space-6);
+  color: var(--cg-color-text-muted);
+  font-size: var(--cg-font-size-sm);
 }
 
 .changes-section {
-  margin-top: 8px;
+  margin-top: var(--cg-space-2);
 }
 
 .stats-row {
   display: flex;
-  gap: 12px;
-  padding: 8px 10px;
-  background: var(--comfy-input-bg, #222);
-  border-radius: 4px;
-  margin-bottom: 12px;
-  font-size: 11px;
+  gap: 16px;
+  padding: 10px 12px;
+  background: var(--cg-color-bg-tertiary);
+  border: 1px solid var(--cg-color-border-subtle);
+  margin-bottom: var(--cg-space-4);
+  font-size: var(--cg-font-size-sm);
+  font-family: var(--cg-font-mono);
 }
 
 .stat {
-  color: var(--descrip-text, #999);
+  color: var(--cg-color-text-muted);
 }
 
 .stat.insertions {
-  color: #4ade80;
+  color: var(--cg-color-success);
 }
 
 .stat.deletions {
-  color: #f87171;
+  color: var(--cg-color-error);
 }
 
 .change-group {
-  margin-bottom: 12px;
+  margin-bottom: var(--cg-space-4);
 }
 
 .change-title {
-  font-size: 11px;
-  font-weight: 600;
+  color: var(--cg-color-text-muted);
+  font-size: var(--cg-font-size-sm);
   text-transform: uppercase;
-  color: var(--descrip-text, #999);
-  margin: 0 0 6px 0;
-  letter-spacing: 0.5px;
+  letter-spacing: var(--cg-letter-spacing-wide);
+  margin: 0 0 var(--cg-space-2) 0;
+  font-weight: var(--cg-font-weight-normal);
 }
 
 .change-item {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 0;
-  font-size: 12px;
-  color: var(--input-text, #ddd);
+  gap: 8px;
+  padding: 6px 8px;
+  font-size: var(--cg-font-size-sm);
+  color: var(--cg-color-text-secondary);
+  font-family: var(--cg-font-mono);
+  background: var(--cg-color-bg-tertiary);
+  border-left: 2px solid transparent;
+  margin-bottom: 2px;
 }
 
 .change-icon {
-  font-family: monospace;
-  font-weight: 600;
-  width: 12px;
+  font-family: var(--cg-font-mono);
+  font-weight: var(--cg-font-weight-bold);
+  width: 14px;
   text-align: center;
+  font-size: var(--cg-font-size-base);
 }
 
-.change-item.added .change-icon { color: #4ade80; }
-.change-item.modified .change-icon { color: #fbbf24; }
-.change-item.deleted .change-icon { color: #f87171; }
+.change-item.added {
+  border-left-color: var(--cg-color-success);
+}
+
+.change-item.added .change-icon {
+  color: var(--cg-color-success);
+}
+
+.change-item.modified {
+  border-left-color: var(--cg-color-warning);
+}
+
+.change-item.modified .change-icon {
+  color: var(--cg-color-warning);
+}
+
+.change-item.deleted {
+  border-left-color: var(--cg-color-error);
+}
+
+.change-item.deleted .change-icon {
+  color: var(--cg-color-error);
+}
 
 .version {
-  font-size: 10px;
-  color: var(--descrip-text, #999);
+  font-size: var(--cg-font-size-xs);
+  color: var(--cg-color-text-muted);
 }
 
-.modal-footer {
-  padding: 12px 16px;
-  border-top: 1px solid var(--border-color, #4a4a4a);
+.dialog-footer {
+  padding: var(--cg-space-4);
+  border-top: 1px solid var(--cg-color-border);
+  background: var(--cg-color-bg-tertiary);
   display: flex;
   justify-content: flex-end;
   gap: 8px;
 }
 
-.action-btn {
-  padding: 6px 12px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 500;
+.btn {
+  padding: 8px 16px;
+  font-family: var(--cg-font-mono);
+  font-size: var(--cg-font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--cg-letter-spacing-wide);
   cursor: pointer;
-  border: none;
+  border: 1px solid;
 }
 
-.action-btn.primary {
-  background: #f97316;
-  color: white;
+.btn.secondary {
+  background: transparent;
+  color: var(--cg-color-text-secondary);
+  border-color: var(--cg-color-border);
 }
 
-.action-btn.primary:hover {
-  background: #ea580c;
+.btn.secondary:hover {
+  color: var(--cg-color-text-primary);
+  border-color: var(--cg-color-text-primary);
 }
 
-.action-btn.secondary {
-  background: var(--comfy-input-bg, #222);
-  color: var(--input-text, #ddd);
-  border: 1px solid var(--border-color, #4a4a4a);
+.btn.primary {
+  background: transparent;
+  color: var(--cg-color-accent);
+  border-color: var(--cg-color-accent);
 }
 
-.action-btn.secondary:hover {
-  background: var(--border-color, #4a4a4a);
+.btn.primary:hover {
+  background: var(--cg-color-bg-hover);
+  box-shadow: 0 0 8px rgba(0, 255, 65, 0.3);
+}
+
+/* Scrollbar */
+.dialog-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.dialog-body::-webkit-scrollbar-track {
+  background: var(--cg-color-bg-tertiary);
+}
+
+.dialog-body::-webkit-scrollbar-thumb {
+  background: var(--cg-color-border-subtle);
+  border: 1px solid var(--cg-color-bg-tertiary);
+}
+
+.dialog-body::-webkit-scrollbar-thumb:hover {
+  background: var(--cg-color-accent);
 }
 </style>
