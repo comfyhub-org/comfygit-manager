@@ -11,8 +11,8 @@
           <ActionButton variant="primary" size="sm" @click="scanForModels">
             Scan for Models
           </ActionButton>
-          <ActionButton variant="primary" size="sm" @click="addDirectory">
-            Add Directory
+          <ActionButton variant="primary" size="sm" @click="changeDirectory">
+            Change Directory
           </ActionButton>
           <ActionButton variant="primary" size="sm" @click="downloadNewModel">
             <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
@@ -305,8 +305,8 @@ function scanForModels() {
   alert('Scan for models not yet implemented')
 }
 
-function addDirectory() {
-  alert('Add directory not yet implemented')
+function changeDirectory() {
+  alert('Change directory not yet implemented')
 }
 
 function downloadNewModel() {
