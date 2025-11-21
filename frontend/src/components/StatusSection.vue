@@ -1,7 +1,7 @@
 <template>
   <PanelLayout>
     <template #header>
-      <PanelHeader title="STATUS" :show-prefix="true" />
+      <PanelHeader title="STATUS" />
     </template>
 
     <template #content>

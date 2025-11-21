@@ -363,10 +363,7 @@ const dt = { class: "panel-layout" }, ut = {
     });
     return (m, p) => (t(), $(Oe, null, {
       header: i(() => [
-        k(De, {
-          title: "STATUS",
-          "show-prefix": !0
-        })
+        k(De, { title: "STATUS" })
       ]),
       content: i(() => [
         k(Me, {
@@ -575,7 +572,7 @@ const dt = { class: "panel-layout" }, ut = {
       _: 1
     }));
   }
-}), po = /* @__PURE__ */ W(vo, [["__scopeId", "data-v-5edb903c"]]), yo = { class: "branch-section" }, bo = { class: "section-header" }, wo = {
+}), po = /* @__PURE__ */ W(vo, [["__scopeId", "data-v-2045da26"]]), yo = { class: "branch-section" }, bo = { class: "section-header" }, wo = {
   key: 0,
   class: "create-branch-row"
 }, ko = ["disabled"], _o = {
