@@ -15,16 +15,27 @@
   --cg-font-body: 'IBM Plex Mono', ui-monospace, monospace;
   --cg-font-mono: 'IBM Plex Mono', ui-monospace, monospace;
 
-  /* Increased ~1.5x for readability through scan lines */
-  --cg-font-size-xs: 12px;
-  --cg-font-size-sm: 14px;
-  --cg-font-size-base: 17px;
-  --cg-font-size-lg: 20px;
-  --cg-font-size-xl: 24px;
-  --cg-font-size-2xl: 28px;
+  /* Increased ~1.3x for readability */
+  --cg-font-size-xs: 15.6px;
+  --cg-font-size-sm: 18.2px;
+  --cg-font-size-base: 22.1px;
+  --cg-font-size-lg: 26px;
+  --cg-font-size-xl: 31.2px;
+  --cg-font-size-2xl: 36.4px;
 
   /* Panel width - 1.3x wider */
-  --cg-panel-width: 754px;
+  --cg-panel-width: 980px;
+
+  /* Spacing - scaled 1.3x for proportional feel */
+  --cg-space-1: 5.2px;
+  --cg-space-2: 10.4px;
+  --cg-space-3: 15.6px;
+  --cg-space-4: 20.8px;
+  --cg-space-5: 26px;
+  --cg-space-6: 31.2px;
+  --cg-space-8: 41.6px;
+  --cg-space-10: 52px;
+  --cg-space-12: 62.4px;
 
   --cg-letter-spacing-normal: 0.02em;
   --cg-letter-spacing-wide: 0.08em;

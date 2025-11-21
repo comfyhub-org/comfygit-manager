@@ -5,9 +5,9 @@
       <div class="header-left">
         <h2 class="panel-title">ComfyGit</h2>
         <div v-if="status" class="header-info">
-          <span class="env-name">{{ currentEnvironment?.name || status.environment }}</span>
-          <span class="branch-name">{{ status.branch || 'detached' }}</span>
-          <span :class="['status-dot', statusColor]" :title="statusTooltip"></span>
+          <!-- <span class="env-name">{{ currentEnvironment?.name || status.environment }}</span> -->
+          <!-- <span class="branch-name">@{{ status.branch || 'detached' }}</span> -->
+          <!-- <span :class="['status-dot', statusColor]" :title="statusTooltip"></span> -->
         </div>
       </div>
       <div class="header-actions">
@@ -28,7 +28,12 @@
     <div class="env-switcher">
       <div class="env-switcher-label">CURRENT ENVIRONMENT</div>
       <button class="env-switcher-btn" @click="showEnvironmentSelector = true">
-        <span>{{ currentEnvironment?.name || status?.environment || 'Loading...' }}</span>
+        <div v-if="status" class="header-info">
+          <span>{{ currentEnvironment?.name || status?.environment || 'Loading...' }}</span>
+          <span class="branch-name">({{ status.branch || 'detached' }})</span>
+          <!-- <span :class="['status-dot', statusColor]" :title="statusTooltip"></span> -->
+        </div>
+        <!-- <span>{{ currentEnvironment?.name || status?.environment || 'Loading...' }}</span> -->
         <span class="switch-indicator">SWITCH ▸</span>
       </button>
     </div>
@@ -631,8 +636,7 @@ onMounted(refresh)
   display: flex;
   flex-direction: column;
   height: 70vh;
-  width: var(--cg-panel-width, 754px);
-  max-width: 90vw;
+  width: 100%;
   background: var(--cg-color-bg-primary);
   color: var(--cg-color-text-primary);
   border: 2px solid var(--cg-color-border);
@@ -679,6 +683,7 @@ onMounted(refresh)
 
 .branch-name {
   color: var(--cg-color-text-muted);
+  font-size: var(--cg-font-size-xs);
 }
 
 .status-dot {
@@ -773,7 +778,7 @@ onMounted(refresh)
 
 /* Sidebar */
 .sidebar {
-  width: 180px;
+  width: 234px;
   background: var(--cg-color-bg-tertiary);
   border-right: 1px solid var(--cg-color-border);
   overflow-y: auto;
@@ -900,7 +905,7 @@ onMounted(refresh)
   background: var(--cg-color-bg-primary);
   border: 2px solid var(--cg-color-border);
   box-shadow: 0 0 16px rgba(0, 255, 65, 0.5);
-  max-width: 600px;
+  max-width: 780px;
   width: 90vw;
   max-height: 80vh;
   display: flex;
@@ -908,7 +913,7 @@ onMounted(refresh)
 }
 
 .env-selector-dialog {
-  width: 600px;
+  width: 780px;
 }
 
 .dialog-header {
@@ -1042,8 +1047,8 @@ onMounted(refresh)
   font-size: var(--cg-font-size-xs);
   color: var(--cg-color-text-primary);
   pointer-events: auto;
-  min-width: 180px;
-  max-width: 300px;
+  min-width: 234px;
+  max-width: 390px;
   font-family: var(--cg-font-mono);
 }
 
