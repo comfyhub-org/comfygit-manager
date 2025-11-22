@@ -31,7 +31,14 @@
                   </span>
                 </div>
                 <div class="model-row">
-                  <span class="label">Importance:</span>
+                  <span class="label">
+                    Importance:
+                    <InfoButton
+                      :size="14"
+                      title="About importance levels"
+                      @click="showImportanceInfo = true"
+                    />
+                  </span>
                   <BaseSelect
                     :model-value="importanceChanges[model.hash] || model.importance"
                     :options="importanceOptions"
@@ -55,16 +62,6 @@
             </div>
           </section>
 
-          <!-- Importance Info -->
-          <div class="info-box">
-            <div class="info-title">Importance options:</div>
-            <ul class="info-list">
-              <li><strong>Required</strong> — Must have for workflow to run</li>
-              <li><strong>Flexible</strong> — Workflow adapts if missing</li>
-              <li><strong>Optional</strong> — Nice to have, can be skipped</li>
-            </ul>
-          </div>
-
           <!-- Nodes Section -->
           <section class="detail-section">
             <BaseTitle variant="section">NODES USED ({{ details.nodes.length }})</BaseTitle>
@@ -76,11 +73,21 @@
               :key="node.name"
               class="node-item"
             >
-              <span :class="['node-status', node.installed ? 'installed' : 'missing']">
-                {{ node.installed ? '✓' : '✕' }}
+              <span :class="['node-status', node.status === 'installed' ? 'installed' : 'missing']">
+                {{ node.status === 'installed' ? '✓' : '✕' }}
               </span>
               <span class="node-name">{{ node.name }}</span>
               <span v-if="node.version" class="node-version">v{{ node.version }}</span>
+              <BaseButton
+                v-if="node.status === 'missing'"
+                variant="primary"
+                size="sm"
+                :loading="installingNodes[node.name]"
+                @click="handleInstallNode(node.name)"
+                class="node-install-btn"
+              >
+                Install
+              </BaseButton>
             </div>
           </section>
         </template>
@@ -99,6 +106,21 @@
       </BaseButton>
     </template>
   </BaseModal>
+
+  <!-- Importance Info Popover -->
+  <InfoPopover
+    :show="showImportanceInfo"
+    title="Model Importance Levels"
+    @close="showImportanceInfo = false"
+  >
+    <template #content>
+      <ul class="importance-info-list">
+        <li><strong>Required</strong> — Must have for workflow to run</li>
+        <li><strong>Flexible</strong> — Workflow adapts if missing</li>
+        <li><strong>Optional</strong> — Nice to have, can be skipped</li>
+      </ul>
+    </template>
+  </InfoPopover>
 </template>
 
 <script setup lang="ts">
@@ -109,6 +131,8 @@ import BaseModal from './base/BaseModal.vue'
 import BaseButton from './base/BaseButton.vue'
 import BaseTitle from './base/BaseTitle.vue'
 import BaseSelect from './base/BaseSelect.vue'
+import InfoButton from './base/atoms/InfoButton.vue'
+import InfoPopover from './base/molecules/InfoPopover.vue'
 
 const props = defineProps<{
   workflowName: string
@@ -119,13 +143,15 @@ const emit = defineEmits<{
   resolve: []
 }>()
 
-const { getWorkflowDetails, setModelImportance } = useComfyGitService()
+const { getWorkflowDetails, setModelImportance, installWorkflowDeps } = useComfyGitService()
 
 const details = ref<WorkflowDetails | null>(null)
 const loading = ref(false)
 const error = ref<string | null>(null)
 const hasChanges = ref(false)
 const importanceChanges = ref<Record<string, string>>({})
+const installingNodes = ref<Record<string, boolean>>({})
+const showImportanceInfo = ref(false)
 
 const importanceOptions = [
   { label: 'Required', value: 'required' },
@@ -169,6 +195,22 @@ async function handleSave() {
     error.value = err instanceof Error ? err.message : 'Failed to save changes'
   } finally {
     loading.value = false
+  }
+}
+
+async function handleInstallNode(nodeName: string) {
+  installingNodes.value[nodeName] = true
+  error.value = null
+
+  try {
+    // Install nodes only (not models)
+    await installWorkflowDeps(props.workflowName, true, false)
+    // Reload details to show updated status
+    await loadDetails()
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : 'Failed to install node'
+  } finally {
+    installingNodes.value[nodeName] = false
   }
 }
 
@@ -227,6 +269,9 @@ onMounted(loadDetails)
 .model-row .label {
   color: var(--cg-color-text-muted);
   min-width: 80px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .model-row .value {
@@ -245,20 +290,7 @@ onMounted(loadDetails)
   margin-top: var(--cg-space-2);
 }
 
-.info-box {
-  background: var(--cg-color-bg-tertiary);
-  border: 1px solid var(--cg-color-border-subtle);
-  padding: var(--cg-space-3);
-  margin-bottom: var(--cg-space-4);
-}
-
-.info-title {
-  color: var(--cg-color-text-primary);
-  font-size: var(--cg-font-size-sm);
-  margin-bottom: var(--cg-space-2);
-}
-
-.info-list {
+.importance-info-list {
   margin: 0;
   padding-left: var(--cg-space-4);
   color: var(--cg-color-text-secondary);
@@ -266,8 +298,12 @@ onMounted(loadDetails)
   list-style-type: '• ';
 }
 
-.info-list li {
-  margin-bottom: 4px;
+.importance-info-list li {
+  margin-bottom: var(--cg-space-2);
+}
+
+.importance-info-list strong {
+  color: var(--cg-color-accent);
 }
 
 .node-item {
@@ -279,6 +315,10 @@ onMounted(loadDetails)
   background: var(--cg-color-bg-tertiary);
   margin-bottom: 4px;
   font-size: var(--cg-font-size-sm);
+}
+
+.node-install-btn {
+  margin-left: auto;
 }
 
 .node-status {

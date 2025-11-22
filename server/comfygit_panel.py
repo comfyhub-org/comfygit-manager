@@ -304,7 +304,312 @@ async def comfygit_sync_environment(request):
         }, status=500)
 
 
-# Phase 2 endpoints
+# ============================================================================
+# Workflow Endpoints
+# ============================================================================
+
+@routes.get("/v2/comfygit/workflows")
+async def get_workflows(request):
+    """List all workflows with analysis."""
+    env = get_environment_from_cwd()
+    if not env:
+        return web.json_response({"error": "No environment detected"}, status=500)
+
+    try:
+        loop = asyncio.get_event_loop()
+        status = await loop.run_in_executor(None, env.status)
+
+        workflows = []
+        for wf in status.workflow.analyzed_workflows:
+            workflows.append({
+                "name": wf.name,
+                "status": "broken" if wf.has_issues else wf.sync_state,
+                "missing_nodes": wf.uninstalled_count,
+                "missing_models": wf.models_needing_path_sync_count,
+                "sync_state": wf.sync_state
+            })
+
+        return web.json_response(workflows)
+    except Exception as e:
+        print(f"[ComfyGit Panel] Get workflows error: {e}")
+        return web.json_response({"error": str(e)}, status=500)
+
+
+@routes.get("/v2/comfygit/workflow/{name}/details")
+async def get_workflow_details(request):
+    """Get detailed information about a specific workflow."""
+    env = get_environment_from_cwd()
+    if not env:
+        return web.json_response({"error": "No environment detected"}, status=500)
+
+    name = request.match_info["name"]
+
+    try:
+        loop = asyncio.get_event_loop()
+        status = await loop.run_in_executor(None, env.status)
+
+        # Find workflow in analyzed workflows
+        workflow = next((w for w in status.workflow.analyzed_workflows if w.name == name), None)
+        if not workflow:
+            return web.json_response({"error": "Workflow not found"}, status=404)
+
+        # Transform models
+        models = []
+        for model in workflow.resolution.models_resolved:
+            models.append({
+                "filename": model.reference.widget_value,
+                "hash": model.resolved_model.hash if model.resolved_model else None,
+                "type": model.resolved_model.category if model.resolved_model else "unknown",
+                "size": model.resolved_model.file_size if model.resolved_model else 0,
+                "used_in_workflows": [name],
+                "importance": "required" if not model.is_optional else "optional",
+                "node_type": model.reference.node_type
+            })
+
+        # Add unresolved models as missing
+        for model in workflow.resolution.models_unresolved:
+            models.append({
+                "filename": model.reference.widget_value,
+                "hash": "",
+                "type": "unknown",
+                "size": 0,
+                "used_in_workflows": [name],
+                "importance": "required" if not model.is_optional else "optional",
+                "node_type": model.reference.node_type
+            })
+
+        # Transform nodes - deduplicate by package_id since multiple node types can come from same package
+        # Status determined by workflow.uninstalled_nodes (authoritative source of what's NOT installed)
+        nodes = []
+        seen_packages = set()
+        uninstalled_set = set(workflow.uninstalled_nodes)
+
+        # Collect all unique packages from resolved nodes
+        for node in workflow.resolution.nodes_resolved:
+            if node.package_id and node.package_id not in seen_packages:
+                seen_packages.add(node.package_id)
+                nodes.append({
+                    "name": node.package_id,
+                    "version": None,
+                    "status": "missing" if node.package_id in uninstalled_set else "installed"
+                })
+
+        # Add any uninstalled packages that weren't in resolved nodes (e.g., unresolved)
+        for package_id in workflow.uninstalled_nodes:
+            if package_id not in seen_packages:
+                nodes.append({
+                    "name": package_id,
+                    "version": None,
+                    "status": "missing"
+                })
+
+        return web.json_response({
+            "name": name,
+            "path": f"workflows/{name}",
+            "status": "broken" if workflow.has_issues else workflow.sync_state,
+            "models": models,
+            "nodes": nodes
+        })
+    except Exception as e:
+        print(f"[ComfyGit Panel] Get workflow details error: {e}")
+        return web.json_response({"error": str(e)}, status=500)
+
+
+@routes.post("/v2/comfygit/workflow/{name}/resolve")
+async def resolve_workflow(request):
+    """Analyze workflow and create resolution plan."""
+    env = get_environment_from_cwd()
+    if not env:
+        return web.json_response({"error": "No environment detected"}, status=500)
+
+    name = request.match_info["name"]
+
+    try:
+        loop = asyncio.get_event_loop()
+
+        # Use auto strategies for automatic resolution
+        from comfygit_core.strategies.auto import AutoNodeStrategy, AutoModelStrategy
+
+        result = await loop.run_in_executor(
+            None,
+            lambda: env.resolve_workflow(
+                name,
+                node_strategy=AutoNodeStrategy(),
+                model_strategy=AutoModelStrategy(),
+                fix=True
+            )
+        )
+
+        # Build resolution plan
+        nodes_auto = []
+        nodes_manual = []
+
+        for node in result.nodes_resolved:
+            nodes_auto.append({
+                "name": node.package_id,
+                "version": None,
+                "source": node.package_data.repository if node.package_data else "unknown",
+                "description": node.package_data.description if node.package_data else None
+            })
+
+        for node_type in result.nodes_unresolved:
+            nodes_manual.append({
+                "name": node_type,
+                "reason": "No matching package found in registry"
+            })
+
+        models_auto = []
+        models_manual = []
+
+        for model in result.models_resolved:
+            if model.model_source:  # Download intent
+                models_auto.append({
+                    "filename": model.reference.widget_value,
+                    "url": model.model_source,
+                    "size": 0,  # Unknown until download
+                    "type": model.resolved_model.category if model.resolved_model else "unknown"
+                })
+
+        for model in result.models_unresolved:
+            models_manual.append({
+                "filename": model.reference.widget_value,
+                "reason": "No matching model found in index"
+            })
+
+        for model in result.models_ambiguous:
+            models_manual.append({
+                "filename": model.reference.widget_value,
+                "reason": "Multiple matching models found - manual selection needed"
+            })
+
+        # Estimate time and size (rough estimates)
+        estimated_time = len(nodes_auto) * 30 + len(models_auto) * 60
+        estimated_size = len(models_auto) * 100  # Rough MB estimate
+
+        return web.json_response({
+            "workflow": name,
+            "nodes": {
+                "auto_installable": nodes_auto,
+                "manual": nodes_manual
+            },
+            "models": {
+                "auto_downloadable": models_auto,
+                "manual": models_manual
+            },
+            "estimated_time": estimated_time,
+            "estimated_size": estimated_size
+        })
+    except Exception as e:
+        print(f"[ComfyGit Panel] Resolve workflow error: {e}")
+        return web.json_response({"error": str(e)}, status=500)
+
+
+@routes.post("/v2/comfygit/workflow/{name}/install")
+async def install_workflow_dependencies(request):
+    """Install workflow dependencies (nodes and models)."""
+    env = get_environment_from_cwd()
+    if not env:
+        return web.json_response({"error": "No environment detected"}, status=500)
+
+    name = request.match_info["name"]
+
+    try:
+        loop = asyncio.get_event_loop()
+
+        # Get uninstalled nodes for this workflow
+        uninstalled = await loop.run_in_executor(
+            None,
+            lambda: env.get_uninstalled_nodes(workflow_name=name)
+        )
+
+        if not uninstalled:
+            return web.json_response({
+                "status": "success",
+                "message": "No nodes to install",
+                "nodes_installed": []
+            })
+
+        # Install nodes
+        def install_nodes():
+            installed = []
+            failed = []
+            for node_id in uninstalled:
+                try:
+                    env.install_node(node_id)
+                    installed.append(node_id)
+                except Exception as e:
+                    failed.append({"name": node_id, "error": str(e)})
+            return installed, failed
+
+        installed, failed = await loop.run_in_executor(None, install_nodes)
+
+        return web.json_response({
+            "status": "success" if not failed else "partial",
+            "message": f"Installed {len(installed)} node(s)",
+            "nodes_installed": installed,
+            "nodes_failed": failed
+        })
+    except Exception as e:
+        print(f"[ComfyGit Panel] Install workflow dependencies error: {e}")
+        return web.json_response({"error": str(e)}, status=500)
+
+
+# ============================================================================
+# Model Endpoints
+# ============================================================================
+
+@routes.get("/v2/comfygit/models/environment")
+async def get_environment_models(request):
+    """Get models used in current environment with workflow usage tracking."""
+    env = get_environment_from_cwd()
+    if not env:
+        return web.json_response({"error": "No environment detected"}, status=500)
+
+    try:
+        loop = asyncio.get_event_loop()
+        status = await loop.run_in_executor(None, env.status)
+
+        # Aggregate models across all workflows, tracking which workflows use each
+        models_map = {}  # hash -> model info with usage tracking
+
+        for wf in status.workflow.analyzed_workflows:
+            # Process resolved models
+            for resolved_model in wf.resolution.models_resolved:
+                model_ref = resolved_model.resolved_model
+                if not model_ref:
+                    continue
+
+                # Use CRC32 hash as canonical identifier
+                model_hash = model_ref.hash
+
+                if model_hash not in models_map:
+                    # Determine category from relative_path
+                    category = model_ref.category if hasattr(model_ref, 'category') else "unknown"
+
+                    models_map[model_hash] = {
+                        "filename": model_ref.filename,
+                        "hash": model_hash,
+                        "type": category,
+                        "size": model_ref.file_size,
+                        "used_in_workflows": []
+                    }
+
+                # Track workflow usage
+                if wf.name not in models_map[model_hash]["used_in_workflows"]:
+                    models_map[model_hash]["used_in_workflows"].append(wf.name)
+
+        # Convert to list sorted by filename
+        models = sorted(models_map.values(), key=lambda m: m["filename"])
+
+        return web.json_response(models)
+    except Exception as e:
+        print(f"[ComfyGit Panel] Get environment models error: {e}")
+        return web.json_response({"error": str(e)}, status=500)
+
+
+# ============================================================================
+# Git Operations
+# ============================================================================
 
 @routes.get("/v2/comfygit/branches")
 async def comfygit_branches(request):
