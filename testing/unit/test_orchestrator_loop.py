@@ -422,10 +422,12 @@ class TestOrchestratorLoop:
         mock_proc1.poll.return_value = None
 
         # Create switch request when proc1 exits
-        def mock_wait1():
+        def mock_wait1(timeout=None):
             switch_file = metadata_dir / ".switch_request.json"
             with open(switch_file, 'w') as f:
                 json.dump({"target_env": "env2", "source_env": "env1"}, f)
+            if timeout is not None:
+                return 43  # EXIT_SWITCH_ENV
             return 43  # EXIT_SWITCH_ENV
 
         mock_proc1.wait = mock_wait1

@@ -349,6 +349,7 @@ import ConfirmDialog from './ConfirmDialog.vue'
 import ConfirmSwitchModal from './base/molecules/ConfirmSwitchModal.vue'
 import SwitchProgressModal from './base/molecules/SwitchProgressModal.vue'
 import { useComfyGitService } from '@/composables/useComfyGitService'
+import { useOrchestratorService } from '@/composables/useOrchestratorService'
 import type { ComfyGitStatus, CommitInfo, BranchInfo, EnvironmentInfo } from '@/types/comfygit'
 
 const emit = defineEmits<{
@@ -367,6 +368,8 @@ const {
   switchEnvironment,
   getSwitchProgress
 } = useComfyGitService()
+
+const orchestratorService = useOrchestratorService()
 
 type ViewName = 'status' | 'workflows' | 'models-env' | 'branches' | 'history' | 'nodes' | 'debug-env' |
                 'environments' | 'model-index' | 'settings' | 'debug-workspace' |
@@ -390,6 +393,7 @@ const showSwitchProgress = ref(false)
 const targetEnvironment = ref<string>('')
 const switchProgress = ref({ state: 'idle', progress: 0, message: '' })
 let switchPollInterval: number | null = null
+let progressSimulationInterval: number | null = null
 
 const currentView = ref<ViewName>('status')
 const currentSection = ref<SectionName>('this-env')
@@ -625,18 +629,81 @@ async function handleEnvironmentSwitch(envName: string) {
 async function confirmEnvironmentSwitch() {
   showConfirmSwitch.value = false
   showSwitchProgress.value = true
-  switchProgress.value = { state: 'preparing', progress: 10, message: 'Initiating switch...' }
+  switchProgress.value = {
+    progress: 10,
+    state: getStateFromProgress(10),
+    message: getMessageFromProgress(10)
+  }
 
   try {
     // Initiate the switch
     await switchEnvironment(targetEnvironment.value)
 
-    // Start polling for progress
+    // Start smooth progress simulation (10% → 60% over 5 seconds)
+    startProgressSimulation()
+
+    // Start polling for real progress
     startSwitchPolling()
   } catch (err) {
+    stopProgressSimulation()
     showSwitchProgress.value = false
     showToast(`Failed to initiate switch: ${err instanceof Error ? err.message : 'Unknown error'}`, 'error')
     switchProgress.value = { state: 'idle', progress: 0, message: '' }
+  }
+}
+
+function getStateFromProgress(progress: number): string {
+  if (progress >= 100) return 'complete'
+  if (progress >= 80) return 'validating'
+  if (progress >= 60) return 'starting'
+  if (progress >= 30) return 'syncing'
+  return 'preparing'
+}
+
+function getMessageFromProgress(progress: number): string {
+  const messages: Record<string, string> = {
+    preparing: 'Stopping current environment...',
+    syncing: 'Preparing target environment...',
+    starting: 'Starting new environment...',
+    validating: 'Waiting for server to be ready...',
+    complete: 'Switch complete!'
+  }
+  return messages[getStateFromProgress(progress)] || ''
+}
+
+function startProgressSimulation() {
+  if (progressSimulationInterval) return
+
+  let simulatedProgress = 10
+  const targetProgress = 60
+  const durationMs = 5000
+  const intervalMs = 100
+  const incrementPerTick = (targetProgress - simulatedProgress) / (durationMs / intervalMs)
+
+  progressSimulationInterval = window.setInterval(() => {
+    simulatedProgress += incrementPerTick
+
+    if (simulatedProgress >= targetProgress) {
+      simulatedProgress = targetProgress
+      stopProgressSimulation()
+    }
+
+    // Only update if we haven't received real progress > 60% yet
+    if (switchProgress.value.progress < targetProgress) {
+      const progress = Math.floor(simulatedProgress)
+      switchProgress.value = {
+        progress,
+        state: getStateFromProgress(progress),
+        message: getMessageFromProgress(progress)
+      }
+    }
+  }, intervalMs)
+}
+
+function stopProgressSimulation() {
+  if (progressSimulationInterval) {
+    clearInterval(progressSimulationInterval)
+    progressSimulationInterval = null
   }
 }
 
@@ -645,32 +712,64 @@ function startSwitchPolling() {
 
   switchPollInterval = window.setInterval(async () => {
     try {
-      const progress = await getSwitchProgress()
+      // Try orchestrator first (survives ComfyUI restarts)
+      let progress = await orchestratorService.getStatus()
+
+      // Fallback to ComfyUI server if orchestrator unavailable
+      if (!progress || progress.state === 'idle') {
+        progress = await getSwitchProgress()
+      }
 
       if (!progress) {
         // No progress info available, keep current state
         return
       }
 
+      const realProgress = progress.progress || 0
+
+      // Stop simulation once real progress reaches 60%+
+      if (realProgress >= 60) {
+        stopProgressSimulation()
+      }
+
+      // Calculate final progress (never go backwards)
+      const finalProgress = Math.max(realProgress, switchProgress.value.progress)
+
+      // Determine if we're using real state or derived state
+      const usingRealState = progress.state && progress.state !== 'idle' && progress.state !== 'unknown'
+
+      const finalState = usingRealState
+        ? progress.state
+        : getStateFromProgress(finalProgress)
+
+      // If using derived state, also derive message. Otherwise use real message or derive.
+      const finalMessage = usingRealState
+        ? (progress.message || getMessageFromProgress(finalProgress))
+        : getMessageFromProgress(finalProgress)
+
+      // Update progress (simulation handles 10-60%, real handles 60%+)
       switchProgress.value = {
-        state: progress.state,
-        progress: progress.progress,
-        message: progress.message || ''
+        state: finalState,
+        progress: finalProgress,
+        message: finalMessage
       }
 
       // Handle terminal states
       if (progress.state === 'complete') {
+        stopProgressSimulation()
         stopSwitchPolling()
         showSwitchProgress.value = false
         showToast(`✓ Switched to ${targetEnvironment.value}`, 'success')
         await refresh()
         targetEnvironment.value = ''
       } else if (progress.state === 'rolled_back') {
+        stopProgressSimulation()
         stopSwitchPolling()
         showSwitchProgress.value = false
         showToast('Switch failed, restored previous environment', 'warning')
         targetEnvironment.value = ''
       } else if (progress.state === 'critical_failure') {
+        stopProgressSimulation()
         stopSwitchPolling()
         showSwitchProgress.value = false
         showToast(`Critical error during switch: ${progress.message}`, 'error')
@@ -684,6 +783,7 @@ function startSwitchPolling() {
 }
 
 function stopSwitchPolling() {
+  stopProgressSimulation()
   if (switchPollInterval) {
     clearInterval(switchPollInterval)
     switchPollInterval = null

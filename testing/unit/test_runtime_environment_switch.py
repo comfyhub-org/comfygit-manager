@@ -50,7 +50,7 @@ class TestRuntimeEnvironmentSwitch:
         mock_proc1.pid = 12345
 
         # Create switch request file when first process exits
-        def mock_wait1():
+        def mock_wait1(timeout=None):
             # Simulate frontend creating switch request while ComfyUI is running
             switch_file = metadata_dir / ".switch_request.json"
             with open(switch_file, 'w') as f:
@@ -59,6 +59,9 @@ class TestRuntimeEnvironmentSwitch:
                     "source_env": "env1",
                     "timestamp": 1234567890
                 }, f)
+            if timeout is not None:
+                # Simulate immediate exit (no timeout)
+                return orch.EXIT_SWITCH_ENV
             return orch.EXIT_SWITCH_ENV  # Exit with 43
 
         mock_proc1.wait = mock_wait1
@@ -151,10 +154,12 @@ class TestRuntimeEnvironmentSwitch:
         proc1.pid = 111
 
         # Create switch request when first process exits
-        def mock_wait1():
+        def mock_wait1(timeout=None):
             switch_file = metadata_dir / ".switch_request.json"
             with open(switch_file, 'w') as f:
                 json.dump({"target_env": "env2", "source_env": "env1"}, f)
+            if timeout is not None:
+                return orch.EXIT_SWITCH_ENV
             return orch.EXIT_SWITCH_ENV
 
         proc1.wait = mock_wait1
@@ -218,10 +223,12 @@ class TestRuntimeEnvironmentSwitch:
         proc1.pid = 111
 
         # Create switch request when first process exits
-        def mock_wait1():
+        def mock_wait1(timeout=None):
             switch_file = metadata_dir / ".switch_request.json"
             with open(switch_file, 'w') as f:
                 json.dump({"target_env": "env2", "source_env": "env1"}, f)
+            if timeout is not None:
+                return orch.EXIT_SWITCH_ENV
             return orch.EXIT_SWITCH_ENV
 
         proc1.wait = mock_wait1
@@ -291,10 +298,12 @@ class TestRuntimeEnvironmentSwitch:
         proc1.poll.return_value = None
 
         # Create switch request when first process exits
-        def mock_wait1():
+        def mock_wait1(timeout=None):
             switch_file = metadata_dir / ".switch_request.json"
             with open(switch_file, 'w') as f:
                 json.dump({"target_env": "env2", "source_env": "env1"}, f)
+            if timeout is not None:
+                return orch.EXIT_SWITCH_ENV
             return orch.EXIT_SWITCH_ENV
 
         proc1.wait = mock_wait1
