@@ -12,6 +12,7 @@ import type {
   EnvironmentInfo,
   SwitchEnvironmentProgress,
   CreateEnvironmentResult,
+  SyncEnvironmentResult,
   WorkflowInfo,
   WorkflowDetails,
   WorkflowResolutionPlan,
@@ -487,6 +488,31 @@ export function useComfyGitService() {
     }
   }
 
+  async function syncEnvironmentManually(
+    modelStrategy: 'skip' | 'auto' | 'manual' = 'skip',
+    removeExtraNodes = true
+  ): Promise<SyncEnvironmentResult> {
+    if (USE_MOCK) {
+      await new Promise(resolve => setTimeout(resolve, 1500))
+      return {
+        status: 'success',
+        nodes_installed: ['example-node'],
+        nodes_removed: [],
+        errors: [],
+        message: 'Sync completed'
+      }
+    }
+
+    return fetchApi<SyncEnvironmentResult>('/v2/comfygit/sync', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model_strategy: modelStrategy,
+        remove_extra_nodes: removeExtraNodes
+      })
+    })
+  }
+
   return {
     isLoading,
     error,
@@ -535,6 +561,8 @@ export function useComfyGitService() {
     removeRemote,
     updateRemoteUrl,
     fetchRemote,
-    getRemoteSyncStatus
+    getRemoteSyncStatus,
+    // Environment Sync
+    syncEnvironmentManually
   }
 }

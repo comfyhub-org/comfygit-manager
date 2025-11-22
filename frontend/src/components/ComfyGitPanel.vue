@@ -160,6 +160,12 @@
             v-if="currentView === 'status'"
             :status="status!"
             @switch-branch="handleSwitchBranchClick"
+            @commit-changes="showCommitModal = true"
+            @sync-environment="showSyncModal = true"
+            @view-workflows="selectView('workflows', 'this-env')"
+            @view-history="selectView('history', 'this-env')"
+            @view-debug="selectView('debug-env', 'this-env')"
+            @resolve-models="selectView('workflows', 'this-env')"
           />
 
           <!-- Workflows View -->
@@ -261,6 +267,27 @@
       @close="cancelEnvironmentSwitch"
     />
 
+    <!-- Commit Modal (reusing CommitPopover in modal mode) -->
+    <CommitPopover
+      v-if="showCommitModal && status"
+      :status="status"
+      :as-modal="true"
+      @close="showCommitModal = false"
+      @committed="handleCommitSuccess"
+    />
+
+    <!-- Sync Environment Modal -->
+    <SyncEnvironmentModal
+      v-if="showSyncModal && status"
+      :show="showSyncModal"
+      :mismatch-details="{
+        missing_nodes: status.comparison.missing_nodes,
+        extra_nodes: status.comparison.extra_nodes
+      }"
+      @confirm="handleSyncConfirm"
+      @close="showSyncModal = false"
+    />
+
     <SwitchProgressModal
       :show="showSwitchProgress"
       :state="switchProgress.state"
@@ -346,8 +373,10 @@ import ExportSection from './ExportSection.vue'
 import ImportSection from './ImportSection.vue'
 import CommitDetailModal from './CommitDetailModal.vue'
 import ConfirmDialog from './ConfirmDialog.vue'
+import CommitPopover from './CommitPopover.vue'
 import ConfirmSwitchModal from './base/molecules/ConfirmSwitchModal.vue'
 import SwitchProgressModal from './base/molecules/SwitchProgressModal.vue'
+import SyncEnvironmentModal from './base/molecules/SyncEnvironmentModal.vue'
 import { useComfyGitService } from '@/composables/useComfyGitService'
 import { useOrchestratorService } from '@/composables/useOrchestratorService'
 import type { ComfyGitStatus, CommitInfo, BranchInfo, EnvironmentInfo } from '@/types/comfygit'
@@ -366,7 +395,8 @@ const {
   switchBranch,
   getEnvironments,
   switchEnvironment,
-  getSwitchProgress
+  getSwitchProgress,
+  syncEnvironmentManually
 } = useComfyGitService()
 
 const orchestratorService = useOrchestratorService()
@@ -432,6 +462,10 @@ interface ConfirmDialogConfig {
 }
 
 const confirmDialog = ref<ConfirmDialogConfig | null>(null)
+
+// Modal state
+const showCommitModal = ref(false)
+const showSyncModal = ref(false)
 
 // Toast notification system
 interface Toast {
@@ -793,6 +827,45 @@ function stopSwitchPolling() {
 function cancelEnvironmentSwitch() {
   showConfirmSwitch.value = false
   targetEnvironment.value = ''
+}
+
+// Commit and Sync handlers
+async function handleCommitSuccess() {
+  showCommitModal.value = false
+  await refresh()
+  showToast('✓ Changes committed', 'success')
+}
+
+async function handleSyncConfirm() {
+  showSyncModal.value = false
+  const toastId = showToast('Syncing environment...', 'info', 0)
+
+  try {
+    const result = await syncEnvironmentManually('skip', true)
+
+    removeToast(toastId)
+
+    if (result.status === 'success') {
+      const parts: string[] = []
+      if (result.nodes_installed.length) {
+        parts.push(`${result.nodes_installed.length} installed`)
+      }
+      if (result.nodes_removed.length) {
+        parts.push(`${result.nodes_removed.length} removed`)
+      }
+      const summary = parts.length ? `: ${parts.join(', ')}` : ''
+      showToast(`✓ Environment synced${summary}`, 'success')
+      await refresh()
+    } else {
+      const errorMsg = result.errors.length
+        ? result.errors.join('; ')
+        : result.message
+      showToast(`Sync failed: ${errorMsg}`, 'error')
+    }
+  } catch (err) {
+    removeToast(toastId)
+    showToast(`Sync error: ${err instanceof Error ? err.message : 'Unknown error'}`, 'error')
+  }
 }
 
 async function handleEnvironmentCreate(envName: string) {

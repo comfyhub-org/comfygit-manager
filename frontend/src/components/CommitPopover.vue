@@ -1,5 +1,81 @@
 <template>
-  <div class="commit-popover">
+  <!-- Modal mode (teleport to body with overlay) -->
+  <Teleport v-if="asModal" to="body">
+    <div class="modal-overlay" @click="emit('close')">
+      <div class="commit-popover modal" @click.stop>
+        <div class="popover-header">
+          <h3 class="popover-title">COMMIT CHANGES</h3>
+          <button class="close-btn" @click="emit('close')">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M4.28 3.22a.75.75 0 0 0-1.06 1.06L6.94 8l-3.72 3.72a.75.75 0 1 0 1.06 1.06L8 9.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L9.06 8l3.72-3.72a.75.75 0 0 0-1.06-1.06L8 6.94 4.28 3.22z"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="popover-body">
+          <div v-if="status && hasChanges" class="changes-summary">
+            <div v-if="status.workflows.new.length" class="change-item">
+              <span class="change-icon new">+</span>
+              <span>{{ status.workflows.new.length }} new workflow(s)</span>
+            </div>
+            <div v-if="status.workflows.modified.length" class="change-item">
+              <span class="change-icon modified">~</span>
+              <span>{{ status.workflows.modified.length }} modified</span>
+            </div>
+            <div v-if="status.workflows.deleted.length" class="change-item">
+              <span class="change-icon deleted">-</span>
+              <span>{{ status.workflows.deleted.length }} deleted</span>
+            </div>
+            <div v-if="status.git_changes.nodes_added.length" class="change-item">
+              <span class="change-icon new">+</span>
+              <span>{{ status.git_changes.nodes_added.length }} node(s) added</span>
+            </div>
+            <div v-if="status.git_changes.nodes_removed.length" class="change-item">
+              <span class="change-icon deleted">-</span>
+              <span>{{ status.git_changes.nodes_removed.length }} node(s) removed</span>
+            </div>
+          </div>
+          <div v-else-if="status" class="no-changes">
+            No changes to commit
+          </div>
+          <div v-else class="loading">
+            Loading...
+          </div>
+
+          <div class="message-section">
+            <BaseTextarea
+              v-model="message"
+              :placeholder="hasChanges ? 'Describe your changes...' : 'No changes'"
+              :disabled="!hasChanges || isLoading"
+              :rows="3"
+              @ctrl-enter="handleCommit"
+            />
+          </div>
+
+          <div v-if="result" :class="['result', result.type]">
+            {{ result.message }}
+          </div>
+        </div>
+
+        <div class="popover-footer">
+          <BaseButton variant="secondary" @click="emit('close')">
+            Cancel
+          </BaseButton>
+          <BaseButton
+            variant="primary"
+            :disabled="!hasChanges || !message.trim() || isLoading"
+            :loading="isLoading"
+            @click="handleCommit"
+          >
+            {{ isLoading ? 'Committing...' : 'Commit' }}
+          </BaseButton>
+        </div>
+      </div>
+    </div>
+  </Teleport>
+
+  <!-- Popover mode (positioned inline) -->
+  <div v-else class="commit-popover">
     <div class="popover-header">
       <h3 class="popover-title">COMMIT CHANGES</h3>
       <button class="close-btn" @click="emit('close')">
@@ -10,7 +86,6 @@
     </div>
 
     <div class="popover-body">
-      <!-- Changes summary -->
       <div v-if="status && hasChanges" class="changes-summary">
         <div v-if="status.workflows.new.length" class="change-item">
           <span class="change-icon new">+</span>
@@ -40,7 +115,6 @@
         Loading...
       </div>
 
-      <!-- Commit message -->
       <div class="message-section">
         <BaseTextarea
           v-model="message"
@@ -51,7 +125,6 @@
         />
       </div>
 
-      <!-- Result message -->
       <div v-if="result" :class="['result', result.type]">
         {{ result.message }}
       </div>
@@ -80,9 +153,12 @@ import { useComfyGitService } from '@/composables/useComfyGitService'
 import BaseButton from './base/BaseButton.vue'
 import BaseTextarea from './base/BaseTextarea.vue'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   status: ComfyGitStatus | null
-}>()
+  asModal?: boolean
+}>(), {
+  asModal: false
+})
 
 const emit = defineEmits<{
   close: []
@@ -131,6 +207,17 @@ async function handleCommit() {
 </script>
 
 <style scoped>
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--cg-color-bg-overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10005;
+  backdrop-filter: blur(2px);
+}
+
 .commit-popover {
   background: var(--cg-color-bg-primary);
   border: 2px solid var(--cg-color-border);
@@ -139,6 +226,22 @@ async function handleCommit() {
   max-width: 500px;
   display: flex;
   flex-direction: column;
+}
+
+.commit-popover.modal {
+  border-radius: var(--cg-radius-lg);
+  animation: modalSlideIn 0.2s ease;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .popover-header {

@@ -163,6 +163,14 @@ export interface CreateEnvironmentResult {
   path?: string
 }
 
+export interface SyncEnvironmentResult {
+  status: 'success' | 'error'
+  nodes_installed: string[]
+  nodes_removed: string[]
+  errors: string[]
+  message: string
+}
+
 // Workflow Management Types
 export interface WorkflowInfo {
   name: string

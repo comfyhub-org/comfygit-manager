@@ -6,11 +6,25 @@
 
     <template #content>
       <!-- Environment Health Section -->
-      <SectionTitle level="4" style="margin-bottom: var(--cg-space-2)">
-        ENVIRONMENT HEALTH
-      </SectionTitle>
+      <div class="health-section-wrapper" @mouseenter="showHealthActions = true" @mouseleave="showHealthActions = false">
+        <div class="health-section-header">
+          <SectionTitle level="4" style="margin-bottom: var(--cg-space-2)">
+            ENVIRONMENT HEALTH
+          </SectionTitle>
+          <transition name="fade">
+            <ActionButton
+              v-if="showHealthActions"
+              variant="ghost"
+              size="xs"
+              class="show-all-button"
+              @click="handleShowAll"
+            >
+              Show All
+            </ActionButton>
+          </transition>
+        </div>
 
-      <StatusGrid left-title="WORKFLOWS" right-title="GIT CHANGES">
+        <StatusGrid left-title="WORKFLOWS" right-title="GIT CHANGES">
         <template #left>
           <StatusItem
             v-if="status.workflows.new.length"
@@ -71,6 +85,7 @@
           />
         </template>
       </StatusGrid>
+      </div>
 
       <!-- Current Branch Section -->
       <div style="margin-top: var(--cg-space-1);">
@@ -118,7 +133,7 @@
           :description="gitChangesDescription"
         >
           <template #actions>
-            <ActionButton variant="secondary" size="sm" @click="$emit('view-history')">
+            <ActionButton variant="secondary" size="sm" @click="handleViewChanges">
               View Changes
             </ActionButton>
             <ActionButton variant="primary" size="sm" @click="$emit('commit-changes')">
@@ -156,10 +171,17 @@
 
     </template>
   </PanelLayout>
+
+  <!-- Status Detail Modal -->
+  <StatusDetailModal
+    :show="showDetailModal"
+    :status="status"
+    @close="showDetailModal = false"
+  />
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import type { ComfyGitStatus } from '@/types/comfygit'
 import PanelLayout from '@/components/base/organisms/PanelLayout.vue'
 import PanelHeader from '@/components/base/molecules/PanelHeader.vue'
@@ -170,10 +192,33 @@ import IssueCard from '@/components/base/molecules/IssueCard.vue'
 import EmptyState from '@/components/base/molecules/EmptyState.vue'
 import BranchIndicator from '@/components/base/molecules/BranchIndicator.vue'
 import ActionButton from '@/components/base/atoms/ActionButton.vue'
+import StatusDetailModal from '@/components/base/molecules/StatusDetailModal.vue'
 
 const props = defineProps<{
   status: ComfyGitStatus
 }>()
+
+const showDetailModal = ref(false)
+const showHealthActions = ref(false)
+
+onMounted(() => {
+  console.log('StatusSection mounted with status:', props.status)
+  console.log('StatusDetailModal component imported:', StatusDetailModal)
+})
+
+function handleShowAll() {
+  console.log('Show All clicked, opening modal')
+  console.log('showDetailModal before:', showDetailModal.value)
+  showDetailModal.value = true
+  console.log('showDetailModal after:', showDetailModal.value)
+}
+
+function handleViewChanges() {
+  console.log('View Changes clicked, opening modal')
+  console.log('showDetailModal before:', showDetailModal.value)
+  showDetailModal.value = true
+  console.log('showDetailModal after:', showDetailModal.value)
+}
 
 const emit = defineEmits<{
   'view-workflows': []
@@ -200,14 +245,7 @@ const hasGitChanges = computed(() => {
 })
 
 const hasOtherWorkflowChanges = computed(() => {
-  const gc = props.status.git_changes
-  const wf = props.status.workflows
-  // Only show "other changes" if there are workflow changes that aren't already shown
-  // as new/modified/deleted in the Workflows column
-  return (gc.workflow_changes || gc.has_other_changes) &&
-         wf.new.length === 0 &&
-         wf.modified.length === 0 &&
-         wf.deleted.length === 0
+  return props.status.git_changes.has_other_changes
 })
 
 const hasIssues = computed(() => {
@@ -244,5 +282,30 @@ const gitChangesDescription = computed(() => {
 </script>
 
 <style scoped>
-/* Minimal custom styles - everything else comes from components */
+/* Health Section Wrapper */
+.health-section-wrapper {
+  position: relative;
+}
+
+.health-section-header {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.show-all-button {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+/* Fade transition for Show All button */
+.fade-enter-active, .fade-leave-active {
+  transition: opacity var(--cg-transition-fast);
+}
+
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+}
 </style>

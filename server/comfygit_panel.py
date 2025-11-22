@@ -265,6 +265,45 @@ async def comfygit_export(request):
         }, status=500)
 
 
+@routes.post("/v2/comfygit/sync")
+async def comfygit_sync_environment(request):
+    """Manually trigger environment sync to match git repository state."""
+    env = get_environment_from_cwd()
+    if not env:
+        return web.json_response({"error": "No environment detected"}, status=500)
+
+    try:
+        json_data = await request.json()
+        model_strategy = json_data.get("model_strategy", "skip")
+        remove_extra_nodes = json_data.get("remove_extra_nodes", True)
+
+        loop = asyncio.get_event_loop()
+
+        # Run sync operation
+        result = await loop.run_in_executor(
+            None,
+            lambda: env.sync(
+                model_strategy=model_strategy,
+                remove_extra_nodes=remove_extra_nodes
+            )
+        )
+
+        # Convert SyncResult to JSON
+        return web.json_response({
+            "status": "success" if result.success else "error",
+            "nodes_installed": result.nodes_installed,
+            "nodes_removed": result.nodes_removed,
+            "errors": result.errors,
+            "message": "Sync completed" if result.success else "Sync completed with errors"
+        })
+    except Exception as e:
+        print(f"[ComfyGit Panel] Sync error: {e}")
+        return web.json_response({
+            "status": "error",
+            "message": str(e)
+        }, status=500)
+
+
 # Phase 2 endpoints
 
 @routes.get("/v2/comfygit/branches")
