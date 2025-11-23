@@ -324,3 +324,136 @@ export interface RemoteSyncStatus {
   behind: number
   last_fetch?: string
 }
+
+// Interactive Workflow Resolution Types
+export interface ResolvedNode {
+  node_type: string
+  package_id: string
+  match_type: 'exact' | 'fuzzy' | 'semantic' | 'manual'
+  match_confidence: number  // 0.0-1.0
+  description?: string
+  repository?: string
+  source: 'registry' | 'github' | 'manual'
+  is_installed: boolean
+  is_optional: boolean
+}
+
+export interface UnresolvedNode {
+  node_type: string
+  reason: string
+}
+
+export interface AmbiguousNode {
+  node_type: string
+  options: Array<{
+    package_id: string
+    match_confidence: number
+    match_type: string
+    description?: string
+    repository?: string
+    is_installed: boolean
+  }>
+}
+
+export interface ModelReference {
+  workflow: string
+  node_id: string
+  node_type: string
+  widget_name: string
+  widget_value: string
+}
+
+export interface ResolvedModelData {
+  filename: string
+  hash: string
+  size: number
+  category: string
+  relative_path: string
+}
+
+export interface ResolvedModel {
+  reference: ModelReference
+  model: ResolvedModelData | null
+  match_type: string
+  match_confidence: number
+  needs_path_sync: boolean
+  has_download_source: boolean
+  is_optional: boolean
+}
+
+export interface UnresolvedModel {
+  reference: ModelReference
+  reason: string
+}
+
+export interface AmbiguousModel {
+  reference: ModelReference
+  options: Array<{
+    model: ResolvedModelData
+    match_confidence: number
+    match_type: string
+    has_download_source: boolean
+  }>
+}
+
+export interface FullResolutionResult {
+  workflow: string
+  nodes: {
+    resolved: ResolvedNode[]
+    unresolved: UnresolvedNode[]
+    ambiguous: AmbiguousNode[]
+  }
+  models: {
+    resolved: ResolvedModel[]
+    unresolved: UnresolvedModel[]
+    ambiguous: AmbiguousModel[]
+  }
+  stats: {
+    total_nodes: number
+    total_models: number
+    needs_user_input: boolean
+  }
+}
+
+export interface NodeChoice {
+  action: 'install' | 'optional' | 'skip' | 'manual'
+  package_id?: string
+  manual_url?: string
+}
+
+export interface ModelChoice {
+  action: 'download' | 'optional' | 'skip' | 'manual'
+  url?: string
+  target_path?: string
+}
+
+export interface AppliedResolutionResult {
+  status: 'success' | 'error'
+  nodes_to_install: string[]
+  models_to_download: Array<{
+    filename: string
+    url: string
+    size: number
+    target_path: string
+  }>
+  estimated_time_seconds: number
+  error?: string
+}
+
+export interface NodeSearchResult {
+  package_id: string
+  match_confidence: number
+  match_type: string
+  description?: string
+  repository?: string
+  is_installed?: boolean
+}
+
+export interface ModelSearchResult {
+  filename: string
+  hash: string
+  size: number
+  category: string
+  has_download_source: boolean
+  relative_path?: string
+}
