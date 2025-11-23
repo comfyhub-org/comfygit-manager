@@ -164,6 +164,26 @@ async def switch_environment(request: web.Request) -> web.Response:
         raise
 
 
+@routes.get("/v2/comfygit/orchestrator_port")
+async def get_orchestrator_port(request: web.Request) -> web.Response:
+    """Get orchestrator control server port."""
+    is_managed, workspace, environment = orchestrator.detect_environment_type()
+
+    if not is_managed or not workspace:
+        return web.json_response({"error": "Not managed"}, status=404)
+
+    port_file = workspace.path / ".metadata" / ".control_port"
+
+    if not port_file.exists():
+        return web.json_response({"error": "Control server not running"}, status=404)
+
+    try:
+        port = int(port_file.read_text().strip())
+        return web.json_response({"port": port})
+    except Exception:
+        return web.json_response({"error": "Invalid port file"}, status=500)
+
+
 @routes.get("/v2/comfygit/switch_status")
 async def get_switch_status(request: web.Request) -> web.Response:
     """
