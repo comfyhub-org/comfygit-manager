@@ -85,6 +85,7 @@
           v-if="currentStep === 'nodes'"
           :nodes="unresolvedAndAmbiguousNodes"
           :current-index="nodeCurrentIndex"
+          :node-choices="nodeChoices"
           @next="handleNodeNext"
           @previous="handleNodePrevious"
           @complete="handleNodeComplete"
@@ -100,6 +101,7 @@
           v-if="currentStep === 'models'"
           :models="unresolvedAndAmbiguousModels"
           :current-index="modelCurrentIndex"
+          :model-choices="modelChoices"
           @next="handleModelNext"
           @previous="handleModelPrevious"
           @complete="handleModelComplete"
@@ -406,42 +408,45 @@ function handleNodeComplete() {
   }
 }
 
-function handleNodeSearch(data: any) {
+function handleNodeSearch(nodeType: string) {
   // Handle node search - to be implemented with search panel
-  console.log('Node search:', data)
-}
-
-function handleNodeManualEntry(data: any) {
-  // Handle manual node entry
-  const nodeType = data.nodeType
-  nodeChoices.value.set(nodeType, {
-    action: 'install',
-    package_id: data.packageId
-  })
-}
-
-function handleNodeMarkOptional(data: any) {
-  const nodeType = data.nodeType
-  nodeChoices.value.set(nodeType, {
-    action: 'optional'
-  })
-}
-
-function handleNodeSkip(data: any) {
-  const nodeType = data.nodeType
+  console.log('Node search:', nodeType)
+  // For now, just allow continuing
   nodeChoices.value.set(nodeType, {
     action: 'skip'
   })
 }
 
-function handleNodeOptionSelected(data: any) {
-  const nodeType = data.nodeType
-  const packageId = data.packageId
-
+function handleNodeManualEntry(nodeType: string) {
+  // Handle manual node entry - to be implemented with manual entry panel
+  console.log('Manual entry for:', nodeType)
+  // For now, mark as skipped so user can continue
   nodeChoices.value.set(nodeType, {
-    action: 'install',
-    package_id: packageId
+    action: 'skip'
   })
+}
+
+function handleNodeMarkOptional(nodeType: string) {
+  nodeChoices.value.set(nodeType, {
+    action: 'optional'
+  })
+}
+
+function handleNodeSkip(nodeType: string) {
+  nodeChoices.value.set(nodeType, {
+    action: 'skip'
+  })
+}
+
+function handleNodeOptionSelected(nodeType: string, index: number) {
+  const currentNode = unresolvedAndAmbiguousNodes.value.find(n => n.node_type === nodeType)
+  if (currentNode && currentNode.options && currentNode.options[index]) {
+    const selectedOption = currentNode.options[index]
+    nodeChoices.value.set(nodeType, {
+      action: 'install',
+      package_id: selectedOption.package_id
+    })
+  }
 }
 
 // Model resolution handlers
@@ -463,42 +468,44 @@ function handleModelComplete() {
   currentStep.value = 'review'
 }
 
-function handleModelSearch(data: any) {
+function handleModelSearch(filename: string) {
   // Handle model search - to be implemented
-  console.log('Model search:', data)
-}
-
-function handleModelDownloadUrl(data: any) {
-  const filename = data.filename
-  modelChoices.value.set(filename, {
-    action: 'download',
-    url: data.url,
-    target_path: data.targetPath
-  })
-}
-
-function handleModelMarkOptional(data: any) {
-  const filename = data.filename
-  modelChoices.value.set(filename, {
-    action: 'optional'
-  })
-}
-
-function handleModelSkip(data: any) {
-  const filename = data.filename
+  console.log('Model search:', filename)
+  // For now, just allow continuing
   modelChoices.value.set(filename, {
     action: 'skip'
   })
 }
 
-function handleModelOptionSelected(data: any) {
-  const filename = data.filename
-  const selectedModel = data.model
-
+function handleModelDownloadUrl(filename: string, url: string, targetPath?: string) {
   modelChoices.value.set(filename, {
-    action: 'select',
-    selected_model: selectedModel
+    action: 'download',
+    url,
+    target_path: targetPath
   })
+}
+
+function handleModelMarkOptional(filename: string) {
+  modelChoices.value.set(filename, {
+    action: 'optional'
+  })
+}
+
+function handleModelSkip(filename: string) {
+  modelChoices.value.set(filename, {
+    action: 'skip'
+  })
+}
+
+function handleModelOptionSelected(filename: string, index: number) {
+  const currentModel = unresolvedAndAmbiguousModels.value.find(m => m.filename === filename)
+  if (currentModel && currentModel.options && currentModel.options[index]) {
+    const selectedOption = currentModel.options[index]
+    modelChoices.value.set(filename, {
+      action: 'select',
+      selected_model: selectedOption.model
+    })
+  }
 }
 
 async function handleApply() {

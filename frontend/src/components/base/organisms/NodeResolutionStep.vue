@@ -165,6 +165,7 @@ interface NodeToResolve {
 const props = defineProps<{
   nodes: NodeToResolve[]
   currentIndex: number
+  nodeChoices?: Map<string, any>
   showSearch?: boolean
   showManualEntry?: boolean
   searchResults?: NodeSearchResult[]
@@ -202,11 +203,16 @@ const progressPercentage = computed(() =>
 const canGoPrevious = computed(() => props.currentIndex > 0)
 const canContinue = computed(() => {
   if (!currentNode.value) return false
-  // Can continue if node has a selection, is optional, or is being skipped
+
+  // Check if user has made a choice for this node
+  const hasChoice = props.nodeChoices && props.nodeChoices.has(currentNode.value.node_type)
+
+  // Can continue if node has a selection, is optional, has a choice made, or has ambiguous option selected
   return !!(
     currentNode.value.package_id ||
     currentNode.value.is_optional ||
-    currentNode.value.selected_option_index !== undefined
+    currentNode.value.selected_option_index !== undefined ||
+    hasChoice
   )
 })
 

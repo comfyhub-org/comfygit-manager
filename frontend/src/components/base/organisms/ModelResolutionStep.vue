@@ -176,6 +176,7 @@ interface ModelToResolve {
 const props = defineProps<{
   models: ModelToResolve[]
   currentIndex: number
+  modelChoices?: Map<string, any>
   showSearch?: boolean
   showManualDownload?: boolean
   searchResults?: ModelSearchResult[]
@@ -214,11 +215,17 @@ const progressPercentage = computed(() =>
 const canGoPrevious = computed(() => props.currentIndex > 0)
 const canContinue = computed(() => {
   if (!currentModel.value) return false
-  // Can continue if model has a selection, is optional, or has been resolved
+
+  // Check if user has made a choice for this model
+  const filename = currentModel.value.reference?.widget_value || currentModel.value.filename
+  const hasChoice = props.modelChoices && filename && props.modelChoices.has(filename)
+
+  // Can continue if model has a selection, is optional, has a choice made, or has ambiguous option selected
   return !!(
     currentModel.value.hash ||
     currentModel.value.is_optional ||
-    currentModel.value.selected_option_index !== undefined
+    currentModel.value.selected_option_index !== undefined ||
+    hasChoice
   )
 })
 
