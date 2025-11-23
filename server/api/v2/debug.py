@@ -11,13 +11,26 @@ routes = web.RouteTableDef()
 
 
 def parse_log_file(log_file: Path, level_filter: str | None = None, lines: int = 100) -> list[dict]:
-    """Parse log file and return structured entries."""
+    """
+    Parse Python logging file and return structured log entries.
+
+    Format: "%(asctime)s - %(name)s - %(levelname)s - %(funcName)s:%(lineno)d - %(message)s"
+    Example: "2025-11-22 15:30:45,234 - comfygit_core.workflow - DEBUG - execute:456 - Starting"
+
+    Args:
+        log_file: Path to log file
+        level_filter: Optional level to filter by (ERROR, WARNING, INFO, DEBUG)
+        lines: Number of lines to return (from end of file)
+
+    Returns:
+        List of log entry dicts with timestamp, level, message, context
+    """
     if not log_file.exists():
         return []
 
     try:
         # Read last N lines from file
-        with open(log_file, 'r') as f:
+        with open(log_file, 'r', encoding='utf-8') as f:
             all_lines = f.readlines()
             recent_lines = all_lines[-lines:] if len(all_lines) > lines else all_lines
 
@@ -32,11 +45,26 @@ def parse_log_file(log_file: Path, level_filter: str | None = None, lines: int =
         for line in recent_lines:
             match = log_pattern.match(line.strip())
             if match:
-                entry = match.groupdict()
+                data = match.groupdict()
+
                 # Filter by level if specified
-                if level_filter and entry['level'] != level_filter:
+                if level_filter and data['level'] != level_filter.upper():
                     continue
-                entries.append(entry)
+
+                # Convert timestamp to ISO format that JavaScript can parse
+                # Python format: "2025-11-22 15:30:45,234"
+                # ISO format: "2025-11-22T15:30:45.234Z"
+                timestamp_iso = data['timestamp'].replace(',', '.').replace(' ', 'T') + 'Z'
+
+                # Extract context from logger name (e.g., "comfygit_core.workflow" -> "workflow")
+                context = data['name'].split('.')[-1] if '.' in data['name'] else data['name']
+
+                entries.append({
+                    'timestamp': timestamp_iso,
+                    'level': data['level'],
+                    'message': data['message'],
+                    'context': context
+                })
 
         return entries
 
