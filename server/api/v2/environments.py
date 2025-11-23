@@ -1,6 +1,8 @@
 """Environment management API."""
 import os
+import sys
 import json
+import subprocess
 from aiohttp import web
 from pathlib import Path
 
@@ -13,6 +15,46 @@ routes = web.RouteTableDef()
 # Exit codes for orchestrator
 RESTART_EXIT_CODE = 42
 SWITCH_ENV_EXIT_CODE = 43
+
+
+def spawn_orchestrator(environment, target_env: str) -> None:
+    """
+    Spawn orchestrator daemon for first switch.
+
+    The orchestrator becomes the permanent supervisor from this point forward.
+    """
+    # From server/api/v2/environments.py → go up 4 levels to comfygit-manager/
+    custom_node_root = Path(__file__).parent.parent.parent.parent
+    orchestrator_python = orchestrator.get_orchestrator_python(custom_node_root)
+    orchestrator_script = custom_node_root / "server" / "orchestrator.py"
+
+    if not orchestrator_python.exists():
+        raise RuntimeError("Orchestrator venv not found - run setup")
+
+    # Capture current ComfyUI args, filter out --enable-manager (injected by custom node)
+    comfyui_args = [arg for arg in sys.argv[1:] if arg != '--enable-manager']
+
+    # Build command
+    cmd = [
+        str(orchestrator_python),
+        str(orchestrator_script),
+        "--workspace", str(environment.workspace.path),
+        "--environment", environment.name,
+        "--args"
+    ] + comfyui_args
+
+    # Spawn detached orchestrator
+    log_file = environment.workspace.path / ".metadata" / "orchestrator.log"
+    subprocess.Popen(
+        cmd,
+        start_new_session=True,  # Detach from parent
+        stdin=subprocess.DEVNULL,
+        stdout=open(log_file, "a"),
+        stderr=subprocess.STDOUT,
+        cwd=str(environment.workspace.path)
+    )
+
+    print(f"[ComfyGit] Spawned orchestrator daemon (log: {log_file})")
 
 
 def _get_environment_info(env, current_env):
@@ -136,9 +178,7 @@ async def switch_environment(request: web.Request) -> web.Response:
     try:
         # Spawn orchestrator if needed (first switch)
         if orchestrator.should_spawn_orchestrator_for_switch():
-            # Note: spawn_orchestrator function would be called here in production
-            # For tests, this is mocked
-            pass
+            spawn_orchestrator(environment, target_env)
 
         # Write switch request
         orchestrator.write_switch_request(metadata_dir, target_env, source_env=environment.name)

@@ -7596,7 +7596,7 @@ function lu() {
   async function c() {
     try {
       const m = await je(
-        "http://127.0.0.1:8188/v2/comfygit/orchestrator_port",
+        "http://127.0.0.1:8188/api/v2/comfygit/orchestrator_port",
         {},
         5e3
       );

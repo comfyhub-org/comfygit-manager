@@ -42,7 +42,7 @@ export function useOrchestratorService() {
     // Try to read port from backend
     try {
       const response = await fetchWithTimeout(
-        'http://127.0.0.1:8188/v2/comfygit/orchestrator_port',
+        'http://127.0.0.1:8188/api/v2/comfygit/orchestrator_port',
         {},
         5000
       )
