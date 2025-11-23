@@ -72,6 +72,13 @@
             variant="deleted"
           />
           <StatusItem
+            v-if="status.git_changes.workflow_changes"
+            icon="●"
+            :count="workflowChangesCount"
+            :label="workflowChangesCount === 1 ? 'workflow changed' : 'workflows changed'"
+            variant="modified"
+          />
+          <StatusItem
             v-if="hasOtherWorkflowChanges"
             icon="●"
             label="other changes"
@@ -90,7 +97,7 @@
       <!-- Current Branch Section -->
       <div style="margin-top: var(--cg-space-1);">
         <BranchIndicator
-          :branch-name="status.current_branch || 'main'"
+          :branch-name="status.branch || 'main'"
         >
           <template #actions>
             <ActionButton variant="secondary" size="sm" @click="$emit('switch-branch')">
@@ -242,6 +249,10 @@ const hasGitChanges = computed(() => {
          gc.nodes_removed.length > 0 ||
          gc.workflow_changes ||
          gc.has_other_changes
+})
+
+const workflowChangesCount = computed(() => {
+  return Object.keys(props.status.git_changes.workflow_changes_detail).length
 })
 
 const hasOtherWorkflowChanges = computed(() => {

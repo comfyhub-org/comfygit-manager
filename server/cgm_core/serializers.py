@@ -131,7 +131,8 @@ def serialize_environment_status(status, env_name: str) -> dict:
                 n.get("name", n) if isinstance(n, dict) else str(n)
                 for n in status.git.nodes_removed
             ],
-            "workflow_changes": status.git.workflow_changes,
+            "workflow_changes": bool(status.git.workflow_changes),
+            "workflow_changes_detail": status.git.workflow_changes,
             "has_other_changes": status.git.has_other_changes,
         },
         "comparison": {

@@ -58,7 +58,8 @@ class TestStatusEndpoint:
         assert data["has_changes"] is True
         assert len(data["git_changes"]["nodes_added"]) == 1
         assert data["git_changes"]["nodes_added"][0] == "comfyui-node-1"
-        assert data["git_changes"]["workflow_changes"] == {"api.json": "modified"}
+        assert data["git_changes"]["workflow_changes"] is True
+        assert data["git_changes"]["workflow_changes_detail"] == {"api.json": "modified"}
 
     async def test_error_no_environment(self, client, monkeypatch):
         """Should return 500 when no environment detected."""

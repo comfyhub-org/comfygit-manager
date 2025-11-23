@@ -10,6 +10,7 @@ export interface GitChanges {
   nodes_added: string[]
   nodes_removed: string[]
   workflow_changes: boolean
+  workflow_changes_detail: Record<string, string>
   has_other_changes: boolean
 }
 
