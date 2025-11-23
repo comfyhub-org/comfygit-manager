@@ -1,7 +1,7 @@
 """Handler decorators for common patterns."""
 import functools
 from aiohttp import web
-from core.context import get_environment_from_request, get_workspace_from_request
+from cgm_core.context import get_environment_from_request, get_workspace_from_request
 
 
 def requires_environment(handler):

@@ -1,9 +1,9 @@
 """Status and workspace configuration endpoints."""
 from aiohttp import web
 
-from core.decorators import requires_environment
-from core.serializers import serialize_environment_status
-from utils.async_helpers import run_sync
+from cgm_core.decorators import requires_environment
+from cgm_core.serializers import serialize_environment_status
+from cgm_utils.async_helpers import run_sync
 
 routes = web.RouteTableDef()
 

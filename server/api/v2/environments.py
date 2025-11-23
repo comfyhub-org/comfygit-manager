@@ -4,8 +4,8 @@ import json
 from aiohttp import web
 from pathlib import Path
 
-from core.context import get_workspace_from_request
-from utils.async_helpers import run_sync
+from cgm_core.context import get_workspace_from_request
+from cgm_utils.async_helpers import run_sync
 import orchestrator
 
 routes = web.RouteTableDef()

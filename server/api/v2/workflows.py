@@ -3,9 +3,9 @@ from aiohttp import web
 
 from comfygit_core.strategies.auto import AutoNodeStrategy, AutoModelStrategy
 
-from core.decorators import requires_environment
-from core.serializers import serialize_workflow_details
-from utils.async_helpers import run_sync
+from cgm_core.decorators import requires_environment
+from cgm_core.serializers import serialize_workflow_details
+from cgm_utils.async_helpers import run_sync
 
 routes = web.RouteTableDef()
 

@@ -1,8 +1,8 @@
 """Model management API."""
 from aiohttp import web
 
-from core.decorators import requires_environment
-from utils.async_helpers import run_sync
+from cgm_core.decorators import requires_environment
+from cgm_utils.async_helpers import run_sync
 
 routes = web.RouteTableDef()
 
