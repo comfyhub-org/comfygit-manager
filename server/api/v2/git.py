@@ -184,8 +184,14 @@ async def checkout_commit(request: web.Request, env) -> web.Response:
 @requires_environment
 async def list_branches(request: web.Request, env) -> web.Response:
     """List all git branches."""
-    branches = await run_sync(env.git_manager.list_branches)
+    branch_tuples = await run_sync(env.git_manager.list_branches)
     current = await run_sync(env.get_current_branch)
+
+    # Convert tuples to dicts
+    branches = [
+        {"name": name, "is_current": is_current}
+        for name, is_current in branch_tuples
+    ]
 
     return web.json_response({
         "branches": branches,

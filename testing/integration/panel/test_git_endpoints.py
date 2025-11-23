@@ -257,8 +257,8 @@ class TestBranchesEndpoint:
         mock_environment
     ):
         """Should return list of branches."""
-        # Setup: list_branches returns list of (name, is_current) tuples
-        mock_environment.list_branches.return_value = [
+        # Setup: git_manager.list_branches returns list of (name, is_current) tuples
+        mock_environment.git_manager.list_branches.return_value = [
             ("main", True),
             ("dev", False),
             ("feature/test", False)

@@ -25,6 +25,13 @@ def mock_environment():
     # Mock workflow manager
     mock_env.workflow_manager = Mock()
 
+    # Mock git manager
+    mock_env.git_manager = Mock()
+    mock_env.git_manager.list_branches = Mock(return_value=[])
+    mock_env.git_manager.has_uncommitted_changes = Mock(return_value=False)
+    mock_env.git_manager.switch_branch = Mock()
+    mock_env.git_manager.checkout = Mock()
+
     # Common methods
     mock_env.status = Mock()
     mock_env.has_committable_changes = Mock(return_value=True)
@@ -171,7 +178,13 @@ async def app(panel_routes, mock_environment):
     app = web.Application()
 
     # Setup app state for context access (like comfygit_panel.py does)
-    app['get_environment'] = lambda: mock_environment
+    # Use a lambda that calls through to the module function
+    # This allows tests to monkeypatch comfygit_panel.get_environment_from_cwd
+    def get_env_from_module():
+        import comfygit_panel
+        return comfygit_panel.get_environment_from_cwd()
+
+    app['get_environment'] = get_env_from_module
     app['workspace'] = None  # Will be set by tests that need it
 
     # Register all captured routes
