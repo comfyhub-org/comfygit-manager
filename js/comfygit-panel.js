@@ -1,5 +1,5 @@
-import { app as st } from "../../scripts/app.js";
-import { defineComponent as G, createElementBlock as n, openBlock as o, createCommentVNode as r, createElementVNode as e, renderSlot as te, createBlock as p, resolveDynamicComponent as dt, normalizeClass as Y, withCtx as a, toDisplayString as l, createVNode as d, createTextVNode as m, computed as P, Fragment as A, renderList as q, normalizeStyle as qe, ref as C, onMounted as ue, watch as wt, Teleport as De, withModifiers as ve, Transition as At, withKeys as Se, onUnmounted as Wt, resolveComponent as Ft, createSlots as bt, TransitionGroup as Ht, createApp as kt, h as $t } from "vue";
+import { app as Ze } from "../../scripts/app.js";
+import { defineComponent as G, createElementBlock as n, openBlock as o, createCommentVNode as r, createElementVNode as e, renderSlot as te, createBlock as p, resolveDynamicComponent as dt, normalizeClass as Y, withCtx as a, toDisplayString as l, createVNode as d, createTextVNode as m, computed as P, Fragment as A, renderList as q, normalizeStyle as Ye, ref as C, onMounted as ue, watch as wt, Teleport as De, withModifiers as ve, Transition as At, withKeys as Se, onUnmounted as Wt, resolveComponent as Ft, createSlots as bt, TransitionGroup as Ht, createApp as kt, h as $t } from "vue";
 const Gt = { class: "panel-layout" }, jt = {
   key: 0,
   class: "panel-layout-header"
@@ -349,12 +349,12 @@ const Gt = { class: "panel-layout" }, jt = {
   setup(t) {
     return (c, s) => (o(), n("span", {
       class: Y(["detail-label"]),
-      style: qe({ minWidth: t.minWidth })
+      style: Ye({ minWidth: t.minWidth })
     }, [
       te(c.$slots, "default", {}, void 0, !0)
     ], 4));
   }
-}), it = /* @__PURE__ */ j(qo, [["__scopeId", "data-v-75e9eeb8"]]), Yo = /* @__PURE__ */ G({
+}), rt = /* @__PURE__ */ j(qo, [["__scopeId", "data-v-75e9eeb8"]]), Yo = /* @__PURE__ */ G({
   __name: "Value",
   props: {
     mono: { type: Boolean, default: !1 },
@@ -368,7 +368,7 @@ const Gt = { class: "panel-layout" }, jt = {
       te(c.$slots, "default", {}, void 0, !0)
     ], 2));
   }
-}), rt = /* @__PURE__ */ j(Yo, [["__scopeId", "data-v-2f186e4c"]]), Jo = { class: "detail-row" }, Xo = /* @__PURE__ */ G({
+}), ct = /* @__PURE__ */ j(Yo, [["__scopeId", "data-v-2f186e4c"]]), Jo = { class: "detail-row" }, Xo = /* @__PURE__ */ G({
   __name: "DetailRow",
   props: {
     label: {},
@@ -380,13 +380,13 @@ const Gt = { class: "panel-layout" }, jt = {
   },
   setup(t) {
     return (c, s) => (o(), n("div", Jo, [
-      d(it, { "min-width": t.labelMinWidth }, {
+      d(rt, { "min-width": t.labelMinWidth }, {
         default: a(() => [
           m(l(t.label), 1)
         ]),
         _: 1
       }, 8, ["min-width"]),
-      t.value ? (o(), p(rt, {
+      t.value ? (o(), p(ct, {
         key: 0,
         mono: t.mono,
         variant: t.valueVariant,
@@ -1217,7 +1217,7 @@ const Gt = { class: "panel-layout" }, jt = {
       onBlur: v[3] || (v[3] = (y) => f.$emit("blur"))
     }, null, 42, ka));
   }
-}), Ke = /* @__PURE__ */ j($a, [["__scopeId", "data-v-0380d08f"]]), _a = { class: "branch-create-form" }, Ca = { class: "form-actions" }, xa = /* @__PURE__ */ G({
+}), qe = /* @__PURE__ */ j($a, [["__scopeId", "data-v-0380d08f"]]), _a = { class: "branch-create-form" }, Ca = { class: "form-actions" }, xa = /* @__PURE__ */ G({
   __name: "BranchCreateForm",
   emits: ["create", "cancel"],
   setup(t, { emit: c }) {
@@ -1232,7 +1232,7 @@ const Gt = { class: "panel-layout" }, jt = {
       i.value = "", s("cancel");
     }
     return (f, v) => (o(), n("div", _a, [
-      d(Ke, {
+      d(qe, {
         modelValue: i.value,
         "onUpdate:modelValue": v[0] || (v[0] = (y) => i.value = y),
         placeholder: "Branch name...",
@@ -1581,8 +1581,8 @@ function me() {
       throw new Error("ComfyUI API not available");
     const ae = await window.app.api.fetchApi(H, Q);
     if (!ae.ok) {
-      const Ye = await ae.json().catch(() => ({}));
-      throw new Error(Ye.error || Ye.message || `Request failed: ${ae.status}`);
+      const Je = await ae.json().catch(() => ({}));
+      throw new Error(Je.error || Je.message || `Request failed: ${ae.status}`);
     }
     return ae.json();
   }
@@ -1830,7 +1830,7 @@ function me() {
       method: "DELETE"
     });
   }
-  async function et(H, Q, ae) {
+  async function ot(H, Q, ae) {
     return s(`/v2/comfygit/remotes/${encodeURIComponent(H)}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -1849,7 +1849,7 @@ function me() {
       return null;
     }
   }
-  async function tt(H = "skip", Q = !0) {
+  async function st(H = "skip", Q = !0) {
     return s("/v2/comfygit/sync", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -1905,11 +1905,11 @@ function me() {
     getRemotes: _e,
     addRemote: X,
     removeRemote: Le,
-    updateRemoteUrl: et,
+    updateRemoteUrl: ot,
     fetchRemote: ne,
     getRemoteSyncStatus: $e,
     // Environment Sync
-    syncEnvironmentManually: tt
+    syncEnvironmentManually: st
   };
 }
 const qa = { class: "base-modal-header" }, Ya = {
@@ -1986,7 +1986,7 @@ const qa = { class: "base-modal-header" }, Ya = {
       ])
     ]));
   }
-}), Ze = /* @__PURE__ */ j(en, [["__scopeId", "data-v-700d367b"]]), tn = ["type", "disabled"], on = {
+}), tt = /* @__PURE__ */ j(en, [["__scopeId", "data-v-700d367b"]]), tn = ["type", "disabled"], on = {
   key: 0,
   class: "spinner"
 }, sn = /* @__PURE__ */ G({
@@ -2095,7 +2095,7 @@ const qa = { class: "base-modal-header" }, Ya = {
       }, [
         e("div", {
           class: "popover",
-          style: qe({ maxWidth: t.maxWidth }),
+          style: Ye({ maxWidth: t.maxWidth }),
           onClick: s[1] || (s[1] = ve(() => {
           }, ["stop"]))
         }, [
@@ -2223,7 +2223,7 @@ const qa = { class: "base-modal-header" }, Ya = {
       }
     }
     return ue(L), (M, D) => (o(), n(A, null, [
-      d(Ze, {
+      d(tt, {
         title: `WORKFLOW DETAILS: ${t.workflowName}`,
         size: "lg",
         loading: v.value,
@@ -2507,7 +2507,7 @@ const qa = { class: "base-modal-header" }, Ya = {
         }
       }
     }
-    return ue(N), (L, w) => (o(), p(Ze, {
+    return ue(N), (L, w) => (o(), p(tt, {
       title: `RESOLVE DEPENDENCIES: ${t.workflowName}`,
       size: "lg",
       loading: f.value,
@@ -4389,7 +4389,7 @@ This will remove the node from this environment.`))
       t.error ? (o(), n("span", ui, l(t.error), 1)) : t.hint ? (o(), n("span", mi, l(t.hint), 1)) : r("", !0)
     ], 2));
   }
-}), at = /* @__PURE__ */ j(vi, [["__scopeId", "data-v-9a1cf296"]]), fi = ["type", "value", "placeholder", "disabled"], gi = {
+}), nt = /* @__PURE__ */ j(vi, [["__scopeId", "data-v-9a1cf296"]]), fi = ["type", "value", "placeholder", "disabled"], gi = {
   key: 0,
   class: "base-input-error"
 }, hi = /* @__PURE__ */ G({
@@ -4422,7 +4422,7 @@ This will remove the node from this environment.`))
       t.error ? (o(), n("span", gi, l(t.error), 1)) : r("", !0)
     ], 2));
   }
-}), nt = /* @__PURE__ */ j(hi, [["__scopeId", "data-v-9ba02cdc"]]), pi = { class: "remote-form" }, yi = { class: "form-header" }, wi = { class: "form-body" }, bi = {
+}), lt = /* @__PURE__ */ j(hi, [["__scopeId", "data-v-9ba02cdc"]]), pi = { class: "remote-form" }, yi = { class: "form-header" }, wi = { class: "form-body" }, bi = {
   key: 0,
   class: "form-error"
 }, ki = { class: "form-actions" }, $i = /* @__PURE__ */ G({
@@ -4470,12 +4470,12 @@ This will remove the node from this environment.`))
         })
       ]),
       e("div", wi, [
-        d(at, {
+        d(nt, {
           label: "Remote Name",
           required: ""
         }, {
           default: a(() => [
-            d(nt, {
+            d(lt, {
               modelValue: g.value.name,
               "onUpdate:modelValue": R[0] || (R[0] = (N) => g.value.name = N),
               disabled: t.mode === "edit",
@@ -4484,12 +4484,12 @@ This will remove the node from this environment.`))
           ]),
           _: 1
         }),
-        d(at, {
+        d(nt, {
           label: "Fetch URL",
           required: ""
         }, {
           default: a(() => [
-            d(nt, {
+            d(lt, {
               modelValue: g.value.fetchUrl,
               "onUpdate:modelValue": R[1] || (R[1] = (N) => g.value.fetchUrl = N),
               placeholder: "https://github.com/user/repo.git"
@@ -4497,9 +4497,9 @@ This will remove the node from this environment.`))
           ]),
           _: 1
         }),
-        d(at, { label: "Push URL (optional)" }, {
+        d(nt, { label: "Push URL (optional)" }, {
           default: a(() => [
-            d(nt, {
+            d(lt, {
               modelValue: g.value.pushUrl,
               "onUpdate:modelValue": R[2] || (R[2] = (N) => g.value.pushUrl = N),
               placeholder: "Leave empty to use fetch URL"
@@ -4902,7 +4902,7 @@ This will remove the node from this environment.`))
                   description: "API key for downloading models from CivitAI"
                 }, {
                   default: a(() => [
-                    d(Ke, {
+                    d(qe, {
                       modelValue: v.value,
                       "onUpdate:modelValue": S[0] || (S[0] = (U) => v.value = U),
                       type: "password",
@@ -4918,7 +4918,7 @@ This will remove the node from this environment.`))
                   disabled: !0
                 }, {
                   default: a(() => [
-                    d(Ke, {
+                    d(qe, {
                       modelValue: y.value,
                       "onUpdate:modelValue": S[1] || (S[1] = (U) => y.value = U),
                       type: "password",
@@ -4974,7 +4974,7 @@ This will remove the node from this environment.`))
           }, {
             default: a(() => [
               e("span", {
-                style: qe({ color: h.value.type === "success" ? "var(--cg-color-success)" : "var(--cg-color-error)" })
+                style: Ye({ color: h.value.type === "success" ? "var(--cg-color-success)" : "var(--cg-color-error)" })
               }, l(h.value.message), 5)
             ]),
             _: 1
@@ -5427,7 +5427,7 @@ This action cannot be undone.`) && s("delete", F);
                   })
                 ]),
                 e("div", or, [
-                  d(Ke, {
+                  d(qe, {
                     modelValue: R.value,
                     "onUpdate:modelValue": T[3] || (T[3] = (w) => R.value = w),
                     placeholder: "Enter environment name...",
@@ -5739,7 +5739,7 @@ This action cannot be undone.`) && s("delete", F);
                 ])]),
                 details: a(() => [
                   e("div", mr, [
-                    d(Ke, {
+                    d(qe, {
                       modelValue: s.value,
                       "onUpdate:modelValue": y[1] || (y[1] = (R) => s.value = R),
                       placeholder: "/path/to/export/bundle.tar.gz"
@@ -6112,7 +6112,7 @@ This action cannot be undone.`) && s("delete", F);
         }),
         t.sourceEnvironment ? (o(), n("span", Rr, [
           f[1] || (f[1] = m(" From: ", -1)),
-          d(rt, null, {
+          d(ct, null, {
             default: a(() => [
               m(l(t.sourceEnvironment), 1)
             ]),
@@ -6194,7 +6194,7 @@ This action cannot be undone.`) && s("delete", F);
               label: "Branch"
             }, {
               default: a(() => [
-                d(rt, null, {
+                d(ct, null, {
                   default: a(() => [
                     m(l(t.gitBranch), 1)
                   ]),
@@ -6254,7 +6254,7 @@ This action cannot be undone.`) && s("delete", F);
       }),
       e("div", uc, [
         e("div", mc, [
-          d(it, null, {
+          d(rt, null, {
             default: a(() => [...h[5] || (h[5] = [
               m("Conflict Resolution", -1)
             ])]),
@@ -6280,7 +6280,7 @@ This action cannot be undone.`) && s("delete", F);
           ])
         ]),
         e("div", yc, [
-          d(it, null, {
+          d(rt, null, {
             default: a(() => [...h[6] || (h[6] = [
               m("Components to Import", -1)
             ])]),
@@ -6569,7 +6569,7 @@ This action cannot be undone.`) && s("delete", F);
           e("div", Dc, [
             e("div", {
               class: "progress-bar-fill",
-              style: qe({ width: `${f.value.percent}%` })
+              style: Ye({ width: `${f.value.percent}%` })
             }, null, 4)
           ]),
           e("div", Uc, l(f.value.percent) + "% complete ", 1)
@@ -6641,7 +6641,7 @@ This action cannot be undone.`) && s("delete", F);
       } finally {
         g.value = !1;
       }
-    }), (f, v) => (o(), p(Ze, {
+    }), (f, v) => (o(), p(tt, {
       size: "md",
       "show-close-button": !1,
       onClose: v[3] || (v[3] = (y) => f.$emit("close"))
@@ -6800,7 +6800,7 @@ This action cannot be undone.`) && s("delete", F);
   },
   emits: ["confirm", "cancel", "secondary"],
   setup(t) {
-    return (c, s) => (o(), p(Ze, {
+    return (c, s) => (o(), p(tt, {
       title: t.title,
       size: "sm",
       onClose: s[3] || (s[3] = (i) => c.$emit("cancel"))
@@ -7319,7 +7319,7 @@ This action cannot be undone.`) && s("delete", F);
     return (i, g) => (o(), n("div", du, [
       e("div", {
         class: Y(["progress-fill", t.variant]),
-        style: qe({ width: s.value })
+        style: Ye({ width: s.value })
       }, null, 6)
     ]));
   }
@@ -7610,9 +7610,9 @@ const Bu = { class: "comfygit-panel" }, Ru = { class: "panel-header" }, Du = { c
       se("branches", "this-env");
     }
     const ie = C(null), _e = C(!1), X = C(!1), Le = C([]);
-    let et = 0;
+    let ot = 0;
     function ne(V, k = "info", oe = 3e3) {
-      const le = ++et;
+      const le = ++ot;
       return Le.value.push({ id: le, message: V, type: k }), oe > 0 && setTimeout(() => {
         Le.value = Le.value.filter((ye) => ye.id !== le);
       }, oe), le;
@@ -7620,7 +7620,7 @@ const Bu = { class: "comfygit-panel" }, Ru = { class: "panel-header" }, Du = { c
     function $e(V) {
       Le.value = Le.value.filter((k) => k.id !== V);
     }
-    function tt(V) {
+    function st(V) {
       switch (V) {
         case "success":
           return "✓";
@@ -7677,7 +7677,7 @@ const Bu = { class: "comfygit-panel" }, Ru = { class: "panel-header" }, Du = { c
         }
       };
     }
-    async function Ye(V) {
+    async function Je(V) {
       const k = B.value && (B.value.workflows.new.length > 0 || B.value.workflows.modified.length > 0 || B.value.workflows.deleted.length > 0 || B.value.has_changes);
       ie.value = {
         title: k ? "Switch Branch with Uncommitted Changes" : "Switch Branch",
@@ -7711,8 +7711,8 @@ const Bu = { class: "comfygit-panel" }, Ru = { class: "panel-header" }, Du = { c
     async function Nt() {
       I.value = !1, _.value = !0, D.value = {
         progress: 10,
-        state: Je(10),
-        message: Xe(10)
+        state: Xe(10),
+        message: Qe(10)
       };
       try {
         await R(M.value), Tt(), Bt();
@@ -7720,17 +7720,17 @@ const Bu = { class: "comfygit-panel" }, Ru = { class: "panel-header" }, Du = { c
         Te(), _.value = !1, ne(`Failed to initiate switch: ${V instanceof Error ? V.message : "Unknown error"}`, "error"), D.value = { state: "idle", progress: 0, message: "" };
       }
     }
-    function Je(V) {
+    function Xe(V) {
       return V >= 100 ? "complete" : V >= 80 ? "validating" : V >= 60 ? "starting" : V >= 30 ? "syncing" : "preparing";
     }
-    function Xe(V) {
+    function Qe(V) {
       return {
         preparing: "Stopping current environment...",
         syncing: "Preparing target environment...",
         starting: "Starting new environment...",
         validating: "Waiting for server to be ready...",
         complete: "Switch complete!"
-      }[Je(V)] || "";
+      }[Xe(V)] || "";
     }
     function Tt() {
       if (W) return;
@@ -7741,8 +7741,8 @@ const Bu = { class: "comfygit-panel" }, Ru = { class: "panel-header" }, Du = { c
           const we = Math.floor(V);
           D.value = {
             progress: we,
-            state: Je(we),
-            message: Xe(we)
+            state: Xe(we),
+            message: Qe(we)
           };
         }
       }, le);
@@ -7758,18 +7758,18 @@ const Bu = { class: "comfygit-panel" }, Ru = { class: "panel-header" }, Du = { c
             return;
           const k = V.progress || 0;
           k >= 60 && Te();
-          const oe = Math.max(k, D.value.progress), le = V.state && V.state !== "idle" && V.state !== "unknown", ye = le ? V.state : Je(oe), we = le && V.message || Xe(oe);
+          const oe = Math.max(k, D.value.progress), le = V.state && V.state !== "idle" && V.state !== "unknown", ye = le ? V.state : Xe(oe), we = le && V.message || Qe(oe);
           D.value = {
             state: ye,
             progress: oe,
             message: we
-          }, V.state === "complete" ? (Te(), ot(), _.value = !1, ne(`✓ Switched to ${M.value}`, "success"), await Q(), M.value = "") : V.state === "rolled_back" ? (Te(), ot(), _.value = !1, ne("Switch failed, restored previous environment", "warning"), M.value = "") : V.state === "critical_failure" && (Te(), ot(), _.value = !1, ne(`Critical error during switch: ${V.message}`, "error"), M.value = "");
+          }, V.state === "complete" ? (Te(), at(), _.value = !1, ne(`✓ Switched to ${M.value}`, "success"), await Q(), M.value = "") : V.state === "rolled_back" ? (Te(), at(), _.value = !1, ne("Switch failed, restored previous environment", "warning"), M.value = "") : V.state === "critical_failure" && (Te(), at(), _.value = !1, ne(`Critical error during switch: ${V.message}`, "error"), M.value = "");
         } catch (V) {
           console.error("Failed to poll switch progress:", V);
         }
       }, 1e3));
     }
-    function ot() {
+    function at() {
       Te(), K && (clearInterval(K), K = null);
     }
     function Rt() {
@@ -7955,7 +7955,7 @@ const Bu = { class: "comfygit-panel" }, Ru = { class: "panel-header" }, Du = { c
                 key: 3,
                 branches: E.value,
                 current: ((ye = B.value) == null ? void 0 : ye.branch) || null,
-                onSwitch: Ye,
+                onSwitch: Je,
                 onCreate: Lt
               }, null, 8, ["branches", "current"])) : z.value === "history" ? (o(), p(ja, {
                 key: 4,
@@ -8079,7 +8079,7 @@ const Bu = { class: "comfygit-panel" }, Ru = { class: "panel-header" }, Du = { c
                 key: ee.id,
                 class: Y(["toast", ee.type])
               }, [
-                e("span", cm, l(tt(ee.type)), 1),
+                e("span", cm, l(st(ee.type)), 1),
                 e("span", dm, l(ee.message), 1)
               ], 2))), 128))
             ]),
@@ -8134,7 +8134,7 @@ window.ComfyGit = {
 };
 let be = null, he = null, je = null;
 const Pe = C(null);
-async function ct() {
+async function et() {
   var t;
   if (!((t = window.app) != null && t.api)) return null;
   try {
@@ -8152,21 +8152,21 @@ function km() {
   be && be.remove(), be = document.createElement("div"), be.className = "comfygit-panel-overlay";
   const t = document.createElement("div");
   t.className = "comfygit-panel-container", be.appendChild(t), be.addEventListener("click", (i) => {
-    i.target === be && lt();
+    i.target === be && it();
   });
   const c = (i) => {
-    i.key === "Escape" && (lt(), document.removeEventListener("keydown", c));
+    i.key === "Escape" && (it(), document.removeEventListener("keydown", c));
   };
   document.addEventListener("keydown", c), kt({
     render: () => $t(mm, {
-      onClose: lt,
+      onClose: it,
       onStatusUpdate: (i) => {
-        Pe.value = i, Qe();
+        Pe.value = i, Ke();
       }
     })
   }).mount(t), document.body.appendChild(be);
 }
-function lt() {
+function it() {
   be && (be.remove(), be = null);
 }
 function $m(t) {
@@ -8185,7 +8185,7 @@ function $m(t) {
       status: Pe.value,
       onClose: Ge,
       onCommitted: () => {
-        Ge(), ct().then(Qe);
+        Ge(), et().then(Ke);
       }
     })
   }), je.mount(he), document.body.appendChild(he);
@@ -8194,7 +8194,7 @@ function Ge() {
   je && (je.unmount(), je = null), he && (he.remove(), he = null);
 }
 let xe = null;
-function Qe() {
+function Ke() {
   if (!xe) return;
   const t = xe.querySelector(".commit-indicator");
   t && (t.style.display = bm() ? "block" : "none");
@@ -8291,15 +8291,20 @@ zt.textContent = `
   }
 `;
 document.head.appendChild(zt);
-st.registerExtension({
+Ze.registerExtension({
   name: "Comfy.ComfyGitPanel",
   async setup() {
-    var s, i;
+    var i, g;
     const t = document.createElement("div");
     t.className = "comfygit-btn-group";
     const c = document.createElement("button");
-    c.className = "comfyui-button comfyui-menu-mobile-collapse comfygit-panel-btn", c.textContent = "ComfyGit", c.title = "ComfyGit Control Panel", c.onclick = km, xe = document.createElement("button"), xe.className = "comfyui-button comfyui-menu-mobile-collapse comfygit-commit-btn", xe.innerHTML = 'Commit <span class="commit-indicator"></span>', xe.title = "Quick Commit", xe.onclick = () => $m(xe), t.appendChild(c), t.appendChild(xe), (i = (s = st.menu) == null ? void 0 : s.settingsGroup) != null && i.element && (st.menu.settingsGroup.element.before(t), console.log("[ComfyGit] Control Panel buttons added to toolbar")), await ct(), Qe(), setInterval(async () => {
-      await ct(), Qe();
+    c.className = "comfyui-button comfyui-menu-mobile-collapse comfygit-panel-btn", c.textContent = "ComfyGit", c.title = "ComfyGit Control Panel", c.onclick = km, xe = document.createElement("button"), xe.className = "comfyui-button comfyui-menu-mobile-collapse comfygit-commit-btn", xe.innerHTML = 'Commit <span class="commit-indicator"></span>', xe.title = "Quick Commit", xe.onclick = () => $m(xe), t.appendChild(c), t.appendChild(xe), (g = (i = Ze.menu) == null ? void 0 : i.settingsGroup) != null && g.element && (Ze.menu.settingsGroup.element.before(t), console.log("[ComfyGit] Control Panel buttons added to toolbar")), await et(), Ke(), setInterval(async () => {
+      await et(), Ke();
     }, 3e4);
+    const s = Ze.api;
+    s && (s.addEventListener("comfygit:workflow-changed", async (h) => {
+      const { change_type: u, workflow_name: f } = h.detail;
+      console.log(`[ComfyGit] Workflow ${u}: ${f}`), await et(), Ke();
+    }), console.log("[ComfyGit] Registered workflow file change listener"));
   }
 });

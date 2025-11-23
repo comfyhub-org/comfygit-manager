@@ -300,10 +300,27 @@ app.registerExtension({
     await fetchStatus()
     updateCommitIndicator()
 
-    // Refresh status periodically
+    // Refresh status periodically (fallback for external changes)
     setInterval(async () => {
       await fetchStatus()
       updateCommitIndicator()
     }, 30000)
+
+    // Register custom WebSocket event type with ComfyUI API
+    // CRITICAL: Use the imported 'app' object, NOT window.app (which doesn't exist yet)
+    const api = (app as any).api
+
+    if (api) {
+      api.addEventListener('comfygit:workflow-changed', async (event: CustomEvent) => {
+        const { change_type, workflow_name } = event.detail
+        console.log(`[ComfyGit] Workflow ${change_type}: ${workflow_name}`)
+
+        // Trigger immediate status check
+        await fetchStatus()
+        updateCommitIndicator()
+      })
+
+      console.log('[ComfyGit] Registered workflow file change listener')
+    }
   }
 })
