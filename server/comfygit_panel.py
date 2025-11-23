@@ -61,14 +61,8 @@ for route_def in [status.routes, git.routes, workflows.routes, operations.routes
 async def log_panel_request(env_name: str, operation: str, **context):
     """Context manager for logging panel requests."""
     if EnvironmentLogger:
-        env_logger = EnvironmentLogger(env_name)
-        env_logger.info(f"{operation} started", extra=context)
-        try:
+        with EnvironmentLogger.log_command(env_name, f"panel: {operation}", **context):
             yield
-            env_logger.info(f"{operation} completed", extra=context)
-        except Exception as e:
-            env_logger.error(f"{operation} failed: {e}", extra=context, exc_info=True)
-            raise
     else:
         yield
 
@@ -79,9 +73,11 @@ def _initialize_panel_logging():
         return
 
     env = get_environment_from_cwd()
-    if env:
-        env_logger = EnvironmentLogger(env.name)
-        env_logger.info("Panel API initialized", extra={"environment": env.name})
+    if env and env.workspace:
+        # Set workspace path for loggers
+        EnvironmentLogger.set_workspace_path(env.workspace.path)
+        WorkspaceLogger.set_workspace_path(env.workspace.path)
+        logger.info(f"Panel API initialized for environment: {env.name}")
 
 
 # Initialize logging
