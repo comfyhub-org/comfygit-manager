@@ -35,6 +35,9 @@ def mock_environment():
     mock_env.resolve_workflow = Mock()
     mock_env.get_uninstalled_nodes = Mock(return_value=[])
     mock_env.install_node = Mock()
+    mock_env.sync = Mock()
+    mock_env.export_environment = Mock()
+    mock_env.create_branch = Mock()
 
     return mock_env
 

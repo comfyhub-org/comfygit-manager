@@ -287,3 +287,206 @@ class TestBranchesEndpoint:
 
         resp = await client.get("/v2/comfygit/branches")
         assert resp.status == 500
+
+
+@pytest.mark.integration
+class TestCheckoutEndpoint:
+    """POST /v2/comfygit/checkout - Checkout commit or branch."""
+
+    async def test_success_checkout_no_changes(
+        self,
+        client,
+        mock_environment,
+        monkeypatch
+    ):
+        """Should checkout ref when no uncommitted changes."""
+        # Setup: No uncommitted changes
+        mock_environment.git_manager = Mock()
+        mock_environment.git_manager.has_uncommitted_changes.return_value = False
+        mock_environment.git_manager.repo_path = "/tmp/repo"
+        mock_environment.workflow_manager.get_workflow_sync_status.return_value = Mock(has_changes=False)
+
+        # Mock the git command to prevent actual execution
+        mock_git = Mock()
+        monkeypatch.setattr("comfygit_core.utils.git._git", mock_git)
+
+        # Execute
+        resp = await client.post("/v2/comfygit/checkout", json={
+            "ref": "develop",
+            "force": False
+        })
+
+        # Verify
+        assert resp.status == 200
+        data = await resp.json()
+        assert data["status"] == "success"
+        assert "Restarting" in data["message"]
+
+    async def test_warning_uncommitted_changes_no_force(
+        self,
+        client,
+        mock_environment
+    ):
+        """Should return warning when uncommitted changes and force=False."""
+        # Setup: Has uncommitted changes
+        mock_environment.git_manager = Mock()
+        mock_environment.git_manager.has_uncommitted_changes.return_value = True
+
+        # Execute
+        resp = await client.post("/v2/comfygit/checkout", json={
+            "ref": "develop",
+            "force": False
+        })
+
+        # Verify
+        assert resp.status == 200
+        data = await resp.json()
+        assert data["status"] == "warning"
+        assert data["reason"] == "uncommitted_changes"
+        assert "uncommitted changes" in data["message"].lower()
+
+    async def test_success_force_checkout_with_changes(
+        self,
+        client,
+        mock_environment,
+        monkeypatch
+    ):
+        """Should checkout with force when force=True even with changes."""
+        # Setup: Has uncommitted changes
+        mock_environment.git_manager = Mock()
+        mock_environment.git_manager.has_uncommitted_changes.return_value = True
+        mock_environment.git_manager.repo_path = "/tmp/repo"
+
+        # Mock the git command to prevent actual execution
+        mock_git = Mock()
+        monkeypatch.setattr("comfygit_core.utils.git._git", mock_git)
+
+        # Execute
+        resp = await client.post("/v2/comfygit/checkout", json={
+            "ref": "develop",
+            "force": True
+        })
+
+        # Verify
+        assert resp.status == 200
+        data = await resp.json()
+        assert data["status"] == "success"
+
+    async def test_validation_missing_ref(self, client, mock_environment):
+        """Should return 400 when ref is missing."""
+        # Execute: No ref in body
+        resp = await client.post("/v2/comfygit/checkout", json={})
+
+        # Verify
+        assert resp.status == 400
+        data = await resp.json()
+        assert "error" in data
+        assert "ref is required" in data["error"]
+
+    async def test_error_no_environment(self, client, monkeypatch):
+        """Should return 500 when no environment detected."""
+        monkeypatch.setattr(
+            "comfygit_panel.get_environment_from_cwd",
+            lambda: None
+        )
+
+        resp = await client.post("/v2/comfygit/checkout", json={
+            "ref": "develop"
+        })
+
+        assert resp.status == 500
+
+
+@pytest.mark.integration
+class TestCreateBranchEndpoint:
+    """POST /v2/comfygit/branch - Create new branch."""
+
+    async def test_success_create_branch(
+        self,
+        client,
+        mock_environment
+    ):
+        """Should create branch successfully."""
+        # Setup
+        mock_environment.create_branch = Mock()
+
+        # Execute
+        resp = await client.post("/v2/comfygit/branch", json={
+            "name": "feature/test",
+            "start_point": "main"
+        })
+
+        # Verify
+        assert resp.status == 200
+        data = await resp.json()
+        assert data["status"] == "success"
+        assert data["branch"] == "feature/test"
+
+        # Verify create_branch was called
+        mock_environment.create_branch.assert_called_once_with("feature/test", "main")
+
+    async def test_success_create_branch_default_start_point(
+        self,
+        client,
+        mock_environment
+    ):
+        """Should use HEAD as default start point."""
+        # Setup
+        mock_environment.create_branch = Mock()
+
+        # Execute: No start_point specified
+        resp = await client.post("/v2/comfygit/branch", json={
+            "name": "feature/test"
+        })
+
+        # Verify
+        assert resp.status == 200
+        data = await resp.json()
+        assert data["status"] == "success"
+
+        # Verify create_branch was called with HEAD as default
+        mock_environment.create_branch.assert_called_once_with("feature/test", "HEAD")
+
+    async def test_validation_missing_name(self, client, mock_environment):
+        """Should return 400 when name is missing."""
+        # Execute: No name in body
+        resp = await client.post("/v2/comfygit/branch", json={})
+
+        # Verify
+        assert resp.status == 400
+        data = await resp.json()
+        assert "error" in data
+        assert "name is required" in data["error"]
+
+    async def test_error_branch_already_exists(
+        self,
+        client,
+        mock_environment
+    ):
+        """Should return 500 when branch already exists."""
+        # Setup: create_branch raises exception
+        mock_environment.create_branch.side_effect = Exception("Branch already exists")
+
+        # Execute
+        resp = await client.post("/v2/comfygit/branch", json={
+            "name": "existing-branch"
+        })
+
+        # Verify
+        assert resp.status == 500
+        data = await resp.json()
+        assert data["status"] == "error"
+        assert "message" in data
+
+    async def test_error_no_environment(self, client, monkeypatch):
+        """Should return 500 when no environment detected."""
+        monkeypatch.setattr(
+            "comfygit_panel.get_environment_from_cwd",
+            lambda: None
+        )
+
+        resp = await client.post("/v2/comfygit/branch", json={
+            "name": "feature/test"
+        })
+
+        assert resp.status == 500
