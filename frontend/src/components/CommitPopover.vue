@@ -42,11 +42,26 @@
             Loading...
           </div>
 
+          <div v-if="hasUncommittedIssues" class="issues-warning">
+            <div class="warning-header">
+              <span class="warning-icon">⚠️</span>
+              <span class="warning-title">{{ uncommittedWorkflowsWithIssues.length }} workflow(s) with unresolved issues</span>
+            </div>
+            <div class="issues-list">
+              <div v-for="workflow in uncommittedWorkflowsWithIssues" :key="workflow.name" class="issue-item">
+                <strong>{{ workflow.name }}</strong>: {{ workflow.issue_summary }}
+              </div>
+            </div>
+            <BaseCheckbox v-model="allowIssues" class="allow-issues-toggle">
+              Commit anyway (ignore issues)
+            </BaseCheckbox>
+          </div>
+
           <div class="message-section">
             <BaseTextarea
               v-model="message"
-              :placeholder="hasChanges ? 'Describe your changes...' : 'No changes'"
-              :disabled="!hasChanges || isLoading"
+              :placeholder="isBlockedByIssues ? 'Enable \'Allow issues\' to commit' : hasChanges ? 'Describe your changes...' : 'No changes'"
+              :disabled="!hasChanges || isLoading || isBlockedByIssues"
               :rows="3"
               @ctrl-enter="handleCommit"
             />
@@ -62,12 +77,12 @@
             Cancel
           </BaseButton>
           <BaseButton
-            variant="primary"
-            :disabled="!hasChanges || !message.trim() || isLoading"
+            :variant="allowIssues ? 'danger' : 'primary'"
+            :disabled="!hasChanges || !message.trim() || isLoading || isBlockedByIssues"
             :loading="isLoading"
             @click="handleCommit"
           >
-            {{ isLoading ? 'Committing...' : 'Commit' }}
+            {{ isLoading ? 'Committing...' : allowIssues ? '⚠️ Force Commit' : 'Commit' }}
           </BaseButton>
         </div>
       </div>
@@ -115,11 +130,26 @@
         Loading...
       </div>
 
+      <div v-if="hasUncommittedIssues" class="issues-warning">
+        <div class="warning-header">
+          <span class="warning-icon">⚠️</span>
+          <span class="warning-title">{{ uncommittedWorkflowsWithIssues.length }} workflow(s) with unresolved issues</span>
+        </div>
+        <div class="issues-list">
+          <div v-for="workflow in uncommittedWorkflowsWithIssues" :key="workflow.name" class="issue-item">
+            <strong>{{ workflow.name }}</strong>: {{ workflow.issue_summary }}
+          </div>
+        </div>
+        <BaseCheckbox v-model="allowIssues" class="allow-issues-toggle">
+          Commit anyway (ignore issues)
+        </BaseCheckbox>
+      </div>
+
       <div class="message-section">
         <BaseTextarea
           v-model="message"
-          :placeholder="hasChanges ? 'Describe your changes...' : 'No changes'"
-          :disabled="!hasChanges || isLoading"
+          :placeholder="isBlockedByIssues ? 'Enable \'Allow issues\' to commit' : hasChanges ? 'Describe your changes...' : 'No changes'"
+          :disabled="!hasChanges || isLoading || isBlockedByIssues"
           :rows="3"
           @ctrl-enter="handleCommit"
         />
@@ -135,12 +165,12 @@
         Cancel
       </BaseButton>
       <BaseButton
-        variant="primary"
-        :disabled="!hasChanges || !message.trim() || isLoading"
+        :variant="allowIssues ? 'danger' : 'primary'"
+        :disabled="!hasChanges || !message.trim() || isLoading || isBlockedByIssues"
         :loading="isLoading"
         @click="handleCommit"
       >
-        {{ isLoading ? 'Committing...' : 'Commit' }}
+        {{ isLoading ? 'Committing...' : allowIssues ? '⚠️ Force Commit' : 'Commit' }}
       </BaseButton>
     </div>
   </div>
@@ -152,6 +182,7 @@ import type { ComfyGitStatus } from '@/types/comfygit'
 import { useComfyGitService } from '@/composables/useComfyGitService'
 import BaseButton from './base/BaseButton.vue'
 import BaseTextarea from './base/BaseTextarea.vue'
+import BaseCheckbox from './base/BaseCheckbox.vue'
 
 const props = withDefaults(defineProps<{
   status: ComfyGitStatus | null
@@ -169,6 +200,7 @@ const { commit } = useComfyGitService()
 
 const message = ref('')
 const isLoading = ref(false)
+const allowIssues = ref(false)
 const result = ref<{ type: 'success' | 'error', message: string } | null>(null)
 
 const hasChanges = computed(() => {
@@ -177,14 +209,27 @@ const hasChanges = computed(() => {
   return wf.new.length > 0 || wf.modified.length > 0 || wf.deleted.length > 0 || props.status.has_changes
 })
 
+const uncommittedWorkflowsWithIssues = computed(() => {
+  if (!props.status?.workflows.analyzed) return []
+  return props.status.workflows.analyzed.filter(
+    w => w.has_issues && (w.sync_state === 'new' || w.sync_state === 'modified')
+  )
+})
+
+const hasUncommittedIssues = computed(() => uncommittedWorkflowsWithIssues.value.length > 0)
+
+const isBlockedByIssues = computed(() => hasUncommittedIssues.value && !allowIssues.value)
+
 async function handleCommit() {
+  // Guard: prevent commit if there are unresolved issues and user hasn't explicitly allowed
+  if (hasUncommittedIssues.value && !allowIssues.value) return
   if (!hasChanges.value || !message.value.trim() || isLoading.value) return
 
   isLoading.value = true
   result.value = null
 
   try {
-    const res = await commit(message.value.trim())
+    const res = await commit(message.value.trim(), allowIssues.value)
 
     if (res.status === 'success') {
       result.value = {
@@ -192,9 +237,15 @@ async function handleCommit() {
         message: `Committed: ${res.summary?.new || 0} new, ${res.summary?.modified || 0} modified, ${res.summary?.deleted || 0} deleted`
       }
       message.value = ''
+      allowIssues.value = false
       setTimeout(() => emit('committed'), 1000)
     } else if (res.status === 'no_changes') {
       result.value = { type: 'error', message: 'No changes to commit' }
+    } else if (res.status === 'blocked') {
+      result.value = {
+        type: 'error',
+        message: 'Commit blocked - enable "Allow issues" to force commit'
+      }
     } else {
       result.value = { type: 'error', message: res.message || 'Commit failed' }
     }
@@ -349,5 +400,51 @@ async function handleCommit() {
   background: var(--cg-color-error-muted);
   border: 1px solid var(--cg-color-error);
   color: #fca5a5;
+}
+
+.issues-warning {
+  background: var(--cg-color-warning-muted);
+  border: 1px solid var(--cg-color-warning);
+  border-radius: var(--cg-radius-md);
+  padding: 10px;
+  margin-bottom: 12px;
+}
+
+.warning-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  color: var(--cg-color-warning);
+}
+
+.warning-icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.warning-title {
+  font-size: var(--cg-font-size-xs);
+  font-weight: var(--cg-font-weight-medium);
+}
+
+.issues-list {
+  margin-bottom: 10px;
+  font-size: var(--cg-font-size-xs);
+  color: var(--cg-color-text-secondary);
+}
+
+.issue-item {
+  padding: 4px 0;
+  line-height: 1.4;
+}
+
+.issue-item strong {
+  color: var(--cg-color-text-primary);
+}
+
+.allow-issues-toggle {
+  margin-top: 8px;
+  font-size: var(--cg-font-size-xs);
 }
 </style>
