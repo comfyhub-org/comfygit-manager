@@ -7,6 +7,7 @@ import type {
   NodeSearchResult,
   ModelSearchResult
 } from '@/types/comfygit'
+import { mockApi, isMockApi } from '@/services/mockApi'
 
 declare global {
   interface Window {
@@ -47,13 +48,21 @@ export function useWorkflowResolution() {
     error.value = null
 
     try {
-      const data = await fetchApi<FullResolutionResult>(
-        `/v2/comfygit/workflow/${workflowName}/analyze`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' }
-        }
-      )
+      let data: FullResolutionResult
+
+      if (isMockApi()) {
+        // Use mock API
+        data = await mockApi.analyzeWorkflow(workflowName)
+      } else {
+        // Use real API
+        data = await fetchApi<FullResolutionResult>(
+          `/v2/comfygit/workflow/${workflowName}/analyze`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+          }
+        )
+      }
 
       result.value = data
       return data
@@ -75,21 +84,28 @@ export function useWorkflowResolution() {
     error.value = null
 
     try {
-      // Convert Map to plain object for JSON serialization
-      const nodeChoicesObj = Object.fromEntries(nodeChoices)
-      const modelChoicesObj = Object.fromEntries(modelChoices)
+      let data: AppliedResolutionResult
 
-      const data = await fetchApi<AppliedResolutionResult>(
-        `/v2/comfygit/workflow/${workflowName}/apply-resolution`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            node_choices: nodeChoicesObj,
-            model_choices: modelChoicesObj
-          })
-        }
-      )
+      if (isMockApi()) {
+        // Use mock API
+        data = await mockApi.applyResolution(workflowName, nodeChoices, modelChoices)
+      } else {
+        // Convert Map to plain object for JSON serialization
+        const nodeChoicesObj = Object.fromEntries(nodeChoices)
+        const modelChoicesObj = Object.fromEntries(modelChoices)
+
+        data = await fetchApi<AppliedResolutionResult>(
+          `/v2/comfygit/workflow/${workflowName}/apply-resolution`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              node_choices: nodeChoicesObj,
+              model_choices: modelChoicesObj
+            })
+          }
+        )
+      }
 
       appliedResult.value = data
       return data
@@ -107,14 +123,22 @@ export function useWorkflowResolution() {
     error.value = null
 
     try {
-      const data = await fetchApi<{ results: NodeSearchResult[]; total: number }>(
-        '/v2/comfygit/workflow/search-nodes',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query, limit })
-        }
-      )
+      let data: { results: NodeSearchResult[]; total: number }
+
+      if (isMockApi()) {
+        // Use mock API
+        data = await mockApi.searchNodes(query, limit)
+      } else {
+        // Use real API
+        data = await fetchApi<{ results: NodeSearchResult[]; total: number }>(
+          '/v2/comfygit/workflow/search-nodes',
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query, limit })
+          }
+        )
+      }
 
       searchResults.value = data.results
       return data.results
@@ -132,14 +156,22 @@ export function useWorkflowResolution() {
     error.value = null
 
     try {
-      const data = await fetchApi<{ results: ModelSearchResult[]; total: number }>(
-        '/v2/comfygit/workflow/search-models',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query, limit })
-        }
-      )
+      let data: { results: ModelSearchResult[]; total: number }
+
+      if (isMockApi()) {
+        // Use mock API
+        data = await mockApi.searchModels(query, limit)
+      } else {
+        // Use real API
+        data = await fetchApi<{ results: ModelSearchResult[]; total: number }>(
+          '/v2/comfygit/workflow/search-models',
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query, limit })
+          }
+        )
+      }
 
       modelSearchResults.value = data.results
       return data.results

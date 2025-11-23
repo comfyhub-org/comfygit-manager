@@ -1028,6 +1028,694 @@ export const mockApi = {
       behind: 1,
       last_fetch: new Date(Date.now() - 3600000).toISOString()
     }
+  },
+
+  // =============================================================================
+  // NEW: Interactive Workflow Resolution Endpoints
+  // =============================================================================
+
+  /**
+   * Analyze Workflow - Returns full resolution analysis
+   * POST /v2/comfygit/workflow/{name}/analyze
+   *
+   * Test scenarios by using different workflow names:
+   * - "test-unresolved-nodes.json" - Only unresolved nodes
+   * - "test-unresolved-models.json" - Only unresolved models
+   * - "test-ambiguous-nodes.json" - Multiple node options to choose from
+   * - "test-ambiguous-models.json" - Multiple model options to choose from
+   * - "test-mixed-complex.json" - Complex scenario with all types
+   * - "test-all-resolved.json" - Everything perfect, no user input needed
+   * - Default: Returns a realistic mixed scenario
+   */
+  analyzeWorkflow: async (workflowName: string): Promise<any> => {
+    await delay(600)
+
+    // Scenario-based mock data
+    const scenarios: Record<string, any> = {
+      // Scenario 1: Only unresolved nodes (no matching packages found)
+      'test-unresolved-nodes.json': {
+        workflow: workflowName,
+        nodes: {
+          resolved: [
+            {
+              reference: { node_type: 'KSampler', workflow: workflowName },
+              package: { package_id: 'comfyui-core', title: 'ComfyUI Core' },
+              match_confidence: 1.0,
+              match_type: 'builtin',
+              is_installed: true
+            }
+          ],
+          unresolved: [
+            {
+              reference: { node_type: 'CustomUpscaler', workflow: workflowName, node_id: 'node1' },
+              reason: 'not_found_in_registry'
+            },
+            {
+              reference: { node_type: 'MagicNode', workflow: workflowName, node_id: 'node2' },
+              reason: 'not_found_in_registry'
+            }
+          ],
+          ambiguous: []
+        },
+        models: {
+          resolved: [
+            {
+              reference: { workflow: workflowName, node_id: '4', node_type: 'CheckpointLoader', widget_name: 'model', widget_value: 'flux1-dev.safetensors' },
+              model: { filename: 'flux1-dev.safetensors', hash: 'abc123', size: 11725000000, category: 'checkpoints', relative_path: 'checkpoints/flux1-dev.safetensors' },
+              match_confidence: 1.0,
+              match_type: 'exact'
+            }
+          ],
+          unresolved: [],
+          ambiguous: []
+        },
+        stats: {
+          total_nodes: 3,
+          total_models: 1,
+          nodes_resolved: 1,
+          nodes_unresolved: 2,
+          nodes_ambiguous: 0,
+          models_resolved: 1,
+          models_unresolved: 0,
+          models_ambiguous: 0,
+          needs_user_input: true
+        }
+      },
+
+      // Scenario 2: Only unresolved models (not found in index)
+      'test-unresolved-models.json': {
+        workflow: workflowName,
+        nodes: {
+          resolved: [
+            {
+              reference: { node_type: 'LoadCheckpoint', workflow: workflowName },
+              package: { package_id: 'comfyui-core', title: 'ComfyUI Core' },
+              match_confidence: 1.0,
+              match_type: 'builtin',
+              is_installed: true
+            }
+          ],
+          unresolved: [],
+          ambiguous: []
+        },
+        models: {
+          resolved: [],
+          unresolved: [
+            {
+              reference: {
+                workflow: workflowName,
+                node_id: 'node3',
+                node_type: 'CheckpointLoader',
+                widget_name: 'model',
+                widget_value: 'super_rare_model.safetensors'
+              },
+              reason: 'not_found_in_index'
+            },
+            {
+              reference: {
+                workflow: workflowName,
+                node_id: 'node4',
+                node_type: 'VAELoader',
+                widget_name: 'vae',
+                widget_value: 'custom_vae.safetensors'
+              },
+              reason: 'not_found_in_index'
+            }
+          ],
+          ambiguous: []
+        },
+        stats: {
+          total_nodes: 1,
+          total_models: 2,
+          nodes_resolved: 1,
+          nodes_unresolved: 0,
+          nodes_ambiguous: 0,
+          models_resolved: 0,
+          models_unresolved: 2,
+          models_ambiguous: 0,
+          needs_user_input: true
+        }
+      },
+
+      // Scenario 3: Ambiguous nodes (multiple matching packages)
+      'test-ambiguous-nodes.json': {
+        workflow: workflowName,
+        nodes: {
+          resolved: [],
+          unresolved: [],
+          ambiguous: [
+            {
+              reference: { node_type: 'FluxLoader', workflow: workflowName, node_id: 'node1' },
+              options: [
+                {
+                  package: { package_id: 'comfyui-flux-official', title: 'FLUX Official Nodes' },
+                  match_confidence: 0.95,
+                  match_type: 'fuzzy',
+                  is_installed: false
+                },
+                {
+                  package: { package_id: 'flux-community-nodes', title: 'FLUX Community Pack' },
+                  match_confidence: 0.90,
+                  match_type: 'fuzzy',
+                  is_installed: false
+                },
+                {
+                  package: { package_id: 'advanced-flux-toolkit', title: 'Advanced FLUX Toolkit' },
+                  match_confidence: 0.85,
+                  match_type: 'fuzzy',
+                  is_installed: false
+                }
+              ]
+            },
+            {
+              reference: { node_type: 'ImageEnhancer', workflow: workflowName, node_id: 'node2' },
+              options: [
+                {
+                  package: { package_id: 'comfyui-image-enhance', title: 'Image Enhancement Suite' },
+                  match_confidence: 0.88,
+                  match_type: 'fuzzy',
+                  is_installed: false
+                },
+                {
+                  package: { package_id: 'ultimate-image-toolkit', title: 'Ultimate Image Toolkit' },
+                  match_confidence: 0.82,
+                  match_type: 'fuzzy',
+                  is_installed: false
+                }
+              ]
+            }
+          ]
+        },
+        models: {
+          resolved: [
+            {
+              reference: { workflow: workflowName, node_id: '5', node_type: 'CheckpointLoader', widget_name: 'model', widget_value: 'sdxl_base.safetensors' },
+              model: { filename: 'sdxl_base.safetensors', hash: 'def456', size: 6500000000, category: 'checkpoints', relative_path: 'checkpoints/sdxl_base.safetensors' },
+              match_confidence: 1.0,
+              match_type: 'exact'
+            }
+          ],
+          unresolved: [],
+          ambiguous: []
+        },
+        stats: {
+          total_nodes: 2,
+          total_models: 1,
+          nodes_resolved: 0,
+          nodes_unresolved: 0,
+          nodes_ambiguous: 2,
+          models_resolved: 1,
+          models_unresolved: 0,
+          models_ambiguous: 0,
+          needs_user_input: true
+        }
+      },
+
+      // Scenario 4: Ambiguous models (multiple files match the name)
+      'test-ambiguous-models.json': {
+        workflow: workflowName,
+        nodes: {
+          resolved: [
+            {
+              reference: { node_type: 'CheckpointLoader', workflow: workflowName },
+              package: { package_id: 'comfyui-core', title: 'ComfyUI Core' },
+              match_confidence: 1.0,
+              match_type: 'builtin',
+              is_installed: true
+            }
+          ],
+          unresolved: [],
+          ambiguous: []
+        },
+        models: {
+          resolved: [],
+          unresolved: [],
+          ambiguous: [
+            {
+              reference: {
+                workflow: workflowName,
+                node_id: 'node3',
+                node_type: 'CheckpointLoader',
+                widget_name: 'model',
+                widget_value: 'sdxl_model.safetensors'
+              },
+              options: [
+                {
+                  model: {
+                    filename: 'sdxl_base_1.0.safetensors',
+                    hash: 'aaa111',
+                    size: 6500000000,
+                    category: 'checkpoints',
+                    relative_path: 'checkpoints/sdxl_base_1.0.safetensors'
+                  },
+                  match_confidence: 0.95,
+                  match_type: 'fuzzy',
+                  has_download_source: true
+                },
+                {
+                  model: {
+                    filename: 'sdxl_refiner_1.0.safetensors',
+                    hash: 'bbb222',
+                    size: 6100000000,
+                    category: 'checkpoints',
+                    relative_path: 'checkpoints/sdxl_refiner_1.0.safetensors'
+                  },
+                  match_confidence: 0.85,
+                  match_type: 'fuzzy',
+                  has_download_source: true
+                },
+                {
+                  model: {
+                    filename: 'sdxl_turbo.safetensors',
+                    hash: 'ccc333',
+                    size: 6700000000,
+                    category: 'checkpoints',
+                    relative_path: 'checkpoints/sdxl_turbo.safetensors'
+                  },
+                  match_confidence: 0.75,
+                  match_type: 'fuzzy',
+                  has_download_source: false
+                }
+              ]
+            }
+          ]
+        },
+        stats: {
+          total_nodes: 1,
+          total_models: 1,
+          nodes_resolved: 1,
+          nodes_unresolved: 0,
+          nodes_ambiguous: 0,
+          models_resolved: 0,
+          models_unresolved: 0,
+          models_ambiguous: 1,
+          needs_user_input: true
+        }
+      },
+
+      // Scenario 5: Complex mixed scenario (everything)
+      'test-mixed-complex.json': {
+        workflow: workflowName,
+        nodes: {
+          resolved: [
+            {
+              reference: { node_type: 'KSampler', workflow: workflowName },
+              package: { package_id: 'comfyui-core', title: 'ComfyUI Core' },
+              match_confidence: 1.0,
+              match_type: 'builtin',
+              is_installed: true
+            }
+          ],
+          unresolved: [
+            {
+              reference: { node_type: 'UltraUpscaler', workflow: workflowName, node_id: 'node1' },
+              reason: 'not_found_in_registry'
+            }
+          ],
+          ambiguous: [
+            {
+              reference: { node_type: 'FluxSampler', workflow: workflowName, node_id: 'node2' },
+              options: [
+                {
+                  package: { package_id: 'flux-samplers-pro', title: 'FLUX Samplers Pro' },
+                  match_confidence: 0.92,
+                  match_type: 'fuzzy',
+                  is_installed: false
+                },
+                {
+                  package: { package_id: 'flux-toolkit', title: 'FLUX Toolkit' },
+                  match_confidence: 0.87,
+                  match_type: 'fuzzy',
+                  is_installed: false
+                }
+              ]
+            }
+          ]
+        },
+        models: {
+          resolved: [
+            {
+              reference: { workflow: workflowName, node_id: '4', node_type: 'CheckpointLoader', widget_name: 'model', widget_value: 'flux1-dev.safetensors' },
+              model: { filename: 'flux1-dev.safetensors', hash: 'abc123', size: 11725000000, category: 'checkpoints', relative_path: 'checkpoints/flux1-dev.safetensors' },
+              match_confidence: 1.0,
+              match_type: 'exact'
+            }
+          ],
+          unresolved: [
+            {
+              reference: {
+                workflow: workflowName,
+                node_id: 'node5',
+                node_type: 'VAELoader',
+                widget_name: 'vae',
+                widget_value: 'flux_vae.safetensors'
+              },
+              reason: 'not_found_in_index'
+            }
+          ],
+          ambiguous: [
+            {
+              reference: {
+                workflow: workflowName,
+                node_id: 'node6',
+                node_type: 'CheckpointLoader',
+                widget_name: 'model',
+                widget_value: 'sdxl.safetensors'
+              },
+              options: [
+                {
+                  model: {
+                    filename: 'sdxl_base_1.0.safetensors',
+                    hash: 'ddd444',
+                    size: 6500000000,
+                    category: 'checkpoints',
+                    relative_path: 'checkpoints/sdxl_base_1.0.safetensors'
+                  },
+                  match_confidence: 0.90,
+                  match_type: 'fuzzy',
+                  has_download_source: true
+                },
+                {
+                  model: {
+                    filename: 'sdxl_refiner_1.0.safetensors',
+                    hash: 'eee555',
+                    size: 6100000000,
+                    category: 'checkpoints',
+                    relative_path: 'checkpoints/sdxl_refiner_1.0.safetensors'
+                  },
+                  match_confidence: 0.80,
+                  match_type: 'fuzzy',
+                  has_download_source: true
+                }
+              ]
+            }
+          ]
+        },
+        stats: {
+          total_nodes: 3,
+          total_models: 3,
+          nodes_resolved: 1,
+          nodes_unresolved: 1,
+          nodes_ambiguous: 1,
+          models_resolved: 1,
+          models_unresolved: 1,
+          models_ambiguous: 1,
+          needs_user_input: true
+        }
+      },
+
+      // Scenario 6: All resolved (perfect workflow, no user input needed)
+      'test-all-resolved.json': {
+        workflow: workflowName,
+        nodes: {
+          resolved: [
+            {
+              reference: { node_type: 'KSampler', workflow: workflowName },
+              package: { package_id: 'comfyui-core', title: 'ComfyUI Core' },
+              match_confidence: 1.0,
+              match_type: 'builtin',
+              is_installed: true
+            },
+            {
+              reference: { node_type: 'CLIPTextEncode', workflow: workflowName },
+              package: { package_id: 'comfyui-core', title: 'ComfyUI Core' },
+              match_confidence: 1.0,
+              match_type: 'builtin',
+              is_installed: true
+            },
+            {
+              reference: { node_type: 'VAEDecode', workflow: workflowName },
+              package: { package_id: 'comfyui-core', title: 'ComfyUI Core' },
+              match_confidence: 1.0,
+              match_type: 'builtin',
+              is_installed: true
+            }
+          ],
+          unresolved: [],
+          ambiguous: []
+        },
+        models: {
+          resolved: [
+            {
+              reference: { workflow: workflowName, node_id: '1', node_type: 'CheckpointLoader', widget_name: 'model', widget_value: 'sdxl_base.safetensors' },
+              model: { filename: 'sdxl_base.safetensors', hash: 'fff666', size: 6500000000, category: 'checkpoints', relative_path: 'checkpoints/sdxl_base.safetensors' },
+              match_confidence: 1.0,
+              match_type: 'exact'
+            },
+            {
+              reference: { workflow: workflowName, node_id: '2', node_type: 'VAELoader', widget_name: 'vae', widget_value: 'sdxl_vae.safetensors' },
+              model: { filename: 'sdxl_vae.safetensors', hash: 'ggg777', size: 335000000, category: 'vae', relative_path: 'vae/sdxl_vae.safetensors' },
+              match_confidence: 1.0,
+              match_type: 'exact'
+            }
+          ],
+          unresolved: [],
+          ambiguous: []
+        },
+        stats: {
+          total_nodes: 3,
+          total_models: 2,
+          nodes_resolved: 3,
+          nodes_unresolved: 0,
+          nodes_ambiguous: 0,
+          models_resolved: 2,
+          models_unresolved: 0,
+          models_ambiguous: 0,
+          needs_user_input: false
+        }
+      }
+    }
+
+    // Return scenario-specific data or default to existing mock
+    return scenarios[workflowName] || {
+      workflow: workflowName,
+      nodes: {
+        resolved: [
+          {
+            reference: { node_type: 'KSampler', workflow: workflowName },
+            package: { package_id: 'comfyui-core', title: 'ComfyUI Core' },
+            match_confidence: 1.0,
+            match_type: 'builtin',
+            is_installed: true
+          }
+        ],
+        unresolved: [
+          {
+            reference: { node_type: 'CustomNode1', workflow: workflowName, node_id: 'node1' },
+            reason: 'not_found_in_registry'
+          }
+        ],
+        ambiguous: [
+          {
+            reference: { node_type: 'FluxNode', workflow: workflowName, node_id: 'node2' },
+            options: [
+              {
+                package: { package_id: 'flux-package-a', title: 'FLUX Package A' },
+                match_confidence: 0.92,
+                match_type: 'fuzzy',
+                is_installed: false
+              },
+              {
+                package: { package_id: 'flux-package-b', title: 'FLUX Package B' },
+                match_confidence: 0.85,
+                match_type: 'fuzzy',
+                is_installed: false
+              }
+            ]
+          }
+        ]
+      },
+      models: {
+        resolved: [],
+        unresolved: [
+          {
+            reference: {
+              workflow: workflowName,
+              node_id: 'node3',
+              node_type: 'CheckpointLoader',
+              widget_name: 'model',
+              widget_value: 'test_model.safetensors'
+            },
+            reason: 'not_found_in_index'
+          }
+        ],
+        ambiguous: []
+      },
+      stats: {
+        total_nodes: 3,
+        total_models: 1,
+        nodes_resolved: 1,
+        nodes_unresolved: 1,
+        nodes_ambiguous: 1,
+        models_resolved: 0,
+        models_unresolved: 1,
+        models_ambiguous: 0,
+        needs_user_input: true
+      }
+    }
+  },
+
+  /**
+   * Apply Resolution - Apply user choices and return installation plan
+   * POST /v2/comfygit/workflow/{name}/apply-resolution
+   */
+  applyResolution: async (
+    workflowName: string,
+    nodeChoices: Map<string, any>,
+    modelChoices: Map<string, any>
+  ): Promise<any> => {
+    await delay(800)
+
+    const nodesToInstall: string[] = []
+    const modelsToDownload: any[] = []
+
+    // Process node choices
+    nodeChoices.forEach((choice, nodeType) => {
+      if (choice.action === 'install' && choice.package_id) {
+        nodesToInstall.push(choice.package_id)
+      }
+    })
+
+    // Process model choices
+    modelChoices.forEach((choice, filename) => {
+      if (choice.action === 'download' && choice.url) {
+        modelsToDownload.push({
+          filename,
+          url: choice.url,
+          size: 6500000000,
+          target_path: choice.target_path || `models/${filename}`
+        })
+      } else if (choice.action === 'select' && choice.selected_model) {
+        // Model already exists, just note it
+        console.log(`[MOCK] Selected existing model: ${choice.selected_model.filename}`)
+      }
+    })
+
+    return {
+      status: 'success',
+      nodes_to_install: nodesToInstall,
+      models_to_download: modelsToDownload,
+      estimated_time_seconds: nodesToInstall.length * 30 + modelsToDownload.length * 120
+    }
+  },
+
+  /**
+   * Search Nodes - Search registry for node packages
+   * POST /v2/comfygit/workflow/search-nodes
+   */
+  searchNodes: async (query: string, limit: number = 10): Promise<any> => {
+    await delay(400)
+
+    // Mock search results based on query
+    const allResults = [
+      {
+        package_id: 'comfyui-flux-official',
+        match_confidence: 0.95,
+        match_type: 'fuzzy',
+        description: 'Official FLUX model support for ComfyUI with optimized samplers',
+        repository: 'https://github.com/black-forest-labs/flux-comfy',
+        is_installed: false
+      },
+      {
+        package_id: 'flux-advanced-toolkit',
+        match_confidence: 0.88,
+        match_type: 'fuzzy',
+        description: 'Advanced FLUX tools including custom schedulers and samplers',
+        repository: 'https://github.com/community/flux-toolkit',
+        is_installed: false
+      },
+      {
+        package_id: 'comfyui-upscaler-pack',
+        match_confidence: 0.82,
+        match_type: 'fuzzy',
+        description: 'Collection of upscaling nodes with various models',
+        repository: 'https://github.com/upscaler/comfyui-pack',
+        is_installed: false
+      },
+      {
+        package_id: 'ultimate-image-tools',
+        match_confidence: 0.75,
+        match_type: 'partial',
+        description: 'Ultimate image processing toolkit for ComfyUI',
+        repository: 'https://github.com/tools/ultimate-image',
+        is_installed: true
+      },
+      {
+        package_id: 'comfyui-controlnet-aux',
+        match_confidence: 0.70,
+        match_type: 'partial',
+        description: 'Auxiliary ControlNet preprocessors',
+        repository: 'https://github.com/fannovel16/controlnet-aux',
+        is_installed: true
+      }
+    ]
+
+    return {
+      results: allResults.slice(0, limit),
+      total: allResults.length
+    }
+  },
+
+  /**
+   * Search Models - Search workspace models
+   * POST /v2/comfygit/workflow/search-models
+   */
+  searchModels: async (query: string, limit: number = 10): Promise<any> => {
+    await delay(400)
+
+    // Mock model search results
+    const allResults = [
+      {
+        filename: 'flux1-dev-fp8.safetensors',
+        hash: 'abc123def456',
+        size: 11725000000,
+        category: 'checkpoints',
+        has_download_source: true,
+        relative_path: 'checkpoints/flux1-dev-fp8.safetensors',
+        match_confidence: 0.95
+      },
+      {
+        filename: 'sdxl_base_1.0.safetensors',
+        hash: 'def456abc789',
+        size: 6500000000,
+        category: 'checkpoints',
+        has_download_source: true,
+        relative_path: 'checkpoints/sdxl_base_1.0.safetensors',
+        match_confidence: 0.90
+      },
+      {
+        filename: 'sdxl_refiner_1.0.safetensors',
+        hash: 'ghi789jkl012',
+        size: 6100000000,
+        category: 'checkpoints',
+        has_download_source: true,
+        relative_path: 'checkpoints/sdxl_refiner_1.0.safetensors',
+        match_confidence: 0.85
+      },
+      {
+        filename: 'flux_vae.safetensors',
+        hash: 'mno345pqr678',
+        size: 335000000,
+        category: 'vae',
+        has_download_source: false,
+        relative_path: 'vae/flux_vae.safetensors',
+        match_confidence: 0.80
+      },
+      {
+        filename: 'controlnet_openpose.safetensors',
+        hash: 'stu901vwx234',
+        size: 1450000000,
+        category: 'controlnet',
+        has_download_source: true,
+        relative_path: 'controlnet/controlnet_openpose.safetensors',
+        match_confidence: 0.75
+      }
+    ]
+
+    return {
+      results: allResults.slice(0, limit),
+      total: allResults.length
+    }
   }
 }
 
