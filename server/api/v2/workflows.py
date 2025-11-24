@@ -153,35 +153,3 @@ async def install_workflow(request: web.Request, env) -> web.Response:
             "status": "error",
             "message": str(e)
         }, status=500)
-
-
-@routes.get("/v2/comfygit/workflow/{name}/content")
-@requires_environment
-async def get_workflow_content(request: web.Request, env) -> web.Response:
-    """Get the raw JSON content of a workflow file for hot reloading."""
-    import json
-    from pathlib import Path
-
-    name = request.match_info["name"]
-
-    try:
-        # Construct the workflow file path
-        # env.workflow_manager.comfyui_workflows is the correct path attribute
-        workflow_path = env.workflow_manager.comfyui_workflows / f"{name}.json"
-
-        if not workflow_path.exists():
-            return web.json_response({"error": f"Workflow '{name}' not found at {workflow_path}"}, status=404)
-
-        # Read and return the workflow JSON
-        with open(workflow_path, 'r', encoding='utf-8') as f:
-            workflow_data = json.load(f)
-
-        return web.json_response(workflow_data)
-    except json.JSONDecodeError as e:
-        return web.json_response({
-            "error": f"Invalid JSON in workflow file: {str(e)}"
-        }, status=500)
-    except Exception as e:
-        return web.json_response({
-            "error": f"Failed to read workflow: {str(e)}"
-        }, status=500)

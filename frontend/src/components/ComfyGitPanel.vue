@@ -574,8 +574,8 @@ async function handleCheckout(commit: CommitInfo) {
     onConfirm: async () => {
       confirmDialog.value = null
 
-      // Clear cached workflows before checkout so fresh versions load after restart
-      clearWorkflowCache()
+      // Set flag to prompt for refresh after server restart
+      setRefreshFlag()
 
       const toastId = showToast(`Checking out ${commit.short_hash || commit.hash?.slice(0, 7)}...`, 'info', 0)
 
@@ -613,8 +613,8 @@ async function handleBranchSwitch(branchName: string) {
     onConfirm: async () => {
       confirmDialog.value = null
 
-      // Clear cached workflows before switch so fresh versions load after restart
-      clearWorkflowCache()
+      // Set flag to prompt for refresh after server restart
+      setRefreshFlag()
 
       const toastId = showToast(`Switching to ${branchName}...`, 'info', 0)
 
@@ -660,41 +660,10 @@ async function handleBranchFromCommit(commit: CommitInfo) {
   }
 }
 
-// Clear workflow cache before context switches to force fresh load from disk
-function clearWorkflowCache() {
-  try {
-    // Store currently open workflow paths for reload after restart
-    const openPaths = localStorage.getItem('Comfy.OpenWorkflowsPaths')
-    if (openPaths) {
-      sessionStorage.setItem('ComfyGit.WorkflowsToReload', openPaths)
-      console.log('[ComfyGit] Stored workflows for reload:', openPaths)
-    }
-
-    // Mark that we're about to do a git operation (for reload detection)
-    sessionStorage.setItem('ComfyGit.PendingGitReload', 'true')
-
-    // Clear workflow content (forces reload from disk)
-    localStorage.removeItem('workflow')
-    localStorage.removeItem('Comfy.PreviousWorkflow')
-
-    // Clear active workflow index (starts fresh)
-    localStorage.removeItem('Comfy.ActiveWorkflowIndex')
-
-    // KEEP Comfy.OpenWorkflowsPaths so we know what to reload next time!
-    // DO NOT clear it - we need this to persist across switches
-
-    // Clear workflow content from sessionStorage
-    Object.keys(sessionStorage).forEach(key => {
-      if (key.startsWith('workflow:') ||
-          key.startsWith('Comfy.ActiveWorkflowIndex:')) {
-        sessionStorage.removeItem(key)
-      }
-    })
-
-    console.log('[ComfyGit] Cleared workflow content cache (kept tab list for hot reload)')
-  } catch (error) {
-    console.warn('[ComfyGit] Failed to clear workflow cache:', error)
-  }
+// Set flag to show refresh notification after server restart
+function setRefreshFlag() {
+  sessionStorage.setItem('ComfyGit.PendingRefresh', 'true')
+  console.log('[ComfyGit] Set refresh flag for post-restart notification')
 }
 
 // Environment switching flow
@@ -708,8 +677,8 @@ async function confirmEnvironmentSwitch() {
   showConfirmSwitch.value = false
   showSwitchProgress.value = true
 
-  // Clear cached workflows before switch so fresh versions load after restart
-  clearWorkflowCache()
+  // Set flag to prompt for refresh after server restart
+  setRefreshFlag()
 
   switchProgress.value = {
     progress: 10,

@@ -322,126 +322,121 @@ app.registerExtension({
 
       console.log('[ComfyGit] Registered workflow file change listener')
 
-      // ========== HOT RELOAD: Auto-reload workflows after git operations ==========
+      // ========== REFRESH PROMPT: Show notification after git operations ==========
       let wasConnected = false
-      let reconnectTimeout: number | null = null
 
       api.addEventListener('status', async (event: CustomEvent) => {
         const isConnected = event.detail != null
 
         // Detect reconnection after disconnect (server restart from git operation)
         if (isConnected && !wasConnected) {
-          console.log('[ComfyGit] Server reconnected, checking for pending workflow reload...')
+          const pendingRefresh = sessionStorage.getItem('ComfyGit.PendingRefresh')
+          if (pendingRefresh) {
+            sessionStorage.removeItem('ComfyGit.PendingRefresh')
 
-          // Clear any pending timeout
-          if (reconnectTimeout) {
-            clearTimeout(reconnectTimeout)
-            reconnectTimeout = null
+            // Check if auto-refresh is enabled
+            const autoRefresh = localStorage.getItem('ComfyGit.Settings.AutoRefresh') === 'true'
+
+            if (autoRefresh) {
+              console.log('[ComfyGit] Auto-refresh enabled, reloading page...')
+              clearWorkflowStateAndReload()
+            } else {
+              showRefreshNotification()
+            }
           }
-
-          // Wait for server to fully initialize before reloading
-          reconnectTimeout = setTimeout(async () => {
-            await checkAndReloadWorkflows()
-          }, 500)
         }
 
         wasConnected = isConnected
       })
 
-      async function checkAndReloadWorkflows() {
-        try {
-          // Check if we have a pending git reload flag
-          const pendingReload = sessionStorage.getItem('ComfyGit.PendingGitReload')
-          if (!pendingReload) {
-            console.log('[ComfyGit] No pending reload detected')
-            return
+      function clearWorkflowStateAndReload() {
+        // Clear all workflow state so ComfyUI starts fresh after refresh
+        localStorage.removeItem('workflow')
+        localStorage.removeItem('Comfy.PreviousWorkflow')
+        localStorage.removeItem('Comfy.OpenWorkflowsPaths')
+        localStorage.removeItem('Comfy.ActiveWorkflowIndex')
+
+        // Clear workflow content from sessionStorage
+        Object.keys(sessionStorage).forEach(key => {
+          if (key.startsWith('workflow:') ||
+              key.startsWith('Comfy.OpenWorkflowsPaths:') ||
+              key.startsWith('Comfy.ActiveWorkflowIndex:')) {
+            sessionStorage.removeItem(key)
           }
+        })
 
-          // Get stored workflow paths
-          const workflowPathsJson = sessionStorage.getItem('ComfyGit.WorkflowsToReload')
-          if (!workflowPathsJson) {
-            console.log('[ComfyGit] No workflows to reload')
-            sessionStorage.removeItem('ComfyGit.PendingGitReload')
-            return
-          }
-
-          console.log('[ComfyGit] Found workflows to reload:', workflowPathsJson)
-
-          // Parse the workflow paths (stored as JSON array)
-          let workflowPaths: string[]
-          try {
-            workflowPaths = JSON.parse(workflowPathsJson)
-          } catch (e) {
-            console.error('[ComfyGit] Failed to parse workflow paths:', e)
-            sessionStorage.removeItem('ComfyGit.PendingGitReload')
-            sessionStorage.removeItem('ComfyGit.WorkflowsToReload')
-            return
-          }
-
-          // Reload workflows from disk
-          if (Array.isArray(workflowPaths) && workflowPaths.length > 0) {
-            console.log(`[ComfyGit] Reloading ${workflowPaths.length} workflow(s)...`)
-
-            // Reload the first workflow (active one)
-            const primaryWorkflow = workflowPaths[0]
-            await reloadWorkflowFromPath(primaryWorkflow)
-          }
-
-          // Clear the flags
-          sessionStorage.removeItem('ComfyGit.PendingGitReload')
-          sessionStorage.removeItem('ComfyGit.WorkflowsToReload')
-
-          console.log('[ComfyGit] Workflow reload completed')
-        } catch (error) {
-          console.error('[ComfyGit] Error during workflow reload:', error)
-          // Clear flags even on error to prevent repeated attempts
-          sessionStorage.removeItem('ComfyGit.PendingGitReload')
-          sessionStorage.removeItem('ComfyGit.WorkflowsToReload')
-        }
+        // Reload the page
+        window.location.reload()
       }
 
-      async function reloadWorkflowFromPath(workflowPath: string) {
-        try {
-          console.log(`[ComfyGit] Loading workflow: ${workflowPath}`)
+      function showRefreshNotification() {
+        // Create toast container
+        const toast = document.createElement('div')
+        toast.style.cssText = `
+          position: fixed;
+          bottom: 20px;
+          left: 50%;
+          transform: translateX(-50%);
+          background: var(--bg-color);
+          border: 1px solid var(--border-color);
+          border-radius: 8px;
+          padding: 16px 20px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+          z-index: 10000;
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          font-family: sans-serif;
+          font-size: 14px;
+          color: var(--fg-color);
+        `
 
-          // Extract just the filename without directory prefix and extension
-          // ComfyUI stores paths like "workflows/default.json" but we need just "default"
-          const workflowName = workflowPath
-            .replace(/^workflows\//, '')  // Remove "workflows/" prefix
-            .replace(/\.json$/, '')        // Remove ".json" extension
+        // Message
+        const message = document.createElement('span')
+        message.textContent = 'Workflows updated - refresh required'
+        toast.appendChild(message)
 
-          console.log(`[ComfyGit] Fetching workflow: ${workflowName}`)
+        // Refresh button
+        const refreshBtn = document.createElement('button')
+        refreshBtn.textContent = 'Refresh'
+        refreshBtn.style.cssText = `
+          background: var(--comfy-menu-bg);
+          color: var(--fg-color);
+          border: 1px solid var(--border-color);
+          border-radius: 4px;
+          padding: 6px 16px;
+          cursor: pointer;
+          font-size: 13px;
+          font-weight: 500;
+        `
+        refreshBtn.onmouseover = () => refreshBtn.style.background = 'var(--comfy-input-bg)'
+        refreshBtn.onmouseout = () => refreshBtn.style.background = 'var(--comfy-menu-bg)'
+        refreshBtn.onclick = () => clearWorkflowStateAndReload()
+        toast.appendChild(refreshBtn)
 
-          // Fetch the workflow from the server via ComfyGit API
-          const response = await fetch(`/api/v2/comfygit/workflow/${encodeURIComponent(workflowName)}/content`)
+        // Close button
+        const closeBtn = document.createElement('button')
+        closeBtn.textContent = '×'
+        closeBtn.style.cssText = `
+          background: transparent;
+          border: none;
+          color: var(--fg-color);
+          font-size: 24px;
+          line-height: 1;
+          cursor: pointer;
+          padding: 0 4px;
+          opacity: 0.6;
+        `
+        closeBtn.onmouseover = () => closeBtn.style.opacity = '1'
+        closeBtn.onmouseout = () => closeBtn.style.opacity = '0.6'
+        closeBtn.onclick = () => toast.remove()
+        toast.appendChild(closeBtn)
 
-          if (!response.ok) {
-            console.warn(`[ComfyGit] Failed to fetch workflow ${workflowName}: ${response.status}`)
-            return
-          }
-
-          const workflowData = await response.json()
-
-          // Load the workflow into the canvas
-          await (app as any).loadGraphData(
-            workflowData,
-            true,  // clean - clear current graph
-            true,  // restore_view - restore saved view position
-            workflowName,  // workflow name
-            {
-              showMissingNodesDialog: true,
-              showMissingModelsDialog: true,
-              openSource: 'comfygit_reload'
-            }
-          )
-
-          console.log(`[ComfyGit] Successfully reloaded workflow: ${workflowName}`)
-        } catch (error) {
-          console.error(`[ComfyGit] Error reloading workflow ${workflowPath}:`, error)
-        }
+        document.body.appendChild(toast)
+        console.log('[ComfyGit] Refresh notification displayed')
       }
 
-      console.log('[ComfyGit] Hot reload system initialized')
+      console.log('[ComfyGit] Refresh notification system initialized')
     }
   }
 })
