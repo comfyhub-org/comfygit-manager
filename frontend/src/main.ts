@@ -40,9 +40,9 @@ const globalStatus = ref<ComfyGitStatus | null>(null)
 
 // Fetch status for commit indicator
 async function fetchStatus() {
-  if (!window.app?.api) return null
+  if (!app?.api) return null
   try {
-    const response = await window.app.api.fetchApi('/v2/comfygit/status')
+    const response = await app.api.fetchApi('/v2/comfygit/status')
     if (response.ok) {
       globalStatus.value = await response.json()
     }
@@ -316,15 +316,6 @@ app.registerExtension({
         console.log(`[ComfyGit] Workflow ${change_type}: ${workflow_name}`)
 
         // Trigger immediate status check
-        await fetchStatus()
-        updateCommitIndicator()
-      })
-
-      api.addEventListener('comfygit:status-ready', async (event: CustomEvent) => {
-        const { environment, has_uncommitted_changes } = event.detail
-        console.log(`[ComfyGit] Status ready for ${environment}, has changes: ${has_uncommitted_changes}`)
-
-        // Trigger immediate status check to show uncommitted changes on startup
         await fetchStatus()
         updateCommitIndicator()
       })

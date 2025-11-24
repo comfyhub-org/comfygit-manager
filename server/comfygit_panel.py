@@ -132,29 +132,4 @@ _watcher_observer = _start_workflow_watcher()
 # Register cleanup on exit
 atexit.register(_stop_workflow_watcher)
 
-
-def _preload_status():
-    """Preload environment status on startup to warm cache and detect uncommitted changes."""
-    try:
-        env = get_environment_from_cwd()
-        if env:
-            # Warm up workflow cache - analyzes all workflows once
-            status = env.status()
-            logger.debug(f"[ComfyGit] Preloaded status for environment: {env.name}")
-
-            # Broadcast to frontend that initial status is ready
-            # This triggers UI to show uncommitted changes immediately
-            has_changes = status.git.has_changes or status.workflow.sync_status.has_changes
-            PromptServer.instance.send_sync("comfygit:status-ready", {
-                "environment": env.name,
-                "has_uncommitted_changes": has_changes
-            })
-    except Exception as e:
-        # Don't break startup if status check fails
-        logger.warning(f"[ComfyGit] Failed to preload status: {e}")
-
-
-# Preload status to show uncommitted changes immediately
-_preload_status()
-
 print("[ComfyGit] Control Panel API endpoints registered")

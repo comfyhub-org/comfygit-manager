@@ -1,4 +1,4 @@
-import { app as et } from "../../scripts/app.js";
+import { app as Oe } from "../../scripts/app.js";
 import { defineComponent as G, createElementBlock as n, openBlock as o, createCommentVNode as r, createElementVNode as e, renderSlot as te, createBlock as p, resolveDynamicComponent as dt, normalizeClass as Y, withCtx as a, toDisplayString as l, createVNode as d, createTextVNode as m, computed as P, Fragment as A, renderList as q, normalizeStyle as Je, ref as C, onMounted as ue, watch as wt, Teleport as De, withModifiers as ve, Transition as At, withKeys as Se, onUnmounted as Wt, resolveComponent as Ft, createSlots as bt, TransitionGroup as Ht, createApp as kt, h as $t } from "vue";
 const Gt = { class: "panel-layout" }, jt = {
   key: 0,
@@ -4802,7 +4802,7 @@ This will remove the node from this environment.`))
       s[1] || (s[1] = e("span", { class: "toggle-slider" }, null, -1))
     ]));
   }
-}), Oe = /* @__PURE__ */ j(Ri, [["__scopeId", "data-v-71c0f550"]]), Di = { class: "settings-section" }, Ui = { class: "path-setting" }, Vi = { class: "path-value" }, Oi = { class: "path-setting" }, Pi = { class: "path-value" }, Ai = { class: "settings-section" }, Wi = { class: "settings-section" }, Fi = /* @__PURE__ */ G({
+}), Pe = /* @__PURE__ */ j(Ri, [["__scopeId", "data-v-71c0f550"]]), Di = { class: "settings-section" }, Ui = { class: "path-setting" }, Vi = { class: "path-value" }, Oi = { class: "path-setting" }, Pi = { class: "path-value" }, Ai = { class: "settings-section" }, Wi = { class: "settings-section" }, Fi = /* @__PURE__ */ G({
   __name: "WorkspaceSettingsSection",
   setup(t) {
     const { getConfig: c, updateConfig: s } = me(), i = C(!1), g = C(null), h = C(null), u = C(null), f = C(null), v = C(""), y = C(""), R = C(!0), N = C(!0), x = P(() => f.value ? v.value !== (f.value.civitai_api_key || "") : !1);
@@ -4942,7 +4942,7 @@ This will remove the node from this environment.`))
                   disabled: !0
                 }, {
                   default: a(() => [
-                    d(Oe, {
+                    d(Pe, {
                       modelValue: R.value,
                       "onUpdate:modelValue": S[2] || (S[2] = (U) => R.value = U),
                       disabled: ""
@@ -4956,7 +4956,7 @@ This will remove the node from this environment.`))
                   disabled: !0
                 }, {
                   default: a(() => [
-                    d(Oe, {
+                    d(Pe, {
                       modelValue: N.value,
                       "onUpdate:modelValue": S[3] || (S[3] = (U) => N.value = U),
                       disabled: ""
@@ -6292,7 +6292,7 @@ This action cannot be undone.`) && s("delete", F);
               description: "Import workflow JSON files"
             }, {
               default: a(() => [
-                d(Oe, {
+                d(Pe, {
                   "model-value": t.includeWorkflows,
                   "onUpdate:modelValue": h[0] || (h[0] = (u) => s("update:includeWorkflows", u))
                 }, null, 8, ["model-value"])
@@ -6304,7 +6304,7 @@ This action cannot be undone.`) && s("delete", F);
               description: "Import model files (may be large)"
             }, {
               default: a(() => [
-                d(Oe, {
+                d(Pe, {
                   "model-value": t.includeModels,
                   "onUpdate:modelValue": h[1] || (h[1] = (u) => s("update:includeModels", u))
                 }, null, 8, ["model-value"])
@@ -6316,7 +6316,7 @@ This action cannot be undone.`) && s("delete", F);
               description: "Install custom node dependencies"
             }, {
               default: a(() => [
-                d(Oe, {
+                d(Pe, {
                   "model-value": t.includeNodes,
                   "onUpdate:modelValue": h[2] || (h[2] = (u) => s("update:includeNodes", u))
                 }, null, 8, ["model-value"])
@@ -6328,7 +6328,7 @@ This action cannot be undone.`) && s("delete", F);
               description: "Import git commits and branches"
             }, {
               default: a(() => [
-                d(Oe, {
+                d(Pe, {
                   "model-value": t.includeGitHistory,
                   "onUpdate:modelValue": h[3] || (h[3] = (u) => s("update:includeGitHistory", u))
                 }, null, 8, ["model-value"])
@@ -8132,13 +8132,13 @@ window.ComfyGit = {
     return console.log(`[ComfyGit] Current theme: ${t}`), t;
   }
 };
-let be = null, he = null, qe = null;
+let be = null, he = null, Ke = null;
 const Ae = C(null);
-async function Ke() {
+async function et() {
   var t;
-  if (!((t = window.app) != null && t.api)) return null;
+  if (!((t = Oe) != null && t.api)) return null;
   try {
-    const c = await window.app.api.fetchApi("/v2/comfygit/status");
+    const c = await Oe.api.fetchApi("/v2/comfygit/status");
     c.ok && (Ae.value = await c.json());
   } catch {
   }
@@ -8161,7 +8161,7 @@ function km() {
     render: () => $t(mm, {
       onClose: it,
       onStatusUpdate: (i) => {
-        Ae.value = i, Pe();
+        Ae.value = i, qe();
       }
     })
   }).mount(t), document.body.appendChild(be);
@@ -8180,21 +8180,21 @@ function $m(t) {
   const i = (g) => {
     g.key === "Escape" && (je(), document.removeEventListener("keydown", i));
   };
-  document.addEventListener("keydown", i), qe = kt({
+  document.addEventListener("keydown", i), Ke = kt({
     render: () => $t(xt, {
       status: Ae.value,
       onClose: je,
       onCommitted: () => {
-        je(), Ke().then(Pe);
+        je(), et().then(qe);
       }
     })
-  }), qe.mount(he), document.body.appendChild(he);
+  }), Ke.mount(he), document.body.appendChild(he);
 }
 function je() {
-  qe && (qe.unmount(), qe = null), he && (he.remove(), he = null);
+  Ke && (Ke.unmount(), Ke = null), he && (he.remove(), he = null);
 }
 let xe = null;
-function Pe() {
+function qe() {
   if (!xe) return;
   const t = xe.querySelector(".commit-indicator");
   t && (t.style.display = bm() ? "block" : "none");
@@ -8291,23 +8291,20 @@ zt.textContent = `
   }
 `;
 document.head.appendChild(zt);
-et.registerExtension({
+Oe.registerExtension({
   name: "Comfy.ComfyGitPanel",
   async setup() {
     var i, g;
     const t = document.createElement("div");
     t.className = "comfygit-btn-group";
     const c = document.createElement("button");
-    c.className = "comfyui-button comfyui-menu-mobile-collapse comfygit-panel-btn", c.textContent = "ComfyGit", c.title = "ComfyGit Control Panel", c.onclick = km, xe = document.createElement("button"), xe.className = "comfyui-button comfyui-menu-mobile-collapse comfygit-commit-btn", xe.innerHTML = 'Commit <span class="commit-indicator"></span>', xe.title = "Quick Commit", xe.onclick = () => $m(xe), t.appendChild(c), t.appendChild(xe), (g = (i = et.menu) == null ? void 0 : i.settingsGroup) != null && g.element && (et.menu.settingsGroup.element.before(t), console.log("[ComfyGit] Control Panel buttons added to toolbar")), await Ke(), Pe(), setInterval(async () => {
-      await Ke(), Pe();
+    c.className = "comfyui-button comfyui-menu-mobile-collapse comfygit-panel-btn", c.textContent = "ComfyGit", c.title = "ComfyGit Control Panel", c.onclick = km, xe = document.createElement("button"), xe.className = "comfyui-button comfyui-menu-mobile-collapse comfygit-commit-btn", xe.innerHTML = 'Commit <span class="commit-indicator"></span>', xe.title = "Quick Commit", xe.onclick = () => $m(xe), t.appendChild(c), t.appendChild(xe), (g = (i = Oe.menu) == null ? void 0 : i.settingsGroup) != null && g.element && (Oe.menu.settingsGroup.element.before(t), console.log("[ComfyGit] Control Panel buttons added to toolbar")), await et(), qe(), setInterval(async () => {
+      await et(), qe();
     }, 3e4);
-    const s = et.api;
+    const s = Oe.api;
     s && (s.addEventListener("comfygit:workflow-changed", async (h) => {
       const { change_type: u, workflow_name: f } = h.detail;
-      console.log(`[ComfyGit] Workflow ${u}: ${f}`), await Ke(), Pe();
-    }), s.addEventListener("comfygit:status-ready", async (h) => {
-      const { environment: u, has_uncommitted_changes: f } = h.detail;
-      console.log(`[ComfyGit] Status ready for ${u}, has changes: ${f}`), await Ke(), Pe();
+      console.log(`[ComfyGit] Workflow ${u}: ${f}`), await et(), qe();
     }), console.log("[ComfyGit] Registered workflow file change listener"));
   }
 });
