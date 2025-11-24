@@ -1,84 +1,113 @@
 <template>
-  <div class="model-item" :class="itemClass">
-    <!-- Header -->
-    <div class="model-header">
-      <div class="model-filename">{{ filename }}</div>
-      <div class="node-type">Used by: <code>{{ nodeType }}</code></div>
+  <div :class="['model-resolution-item', { resolved: hasChoice, ambiguous: hasMultipleOptions }]">
+    <!-- Header: Filename and status -->
+    <div class="item-header">
+      <div class="item-title">
+        <code class="model-filename">{{ filename }}</code>
+        <span v-if="hasChoice" class="choice-status">
+          <span v-if="choiceAction === 'select'" class="status-badge select">Using: {{ choiceModel }}</span>
+          <span v-else-if="choiceAction === 'download'" class="status-badge download">Downloading</span>
+          <span v-else-if="choiceAction === 'optional'" class="status-badge optional">Marked Optional</span>
+          <span v-else-if="choiceAction === 'skip'" class="status-badge skip">Skipped</span>
+        </span>
+      </div>
+      <div v-if="!hasChoice" class="item-status">
+        <span v-if="hasMultipleOptions" class="status-badge ambiguous">{{ options?.length }} matches</span>
+        <span v-else class="status-badge unresolved">Not Found</span>
+      </div>
     </div>
 
-    <!-- Metadata -->
-    <div v-if="category || size || confidence !== undefined || isOptional" class="model-meta">
-      <span v-if="category" class="category">{{ category }}</span>
-      <span v-if="size" class="size">{{ formatSize(size) }}</span>
-      <ConfidenceBadge v-if="confidence !== undefined" :confidence="confidence" :match-type="matchType" size="sm" />
-      <span v-if="isOptional" class="optional-badge">OPTIONAL</span>
+    <!-- Node info -->
+    <div class="node-info">
+      Used by: <code>{{ nodeType }}</code>
     </div>
 
-    <!-- Multiple Options (Ambiguous) -->
-    <div v-if="hasMultipleOptions && options" class="model-options">
-      <h4 class="options-title">Choose model:</h4>
-      <div
-        v-for="(option, index) in options"
-        :key="option.model.hash"
-        class="option-card"
-        :class="{ selected: selectedOptionIndex === index }"
-        @click="selectOption(index)"
-      >
-        <input
-          type="radio"
-          :name="`model-${filename}`"
-          :checked="selectedOptionIndex === index"
-          @change="selectOption(index)"
-        />
+    <div class="item-body">
+      <!-- Already resolved state - show change option -->
+      <div v-if="hasChoice" class="resolved-state">
+        <BaseButton variant="ghost" size="sm" @click="emit('clear-choice')">
+          Change Selection
+        </BaseButton>
+      </div>
 
-        <div class="option-details">
-          <div class="option-filename">{{ option.model.filename }}</div>
+      <!-- Multiple options (ambiguous) - show radio selection -->
+      <div v-else-if="hasMultipleOptions && options" class="multiple-options">
+        <p class="options-prompt">Select a model to use:</p>
+        <div class="options-list">
+          <label
+            v-for="(option, index) in options"
+            :key="option.model.hash"
+            :class="['option-card', { selected: selectedOptionIndex === index }]"
+            @click="handleOptionClick(index)"
+          >
+            <input
+              type="radio"
+              :name="`model-option-${filename}`"
+              :value="index"
+              :checked="selectedOptionIndex === index"
+              @change="handleOptionClick(index)"
+            />
+            <div class="option-content">
+              <div class="option-header">
+                <span class="option-filename">{{ option.model.filename }}</span>
+                <ConfidenceBadge :confidence="option.match_confidence" size="sm" />
+              </div>
+              <div class="option-meta">
+                <span class="option-size">{{ formatSize(option.model.size) }}</span>
+                <span class="option-category">{{ option.model.category }}</span>
+              </div>
+              <div class="option-path">{{ option.model.relative_path }}</div>
+            </div>
+          </label>
+        </div>
 
-          <div class="option-meta">
-            <ConfidenceBadge :confidence="option.match_confidence" :match-type="option.match_type" size="sm" />
-            <span class="size">{{ formatSize(option.model.size) }}</span>
-            <span class="category">{{ option.model.category }}</span>
-          </div>
-
-          <div class="option-path">{{ option.model.relative_path }}</div>
+        <!-- Action buttons for ambiguous -->
+        <div class="action-buttons">
+          <BaseButton variant="ghost" size="sm" @click="emit('search')">
+            Search Workspace
+          </BaseButton>
+          <BaseButton variant="ghost" size="sm" @click="emit('download-url')">
+            Download URL
+          </BaseButton>
+          <BaseButton variant="secondary" size="sm" @click="emit('mark-optional')">
+            Mark Optional
+          </BaseButton>
+          <BaseButton variant="secondary" size="sm" @click="emit('skip')">
+            Skip
+          </BaseButton>
         </div>
       </div>
 
-      <!-- Optional checkbox for ambiguous models -->
-      <label class="optional-checkbox">
-        <input
-          type="checkbox"
-          :checked="isOptional"
-          @change="toggleOptional"
-        />
-        Mark as optional (workflow works without it)
-      </label>
-    </div>
+      <!-- Unresolved - show action options -->
+      <div v-else class="unresolved">
+        <div class="unresolved-message">
+          <span class="warning-icon">⚠</span>
+          <span>Model not found in workspace</span>
+        </div>
 
-    <!-- Unresolved: Show action buttons -->
-    <div v-else class="model-actions">
-      <button class="action-btn primary" @click="emit('search')">
-        🔍 Search Workspace
-      </button>
-
-      <button class="action-btn secondary" @click="emit('download-url')">
-        📥 Enter Download URL
-      </button>
-
-      <button class="action-btn secondary" @click="handleOptional">
-        ○ Mark as Optional
-      </button>
-
-      <button class="action-btn ghost" @click="emit('skip')">
-        Skip for Now
-      </button>
+        <div class="action-buttons">
+          <BaseButton variant="primary" size="sm" @click="emit('search')">
+            Search Workspace
+          </BaseButton>
+          <BaseButton variant="secondary" size="sm" @click="emit('download-url')">
+            Download URL
+          </BaseButton>
+          <BaseButton variant="secondary" size="sm" @click="emit('mark-optional')">
+            Mark Optional
+          </BaseButton>
+          <BaseButton variant="ghost" size="sm" @click="emit('skip')">
+            Skip
+          </BaseButton>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed } from 'vue'
 import ConfidenceBadge from '../atoms/ConfidenceBadge.vue'
+import BaseButton from '../BaseButton.vue'
 
 interface ModelOption {
   model: {
@@ -90,6 +119,17 @@ interface ModelOption {
   }
   match_confidence: number
   match_type: string
+  has_download_source?: boolean
+}
+
+interface ModelChoice {
+  action: 'download' | 'select' | 'optional' | 'skip'
+  url?: string
+  target_path?: string
+  selected_model?: {
+    filename: string
+    hash?: string
+  }
 }
 
 const props = defineProps<{
@@ -104,245 +144,263 @@ const props = defineProps<{
   hasMultipleOptions?: boolean
   options?: ModelOption[]
   selectedOptionIndex?: number
+  choice?: ModelChoice
 }>()
 
 const emit = defineEmits<{
   (e: 'mark-optional'): void
-  (e: 'unmark-optional'): void
   (e: 'skip'): void
-  (e: 'refine-search'): void
   (e: 'download-url'): void
   (e: 'search'): void
   (e: 'option-selected', index: number): void
+  (e: 'clear-choice'): void
 }>()
 
-const itemClass = ref({
-  'has-options': props.hasMultipleOptions,
-  'is-optional': props.isOptional
-})
+// Computed properties for choice state
+const hasChoice = computed(() => !!props.choice)
+const choiceAction = computed(() => props.choice?.action)
+const choiceModel = computed(() => props.choice?.selected_model?.filename || 'selected')
 
-function selectOption(index: number) {
+function handleOptionClick(index: number) {
   emit('option-selected', index)
 }
 
-function toggleOptional() {
-  if (props.isOptional) {
-    emit('unmark-optional')
-  } else {
-    emit('mark-optional')
-  }
-}
-
-function handleOptional() {
-  emit('mark-optional')
-}
-
 function formatSize(bytes: number): string {
-  if (!bytes) return 'Unknown size'
+  if (!bytes) return 'Unknown'
   const gb = bytes / (1024 * 1024 * 1024)
   if (gb >= 1) return `${gb.toFixed(2)} GB`
   const mb = bytes / (1024 * 1024)
-  return `${mb.toFixed(2)} MB`
+  return `${mb.toFixed(1)} MB`
 }
 </script>
 
 <style scoped>
-.model-item {
+.model-resolution-item {
   border: 1px solid var(--cg-color-border);
-  padding: var(--cg-space-3);
+  border-radius: var(--cg-radius-lg);
   background: var(--cg-color-bg-secondary);
-  border-radius: var(--cg-border-radius-sm);
+  overflow: hidden;
+  transition: all var(--cg-transition-fast);
 }
 
-.model-item.is-optional {
+.model-resolution-item.ambiguous {
   border-color: var(--cg-color-warning);
-  opacity: 0.8;
 }
 
-.model-header {
-  margin-bottom: var(--cg-space-2);
+.model-resolution-item.resolved {
+  border-color: var(--cg-color-success);
+  background: var(--cg-color-success-muted);
+}
+
+.item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--cg-space-3);
+  background: var(--cg-color-bg-tertiary);
+  border-bottom: 1px solid var(--cg-color-border-subtle);
+}
+
+.item-title {
+  display: flex;
+  align-items: center;
+  gap: var(--cg-space-2);
+  flex-wrap: wrap;
 }
 
 .model-filename {
   font-family: var(--cg-font-mono);
-  font-size: var(--cg-font-size-md);
-  font-weight: var(--cg-font-weight-semibold);
-  color: var(--cg-color-info);
-  margin-bottom: var(--cg-spacing-xs);
+  font-size: var(--cg-font-size-sm);
+  color: var(--cg-color-accent);
+  background: var(--cg-color-bg-primary);
+  padding: var(--cg-space-1) var(--cg-space-2);
+  border-radius: var(--cg-radius-sm);
 }
 
-.node-type {
-  font-size: var(--cg-font-size-xs);
-  color: var(--cg-color-text-muted);
-}
-
-.node-type code {
-  font-family: var(--cg-font-mono);
-  color: var(--cg-color-text-secondary);
-}
-
-.model-meta {
+.choice-status {
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--cg-spacing-sm);
   align-items: center;
-  margin-bottom: var(--cg-space-2);
-  padding: var(--cg-spacing-sm);
-  background: var(--cg-color-bg-tertiary);
-  border-radius: var(--cg-border-radius-sm);
 }
 
-.category {
+.item-status {
+  display: flex;
+  align-items: center;
+}
+
+.status-badge {
+  padding: var(--cg-space-1) var(--cg-space-2);
+  border-radius: var(--cg-radius-sm);
   font-size: var(--cg-font-size-xs);
-  color: var(--cg-color-text-secondary);
+  font-weight: var(--cg-font-weight-medium);
   text-transform: uppercase;
   letter-spacing: var(--cg-letter-spacing-wide);
 }
 
-.size {
+.status-badge.select,
+.status-badge.download {
+  background: var(--cg-color-success-muted);
+  color: var(--cg-color-success);
+}
+
+.status-badge.optional {
+  background: var(--cg-color-info-muted);
+  color: var(--cg-color-info);
+}
+
+.status-badge.skip {
+  background: var(--cg-color-bg-hover);
+  color: var(--cg-color-text-muted);
+}
+
+.status-badge.ambiguous {
+  background: var(--cg-color-warning-muted);
+  color: var(--cg-color-warning);
+}
+
+.status-badge.unresolved {
+  background: var(--cg-color-error-muted);
+  color: var(--cg-color-error);
+}
+
+.node-info {
+  padding: var(--cg-space-2) var(--cg-space-3);
   font-size: var(--cg-font-size-xs);
   color: var(--cg-color-text-muted);
-  font-family: var(--cg-font-mono);
+  background: var(--cg-color-bg-tertiary);
+  border-bottom: 1px solid var(--cg-color-border-subtle);
 }
 
-.optional-badge {
-  padding: 2px 6px;
-  border: 1px solid var(--cg-color-warning);
-  color: var(--cg-color-warning);
-  font-size: var(--cg-font-size-xs);
+.node-info code {
   font-family: var(--cg-font-mono);
-  text-transform: uppercase;
-  letter-spacing: var(--cg-letter-spacing-wide);
-  border-radius: 2px;
+  color: var(--cg-color-text-secondary);
 }
 
-.model-options {
+.item-body {
+  padding: var(--cg-space-3);
+}
+
+.resolved-state {
+  display: flex;
+  justify-content: center;
+}
+
+.multiple-options {
   display: flex;
   flex-direction: column;
-  gap: var(--cg-spacing-sm);
-  margin-top: var(--cg-space-2);
+  gap: var(--cg-space-3);
 }
 
-.options-title {
+.options-prompt {
+  margin: 0;
   font-size: var(--cg-font-size-sm);
-  font-weight: var(--cg-font-weight-semibold);
-  color: var(--cg-color-text);
-  margin: 0 0 var(--cg-spacing-sm) 0;
+  color: var(--cg-color-text-secondary);
+}
+
+.options-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cg-space-2);
 }
 
 .option-card {
   display: flex;
-  gap: var(--cg-spacing-sm);
-  padding: var(--cg-space-2);
-  border: 1px solid var(--cg-color-border);
-  border-radius: var(--cg-border-radius-sm);
-  background: var(--cg-color-bg);
+  gap: var(--cg-space-2);
+  padding: var(--cg-space-2) var(--cg-space-3);
+  border: 1px solid var(--cg-color-border-subtle);
+  border-radius: var(--cg-radius-md);
+  background: var(--cg-color-bg-primary);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all var(--cg-transition-fast);
 }
 
 .option-card:hover {
-  border-color: var(--cg-color-primary);
-  background: var(--cg-color-bg-tertiary);
+  border-color: var(--cg-color-accent);
+  background: var(--cg-color-bg-hover);
 }
 
 .option-card.selected {
   border-color: var(--cg-color-success);
-  background: var(--cg-color-bg-tertiary);
-  box-shadow: 0 0 8px rgba(0, 255, 0, 0.2);
+  background: var(--cg-color-success-muted);
 }
 
-.option-details {
+.option-card input[type="radio"] {
+  margin-top: 4px;
+  accent-color: var(--cg-color-accent);
+}
+
+.option-content {
   flex: 1;
+  min-width: 0;
+}
+
+.option-header {
+  display: flex;
+  align-items: center;
+  gap: var(--cg-space-2);
+  flex-wrap: wrap;
 }
 
 .option-filename {
   font-family: var(--cg-font-mono);
-  font-size: var(--cg-font-size-sm);
   font-weight: var(--cg-font-weight-semibold);
+  font-size: var(--cg-font-size-sm);
   color: var(--cg-color-text-primary);
-  margin-bottom: var(--cg-spacing-xs);
 }
 
 .option-meta {
   display: flex;
-  gap: var(--cg-spacing-sm);
+  gap: var(--cg-space-2);
   align-items: center;
-  margin-bottom: var(--cg-spacing-xs);
+  margin-top: var(--cg-space-1);
+  font-size: var(--cg-font-size-xs);
+}
+
+.option-size {
+  font-family: var(--cg-font-mono);
+  color: var(--cg-color-text-muted);
+}
+
+.option-category {
+  color: var(--cg-color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: var(--cg-letter-spacing-wide);
 }
 
 .option-path {
+  margin-top: var(--cg-space-1);
   font-size: var(--cg-font-size-xs);
-  color: var(--cg-color-text-muted);
   font-family: var(--cg-font-mono);
+  color: var(--cg-color-text-muted);
 }
 
-.optional-checkbox {
+.action-buttons {
   display: flex;
-  align-items: center;
-  gap: var(--cg-spacing-sm);
-  padding: var(--cg-spacing-sm);
-  border: 1px solid var(--cg-color-border-subtle);
-  border-radius: var(--cg-border-radius-sm);
-  cursor: pointer;
-  font-size: var(--cg-font-size-sm);
-  margin-top: var(--cg-spacing-sm);
+  flex-wrap: wrap;
+  gap: var(--cg-space-2);
+  justify-content: flex-start;
+  padding-top: var(--cg-space-2);
+  border-top: 1px solid var(--cg-color-border-subtle);
 }
 
-.optional-checkbox:hover {
-  background: var(--cg-color-bg-hover);
-}
-
-.model-actions {
+.unresolved {
   display: flex;
   flex-direction: column;
-  gap: var(--cg-spacing-sm);
-  margin-top: var(--cg-space-2);
+  gap: var(--cg-space-3);
 }
 
-.action-btn {
-  padding: var(--cg-spacing-sm) var(--cg-space-2);
-  font-size: var(--cg-font-size-sm);
-  font-weight: var(--cg-font-weight-semibold);
-  border: 1px solid var(--cg-color-border);
-  border-radius: var(--cg-border-radius-sm);
-  cursor: pointer;
-  transition: all 0.2s;
-  text-align: left;
+.unresolved-message {
   display: flex;
   align-items: center;
-  gap: var(--cg-spacing-xs);
+  gap: var(--cg-space-2);
+  padding: var(--cg-space-2) var(--cg-space-3);
+  background: var(--cg-color-warning-muted);
+  border: 1px solid var(--cg-color-warning);
+  border-radius: var(--cg-radius-md);
+  color: var(--cg-color-warning);
+  font-size: var(--cg-font-size-sm);
 }
 
-.action-btn.primary {
-  background: var(--cg-color-primary);
-  color: white;
-  border-color: var(--cg-color-primary);
-}
-
-.action-btn.primary:hover {
-  background: var(--cg-color-primary-hover);
-  box-shadow: 0 0 12px rgba(0, 168, 255, 0.3);
-}
-
-.action-btn.secondary {
-  background: var(--cg-color-bg-secondary);
-  color: var(--cg-color-text);
-}
-
-.action-btn.secondary:hover {
-  background: var(--cg-color-bg-tertiary);
-  border-color: var(--cg-color-primary);
-}
-
-.action-btn.ghost {
-  background: transparent;
-  color: var(--cg-color-text-muted);
-  border-color: transparent;
-}
-
-.action-btn.ghost:hover {
-  color: var(--cg-color-text);
-  border-color: var(--cg-color-border);
+.warning-icon {
+  font-size: var(--cg-font-size-lg);
 }
 </style>

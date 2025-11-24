@@ -1,27 +1,37 @@
 <template>
   <BaseModal
-    :title="`RESOLVE DEPENDENCIES: ${workflowName}`"
+    :title="`Resolve Dependencies: ${workflowName}`"
     size="lg"
     :loading="loading"
     :error="error || undefined"
     @close="emit('close')"
   >
     <template #body>
-      <!-- Wizard Stepper -->
-      <ResolutionStepper
-        v-if="analysisResult"
-        :steps="wizardSteps"
-        :current-step="currentStep"
-        :completed-steps="completedSteps"
-        @step-change="handleStepChange"
-      >
+      <!-- Loading State -->
+      <div v-if="loading && !analysisResult" class="loading-state">
+        <div class="loading-spinner"></div>
+        <p>Analyzing workflow dependencies...</p>
+      </div>
+
+      <!-- Wizard Content -->
+      <div v-else-if="analysisResult" class="wizard-content">
+        <!-- Wizard Stepper -->
+        <ResolutionStepper
+          :steps="wizardSteps"
+          :current-step="currentStep"
+          :completed-steps="completedSteps"
+          @step-change="handleStepChange"
+        />
+
         <!-- Analysis Step -->
         <div v-if="currentStep === 'analysis'" class="step-content">
           <div class="analysis-summary">
-            <h3 class="summary-title">Analysis Complete</h3>
-            <p class="summary-description">
-              Found {{ analysisResult.stats.total_nodes }} nodes and {{ analysisResult.stats.total_models }} models in this workflow.
-            </p>
+            <div class="analysis-header">
+              <h3 class="summary-title">Analysis Complete</h3>
+              <p class="summary-description">
+                Found {{ analysisResult.stats.total_nodes }} nodes and {{ analysisResult.stats.total_models }} models in this workflow.
+              </p>
+            </div>
 
             <div class="stats-grid">
               <!-- Node Stats -->
@@ -34,14 +44,14 @@
                     <span class="stat-label">resolved</span>
                   </div>
                   <div v-if="analysisResult.nodes.ambiguous.length > 0" class="stat-item warning">
-                    <span class="stat-icon">⚡</span>
+                    <span class="stat-icon">?</span>
                     <span class="stat-count">{{ analysisResult.nodes.ambiguous.length }}</span>
                     <span class="stat-label">ambiguous</span>
                   </div>
                   <div v-if="analysisResult.nodes.unresolved.length > 0" class="stat-item error">
-                    <span class="stat-icon">⚠</span>
+                    <span class="stat-icon">✗</span>
                     <span class="stat-count">{{ analysisResult.nodes.unresolved.length }}</span>
-                    <span class="stat-label">unresolved</span>
+                    <span class="stat-label">missing</span>
                   </div>
                 </div>
               </div>
@@ -56,26 +66,26 @@
                     <span class="stat-label">resolved</span>
                   </div>
                   <div v-if="analysisResult.models.ambiguous.length > 0" class="stat-item warning">
-                    <span class="stat-icon">⚡</span>
+                    <span class="stat-icon">?</span>
                     <span class="stat-count">{{ analysisResult.models.ambiguous.length }}</span>
                     <span class="stat-label">ambiguous</span>
                   </div>
                   <div v-if="analysisResult.models.unresolved.length > 0" class="stat-item error">
-                    <span class="stat-icon">⚠</span>
+                    <span class="stat-icon">✗</span>
                     <span class="stat-count">{{ analysisResult.models.unresolved.length }}</span>
-                    <span class="stat-label">unresolved</span>
+                    <span class="stat-label">missing</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div v-if="needsUserInput" class="user-action-required">
-              <span class="action-icon">👤</span>
-              <span class="action-text">User input required to resolve dependencies</span>
+            <div v-if="needsUserInput" class="status-message warning">
+              <span class="status-icon">⚠</span>
+              <span class="status-text">{{ unresolvedAndAmbiguousNodes.length + unresolvedAndAmbiguousModels.length }} items need your input</span>
             </div>
-            <div v-else class="all-resolved">
-              <span class="success-icon">✓</span>
-              <span class="success-text">All dependencies are resolved!</span>
+            <div v-else class="status-message success">
+              <span class="status-icon">✓</span>
+              <span class="status-text">All dependencies are resolved!</span>
             </div>
           </div>
         </div>
@@ -86,6 +96,7 @@
           :nodes="unresolvedAndAmbiguousNodes"
           :current-index="nodeCurrentIndex"
           :node-choices="nodeChoices"
+          :has-models="needsModelResolution"
           @next="handleNodeNext"
           @previous="handleNodePrevious"
           @complete="handleNodeComplete"
@@ -115,23 +126,45 @@
         <!-- Review Step -->
         <div v-if="currentStep === 'review'" class="step-content">
           <div class="review-summary">
-            <h3 class="summary-title">Review Your Choices</h3>
-            <p class="summary-description">
-              Please review the dependencies that will be installed and the actions taken.
-            </p>
+            <div class="review-header">
+              <h3 class="summary-title">Review Your Choices</h3>
+              <p class="summary-description">
+                Confirm the actions to take for resolving this workflow's dependencies.
+              </p>
+            </div>
+
+            <!-- Summary Counts -->
+            <div class="review-stats">
+              <div class="review-stat">
+                <span class="stat-value">{{ installCount }}</span>
+                <span class="stat-label">to install</span>
+              </div>
+              <div class="review-stat">
+                <span class="stat-value">{{ downloadCount }}</span>
+                <span class="stat-label">to download</span>
+              </div>
+              <div class="review-stat">
+                <span class="stat-value">{{ optionalCount }}</span>
+                <span class="stat-label">marked optional</span>
+              </div>
+              <div class="review-stat">
+                <span class="stat-value">{{ skipCount }}</span>
+                <span class="stat-label">skipped</span>
+              </div>
+            </div>
 
             <!-- Node Choices Review -->
             <div v-if="nodeChoices.size > 0" class="review-section">
-              <h4 class="section-title">Nodes ({{ nodeChoices.size }})</h4>
+              <h4 class="section-title">Node Packages ({{ nodeChoices.size }})</h4>
               <div class="review-items">
                 <div v-for="[nodeType, choice] in nodeChoices" :key="nodeType" class="review-item">
-                  <div class="item-name">{{ nodeType }}</div>
+                  <code class="item-name">{{ nodeType }}</code>
                   <div class="item-choice">
                     <span v-if="choice.action === 'install'" class="choice-badge install">
-                      Install: {{ choice.package_id }}
+                      {{ choice.package_id }}
                     </span>
                     <span v-else-if="choice.action === 'optional'" class="choice-badge optional">
-                      Mark as Optional
+                      Optional
                     </span>
                     <span v-else-if="choice.action === 'skip'" class="choice-badge skip">
                       Skip
@@ -146,16 +179,16 @@
               <h4 class="section-title">Models ({{ modelChoices.size }})</h4>
               <div class="review-items">
                 <div v-for="[filename, choice] in modelChoices" :key="filename" class="review-item">
-                  <div class="item-name">{{ filename }}</div>
+                  <code class="item-name">{{ filename }}</code>
                   <div class="item-choice">
                     <span v-if="choice.action === 'select'" class="choice-badge install">
-                      Use: {{ choice.selected_model?.filename }}
+                      {{ choice.selected_model?.filename }}
                     </span>
                     <span v-else-if="choice.action === 'download'" class="choice-badge download">
-                      Download from URL
+                      Download
                     </span>
                     <span v-else-if="choice.action === 'optional'" class="choice-badge optional">
-                      Mark as Optional
+                      Optional
                     </span>
                     <span v-else-if="choice.action === 'skip'" class="choice-badge skip">
                       Skip
@@ -166,11 +199,11 @@
             </div>
 
             <div v-if="nodeChoices.size === 0 && modelChoices.size === 0" class="no-choices">
-              No actions selected. All items were skipped.
+              No dependencies need resolution.
             </div>
           </div>
         </div>
-      </ResolutionStepper>
+      </div>
     </template>
 
     <template #footer>
@@ -185,7 +218,7 @@
         :disabled="loading"
         @click="handleContinueFromAnalysis"
       >
-        Continue
+        {{ needsUserInput ? 'Continue' : 'Apply' }}
       </BaseButton>
 
       <!-- Review Step Footer -->
@@ -195,7 +228,7 @@
         :disabled="applying"
         @click="goToPreviousStep"
       >
-        Back
+        ← Back
       </BaseButton>
       <BaseButton
         v-if="currentStep === 'review'"
@@ -204,7 +237,7 @@
         :loading="applying"
         @click="handleApply"
       >
-        Apply
+        Apply Resolution
       </BaseButton>
     </template>
   </BaseModal>
@@ -345,6 +378,48 @@ const unresolvedAndAmbiguousModels = computed(() => {
   }))
 
   return [...unresolved, ...ambiguous]
+})
+
+// Review step computed counts
+const installCount = computed(() => {
+  let count = 0
+  for (const choice of nodeChoices.value.values()) {
+    if (choice.action === 'install') count++
+  }
+  for (const choice of modelChoices.value.values()) {
+    if (choice.action === 'select') count++
+  }
+  return count
+})
+
+const downloadCount = computed(() => {
+  let count = 0
+  for (const choice of modelChoices.value.values()) {
+    if (choice.action === 'download') count++
+  }
+  return count
+})
+
+const optionalCount = computed(() => {
+  let count = 0
+  for (const choice of nodeChoices.value.values()) {
+    if (choice.action === 'optional') count++
+  }
+  for (const choice of modelChoices.value.values()) {
+    if (choice.action === 'optional') count++
+  }
+  return count
+})
+
+const skipCount = computed(() => {
+  let count = 0
+  for (const choice of nodeChoices.value.values()) {
+    if (choice.action === 'skip') count++
+  }
+  for (const choice of modelChoices.value.values()) {
+    if (choice.action === 'skip') count++
+  }
+  return count
 })
 
 // Methods
@@ -532,26 +607,63 @@ onMounted(loadAnalysis)
 </script>
 
 <style scoped>
+/* Loading State */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--cg-space-8);
+  gap: var(--cg-space-3);
+  color: var(--cg-color-text-muted);
+}
+
+.loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--cg-color-border);
+  border-top-color: var(--cg-color-accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Wizard Content */
+.wizard-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cg-space-4);
+}
+
 .step-content {
   padding: var(--cg-space-4);
 }
 
+/* Analysis Summary */
 .analysis-summary {
   display: flex;
   flex-direction: column;
   gap: var(--cg-space-4);
 }
 
+.analysis-header,
+.review-header {
+  margin-bottom: var(--cg-space-2);
+}
+
 .summary-title {
   color: var(--cg-color-text-primary);
   font-size: var(--cg-font-size-lg);
   font-weight: var(--cg-font-weight-semibold);
-  margin: 0;
+  margin: 0 0 var(--cg-space-1) 0;
 }
 
 .summary-description {
-  color: var(--cg-color-text-secondary);
-  font-size: var(--cg-font-size-base);
+  color: var(--cg-color-text-muted);
+  font-size: var(--cg-font-size-sm);
   margin: 0;
 }
 
@@ -564,12 +676,13 @@ onMounted(loadAnalysis)
 .stat-card {
   background: var(--cg-color-bg-tertiary);
   border: 1px solid var(--cg-color-border);
+  border-radius: var(--cg-radius-lg);
   padding: var(--cg-space-3);
 }
 
 .stat-header {
   color: var(--cg-color-text-primary);
-  font-size: var(--cg-font-size-sm);
+  font-size: var(--cg-font-size-xs);
   font-weight: var(--cg-font-weight-semibold);
   text-transform: uppercase;
   letter-spacing: var(--cg-letter-spacing-wide);
@@ -602,7 +715,8 @@ onMounted(loadAnalysis)
 }
 
 .stat-icon {
-  font-size: var(--cg-font-size-base);
+  font-size: var(--cg-font-size-sm);
+  font-weight: var(--cg-font-weight-bold);
 }
 
 .stat-count {
@@ -611,43 +725,70 @@ onMounted(loadAnalysis)
 }
 
 .stat-label {
-  color: var(--cg-color-text-secondary);
+  color: inherit;
+  opacity: 0.8;
 }
 
-.user-action-required {
+/* Status Messages */
+.status-message {
   display: flex;
   align-items: center;
   gap: var(--cg-space-2);
   padding: var(--cg-space-3);
-  background: var(--cg-color-bg-tertiary);
+  border-radius: var(--cg-radius-md);
+  font-size: var(--cg-font-size-sm);
+}
+
+.status-message.warning {
+  background: var(--cg-color-warning-muted);
   border: 1px solid var(--cg-color-warning);
   color: var(--cg-color-warning);
-  font-size: var(--cg-font-size-base);
 }
 
-.action-icon {
-  font-size: var(--cg-font-size-lg);
-}
-
-.all-resolved {
-  display: flex;
-  align-items: center;
-  gap: var(--cg-space-2);
-  padding: var(--cg-space-3);
-  background: var(--cg-color-bg-tertiary);
+.status-message.success {
+  background: var(--cg-color-success-muted);
   border: 1px solid var(--cg-color-success);
   color: var(--cg-color-success);
-  font-size: var(--cg-font-size-base);
 }
 
-.success-icon {
+.status-icon {
   font-size: var(--cg-font-size-lg);
 }
 
+/* Review Summary */
 .review-summary {
   display: flex;
   flex-direction: column;
   gap: var(--cg-space-4);
+}
+
+.review-stats {
+  display: flex;
+  gap: var(--cg-space-4);
+  padding: var(--cg-space-3);
+  background: var(--cg-color-bg-tertiary);
+  border-radius: var(--cg-radius-lg);
+}
+
+.review-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.review-stat .stat-value {
+  font-family: var(--cg-font-mono);
+  font-size: var(--cg-font-size-xl);
+  font-weight: var(--cg-font-weight-bold);
+  color: var(--cg-color-text-primary);
+}
+
+.review-stat .stat-label {
+  font-size: var(--cg-font-size-xs);
+  color: var(--cg-color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: var(--cg-letter-spacing-wide);
 }
 
 .review-section {
@@ -657,33 +798,39 @@ onMounted(loadAnalysis)
 }
 
 .section-title {
-  color: var(--cg-color-text-primary);
-  font-size: var(--cg-font-size-base);
+  color: var(--cg-color-text-secondary);
+  font-size: var(--cg-font-size-xs);
   font-weight: var(--cg-font-weight-semibold);
   text-transform: uppercase;
   letter-spacing: var(--cg-letter-spacing-wide);
   margin: 0;
+  padding-bottom: var(--cg-space-1);
+  border-bottom: 1px solid var(--cg-color-border-subtle);
 }
 
 .review-items {
   display: flex;
   flex-direction: column;
-  gap: var(--cg-space-2);
+  gap: var(--cg-space-1);
 }
 
 .review-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--cg-space-2);
-  background: var(--cg-color-bg-tertiary);
-  border: 1px solid var(--cg-color-border);
+  padding: var(--cg-space-2) var(--cg-space-3);
+  background: var(--cg-color-bg-secondary);
+  border-radius: var(--cg-radius-sm);
 }
 
 .item-name {
-  color: var(--cg-color-text-primary);
-  font-size: var(--cg-font-size-sm);
   font-family: var(--cg-font-mono);
+  font-size: var(--cg-font-size-xs);
+  color: var(--cg-color-accent);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 60%;
 }
 
 .item-choice {
@@ -692,34 +839,34 @@ onMounted(loadAnalysis)
 }
 
 .choice-badge {
-  padding: 2px 8px;
+  padding: var(--cg-space-1) var(--cg-space-2);
   font-size: var(--cg-font-size-xs);
   font-family: var(--cg-font-mono);
   text-transform: uppercase;
   letter-spacing: var(--cg-letter-spacing-wide);
-  border: 1px solid;
+  border-radius: var(--cg-radius-sm);
 }
 
 .choice-badge.install,
 .choice-badge.download {
+  background: var(--cg-color-success-muted);
   color: var(--cg-color-success);
-  border-color: var(--cg-color-success);
 }
 
 .choice-badge.optional {
+  background: var(--cg-color-info-muted);
   color: var(--cg-color-info);
-  border-color: var(--cg-color-info);
 }
 
 .choice-badge.skip {
+  background: var(--cg-color-bg-hover);
   color: var(--cg-color-text-muted);
-  border-color: var(--cg-color-border);
 }
 
 .no-choices {
   padding: var(--cg-space-4);
-  background: var(--cg-color-bg-tertiary);
-  border: 1px solid var(--cg-color-border);
+  background: var(--cg-color-bg-secondary);
+  border-radius: var(--cg-radius-md);
   color: var(--cg-color-text-muted);
   font-size: var(--cg-font-size-sm);
   text-align: center;

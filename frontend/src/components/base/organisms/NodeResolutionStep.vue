@@ -1,175 +1,174 @@
 <template>
   <div class="node-resolution-step">
+    <!-- Progress Header -->
     <div class="step-header">
-      <h3 class="step-title">Resolve Missing Nodes</h3>
+      <div class="step-info">
+        <h3 class="step-title">Resolve Missing Nodes</h3>
+        <p class="step-description">Choose how to handle each unresolved node dependency</p>
+      </div>
       <div class="step-progress">
-        <span class="progress-text">{{ currentIndex + 1 }} of {{ totalNodes }}</span>
+        <span class="progress-text">{{ resolvedCount }} / {{ totalNodes }} resolved</span>
         <div class="progress-bar">
-          <div
-            class="progress-fill"
-            :style="{ width: `${progressPercentage}%` }"
-          ></div>
+          <div class="progress-fill" :style="{ width: `${progressPercentage}%` }"></div>
         </div>
       </div>
     </div>
 
+    <!-- Current Node Card -->
     <div v-if="currentNode" class="step-body">
+      <div class="current-indicator">
+        <span class="indicator-label">Currently resolving:</span>
+        <span class="indicator-count">{{ currentIndex + 1 }} of {{ totalNodes }}</span>
+      </div>
+
       <NodeResolutionItem
         :node-type="currentNode.node_type"
-        :package-id="currentNode.package_id"
-        :confidence="currentNode.confidence"
-        :match-type="currentNode.match_type"
-        :description="currentNode.description"
-        :repository="currentNode.repository"
-        :source="currentNode.source"
-        :is-installed="currentNode.is_installed"
-        :is-optional="currentNode.is_optional"
-        :is-selected="true"
-        :has-multiple-options="currentNode.has_multiple_options"
+        :has-multiple-options="!!currentNode.options?.length"
         :options="currentNode.options"
-        :selected-option-index="currentNode.selected_option_index"
-        @mark-optional="emit('mark-optional', currentNode.node_type)"
-        @unmark-optional="emit('unmark-optional', currentNode.node_type)"
-        @skip="emit('skip', currentNode.node_type)"
-        @refine-search="emit('refine-search', currentNode.node_type)"
-        @manual-entry="emit('manual-entry', currentNode.node_type)"
-        @search="emit('search', currentNode.node_type)"
-        @option-selected="(index) => emit('option-selected', currentNode.node_type, index)"
+        :choice="nodeChoices?.get(currentNode.node_type)"
+        @mark-optional="handleMarkOptional"
+        @skip="handleSkip"
+        @manual-entry="handleManualEntry"
+        @search="handleSearch"
+        @option-selected="handleOptionSelected"
+        @clear-choice="handleClearChoice"
       />
     </div>
 
+    <!-- Navigation Footer -->
     <div class="step-footer">
-      <button
-        class="nav-btn prev"
-        :disabled="!canGoPrevious"
+      <BaseButton
+        variant="secondary"
+        :disabled="currentIndex === 0"
         @click="emit('previous')"
       >
         ← Previous
-      </button>
-      <button
-        v-if="!isLastNode"
-        class="nav-btn next primary"
-        :disabled="!canContinue"
-        @click="emit('next')"
-      >
-        Continue →
-      </button>
-      <button
-        v-else
-        class="nav-btn next primary"
-        :disabled="!canContinue"
-        @click="emit('complete')"
-      >
-        Continue to Models →
-      </button>
+      </BaseButton>
+
+      <div class="footer-right">
+        <BaseButton
+          v-if="!allResolved"
+          variant="ghost"
+          @click="skipRemaining"
+        >
+          Skip All Remaining
+        </BaseButton>
+
+        <BaseButton
+          v-if="isLastNode || allResolved"
+          variant="primary"
+          :disabled="!allResolved"
+          @click="emit('complete')"
+        >
+          Continue to {{ hasModels ? 'Models' : 'Review' }} →
+        </BaseButton>
+        <BaseButton
+          v-else
+          variant="primary"
+          :disabled="!currentNodeResolved"
+          @click="emit('next')"
+        >
+          Next →
+        </BaseButton>
+      </div>
     </div>
 
-    <!-- Search Panel (shown when refine-search or search is triggered) -->
-    <div v-if="showSearch" class="search-panel">
-      <div class="search-panel-header">
-        <h4>Search for Node Package</h4>
-        <button class="close-btn" @click="emit('close-search')">✕</button>
+    <!-- Search Modal -->
+    <Teleport to="body">
+      <div v-if="showSearch" class="node-resolution-modal-overlay" @click.self="closeSearch">
+        <div class="node-search-modal">
+          <div class="node-modal-header">
+            <h4>Search Node Packages</h4>
+            <button class="node-modal-close-btn" @click="closeSearch">✕</button>
+          </div>
+          <div class="node-modal-body">
+            <BaseInput
+              v-model="searchQuery"
+              placeholder="Search by node type, package name..."
+              @input="handleSearchInput"
+            />
+            <div v-if="searchResults.length > 0" class="node-search-results">
+              <div
+                v-for="result in searchResults"
+                :key="result.package_id"
+                class="node-search-result-item"
+                @click="selectSearchResult(result)"
+              >
+                <div class="node-result-header">
+                  <code class="node-result-package-id">{{ result.package_id }}</code>
+                  <ConfidenceBadge v-if="result.match_confidence" :confidence="result.match_confidence" size="sm" />
+                </div>
+                <div v-if="result.description" class="node-result-description">{{ result.description }}</div>
+              </div>
+            </div>
+            <div v-else-if="searchQuery && !isSearching" class="node-no-results">
+              No packages found matching "{{ searchQuery }}"
+            </div>
+            <div v-if="isSearching" class="node-searching">Searching...</div>
+          </div>
+        </div>
       </div>
-      <div class="search-panel-body">
-        <input
-          v-model="searchQuery"
-          type="text"
-          class="search-input"
-          placeholder="Search by node type, package name, or description..."
-          @input="handleSearchInput"
-        />
-        <div v-if="searchResults.length > 0" class="search-results">
-          <div
-            v-for="result in searchResults"
-            :key="result.package_id"
-            class="search-result-item"
-            @click="emit('search-result-selected', result)"
-          >
-            <div class="result-header">
-              <span class="result-package-id">{{ result.package_id }}</span>
-              <ConfidenceBadge :confidence="result.match_confidence" size="sm" />
-            </div>
-            <div v-if="result.description" class="result-description">
-              {{ result.description }}
-            </div>
-            <div class="result-meta">
-              <span v-if="result.repository" class="repository">{{ result.repository }}</span>
-              <span v-if="result.is_installed" class="installed-badge">Installed</span>
+    </Teleport>
+
+    <!-- Manual Entry Modal -->
+    <Teleport to="body">
+      <div v-if="showManualEntry" class="node-resolution-modal-overlay" @click.self="closeManualEntry">
+        <div class="node-manual-entry-modal">
+          <div class="node-modal-header">
+            <h4>Enter Package Manually</h4>
+            <button class="node-modal-close-btn" @click="closeManualEntry">✕</button>
+          </div>
+          <div class="node-modal-body">
+            <BaseInput
+              v-model="manualPackageInput"
+              label="Package ID or GitHub URL"
+              placeholder="e.g., comfyui-my-package"
+            />
+            <div class="node-modal-actions">
+              <BaseButton variant="secondary" @click="closeManualEntry">Cancel</BaseButton>
+              <BaseButton
+                variant="primary"
+                :disabled="!manualPackageInput.trim()"
+                @click="submitManualEntry"
+              >
+                Add Package
+              </BaseButton>
             </div>
           </div>
         </div>
-        <div v-else-if="searchQuery && !isSearching" class="no-results">
-          <span class="warning-icon">⚠</span>
-          <span>No packages found matching "{{ searchQuery }}"</span>
-        </div>
-        <div v-if="isSearching" class="searching">
-          <span>Searching...</span>
-        </div>
       </div>
-    </div>
-
-    <!-- Manual Entry Panel -->
-    <div v-if="showManualEntry" class="manual-entry-panel">
-      <div class="manual-entry-header">
-        <h4>Enter Package Manually</h4>
-        <button class="close-btn" @click="emit('close-manual-entry')">✕</button>
-      </div>
-      <div class="manual-entry-body">
-        <label class="form-label">
-          Package ID or GitHub URL
-          <input
-            v-model="manualPackageInput"
-            type="text"
-            class="manual-input"
-            placeholder="e.g., comfyui-my-package or https://github.com/user/repo"
-          />
-        </label>
-        <div class="manual-entry-actions">
-          <button class="btn secondary" @click="emit('close-manual-entry')">
-            Cancel
-          </button>
-          <button
-            class="btn primary"
-            :disabled="!manualPackageInput.trim()"
-            @click="handleManualSubmit"
-          >
-            Add Package
-          </button>
-        </div>
-      </div>
-    </div>
+    </Teleport>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, nextTick } from 'vue'
 import NodeResolutionItem from '../molecules/NodeResolutionItem.vue'
 import ConfidenceBadge from '../atoms/ConfidenceBadge.vue'
-import type { NodeSearchResult } from '@/types/comfygit'
+import BaseButton from '../BaseButton.vue'
+import BaseInput from '../BaseInput.vue'
+import type { NodeSearchResult, NodeChoice } from '@/types/comfygit'
+
+interface NodeOption {
+  package_id: string
+  title?: string
+  match_confidence: number
+  match_type: string
+  is_installed: boolean
+}
 
 interface NodeToResolve {
   node_type: string
-  package_id?: string
-  confidence?: number
-  match_type?: string
-  description?: string
-  repository?: string
-  source?: string
-  is_installed?: boolean
-  is_optional?: boolean
-  has_multiple_options?: boolean
-  options?: any[]
-  selected_option_index?: number
+  reason?: string
+  is_unresolved?: boolean
+  options?: NodeOption[]
 }
 
 const props = defineProps<{
   nodes: NodeToResolve[]
   currentIndex: number
-  nodeChoices?: Map<string, any>
-  showSearch?: boolean
-  showManualEntry?: boolean
-  searchResults?: NodeSearchResult[]
-  isSearching?: boolean
+  nodeChoices: Map<string, NodeChoice>
+  hasModels?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -177,69 +176,140 @@ const emit = defineEmits<{
   (e: 'next'): void
   (e: 'complete'): void
   (e: 'mark-optional', nodeType: string): void
-  (e: 'unmark-optional', nodeType: string): void
   (e: 'skip', nodeType: string): void
-  (e: 'refine-search', nodeType: string): void
-  (e: 'manual-entry', nodeType: string): void
-  (e: 'search', nodeType: string): void
   (e: 'option-selected', nodeType: string, index: number): void
-  (e: 'close-search'): void
-  (e: 'close-manual-entry'): void
-  (e: 'search-input', query: string): void
-  (e: 'search-result-selected', result: NodeSearchResult): void
-  (e: 'manual-submit', packageId: string): void
+  (e: 'search', nodeType: string): void
+  (e: 'manual-entry', nodeType: string): void
 }>()
 
+// Local state for modals
+const showSearch = ref(false)
+const showManualEntry = ref(false)
 const searchQuery = ref('')
 const manualPackageInput = ref('')
+const searchResults = ref<NodeSearchResult[]>([])
+const isSearching = ref(false)
 
+// Computed
 const currentNode = computed(() => props.nodes[props.currentIndex])
 const totalNodes = computed(() => props.nodes.length)
 const isLastNode = computed(() => props.currentIndex === totalNodes.value - 1)
-const progressPercentage = computed(() =>
-  totalNodes.value > 0 ? ((props.currentIndex + 1) / totalNodes.value) * 100 : 0
-)
 
-const canGoPrevious = computed(() => props.currentIndex > 0)
-const canContinue = computed(() => {
-  if (!currentNode.value) {
-    console.log('[NodeResolutionStep] canContinue: no current node')
-    return false
-  }
-
-  // Check if user has made a choice for this node
-  const hasChoice = props.nodeChoices && props.nodeChoices.has(currentNode.value.node_type)
-
-  console.log('[NodeResolutionStep] canContinue check:', {
-    nodeType: currentNode.value.node_type,
-    hasChoice,
-    package_id: currentNode.value.package_id,
-    is_optional: currentNode.value.is_optional,
-    selected_option_index: currentNode.value.selected_option_index,
-    nodeChoices: props.nodeChoices ? Array.from(props.nodeChoices.entries()) : 'none'
-  })
-
-  // Can continue if node has a selection, is optional, has a choice made, or has ambiguous option selected
-  const result = !!(
-    currentNode.value.package_id ||
-    currentNode.value.is_optional ||
-    currentNode.value.selected_option_index !== undefined ||
-    hasChoice
-  )
-
-  console.log('[NodeResolutionStep] canContinue result:', result)
-  return result
+const resolvedCount = computed(() => {
+  return props.nodes.filter(n => props.nodeChoices.has(n.node_type)).length
 })
 
-function handleSearchInput() {
-  emit('search-input', searchQuery.value)
+const progressPercentage = computed(() =>
+  totalNodes.value > 0 ? (resolvedCount.value / totalNodes.value) * 100 : 0
+)
+
+const currentNodeResolved = computed(() => {
+  if (!currentNode.value) return false
+  return props.nodeChoices.has(currentNode.value.node_type)
+})
+
+const allResolved = computed(() => resolvedCount.value === totalNodes.value)
+
+// Handlers that set choice and auto-advance
+function handleMarkOptional() {
+  if (!currentNode.value) return
+  emit('mark-optional', currentNode.value.node_type)
+  autoAdvance()
 }
 
-function handleManualSubmit() {
-  if (manualPackageInput.value.trim()) {
-    emit('manual-submit', manualPackageInput.value.trim())
-    manualPackageInput.value = ''
+function handleSkip() {
+  if (!currentNode.value) return
+  emit('skip', currentNode.value.node_type)
+  autoAdvance()
+}
+
+function handleOptionSelected(index: number) {
+  if (!currentNode.value) return
+  emit('option-selected', currentNode.value.node_type, index)
+  autoAdvance()
+}
+
+function handleClearChoice() {
+  // When clearing, we'll need the parent to handle this
+  // For now, this would require adding a new emit
+}
+
+function handleSearch() {
+  if (!currentNode.value) return
+  searchQuery.value = currentNode.value.node_type
+  showSearch.value = true
+}
+
+function handleManualEntry() {
+  manualPackageInput.value = ''
+  showManualEntry.value = true
+}
+
+function closeSearch() {
+  showSearch.value = false
+  searchQuery.value = ''
+  searchResults.value = []
+}
+
+function closeManualEntry() {
+  showManualEntry.value = false
+  manualPackageInput.value = ''
+}
+
+function handleSearchInput() {
+  // TODO: Connect to actual search API via composable
+  isSearching.value = true
+  // Simulated delay - in real impl, call searchNodes from useWorkflowResolution
+  setTimeout(() => {
+    isSearching.value = false
+  }, 300)
+}
+
+function selectSearchResult(result: NodeSearchResult) {
+  if (!currentNode.value) return
+  // This would need to emit the selection with the package_id
+  emit('search', currentNode.value.node_type)
+  closeSearch()
+  autoAdvance()
+}
+
+function submitManualEntry() {
+  if (!currentNode.value || !manualPackageInput.value.trim()) return
+  emit('manual-entry', currentNode.value.node_type)
+  closeManualEntry()
+  autoAdvance()
+}
+
+function skipRemaining() {
+  // Skip all unresolved nodes
+  for (const node of props.nodes) {
+    if (!props.nodeChoices.has(node.node_type)) {
+      emit('skip', node.node_type)
+    }
   }
+}
+
+function autoAdvance() {
+  // Auto-advance to next unresolved node or complete
+  nextTick(() => {
+    if (allResolved.value) {
+      // All done - user can click complete
+      return
+    }
+
+    // Find next unresolved
+    const nextUnresolvedIndex = props.nodes.findIndex(
+      (n, i) => i > props.currentIndex && !props.nodeChoices.has(n.node_type)
+    )
+
+    if (nextUnresolvedIndex !== -1) {
+      // There's an unresolved node ahead - advance
+      emit('next')
+    } else if (!isLastNode.value) {
+      // Just advance to next
+      emit('next')
+    }
+  })
 }
 </script>
 
@@ -248,21 +318,32 @@ function handleManualSubmit() {
   display: flex;
   flex-direction: column;
   gap: var(--cg-space-4);
-  height: 100%;
+  min-height: 400px;
 }
 
 .step-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+  gap: var(--cg-space-4);
   padding-bottom: var(--cg-space-3);
   border-bottom: 1px solid var(--cg-color-border);
+}
+
+.step-info {
+  flex: 1;
 }
 
 .step-title {
   font-size: var(--cg-font-size-lg);
   font-weight: var(--cg-font-weight-semibold);
-  color: var(--cg-color-text);
+  color: var(--cg-color-text-primary);
+  margin: 0 0 var(--cg-space-1) 0;
+}
+
+.step-description {
+  font-size: var(--cg-font-size-sm);
+  color: var(--cg-color-text-muted);
   margin: 0;
 }
 
@@ -270,31 +351,50 @@ function handleManualSubmit() {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: var(--cg-spacing-xs);
+  gap: var(--cg-space-1);
+  min-width: 180px;
 }
 
 .progress-text {
   font-size: var(--cg-font-size-sm);
-  color: var(--cg-color-text-muted);
+  font-family: var(--cg-font-mono);
+  color: var(--cg-color-text-secondary);
 }
 
 .progress-bar {
-  width: 200px;
+  width: 100%;
   height: 6px;
   background: var(--cg-color-bg-tertiary);
-  border-radius: 3px;
+  border-radius: var(--cg-radius-full);
   overflow: hidden;
 }
 
 .progress-fill {
   height: 100%;
-  background: var(--cg-color-primary);
-  transition: width 0.3s;
+  background: var(--cg-color-success);
+  transition: width var(--cg-transition-base);
 }
 
 .step-body {
   flex: 1;
   overflow-y: auto;
+}
+
+.current-indicator {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--cg-space-2);
+  font-size: var(--cg-font-size-sm);
+}
+
+.indicator-label {
+  color: var(--cg-color-text-muted);
+}
+
+.indicator-count {
+  font-family: var(--cg-font-mono);
+  color: var(--cg-color-text-secondary);
 }
 
 .step-footer {
@@ -305,212 +405,131 @@ function handleManualSubmit() {
   border-top: 1px solid var(--cg-color-border);
 }
 
-.nav-btn {
-  padding: var(--cg-spacing-sm) var(--cg-space-3);
-  font-size: var(--cg-font-size-sm);
-  font-weight: var(--cg-font-weight-semibold);
-  border: 1px solid var(--cg-color-border);
-  background: var(--cg-color-bg);
-  color: var(--cg-color-text);
-  border-radius: var(--cg-border-radius);
-  cursor: pointer;
-  transition: all 0.2s;
+.footer-right {
+  display: flex;
+  gap: var(--cg-space-2);
+  align-items: center;
 }
+</style>
 
-.nav-btn:hover:not(:disabled) {
-  background: var(--cg-color-bg-tertiary);
-  border-color: var(--cg-color-primary);
-}
-
-.nav-btn.primary {
-  background: var(--cg-color-primary);
-  color: white;
-  border-color: var(--cg-color-primary);
-}
-
-.nav-btn.primary:hover:not(:disabled) {
-  background: var(--cg-color-primary-hover);
-}
-
-.nav-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.search-panel,
-.manual-entry-panel {
+<!-- Unscoped styles for Teleported modal content -->
+<style>
+.node-resolution-modal-overlay {
   position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10010;
+}
+
+.node-search-modal,
+.node-manual-entry-modal {
   width: 90%;
-  max-width: 600px;
+  max-width: 500px;
   max-height: 80vh;
-  background: var(--cg-color-bg);
-  border: 1px solid var(--cg-color-border);
-  border-radius: var(--cg-border-radius);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  z-index: 1000;
+  background: var(--cg-color-bg-primary, #1a1a2e);
+  border: 1px solid var(--cg-color-border, #333);
+  border-radius: var(--cg-radius-lg, 8px);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
-.search-panel-header,
-.manual-entry-header {
+.node-modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--cg-space-3);
-  border-bottom: 1px solid var(--cg-color-border);
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--cg-color-border, #333);
+  background: var(--cg-color-bg-secondary, #252542);
 }
 
-.search-panel-header h4,
-.manual-entry-header h4 {
+.node-modal-header h4 {
   margin: 0;
-  font-size: var(--cg-font-size-md);
-  font-weight: var(--cg-font-weight-semibold);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--cg-color-text-primary, #fff);
 }
 
-.close-btn {
+.node-modal-close-btn {
   background: none;
   border: none;
-  font-size: var(--cg-font-size-lg);
-  color: var(--cg-color-text-muted);
+  font-size: 18px;
+  color: var(--cg-color-text-muted, #888);
   cursor: pointer;
-  padding: var(--cg-spacing-xs);
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.15s ease;
 }
 
-.close-btn:hover {
-  color: var(--cg-color-text);
+.node-modal-close-btn:hover {
+  color: var(--cg-color-text-primary, #fff);
+  background: var(--cg-color-bg-hover, #333);
 }
 
-.search-panel-body,
-.manual-entry-body {
-  padding: var(--cg-space-3);
+.node-modal-body {
+  padding: 16px;
   overflow-y: auto;
   flex: 1;
-}
-
-.search-input,
-.manual-input {
-  width: 100%;
-  padding: var(--cg-spacing-sm);
-  font-size: var(--cg-font-size-sm);
-  border: 1px solid var(--cg-color-border);
-  border-radius: var(--cg-border-radius-sm);
-  background: var(--cg-color-bg-secondary);
-  color: var(--cg-color-text);
-}
-
-.search-input:focus,
-.manual-input:focus {
-  outline: none;
-  border-color: var(--cg-color-primary);
-}
-
-.search-results {
-  margin-top: var(--cg-space-3);
   display: flex;
   flex-direction: column;
-  gap: var(--cg-spacing-sm);
+  gap: 12px;
 }
 
-.search-result-item {
-  padding: var(--cg-space-2);
-  border: 1px solid var(--cg-color-border-subtle);
-  border-radius: var(--cg-border-radius-sm);
-  background: var(--cg-color-bg-secondary);
+.node-modal-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.node-search-results {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.node-search-result-item {
+  padding: 8px 12px;
+  border: 1px solid var(--cg-color-border-subtle, #444);
+  border-radius: 6px;
+  background: var(--cg-color-bg-secondary, #252542);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.15s ease;
 }
 
-.search-result-item:hover {
-  border-color: var(--cg-color-primary);
-  background: var(--cg-color-bg-tertiary);
+.node-search-result-item:hover {
+  border-color: var(--cg-color-accent, #7c3aed);
+  background: var(--cg-color-bg-hover, #333);
 }
 
-.result-header {
+.node-result-header {
   display: flex;
   align-items: center;
-  gap: var(--cg-spacing-sm);
-  margin-bottom: var(--cg-spacing-xs);
+  gap: 8px;
+  margin-bottom: 4px;
 }
 
-.result-package-id {
-  font-weight: var(--cg-font-weight-semibold);
-  font-size: var(--cg-font-size-sm);
+.node-result-package-id {
+  font-family: var(--cg-font-mono, monospace);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--cg-color-accent, #7c3aed);
 }
 
-.result-description {
-  font-size: var(--cg-font-size-xs);
-  color: var(--cg-color-text-muted);
-  margin-bottom: var(--cg-spacing-xs);
+.node-result-description {
+  font-size: 12px;
+  color: var(--cg-color-text-muted, #888);
 }
 
-.result-meta {
-  display: flex;
-  gap: var(--cg-spacing-sm);
-  font-size: var(--cg-font-size-xs);
-  color: var(--cg-color-text-muted);
-}
-
-.no-results,
-.searching {
-  padding: var(--cg-space-3);
+.node-no-results,
+.node-searching {
+  padding: 16px;
   text-align: center;
-  color: var(--cg-color-text-muted);
-}
-
-.warning-icon {
-  margin-right: var(--cg-spacing-xs);
-}
-
-.form-label {
-  display: flex;
-  flex-direction: column;
-  gap: var(--cg-spacing-xs);
-  font-size: var(--cg-font-size-sm);
-  color: var(--cg-color-text);
-  margin-bottom: var(--cg-space-3);
-}
-
-.manual-entry-actions {
-  display: flex;
-  gap: var(--cg-spacing-sm);
-  justify-content: flex-end;
-}
-
-.btn {
-  padding: var(--cg-spacing-sm) var(--cg-space-2);
-  font-size: var(--cg-font-size-sm);
-  font-weight: var(--cg-font-weight-semibold);
-  border: 1px solid var(--cg-color-border);
-  border-radius: var(--cg-border-radius-sm);
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn.secondary {
-  background: var(--cg-color-bg-secondary);
-  color: var(--cg-color-text);
-}
-
-.btn.secondary:hover {
-  background: var(--cg-color-bg-tertiary);
-}
-
-.btn.primary {
-  background: var(--cg-color-primary);
-  color: white;
-  border-color: var(--cg-color-primary);
-}
-
-.btn.primary:hover:not(:disabled) {
-  background: var(--cg-color-primary-hover);
-}
-
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+  color: var(--cg-color-text-muted, #888);
+  font-size: 13px;
 }
 </style>
