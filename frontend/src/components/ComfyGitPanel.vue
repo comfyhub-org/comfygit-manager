@@ -663,24 +663,35 @@ async function handleBranchFromCommit(commit: CommitInfo) {
 // Clear workflow cache before context switches to force fresh load from disk
 function clearWorkflowCache() {
   try {
-    // Clear workflow content (existing - working correctly)
+    // Store currently open workflow paths for reload after restart
+    const openPaths = localStorage.getItem('Comfy.OpenWorkflowsPaths')
+    if (openPaths) {
+      sessionStorage.setItem('ComfyGit.WorkflowsToReload', openPaths)
+      console.log('[ComfyGit] Stored workflows for reload:', openPaths)
+    }
+
+    // Mark that we're about to do a git operation (for reload detection)
+    sessionStorage.setItem('ComfyGit.PendingGitReload', 'true')
+
+    // Clear workflow content (forces reload from disk)
     localStorage.removeItem('workflow')
     localStorage.removeItem('Comfy.PreviousWorkflow')
 
-    // Clear tab state (NEW - prevents tabs from auto-reopening)
-    localStorage.removeItem('Comfy.OpenWorkflowsPaths')
+    // Clear active workflow index (starts fresh)
     localStorage.removeItem('Comfy.ActiveWorkflowIndex')
 
-    // Clear ALL workflow-related sessionStorage
+    // KEEP Comfy.OpenWorkflowsPaths so we know what to reload next time!
+    // DO NOT clear it - we need this to persist across switches
+
+    // Clear workflow content from sessionStorage
     Object.keys(sessionStorage).forEach(key => {
       if (key.startsWith('workflow:') ||
-          key.startsWith('Comfy.OpenWorkflowsPaths:') ||
           key.startsWith('Comfy.ActiveWorkflowIndex:')) {
         sessionStorage.removeItem(key)
       }
     })
 
-    console.log('[ComfyGit] Cleared workflow cache before context switch')
+    console.log('[ComfyGit] Cleared workflow content cache (kept tab list for hot reload)')
   } catch (error) {
     console.warn('[ComfyGit] Failed to clear workflow cache:', error)
   }

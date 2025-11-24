@@ -321,6 +321,127 @@ app.registerExtension({
       })
 
       console.log('[ComfyGit] Registered workflow file change listener')
+
+      // ========== HOT RELOAD: Auto-reload workflows after git operations ==========
+      let wasConnected = false
+      let reconnectTimeout: number | null = null
+
+      api.addEventListener('status', async (event: CustomEvent) => {
+        const isConnected = event.detail != null
+
+        // Detect reconnection after disconnect (server restart from git operation)
+        if (isConnected && !wasConnected) {
+          console.log('[ComfyGit] Server reconnected, checking for pending workflow reload...')
+
+          // Clear any pending timeout
+          if (reconnectTimeout) {
+            clearTimeout(reconnectTimeout)
+            reconnectTimeout = null
+          }
+
+          // Wait for server to fully initialize before reloading
+          reconnectTimeout = setTimeout(async () => {
+            await checkAndReloadWorkflows()
+          }, 500)
+        }
+
+        wasConnected = isConnected
+      })
+
+      async function checkAndReloadWorkflows() {
+        try {
+          // Check if we have a pending git reload flag
+          const pendingReload = sessionStorage.getItem('ComfyGit.PendingGitReload')
+          if (!pendingReload) {
+            console.log('[ComfyGit] No pending reload detected')
+            return
+          }
+
+          // Get stored workflow paths
+          const workflowPathsJson = sessionStorage.getItem('ComfyGit.WorkflowsToReload')
+          if (!workflowPathsJson) {
+            console.log('[ComfyGit] No workflows to reload')
+            sessionStorage.removeItem('ComfyGit.PendingGitReload')
+            return
+          }
+
+          console.log('[ComfyGit] Found workflows to reload:', workflowPathsJson)
+
+          // Parse the workflow paths (stored as JSON array)
+          let workflowPaths: string[]
+          try {
+            workflowPaths = JSON.parse(workflowPathsJson)
+          } catch (e) {
+            console.error('[ComfyGit] Failed to parse workflow paths:', e)
+            sessionStorage.removeItem('ComfyGit.PendingGitReload')
+            sessionStorage.removeItem('ComfyGit.WorkflowsToReload')
+            return
+          }
+
+          // Reload workflows from disk
+          if (Array.isArray(workflowPaths) && workflowPaths.length > 0) {
+            console.log(`[ComfyGit] Reloading ${workflowPaths.length} workflow(s)...`)
+
+            // Reload the first workflow (active one)
+            const primaryWorkflow = workflowPaths[0]
+            await reloadWorkflowFromPath(primaryWorkflow)
+          }
+
+          // Clear the flags
+          sessionStorage.removeItem('ComfyGit.PendingGitReload')
+          sessionStorage.removeItem('ComfyGit.WorkflowsToReload')
+
+          console.log('[ComfyGit] Workflow reload completed')
+        } catch (error) {
+          console.error('[ComfyGit] Error during workflow reload:', error)
+          // Clear flags even on error to prevent repeated attempts
+          sessionStorage.removeItem('ComfyGit.PendingGitReload')
+          sessionStorage.removeItem('ComfyGit.WorkflowsToReload')
+        }
+      }
+
+      async function reloadWorkflowFromPath(workflowPath: string) {
+        try {
+          console.log(`[ComfyGit] Loading workflow: ${workflowPath}`)
+
+          // Extract just the filename without directory prefix and extension
+          // ComfyUI stores paths like "workflows/default.json" but we need just "default"
+          const workflowName = workflowPath
+            .replace(/^workflows\//, '')  // Remove "workflows/" prefix
+            .replace(/\.json$/, '')        // Remove ".json" extension
+
+          console.log(`[ComfyGit] Fetching workflow: ${workflowName}`)
+
+          // Fetch the workflow from the server via ComfyGit API
+          const response = await fetch(`/api/v2/comfygit/workflow/${encodeURIComponent(workflowName)}/content`)
+
+          if (!response.ok) {
+            console.warn(`[ComfyGit] Failed to fetch workflow ${workflowName}: ${response.status}`)
+            return
+          }
+
+          const workflowData = await response.json()
+
+          // Load the workflow into the canvas
+          await (app as any).loadGraphData(
+            workflowData,
+            true,  // clean - clear current graph
+            true,  // restore_view - restore saved view position
+            workflowName,  // workflow name
+            {
+              showMissingNodesDialog: true,
+              showMissingModelsDialog: true,
+              openSource: 'comfygit_reload'
+            }
+          )
+
+          console.log(`[ComfyGit] Successfully reloaded workflow: ${workflowName}`)
+        } catch (error) {
+          console.error(`[ComfyGit] Error reloading workflow ${workflowPath}:`, error)
+        }
+      }
+
+      console.log('[ComfyGit] Hot reload system initialized')
     }
   }
 })
