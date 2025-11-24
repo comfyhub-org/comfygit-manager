@@ -46,9 +46,10 @@ function isStepCompleted(stepId: string): boolean {
 }
 
 function isStepDisabled(stepId: string): boolean {
-  const currentIndex = props.steps.findIndex(s => s.id === props.currentStep)
-  const stepIndex = props.steps.findIndex(s => s.id === stepId)
-  return stepIndex > currentIndex
+  // Allow free navigation between all steps
+  // Only Analysis must be completed before accessing other steps
+  if (stepId === 'analysis') return false
+  return !props.completedSteps.includes('analysis')
 }
 </script>
 

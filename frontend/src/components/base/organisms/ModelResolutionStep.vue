@@ -1,26 +1,58 @@
 <template>
   <div class="model-resolution-step">
-    <!-- Progress Header -->
+    <!-- Section Header -->
     <div class="step-header">
       <div class="step-info">
         <h3 class="step-title">Resolve Missing Models</h3>
-        <p class="step-description">Choose how to handle each unresolved model dependency</p>
+        <p class="step-description">
+          Browse unresolved models and choose how to handle each one.
+          Unaddressed items will be skipped.
+        </p>
       </div>
-      <div class="step-progress">
-        <span class="progress-text">{{ resolvedCount }} / {{ totalModels }} resolved</span>
-        <div class="progress-bar">
-          <div class="progress-fill" :style="{ width: `${progressPercentage}%` }"></div>
-        </div>
+      <div class="step-stats">
+        <span class="stat resolved">{{ resolvedCount }} resolved</span>
+        <span class="stat pending">{{ pendingCount }} pending</span>
       </div>
+    </div>
+
+    <!-- Item Navigator - browse all models -->
+    <div class="item-navigator">
+      <button
+        class="nav-arrow"
+        :disabled="currentIndex === 0"
+        @click="goToItem(currentIndex - 1)"
+      >
+        ←
+      </button>
+
+      <div class="item-indicators">
+        <button
+          v-for="(model, index) in models"
+          :key="model.filename"
+          :class="['item-dot', {
+            active: index === currentIndex,
+            resolved: modelChoices.has(model.filename)
+          }]"
+          :title="model.filename"
+          @click="goToItem(index)"
+        >
+          <span v-if="modelChoices.has(model.filename)" class="dot-check">✓</span>
+        </button>
+      </div>
+
+      <button
+        class="nav-arrow"
+        :disabled="currentIndex === models.length - 1"
+        @click="goToItem(currentIndex + 1)"
+      >
+        →
+      </button>
+
+      <span class="nav-position">{{ currentIndex + 1 }} / {{ models.length }}</span>
     </div>
 
     <!-- Current Model Card -->
     <div v-if="currentModel" class="step-body">
-      <div class="current-indicator">
-        <span class="indicator-label">Currently resolving:</span>
-        <span class="indicator-count">{{ currentIndex + 1 }} of {{ totalModels }}</span>
-      </div>
-
       <ModelResolutionItem
         :filename="currentModel.filename"
         :node-type="currentModel.reference?.node_type || 'Unknown'"
@@ -36,42 +68,20 @@
       />
     </div>
 
-    <!-- Navigation Footer -->
+    <!-- Empty state if no models -->
+    <div v-else class="empty-state">
+      <p>No models need resolution.</p>
+    </div>
+
+    <!-- Section Navigation Footer -->
     <div class="step-footer">
-      <BaseButton
-        variant="secondary"
-        :disabled="currentIndex === 0"
-        @click="emit('previous')"
-      >
-        ← Previous
+      <BaseButton variant="secondary" @click="emit('back-section')">
+        ← Back
       </BaseButton>
 
-      <div class="footer-right">
-        <BaseButton
-          v-if="!allResolved"
-          variant="ghost"
-          @click="skipRemaining"
-        >
-          Skip All Remaining
-        </BaseButton>
-
-        <BaseButton
-          v-if="isLastModel || allResolved"
-          variant="primary"
-          :disabled="!allResolved"
-          @click="emit('complete')"
-        >
-          Continue to Review →
-        </BaseButton>
-        <BaseButton
-          v-else
-          variant="primary"
-          :disabled="!currentModelResolved"
-          @click="emit('next')"
-        >
-          Next →
-        </BaseButton>
-      </div>
+      <BaseButton variant="primary" @click="emit('next-section')">
+        Continue to Review →
+      </BaseButton>
     </div>
 
     <!-- Search Modal -->
@@ -151,7 +161,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick } from 'vue'
+import { ref, computed } from 'vue'
 import ModelResolutionItem from '../molecules/ModelResolutionItem.vue'
 import BaseButton from '../BaseButton.vue'
 import BaseInput from '../BaseInput.vue'
@@ -186,22 +196,21 @@ interface ModelToResolve {
 
 const props = defineProps<{
   models: ModelToResolve[]
-  currentIndex: number
   modelChoices: Map<string, ModelChoice>
 }>()
 
 const emit = defineEmits<{
-  (e: 'previous'): void
-  (e: 'next'): void
-  (e: 'complete'): void
+  (e: 'back-section'): void
+  (e: 'next-section'): void
   (e: 'mark-optional', filename: string): void
   (e: 'skip', filename: string): void
   (e: 'option-selected', filename: string, index: number): void
-  (e: 'search', filename: string): void
   (e: 'download-url', filename: string, url: string, targetPath?: string): void
+  (e: 'clear-choice', filename: string): void
 }>()
 
-// Local state for modals
+// Local state
+const currentIndex = ref(0)
 const showSearch = ref(false)
 const showDownloadUrl = ref(false)
 const searchQuery = ref('')
@@ -211,52 +220,47 @@ const searchResults = ref<ModelSearchResult[]>([])
 const isSearching = ref(false)
 
 // Computed
-const currentModel = computed(() => props.models[props.currentIndex])
-const totalModels = computed(() => props.models.length)
-const isLastModel = computed(() => props.currentIndex === totalModels.value - 1)
+const currentModel = computed(() => props.models[currentIndex.value])
 
 const resolvedCount = computed(() => {
   return props.models.filter(m => props.modelChoices.has(m.filename)).length
 })
 
-const progressPercentage = computed(() =>
-  totalModels.value > 0 ? (resolvedCount.value / totalModels.value) * 100 : 0
-)
-
-const currentModelResolved = computed(() => {
-  if (!currentModel.value) return false
-  return props.modelChoices.has(currentModel.value.filename)
+const pendingCount = computed(() => {
+  return props.models.length - resolvedCount.value
 })
-
-const allResolved = computed(() => resolvedCount.value === totalModels.value)
 
 const suggestedPath = computed(() => {
   if (!currentModel.value) return 'checkpoints/'
-  // Use the filename from the reference
   return `checkpoints/${currentModel.value.filename}`
 })
 
-// Handlers that set choice and auto-advance
+// Item navigation (within section)
+function goToItem(index: number) {
+  if (index >= 0 && index < props.models.length) {
+    currentIndex.value = index
+  }
+}
+
+// Handlers - no auto-advance, user navigates manually
 function handleMarkOptional() {
   if (!currentModel.value) return
   emit('mark-optional', currentModel.value.filename)
-  autoAdvance()
 }
 
 function handleSkip() {
   if (!currentModel.value) return
   emit('skip', currentModel.value.filename)
-  autoAdvance()
 }
 
 function handleOptionSelected(index: number) {
   if (!currentModel.value) return
   emit('option-selected', currentModel.value.filename, index)
-  autoAdvance()
 }
 
 function handleClearChoice() {
-  // When clearing, we'll need the parent to handle this
+  if (!currentModel.value) return
+  emit('clear-choice', currentModel.value.filename)
 }
 
 function handleSearch() {
@@ -293,44 +297,14 @@ function handleSearchInput() {
 
 function selectSearchResult(result: ModelSearchResult) {
   if (!currentModel.value) return
-  // This would need to emit the selection
-  emit('search', currentModel.value.filename)
+  // TODO: emit proper selection
   closeSearch()
-  autoAdvance()
 }
 
 function submitDownloadUrl() {
   if (!currentModel.value || !downloadUrl.value.trim()) return
   emit('download-url', currentModel.value.filename, downloadUrl.value.trim(), downloadPath.value.trim() || undefined)
   closeDownloadUrl()
-  autoAdvance()
-}
-
-function skipRemaining() {
-  // Skip all unresolved models
-  for (const model of props.models) {
-    if (!props.modelChoices.has(model.filename)) {
-      emit('skip', model.filename)
-    }
-  }
-}
-
-function autoAdvance() {
-  nextTick(() => {
-    if (allResolved.value) {
-      return
-    }
-
-    const nextUnresolvedIndex = props.models.findIndex(
-      (m, i) => i > props.currentIndex && !props.modelChoices.has(m.filename)
-    )
-
-    if (nextUnresolvedIndex !== -1) {
-      emit('next')
-    } else if (!isLastModel.value) {
-      emit('next')
-    }
-  })
 }
 
 function formatSize(bytes: number): string {
@@ -376,32 +350,119 @@ function formatSize(bytes: number): string {
   margin: 0;
 }
 
-.step-progress {
+.step-stats {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: var(--cg-space-1);
-  min-width: 180px;
+  gap: var(--cg-space-3);
 }
 
-.progress-text {
+.stat {
   font-size: var(--cg-font-size-sm);
   font-family: var(--cg-font-mono);
-  color: var(--cg-color-text-secondary);
+  padding: var(--cg-space-1) var(--cg-space-2);
+  border-radius: var(--cg-radius-sm);
 }
 
-.progress-bar {
-  width: 100%;
-  height: 6px;
+.stat.resolved {
+  background: var(--cg-color-success-muted);
+  color: var(--cg-color-success);
+}
+
+.stat.pending {
+  background: var(--cg-color-warning-muted);
+  color: var(--cg-color-warning);
+}
+
+/* Item Navigator */
+.item-navigator {
+  display: flex;
+  align-items: center;
+  gap: var(--cg-space-3);
+  padding: var(--cg-space-2) var(--cg-space-3);
   background: var(--cg-color-bg-tertiary);
-  border-radius: var(--cg-radius-full);
-  overflow: hidden;
+  border-radius: var(--cg-radius-md);
+  border: 1px solid var(--cg-color-border-subtle);
 }
 
-.progress-fill {
-  height: 100%;
+.nav-arrow {
+  background: var(--cg-color-bg-secondary);
+  border: 1px solid var(--cg-color-border);
+  color: var(--cg-color-text-primary);
+  width: 32px;
+  height: 32px;
+  border-radius: var(--cg-radius-sm);
+  cursor: pointer;
+  font-size: var(--cg-font-size-base);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--cg-transition-fast);
+}
+
+.nav-arrow:hover:not(:disabled) {
+  background: var(--cg-color-bg-hover);
+  border-color: var(--cg-color-accent);
+  color: var(--cg-color-accent);
+}
+
+.nav-arrow:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.item-indicators {
+  display: flex;
+  gap: var(--cg-space-1);
+  flex-wrap: wrap;
+  flex: 1;
+  justify-content: center;
+}
+
+.item-dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--cg-color-border);
+  background: var(--cg-color-bg-secondary);
+  cursor: pointer;
+  transition: all var(--cg-transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: transparent;
+}
+
+.item-dot:hover {
+  border-color: var(--cg-color-accent);
+  transform: scale(1.1);
+}
+
+.item-dot.active {
+  border-color: var(--cg-color-accent);
+  background: var(--cg-color-accent);
+  box-shadow: 0 0 0 2px var(--cg-color-accent-muted);
+}
+
+.item-dot.resolved {
+  border-color: var(--cg-color-success);
   background: var(--cg-color-success);
-  transition: width var(--cg-transition-base);
+  color: white;
+}
+
+.item-dot.resolved.active {
+  box-shadow: 0 0 0 2px var(--cg-color-success-muted);
+}
+
+.dot-check {
+  font-weight: bold;
+}
+
+.nav-position {
+  font-size: var(--cg-font-size-sm);
+  font-family: var(--cg-font-mono);
+  color: var(--cg-color-text-muted);
+  min-width: 50px;
+  text-align: right;
 }
 
 .step-body {
@@ -409,21 +470,12 @@ function formatSize(bytes: number): string {
   overflow-y: auto;
 }
 
-.current-indicator {
+.empty-state {
+  flex: 1;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--cg-space-2);
-  font-size: var(--cg-font-size-sm);
-}
-
-.indicator-label {
+  justify-content: center;
   color: var(--cg-color-text-muted);
-}
-
-.indicator-count {
-  font-family: var(--cg-font-mono);
-  color: var(--cg-color-text-secondary);
 }
 
 .step-footer {
@@ -432,12 +484,6 @@ function formatSize(bytes: number): string {
   align-items: center;
   padding-top: var(--cg-space-3);
   border-top: 1px solid var(--cg-color-border);
-}
-
-.footer-right {
-  display: flex;
-  gap: var(--cg-space-2);
-  align-items: center;
 }
 </style>
 

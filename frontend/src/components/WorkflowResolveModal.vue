@@ -15,12 +15,12 @@
 
       <!-- Wizard Content -->
       <div v-else-if="analysisResult" class="wizard-content">
-        <!-- Wizard Stepper -->
+        <!-- Wizard Stepper - clickable for free navigation -->
         <ResolutionStepper
           :steps="wizardSteps"
           :current-step="currentStep"
           :completed-steps="completedSteps"
-          @step-change="handleStepChange"
+          @step-change="navigateToStep"
         />
 
         <!-- Analysis Step -->
@@ -94,33 +94,29 @@
         <NodeResolutionStep
           v-if="currentStep === 'nodes'"
           :nodes="unresolvedAndAmbiguousNodes"
-          :current-index="nodeCurrentIndex"
           :node-choices="nodeChoices"
           :has-models="needsModelResolution"
-          @next="handleNodeNext"
-          @previous="handleNodePrevious"
-          @complete="handleNodeComplete"
-          @search="handleNodeSearch"
-          @manual-entry="handleNodeManualEntry"
+          @back-section="navigateToPreviousSection"
+          @next-section="navigateToNextSection"
           @mark-optional="handleNodeMarkOptional"
           @skip="handleNodeSkip"
           @option-selected="handleNodeOptionSelected"
+          @manual-entry="handleNodeManualEntry"
+          @clear-choice="handleNodeClearChoice"
         />
 
         <!-- Model Resolution Step -->
         <ModelResolutionStep
           v-if="currentStep === 'models'"
           :models="unresolvedAndAmbiguousModels"
-          :current-index="modelCurrentIndex"
           :model-choices="modelChoices"
-          @next="handleModelNext"
-          @previous="handleModelPrevious"
-          @complete="handleModelComplete"
-          @search="handleModelSearch"
-          @download-url="handleModelDownloadUrl"
+          @back-section="navigateToPreviousSection"
+          @next-section="navigateToNextSection"
           @mark-optional="handleModelMarkOptional"
           @skip="handleModelSkip"
           @option-selected="handleModelOptionSelected"
+          @download-url="handleModelDownloadUrl"
+          @clear-choice="handleModelClearChoice"
         />
 
         <!-- Review Step -->
@@ -129,7 +125,7 @@
             <div class="review-header">
               <h3 class="summary-title">Review Your Choices</h3>
               <p class="summary-description">
-                Confirm the actions to take for resolving this workflow's dependencies.
+                Confirm the actions to take. Items without explicit choices will be skipped.
               </p>
             </div>
 
@@ -145,29 +141,38 @@
               </div>
               <div class="review-stat">
                 <span class="stat-value">{{ optionalCount }}</span>
-                <span class="stat-label">marked optional</span>
+                <span class="stat-label">optional</span>
               </div>
               <div class="review-stat">
-                <span class="stat-value">{{ skipCount }}</span>
+                <span class="stat-value">{{ skippedCount }}</span>
                 <span class="stat-label">skipped</span>
               </div>
             </div>
 
             <!-- Node Choices Review -->
-            <div v-if="nodeChoices.size > 0" class="review-section">
-              <h4 class="section-title">Node Packages ({{ nodeChoices.size }})</h4>
+            <div v-if="unresolvedAndAmbiguousNodes.length > 0" class="review-section">
+              <h4 class="section-title">Node Packages ({{ unresolvedAndAmbiguousNodes.length }})</h4>
               <div class="review-items">
-                <div v-for="[nodeType, choice] in nodeChoices" :key="nodeType" class="review-item">
-                  <code class="item-name">{{ nodeType }}</code>
+                <div
+                  v-for="node in unresolvedAndAmbiguousNodes"
+                  :key="node.node_type"
+                  class="review-item"
+                >
+                  <code class="item-name">{{ node.node_type }}</code>
                   <div class="item-choice">
-                    <span v-if="choice.action === 'install'" class="choice-badge install">
-                      {{ choice.package_id }}
-                    </span>
-                    <span v-else-if="choice.action === 'optional'" class="choice-badge optional">
-                      Optional
-                    </span>
-                    <span v-else-if="choice.action === 'skip'" class="choice-badge skip">
-                      Skip
+                    <template v-if="nodeChoices.has(node.node_type)">
+                      <span v-if="nodeChoices.get(node.node_type)?.action === 'install'" class="choice-badge install">
+                        {{ nodeChoices.get(node.node_type)?.package_id }}
+                      </span>
+                      <span v-else-if="nodeChoices.get(node.node_type)?.action === 'optional'" class="choice-badge optional">
+                        Optional
+                      </span>
+                      <span v-else-if="nodeChoices.get(node.node_type)?.action === 'skip'" class="choice-badge skip">
+                        Skip
+                      </span>
+                    </template>
+                    <span v-else class="choice-badge pending">
+                      No action (skipped)
                     </span>
                   </div>
                 </div>
@@ -175,30 +180,39 @@
             </div>
 
             <!-- Model Choices Review -->
-            <div v-if="modelChoices.size > 0" class="review-section">
-              <h4 class="section-title">Models ({{ modelChoices.size }})</h4>
+            <div v-if="unresolvedAndAmbiguousModels.length > 0" class="review-section">
+              <h4 class="section-title">Models ({{ unresolvedAndAmbiguousModels.length }})</h4>
               <div class="review-items">
-                <div v-for="[filename, choice] in modelChoices" :key="filename" class="review-item">
-                  <code class="item-name">{{ filename }}</code>
+                <div
+                  v-for="model in unresolvedAndAmbiguousModels"
+                  :key="model.filename"
+                  class="review-item"
+                >
+                  <code class="item-name">{{ model.filename }}</code>
                   <div class="item-choice">
-                    <span v-if="choice.action === 'select'" class="choice-badge install">
-                      {{ choice.selected_model?.filename }}
-                    </span>
-                    <span v-else-if="choice.action === 'download'" class="choice-badge download">
-                      Download
-                    </span>
-                    <span v-else-if="choice.action === 'optional'" class="choice-badge optional">
-                      Optional
-                    </span>
-                    <span v-else-if="choice.action === 'skip'" class="choice-badge skip">
-                      Skip
+                    <template v-if="modelChoices.has(model.filename)">
+                      <span v-if="modelChoices.get(model.filename)?.action === 'select'" class="choice-badge install">
+                        {{ modelChoices.get(model.filename)?.selected_model?.filename }}
+                      </span>
+                      <span v-else-if="modelChoices.get(model.filename)?.action === 'download'" class="choice-badge download">
+                        Download
+                      </span>
+                      <span v-else-if="modelChoices.get(model.filename)?.action === 'optional'" class="choice-badge optional">
+                        Optional
+                      </span>
+                      <span v-else-if="modelChoices.get(model.filename)?.action === 'skip'" class="choice-badge skip">
+                        Skip
+                      </span>
+                    </template>
+                    <span v-else class="choice-badge pending">
+                      No action (skipped)
                     </span>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div v-if="nodeChoices.size === 0 && modelChoices.size === 0" class="no-choices">
+            <div v-if="unresolvedAndAmbiguousNodes.length === 0 && unresolvedAndAmbiguousModels.length === 0" class="no-choices">
               No dependencies need resolution.
             </div>
           </div>
@@ -226,7 +240,7 @@
         v-if="currentStep === 'review'"
         variant="secondary"
         :disabled="applying"
-        @click="goToPreviousStep"
+        @click="navigateToPreviousSection"
       >
         ← Back
       </BaseButton>
@@ -248,10 +262,6 @@ import { ref, computed, onMounted } from 'vue'
 import { useWorkflowResolution } from '@/composables/useWorkflowResolution'
 import type {
   FullResolutionResult,
-  UnresolvedNode,
-  AmbiguousNode,
-  UnresolvedModel,
-  AmbiguousModel,
   NodeChoice,
   ModelChoice
 } from '@/types/comfygit'
@@ -283,8 +293,6 @@ const error = ref<string | null>(null)
 type WizardStep = 'analysis' | 'nodes' | 'models' | 'review'
 const currentStep = ref<WizardStep>('analysis')
 const completedSteps = ref<WizardStep[]>([])
-const nodeCurrentIndex = ref(0)
-const modelCurrentIndex = ref(0)
 
 // User choices
 const nodeChoices = ref<Map<string, NodeChoice>>(new Map())
@@ -330,14 +338,12 @@ const needsModelResolution = computed(() => {
 const unresolvedAndAmbiguousNodes = computed(() => {
   if (!analysisResult.value) return []
 
-  // Transform unresolved nodes
   const unresolved = analysisResult.value.nodes.unresolved.map(node => ({
     node_type: node.reference.node_type,
     reason: node.reason,
     is_unresolved: true
   }))
 
-  // Transform ambiguous nodes
   const ambiguous = analysisResult.value.nodes.ambiguous.map(node => ({
     node_type: node.reference.node_type,
     has_multiple_options: true,
@@ -356,7 +362,6 @@ const unresolvedAndAmbiguousNodes = computed(() => {
 const unresolvedAndAmbiguousModels = computed(() => {
   if (!analysisResult.value) return []
 
-  // Transform unresolved models
   const unresolved = analysisResult.value.models.unresolved.map(model => ({
     filename: model.reference.widget_value,
     reference: model.reference,
@@ -364,7 +369,6 @@ const unresolvedAndAmbiguousModels = computed(() => {
     is_unresolved: true
   }))
 
-  // Transform ambiguous models
   const ambiguous = analysisResult.value.models.ambiguous.map(model => ({
     filename: model.reference.widget_value,
     reference: model.reference,
@@ -411,16 +415,47 @@ const optionalCount = computed(() => {
   return count
 })
 
-const skipCount = computed(() => {
+const skippedCount = computed(() => {
+  // Count items without choices + explicit skips
   let count = 0
+
+  // Explicit skips
   for (const choice of nodeChoices.value.values()) {
     if (choice.action === 'skip') count++
   }
   for (const choice of modelChoices.value.values()) {
     if (choice.action === 'skip') count++
   }
+
+  // Items without any choice (implicitly skipped)
+  for (const node of unresolvedAndAmbiguousNodes.value) {
+    if (!nodeChoices.value.has(node.node_type)) count++
+  }
+  for (const model of unresolvedAndAmbiguousModels.value) {
+    if (!modelChoices.value.has(model.filename)) count++
+  }
+
   return count
 })
+
+// Navigation methods
+function navigateToStep(stepId: string) {
+  currentStep.value = stepId as WizardStep
+}
+
+function navigateToPreviousSection() {
+  const currentIndex = wizardSteps.value.findIndex(s => s.id === currentStep.value)
+  if (currentIndex > 0) {
+    currentStep.value = wizardSteps.value[currentIndex - 1].id as WizardStep
+  }
+}
+
+function navigateToNextSection() {
+  const currentIndex = wizardSteps.value.findIndex(s => s.id === currentStep.value)
+  if (currentIndex < wizardSteps.value.length - 1) {
+    currentStep.value = wizardSteps.value[currentIndex + 1].id as WizardStep
+  }
+}
 
 // Methods
 async function loadAnalysis() {
@@ -437,7 +472,9 @@ async function loadAnalysis() {
 }
 
 function handleContinueFromAnalysis() {
-  completedSteps.value.push('analysis')
+  if (!completedSteps.value.includes('analysis')) {
+    completedSteps.value.push('analysis')
+  }
 
   if (needsNodeResolution.value) {
     currentStep.value = 'nodes'
@@ -448,112 +485,53 @@ function handleContinueFromAnalysis() {
   }
 }
 
-function handleStepChange(stepId: string) {
-  currentStep.value = stepId as WizardStep
-}
-
-function goToPreviousStep() {
-  const currentIndex = wizardSteps.value.findIndex(s => s.id === currentStep.value)
-  if (currentIndex > 0) {
-    currentStep.value = wizardSteps.value[currentIndex - 1].id as WizardStep
-  }
-}
-
 // Node resolution handlers
-function handleNodeNext() {
-  nodeCurrentIndex.value++
-}
-
-function handleNodePrevious() {
-  if (nodeCurrentIndex.value > 0) {
-    nodeCurrentIndex.value--
-  } else {
-    // Go back to analysis
-    currentStep.value = 'analysis'
-  }
-}
-
-function handleNodeComplete() {
-  completedSteps.value.push('nodes')
-
-  if (needsModelResolution.value) {
-    currentStep.value = 'models'
-  } else {
-    currentStep.value = 'review'
-  }
-}
-
-function handleNodeSearch(nodeType: string) {
-  // Handle node search - to be implemented with search panel
-  console.log('Node search:', nodeType)
-  // For now, just allow continuing
-  nodeChoices.value.set(nodeType, {
-    action: 'skip'
-  })
-}
-
-function handleNodeManualEntry(nodeType: string) {
-  // Handle manual node entry - to be implemented with manual entry panel
-  console.log('Manual entry for:', nodeType)
-  // For now, mark as skipped so user can continue
-  nodeChoices.value.set(nodeType, {
-    action: 'skip'
-  })
-}
-
 function handleNodeMarkOptional(nodeType: string) {
-  console.log('[WorkflowResolveModal] handleNodeMarkOptional called with:', nodeType)
-  nodeChoices.value.set(nodeType, {
-    action: 'optional'
-  })
-  console.log('[WorkflowResolveModal] nodeChoices after optional:', Array.from(nodeChoices.value.entries()))
+  nodeChoices.value.set(nodeType, { action: 'optional' })
 }
 
 function handleNodeSkip(nodeType: string) {
-  console.log('[WorkflowResolveModal] handleNodeSkip called with:', nodeType)
-  nodeChoices.value.set(nodeType, {
-    action: 'skip'
-  })
-  console.log('[WorkflowResolveModal] nodeChoices after skip:', Array.from(nodeChoices.value.entries()))
+  nodeChoices.value.set(nodeType, { action: 'skip' })
 }
 
 function handleNodeOptionSelected(nodeType: string, index: number) {
-  const currentNode = unresolvedAndAmbiguousNodes.value.find(n => n.node_type === nodeType)
-  if (currentNode && currentNode.options && currentNode.options[index]) {
-    const selectedOption = currentNode.options[index]
+  const node = unresolvedAndAmbiguousNodes.value.find(n => n.node_type === nodeType)
+  if (node?.options?.[index]) {
     nodeChoices.value.set(nodeType, {
       action: 'install',
-      package_id: selectedOption.package_id
+      package_id: node.options[index].package_id
     })
   }
 }
 
-// Model resolution handlers
-function handleModelNext() {
-  modelCurrentIndex.value++
-}
-
-function handleModelPrevious() {
-  if (modelCurrentIndex.value > 0) {
-    modelCurrentIndex.value--
-  } else {
-    // Go back to nodes or analysis
-    currentStep.value = needsNodeResolution.value ? 'nodes' : 'analysis'
-  }
-}
-
-function handleModelComplete() {
-  completedSteps.value.push('models')
-  currentStep.value = 'review'
-}
-
-function handleModelSearch(filename: string) {
-  // Handle model search - to be implemented
-  console.log('Model search:', filename)
-  // For now, just allow continuing
-  modelChoices.value.set(filename, {
-    action: 'skip'
+function handleNodeManualEntry(nodeType: string, packageId: string) {
+  nodeChoices.value.set(nodeType, {
+    action: 'install',
+    package_id: packageId
   })
+}
+
+function handleNodeClearChoice(nodeType: string) {
+  nodeChoices.value.delete(nodeType)
+}
+
+// Model resolution handlers
+function handleModelMarkOptional(filename: string) {
+  modelChoices.value.set(filename, { action: 'optional' })
+}
+
+function handleModelSkip(filename: string) {
+  modelChoices.value.set(filename, { action: 'skip' })
+}
+
+function handleModelOptionSelected(filename: string, index: number) {
+  const model = unresolvedAndAmbiguousModels.value.find(m => m.filename === filename)
+  if (model?.options?.[index]) {
+    modelChoices.value.set(filename, {
+      action: 'select',
+      selected_model: model.options[index].model
+    })
+  }
 }
 
 function handleModelDownloadUrl(filename: string, url: string, targetPath?: string) {
@@ -564,27 +542,8 @@ function handleModelDownloadUrl(filename: string, url: string, targetPath?: stri
   })
 }
 
-function handleModelMarkOptional(filename: string) {
-  modelChoices.value.set(filename, {
-    action: 'optional'
-  })
-}
-
-function handleModelSkip(filename: string) {
-  modelChoices.value.set(filename, {
-    action: 'skip'
-  })
-}
-
-function handleModelOptionSelected(filename: string, index: number) {
-  const currentModel = unresolvedAndAmbiguousModels.value.find(m => m.filename === filename)
-  if (currentModel && currentModel.options && currentModel.options[index]) {
-    const selectedOption = currentModel.options[index]
-    modelChoices.value.set(filename, {
-      action: 'select',
-      selected_model: selectedOption.model
-    })
-  }
+function handleModelClearChoice(filename: string) {
+  modelChoices.value.delete(filename)
 }
 
 async function handleApply() {
@@ -702,17 +661,9 @@ onMounted(loadAnalysis)
   font-size: var(--cg-font-size-sm);
 }
 
-.stat-item.success {
-  color: var(--cg-color-success);
-}
-
-.stat-item.warning {
-  color: var(--cg-color-warning);
-}
-
-.stat-item.error {
-  color: var(--cg-color-error);
-}
+.stat-item.success { color: var(--cg-color-success); }
+.stat-item.warning { color: var(--cg-color-warning); }
+.stat-item.error { color: var(--cg-color-error); }
 
 .stat-icon {
   font-size: var(--cg-font-size-sm);
@@ -861,6 +812,12 @@ onMounted(loadAnalysis)
 .choice-badge.skip {
   background: var(--cg-color-bg-hover);
   color: var(--cg-color-text-muted);
+}
+
+.choice-badge.pending {
+  background: var(--cg-color-bg-tertiary);
+  color: var(--cg-color-text-muted);
+  font-style: italic;
 }
 
 .no-choices {

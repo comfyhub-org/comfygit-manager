@@ -1,26 +1,58 @@
 <template>
   <div class="node-resolution-step">
-    <!-- Progress Header -->
+    <!-- Section Header -->
     <div class="step-header">
       <div class="step-info">
         <h3 class="step-title">Resolve Missing Nodes</h3>
-        <p class="step-description">Choose how to handle each unresolved node dependency</p>
+        <p class="step-description">
+          Browse unresolved nodes and choose how to handle each one.
+          Unaddressed items will be skipped.
+        </p>
       </div>
-      <div class="step-progress">
-        <span class="progress-text">{{ resolvedCount }} / {{ totalNodes }} resolved</span>
-        <div class="progress-bar">
-          <div class="progress-fill" :style="{ width: `${progressPercentage}%` }"></div>
-        </div>
+      <div class="step-stats">
+        <span class="stat resolved">{{ resolvedCount }} resolved</span>
+        <span class="stat pending">{{ pendingCount }} pending</span>
       </div>
+    </div>
+
+    <!-- Item Navigator - browse all nodes -->
+    <div class="item-navigator">
+      <button
+        class="nav-arrow"
+        :disabled="currentIndex === 0"
+        @click="goToItem(currentIndex - 1)"
+      >
+        ←
+      </button>
+
+      <div class="item-indicators">
+        <button
+          v-for="(node, index) in nodes"
+          :key="node.node_type"
+          :class="['item-dot', {
+            active: index === currentIndex,
+            resolved: nodeChoices.has(node.node_type)
+          }]"
+          :title="node.node_type"
+          @click="goToItem(index)"
+        >
+          <span v-if="nodeChoices.has(node.node_type)" class="dot-check">✓</span>
+        </button>
+      </div>
+
+      <button
+        class="nav-arrow"
+        :disabled="currentIndex === nodes.length - 1"
+        @click="goToItem(currentIndex + 1)"
+      >
+        →
+      </button>
+
+      <span class="nav-position">{{ currentIndex + 1 }} / {{ nodes.length }}</span>
     </div>
 
     <!-- Current Node Card -->
     <div v-if="currentNode" class="step-body">
-      <div class="current-indicator">
-        <span class="indicator-label">Currently resolving:</span>
-        <span class="indicator-count">{{ currentIndex + 1 }} of {{ totalNodes }}</span>
-      </div>
-
       <NodeResolutionItem
         :node-type="currentNode.node_type"
         :has-multiple-options="!!currentNode.options?.length"
@@ -35,42 +67,20 @@
       />
     </div>
 
-    <!-- Navigation Footer -->
+    <!-- Empty state if no nodes -->
+    <div v-else class="empty-state">
+      <p>No nodes need resolution.</p>
+    </div>
+
+    <!-- Section Navigation Footer -->
     <div class="step-footer">
-      <BaseButton
-        variant="secondary"
-        :disabled="currentIndex === 0"
-        @click="emit('previous')"
-      >
-        ← Previous
+      <BaseButton variant="secondary" @click="emit('back-section')">
+        ← Back
       </BaseButton>
 
-      <div class="footer-right">
-        <BaseButton
-          v-if="!allResolved"
-          variant="ghost"
-          @click="skipRemaining"
-        >
-          Skip All Remaining
-        </BaseButton>
-
-        <BaseButton
-          v-if="isLastNode || allResolved"
-          variant="primary"
-          :disabled="!allResolved"
-          @click="emit('complete')"
-        >
-          Continue to {{ hasModels ? 'Models' : 'Review' }} →
-        </BaseButton>
-        <BaseButton
-          v-else
-          variant="primary"
-          :disabled="!currentNodeResolved"
-          @click="emit('next')"
-        >
-          Next →
-        </BaseButton>
-      </div>
+      <BaseButton variant="primary" @click="emit('next-section')">
+        {{ hasModels ? 'Continue to Models' : 'Continue to Review' }} →
+      </BaseButton>
     </div>
 
     <!-- Search Modal -->
@@ -142,7 +152,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick } from 'vue'
+import { ref, computed } from 'vue'
 import NodeResolutionItem from '../molecules/NodeResolutionItem.vue'
 import ConfidenceBadge from '../atoms/ConfidenceBadge.vue'
 import BaseButton from '../BaseButton.vue'
@@ -166,23 +176,22 @@ interface NodeToResolve {
 
 const props = defineProps<{
   nodes: NodeToResolve[]
-  currentIndex: number
   nodeChoices: Map<string, NodeChoice>
   hasModels?: boolean
 }>()
 
 const emit = defineEmits<{
-  (e: 'previous'): void
-  (e: 'next'): void
-  (e: 'complete'): void
+  (e: 'back-section'): void
+  (e: 'next-section'): void
   (e: 'mark-optional', nodeType: string): void
   (e: 'skip', nodeType: string): void
   (e: 'option-selected', nodeType: string, index: number): void
-  (e: 'search', nodeType: string): void
-  (e: 'manual-entry', nodeType: string): void
+  (e: 'manual-entry', nodeType: string, packageId: string): void
+  (e: 'clear-choice', nodeType: string): void
 }>()
 
-// Local state for modals
+// Local state
+const currentIndex = ref(0)
 const showSearch = ref(false)
 const showManualEntry = ref(false)
 const searchQuery = ref('')
@@ -191,47 +200,42 @@ const searchResults = ref<NodeSearchResult[]>([])
 const isSearching = ref(false)
 
 // Computed
-const currentNode = computed(() => props.nodes[props.currentIndex])
-const totalNodes = computed(() => props.nodes.length)
-const isLastNode = computed(() => props.currentIndex === totalNodes.value - 1)
+const currentNode = computed(() => props.nodes[currentIndex.value])
 
 const resolvedCount = computed(() => {
   return props.nodes.filter(n => props.nodeChoices.has(n.node_type)).length
 })
 
-const progressPercentage = computed(() =>
-  totalNodes.value > 0 ? (resolvedCount.value / totalNodes.value) * 100 : 0
-)
-
-const currentNodeResolved = computed(() => {
-  if (!currentNode.value) return false
-  return props.nodeChoices.has(currentNode.value.node_type)
+const pendingCount = computed(() => {
+  return props.nodes.length - resolvedCount.value
 })
 
-const allResolved = computed(() => resolvedCount.value === totalNodes.value)
+// Item navigation (within section)
+function goToItem(index: number) {
+  if (index >= 0 && index < props.nodes.length) {
+    currentIndex.value = index
+  }
+}
 
-// Handlers that set choice and auto-advance
+// Handlers - no auto-advance, user navigates manually
 function handleMarkOptional() {
   if (!currentNode.value) return
   emit('mark-optional', currentNode.value.node_type)
-  autoAdvance()
 }
 
 function handleSkip() {
   if (!currentNode.value) return
   emit('skip', currentNode.value.node_type)
-  autoAdvance()
 }
 
 function handleOptionSelected(index: number) {
   if (!currentNode.value) return
   emit('option-selected', currentNode.value.node_type, index)
-  autoAdvance()
 }
 
 function handleClearChoice() {
-  // When clearing, we'll need the parent to handle this
-  // For now, this would require adding a new emit
+  if (!currentNode.value) return
+  emit('clear-choice', currentNode.value.node_type)
 }
 
 function handleSearch() {
@@ -259,7 +263,6 @@ function closeManualEntry() {
 function handleSearchInput() {
   // TODO: Connect to actual search API via composable
   isSearching.value = true
-  // Simulated delay - in real impl, call searchNodes from useWorkflowResolution
   setTimeout(() => {
     isSearching.value = false
   }, 300)
@@ -267,49 +270,14 @@ function handleSearchInput() {
 
 function selectSearchResult(result: NodeSearchResult) {
   if (!currentNode.value) return
-  // This would need to emit the selection with the package_id
-  emit('search', currentNode.value.node_type)
+  emit('manual-entry', currentNode.value.node_type, result.package_id)
   closeSearch()
-  autoAdvance()
 }
 
 function submitManualEntry() {
   if (!currentNode.value || !manualPackageInput.value.trim()) return
-  emit('manual-entry', currentNode.value.node_type)
+  emit('manual-entry', currentNode.value.node_type, manualPackageInput.value.trim())
   closeManualEntry()
-  autoAdvance()
-}
-
-function skipRemaining() {
-  // Skip all unresolved nodes
-  for (const node of props.nodes) {
-    if (!props.nodeChoices.has(node.node_type)) {
-      emit('skip', node.node_type)
-    }
-  }
-}
-
-function autoAdvance() {
-  // Auto-advance to next unresolved node or complete
-  nextTick(() => {
-    if (allResolved.value) {
-      // All done - user can click complete
-      return
-    }
-
-    // Find next unresolved
-    const nextUnresolvedIndex = props.nodes.findIndex(
-      (n, i) => i > props.currentIndex && !props.nodeChoices.has(n.node_type)
-    )
-
-    if (nextUnresolvedIndex !== -1) {
-      // There's an unresolved node ahead - advance
-      emit('next')
-    } else if (!isLastNode.value) {
-      // Just advance to next
-      emit('next')
-    }
-  })
 }
 </script>
 
@@ -347,32 +315,119 @@ function autoAdvance() {
   margin: 0;
 }
 
-.step-progress {
+.step-stats {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: var(--cg-space-1);
-  min-width: 180px;
+  gap: var(--cg-space-3);
 }
 
-.progress-text {
+.stat {
   font-size: var(--cg-font-size-sm);
   font-family: var(--cg-font-mono);
-  color: var(--cg-color-text-secondary);
+  padding: var(--cg-space-1) var(--cg-space-2);
+  border-radius: var(--cg-radius-sm);
 }
 
-.progress-bar {
-  width: 100%;
-  height: 6px;
+.stat.resolved {
+  background: var(--cg-color-success-muted);
+  color: var(--cg-color-success);
+}
+
+.stat.pending {
+  background: var(--cg-color-warning-muted);
+  color: var(--cg-color-warning);
+}
+
+/* Item Navigator */
+.item-navigator {
+  display: flex;
+  align-items: center;
+  gap: var(--cg-space-3);
+  padding: var(--cg-space-2) var(--cg-space-3);
   background: var(--cg-color-bg-tertiary);
-  border-radius: var(--cg-radius-full);
-  overflow: hidden;
+  border-radius: var(--cg-radius-md);
+  border: 1px solid var(--cg-color-border-subtle);
 }
 
-.progress-fill {
-  height: 100%;
+.nav-arrow {
+  background: var(--cg-color-bg-secondary);
+  border: 1px solid var(--cg-color-border);
+  color: var(--cg-color-text-primary);
+  width: 32px;
+  height: 32px;
+  border-radius: var(--cg-radius-sm);
+  cursor: pointer;
+  font-size: var(--cg-font-size-base);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--cg-transition-fast);
+}
+
+.nav-arrow:hover:not(:disabled) {
+  background: var(--cg-color-bg-hover);
+  border-color: var(--cg-color-accent);
+  color: var(--cg-color-accent);
+}
+
+.nav-arrow:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.item-indicators {
+  display: flex;
+  gap: var(--cg-space-1);
+  flex-wrap: wrap;
+  flex: 1;
+  justify-content: center;
+}
+
+.item-dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--cg-color-border);
+  background: var(--cg-color-bg-secondary);
+  cursor: pointer;
+  transition: all var(--cg-transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: transparent;
+}
+
+.item-dot:hover {
+  border-color: var(--cg-color-accent);
+  transform: scale(1.1);
+}
+
+.item-dot.active {
+  border-color: var(--cg-color-accent);
+  background: var(--cg-color-accent);
+  box-shadow: 0 0 0 2px var(--cg-color-accent-muted);
+}
+
+.item-dot.resolved {
+  border-color: var(--cg-color-success);
   background: var(--cg-color-success);
-  transition: width var(--cg-transition-base);
+  color: white;
+}
+
+.item-dot.resolved.active {
+  box-shadow: 0 0 0 2px var(--cg-color-success-muted);
+}
+
+.dot-check {
+  font-weight: bold;
+}
+
+.nav-position {
+  font-size: var(--cg-font-size-sm);
+  font-family: var(--cg-font-mono);
+  color: var(--cg-color-text-muted);
+  min-width: 50px;
+  text-align: right;
 }
 
 .step-body {
@@ -380,21 +435,12 @@ function autoAdvance() {
   overflow-y: auto;
 }
 
-.current-indicator {
+.empty-state {
+  flex: 1;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--cg-space-2);
-  font-size: var(--cg-font-size-sm);
-}
-
-.indicator-label {
+  justify-content: center;
   color: var(--cg-color-text-muted);
-}
-
-.indicator-count {
-  font-family: var(--cg-font-mono);
-  color: var(--cg-color-text-secondary);
 }
 
 .step-footer {
@@ -403,12 +449,6 @@ function autoAdvance() {
   align-items: center;
   padding-top: var(--cg-space-3);
   border-top: 1px solid var(--cg-color-border);
-}
-
-.footer-right {
-  display: flex;
-  gap: var(--cg-space-2);
-  align-items: center;
 }
 </style>
 
