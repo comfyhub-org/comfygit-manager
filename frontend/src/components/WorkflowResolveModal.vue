@@ -4,6 +4,7 @@
     size="lg"
     :loading="loading"
     :error="error || undefined"
+    :fixed-height="true"
     @close="emit('close')"
   >
     <template #body>
@@ -20,6 +21,7 @@
           :steps="wizardSteps"
           :current-step="currentStep"
           :completed-steps="completedSteps"
+          :step-stats="stepStats"
           @step-change="navigateToStep"
         />
 
@@ -95,9 +97,6 @@
           v-if="currentStep === 'nodes'"
           :nodes="unresolvedAndAmbiguousNodes"
           :node-choices="nodeChoices"
-          :has-models="needsModelResolution"
-          @back-section="navigateToPreviousSection"
-          @next-section="navigateToNextSection"
           @mark-optional="handleNodeMarkOptional"
           @skip="handleNodeSkip"
           @option-selected="handleNodeOptionSelected"
@@ -110,8 +109,6 @@
           v-if="currentStep === 'models'"
           :models="unresolvedAndAmbiguousModels"
           :model-choices="modelChoices"
-          @back-section="navigateToPreviousSection"
-          @next-section="navigateToNextSection"
           @mark-optional="handleModelMarkOptional"
           @skip="handleModelSkip"
           @option-selected="handleModelOptionSelected"
@@ -221,11 +218,23 @@
     </template>
 
     <template #footer>
+      <!-- Back button (shown on all steps except analysis) -->
+      <BaseButton
+        v-if="currentStep !== 'analysis'"
+        variant="secondary"
+        :disabled="applying"
+        @click="navigateToPreviousSection"
+      >
+        ← Back
+      </BaseButton>
+
+      <div class="footer-spacer"></div>
+
       <BaseButton variant="secondary" @click="emit('close')">
         Cancel
       </BaseButton>
 
-      <!-- Analysis Step Footer -->
+      <!-- Analysis Step: Continue -->
       <BaseButton
         v-if="currentStep === 'analysis'"
         variant="primary"
@@ -235,15 +244,25 @@
         {{ needsUserInput ? 'Continue' : 'Apply' }}
       </BaseButton>
 
-      <!-- Review Step Footer -->
+      <!-- Nodes Step: Continue to Models or Review -->
       <BaseButton
-        v-if="currentStep === 'review'"
-        variant="secondary"
-        :disabled="applying"
-        @click="navigateToPreviousSection"
+        v-if="currentStep === 'nodes'"
+        variant="primary"
+        @click="navigateToNextSection"
       >
-        ← Back
+        {{ needsModelResolution ? 'Continue to Models →' : 'Continue to Review →' }}
       </BaseButton>
+
+      <!-- Models Step: Continue to Review -->
+      <BaseButton
+        v-if="currentStep === 'models'"
+        variant="primary"
+        @click="navigateToNextSection"
+      >
+        Continue to Review →
+      </BaseButton>
+
+      <!-- Review Step: Apply -->
       <BaseButton
         v-if="currentStep === 'review'"
         variant="primary"
@@ -341,7 +360,8 @@ const unresolvedAndAmbiguousNodes = computed(() => {
   const unresolved = analysisResult.value.nodes.unresolved.map(node => ({
     node_type: node.reference.node_type,
     reason: node.reason,
-    is_unresolved: true
+    is_unresolved: true,
+    options: undefined as undefined | { package_id: string; title: string; match_confidence: number; match_type: string; is_installed: boolean }[]
   }))
 
   const ambiguous = analysisResult.value.nodes.ambiguous.map(node => ({
@@ -359,6 +379,13 @@ const unresolvedAndAmbiguousNodes = computed(() => {
   return [...unresolved, ...ambiguous]
 })
 
+interface ModelOptionType {
+  model: { filename: string; hash: string; size: number; category: string; relative_path: string }
+  match_confidence: number
+  match_type: string
+  has_download_source?: boolean
+}
+
 const unresolvedAndAmbiguousModels = computed(() => {
   if (!analysisResult.value) return []
 
@@ -366,7 +393,8 @@ const unresolvedAndAmbiguousModels = computed(() => {
     filename: model.reference.widget_value,
     reference: model.reference,
     reason: model.reason,
-    is_unresolved: true
+    is_unresolved: true,
+    options: undefined as undefined | ModelOptionType[]
   }))
 
   const ambiguous = analysisResult.value.models.ambiguous.map(model => ({
@@ -436,6 +464,37 @@ const skippedCount = computed(() => {
   }
 
   return count
+})
+
+// Step stats for color-coded stepper
+const stepStats = computed(() => {
+  const stats: Record<string, { resolved: number; total: number }> = {}
+
+  // Analysis is always "complete" once loaded
+  stats['analysis'] = { resolved: 1, total: 1 }
+
+  // Node stats
+  if (needsNodeResolution.value) {
+    const total = unresolvedAndAmbiguousNodes.value.length
+    const resolved = unresolvedAndAmbiguousNodes.value.filter(
+      n => nodeChoices.value.has(n.node_type)
+    ).length
+    stats['nodes'] = { resolved, total }
+  }
+
+  // Model stats
+  if (needsModelResolution.value) {
+    const total = unresolvedAndAmbiguousModels.value.length
+    const resolved = unresolvedAndAmbiguousModels.value.filter(
+      m => modelChoices.value.has(m.filename)
+    ).length
+    stats['models'] = { resolved, total }
+  }
+
+  // Review is always accessible
+  stats['review'] = { resolved: 1, total: 1 }
+
+  return stats
 })
 
 // Navigation methods
@@ -594,11 +653,11 @@ onMounted(loadAnalysis)
 .wizard-content {
   display: flex;
   flex-direction: column;
-  gap: var(--cg-space-4);
+  gap: 0;
 }
 
 .step-content {
-  padding: var(--cg-space-4);
+  padding: var(--cg-space-3);
 }
 
 /* Analysis Summary */
@@ -827,5 +886,10 @@ onMounted(loadAnalysis)
   color: var(--cg-color-text-muted);
   font-size: var(--cg-font-size-sm);
   text-align: center;
+}
+
+/* Footer layout */
+.footer-spacer {
+  flex: 1;
 }
 </style>

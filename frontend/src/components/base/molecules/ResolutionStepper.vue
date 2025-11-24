@@ -7,11 +7,12 @@
         :class="['step', {
           active: currentStep === step.id,
           completed: isStepCompleted(step.id),
+          'in-progress': isStepInProgress(step.id),
           disabled: isStepDisabled(step.id)
         }]"
-        @click="!isStepDisabled(step.id) && emit('step-change', step.id)"
+        @click="handleStepClick(step.id)"
       >
-        <div class="step-indicator">
+        <div :class="['step-indicator', getStepState(step.id)]">
           <span v-if="isStepCompleted(step.id)" class="step-icon">✓</span>
           <span v-else class="step-number">{{ index + 1 }}</span>
         </div>
@@ -31,10 +32,16 @@ interface Step {
   label: string
 }
 
+interface StepStats {
+  resolved: number
+  total: number
+}
+
 const props = defineProps<{
   steps: Step[]
   currentStep: string
   completedSteps: string[]
+  stepStats?: Record<string, StepStats>
 }>()
 
 const emit = defineEmits<{
@@ -42,14 +49,38 @@ const emit = defineEmits<{
 }>()
 
 function isStepCompleted(stepId: string): boolean {
+  // Check if all items in this step are resolved
+  if (props.stepStats?.[stepId]) {
+    const stats = props.stepStats[stepId]
+    return stats.total > 0 && stats.resolved === stats.total
+  }
   return props.completedSteps.includes(stepId)
 }
 
+function isStepInProgress(stepId: string): boolean {
+  // Has some resolutions but not all
+  if (props.stepStats?.[stepId]) {
+    const stats = props.stepStats[stepId]
+    return stats.resolved > 0 && stats.resolved < stats.total
+  }
+  return false
+}
+
+function getStepState(stepId: string): string {
+  if (isStepCompleted(stepId)) return 'state-complete'
+  if (isStepInProgress(stepId)) return 'state-partial'
+  return 'state-pending'
+}
+
 function isStepDisabled(stepId: string): boolean {
-  // Allow free navigation between all steps
-  // Only Analysis must be completed before accessing other steps
-  if (stepId === 'analysis') return false
-  return !props.completedSteps.includes('analysis')
+  // Allow free navigation - no steps are disabled
+  return false
+}
+
+function handleStepClick(stepId: string) {
+  if (!isStepDisabled(stepId)) {
+    emit('step-change', stepId)
+  }
 }
 </script>
 
@@ -57,14 +88,14 @@ function isStepDisabled(stepId: string): boolean {
 .resolution-stepper {
   display: flex;
   flex-direction: column;
-  gap: var(--cg-space-4);
+  gap: 0;
 }
 
 .stepper-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--cg-space-3);
+  padding: var(--cg-space-2) var(--cg-space-3);
   background: var(--cg-color-bg-secondary);
   border-bottom: 1px solid var(--cg-color-border);
 }
@@ -73,7 +104,7 @@ function isStepDisabled(stepId: string): boolean {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--cg-spacing-xs);
+  gap: 4px;
   flex: 1;
   position: relative;
   cursor: pointer;
@@ -81,12 +112,17 @@ function isStepDisabled(stepId: string): boolean {
   transition: opacity 0.2s;
 }
 
+.step:hover {
+  opacity: 1;
+}
+
 .step.active {
   opacity: 1;
 }
 
-.step.completed {
-  opacity: 0.8;
+.step.completed,
+.step.in-progress {
+  opacity: 0.9;
 }
 
 .step.disabled {
@@ -96,8 +132,8 @@ function isStepDisabled(stepId: string): boolean {
 }
 
 .step-indicator {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -106,20 +142,35 @@ function isStepDisabled(stepId: string): boolean {
   border: 2px solid var(--cg-color-border);
   color: var(--cg-color-text-muted);
   font-weight: var(--cg-font-weight-semibold);
-  font-size: var(--cg-font-size-sm);
+  font-size: var(--cg-font-size-xs);
   transition: all 0.2s;
 }
 
-.step.active .step-indicator {
-  background: var(--cg-color-primary);
-  border-color: var(--cg-color-primary);
-  color: white;
+/* State: pending (gray) */
+.step-indicator.state-pending {
+  background: var(--cg-color-bg-tertiary);
+  border-color: var(--cg-color-border);
+  color: var(--cg-color-text-muted);
 }
 
-.step.completed .step-indicator {
+/* State: partial/in-progress (orange/warning) */
+.step-indicator.state-partial {
+  background: var(--cg-color-warning-muted);
+  border-color: var(--cg-color-warning);
+  color: var(--cg-color-warning);
+}
+
+/* State: complete (green) */
+.step-indicator.state-complete {
   background: var(--cg-color-success);
   border-color: var(--cg-color-success);
   color: white;
+}
+
+/* Active step gets accent color ring */
+.step.active .step-indicator {
+  box-shadow: 0 0 0 2px var(--cg-color-accent-muted);
+  border-color: var(--cg-color-accent);
 }
 
 .step-label {
@@ -136,19 +187,15 @@ function isStepDisabled(stepId: string): boolean {
 
 .step-connector {
   position: absolute;
-  top: 16px;
-  left: calc(50% + 16px);
-  right: calc(-50% + 16px);
+  top: 14px;
+  left: calc(50% + 14px);
+  right: calc(-50% + 14px);
   height: 2px;
   background: var(--cg-color-border);
   z-index: -1;
 }
 
-.step.completed .step-connector {
-  background: var(--cg-color-success);
-}
-
 .stepper-content {
-  padding: var(--cg-space-4);
+  padding: var(--cg-space-2) var(--cg-space-3);
 }
 </style>

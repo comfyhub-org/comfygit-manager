@@ -1,7 +1,7 @@
 <template>
   <Teleport to="body">
     <div class="base-modal-overlay" @click="handleOverlayClick">
-      <div :class="['base-modal-content', size]" @click.stop>
+      <div :class="['base-modal-content', size, { 'fixed-height': fixedHeight }]" @click.stop>
         <div class="base-modal-header">
           <slot name="header">
             <h3 v-if="title" class="base-modal-title">{{ title }}</h3>
@@ -41,11 +41,13 @@ const props = withDefaults(defineProps<{
   closeOnOverlayClick?: boolean
   loading?: boolean
   error?: string
+  fixedHeight?: boolean
 }>(), {
   size: 'md',
   showCloseButton: true,
   closeOnOverlayClick: true,
-  loading: false
+  loading: false,
+  fixedHeight: false
 })
 
 const emit = defineEmits<{
@@ -118,6 +120,12 @@ onUnmounted(() => {
 .base-modal-content.md { max-width: 600px; }
 .base-modal-content.lg { max-width: 800px; }
 .base-modal-content.xl { max-width: 1000px; }
+
+/* Fixed height mode - prevents modal from jumping when content changes */
+.base-modal-content.fixed-height {
+  height: 70vh;
+  max-height: 70vh;
+}
 
 .base-modal-header {
   padding: var(--cg-space-4);

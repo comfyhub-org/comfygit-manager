@@ -72,17 +72,6 @@
       <p>No nodes need resolution.</p>
     </div>
 
-    <!-- Section Navigation Footer -->
-    <div class="step-footer">
-      <BaseButton variant="secondary" @click="emit('back-section')">
-        ← Back
-      </BaseButton>
-
-      <BaseButton variant="primary" @click="emit('next-section')">
-        {{ hasModels ? 'Continue to Models' : 'Continue to Review' }} →
-      </BaseButton>
-    </div>
-
     <!-- Search Modal -->
     <Teleport to="body">
       <div v-if="showSearch" class="node-resolution-modal-overlay" @click.self="closeSearch">
@@ -177,12 +166,9 @@ interface NodeToResolve {
 const props = defineProps<{
   nodes: NodeToResolve[]
   nodeChoices: Map<string, NodeChoice>
-  hasModels?: boolean
 }>()
 
 const emit = defineEmits<{
-  (e: 'back-section'): void
-  (e: 'next-section'): void
   (e: 'mark-optional', nodeType: string): void
   (e: 'skip', nodeType: string): void
   (e: 'option-selected', nodeType: string, index: number): void
@@ -285,16 +271,16 @@ function submitManualEntry() {
 .node-resolution-step {
   display: flex;
   flex-direction: column;
-  gap: var(--cg-space-4);
+  gap: var(--cg-space-2);
   min-height: 400px;
 }
 
 .step-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  gap: var(--cg-space-4);
-  padding-bottom: var(--cg-space-3);
+  align-items: center;
+  gap: var(--cg-space-3);
+  padding-bottom: var(--cg-space-2);
   border-bottom: 1px solid var(--cg-color-border);
 }
 
@@ -303,27 +289,27 @@ function submitManualEntry() {
 }
 
 .step-title {
-  font-size: var(--cg-font-size-lg);
+  font-size: var(--cg-font-size-base);
   font-weight: var(--cg-font-weight-semibold);
   color: var(--cg-color-text-primary);
-  margin: 0 0 var(--cg-space-1) 0;
+  margin: 0;
 }
 
 .step-description {
-  font-size: var(--cg-font-size-sm);
+  font-size: var(--cg-font-size-xs);
   color: var(--cg-color-text-muted);
-  margin: 0;
+  margin: 2px 0 0 0;
 }
 
 .step-stats {
   display: flex;
-  gap: var(--cg-space-3);
+  gap: var(--cg-space-2);
 }
 
 .stat {
-  font-size: var(--cg-font-size-sm);
+  font-size: var(--cg-font-size-xs);
   font-family: var(--cg-font-mono);
-  padding: var(--cg-space-1) var(--cg-space-2);
+  padding: 2px 6px;
   border-radius: var(--cg-radius-sm);
 }
 
@@ -337,14 +323,14 @@ function submitManualEntry() {
   color: var(--cg-color-warning);
 }
 
-/* Item Navigator */
+/* Item Navigator - compact */
 .item-navigator {
   display: flex;
   align-items: center;
-  gap: var(--cg-space-3);
-  padding: var(--cg-space-2) var(--cg-space-3);
+  gap: var(--cg-space-2);
+  padding: 6px var(--cg-space-2);
   background: var(--cg-color-bg-tertiary);
-  border-radius: var(--cg-radius-md);
+  border-radius: var(--cg-radius-sm);
   border: 1px solid var(--cg-color-border-subtle);
 }
 
@@ -352,11 +338,11 @@ function submitManualEntry() {
   background: var(--cg-color-bg-secondary);
   border: 1px solid var(--cg-color-border);
   color: var(--cg-color-text-primary);
-  width: 32px;
-  height: 32px;
+  width: 44px;
+  height: 24px;
   border-radius: var(--cg-radius-sm);
   cursor: pointer;
-  font-size: var(--cg-font-size-base);
+  font-size: var(--cg-font-size-sm);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -376,15 +362,15 @@ function submitManualEntry() {
 
 .item-indicators {
   display: flex;
-  gap: var(--cg-space-1);
+  gap: 4px;
   flex-wrap: wrap;
   flex: 1;
   justify-content: center;
 }
 
 .item-dot {
-  width: 24px;
-  height: 24px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   border: 2px solid var(--cg-color-border);
   background: var(--cg-color-bg-secondary);
@@ -393,7 +379,7 @@ function submitManualEntry() {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 10px;
+  font-size: 8px;
   color: transparent;
 }
 
@@ -423,10 +409,10 @@ function submitManualEntry() {
 }
 
 .nav-position {
-  font-size: var(--cg-font-size-sm);
+  font-size: var(--cg-font-size-xs);
   font-family: var(--cg-font-mono);
   color: var(--cg-color-text-muted);
-  min-width: 50px;
+  min-width: 40px;
   text-align: right;
 }
 
@@ -441,14 +427,6 @@ function submitManualEntry() {
   align-items: center;
   justify-content: center;
   color: var(--cg-color-text-muted);
-}
-
-.step-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-top: var(--cg-space-3);
-  border-top: 1px solid var(--cg-color-border);
 }
 </style>
 

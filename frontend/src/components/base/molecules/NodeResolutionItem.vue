@@ -67,9 +67,6 @@
           <BaseButton variant="secondary" size="sm" @click="emit('mark-optional')">
             Mark Optional
           </BaseButton>
-          <BaseButton variant="secondary" size="sm" @click="emit('skip')">
-            Skip
-          </BaseButton>
         </div>
       </div>
 
@@ -89,9 +86,6 @@
           </BaseButton>
           <BaseButton variant="secondary" size="sm" @click="emit('mark-optional')">
             Mark Optional
-          </BaseButton>
-          <BaseButton variant="ghost" size="sm" @click="emit('skip')">
-            Skip
           </BaseButton>
         </div>
       </div>
