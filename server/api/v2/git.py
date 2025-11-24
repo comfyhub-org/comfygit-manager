@@ -115,6 +115,7 @@ async def switch_branch(request: web.Request, env) -> web.Response:
     """Switch to a different branch. Requires restart to take effect."""
     import os
     import asyncio
+    from comfygit_core.models.exceptions import CDEnvironmentError
 
     json_data = await request.json()
     branch = json_data.get("branch")
@@ -123,25 +124,27 @@ async def switch_branch(request: web.Request, env) -> web.Response:
     if not branch:
         return web.json_response({"error": "branch is required"}, status=400)
 
-    # Check for uncommitted changes
-    def check_uncommitted():
-        has_git_changes = env.git_manager.has_uncommitted_changes()
-        has_workflow_changes = env.workflow_manager.get_workflow_sync_status().has_changes
-        return has_git_changes or has_workflow_changes
-
-    has_uncommitted = await run_sync(check_uncommitted)
-
-    if has_uncommitted and not force:
+    # Call orchestrator method to sync environment
+    try:
+        if force:
+            # Use checkout with force to discard uncommitted changes
+            await run_sync(env.checkout, branch, strategy=None, force=True)
+        else:
+            # Use switch_branch for safe switching (preserves or errors on conflicts)
+            await run_sync(env.switch_branch, branch, create=False)
+    except CDEnvironmentError as e:
+        # Handle workflow conflict errors
         return web.json_response({
-            "status": "warning",
-            "reason": "uncommitted_changes",
-            "message": "You have uncommitted changes that will be lost"
-        })
+            "status": "error",
+            "message": str(e)
+        }, status=400)
+    except Exception as e:
+        return web.json_response({
+            "status": "error",
+            "message": str(e)
+        }, status=500)
 
-    # Do git switch
-    await run_sync(env.git_manager.switch_branch, branch)
-
-    # Trigger restart to sync the new state
+    # Trigger restart to reload browser state
     async def delayed_exit():
         await asyncio.sleep(0.3)
         os._exit(42)  # RESTART_EXIT_CODE
@@ -160,6 +163,7 @@ async def checkout_commit(request: web.Request, env) -> web.Response:
     """Checkout a specific commit or ref."""
     import os
     import asyncio
+    from comfygit_core.models.exceptions import CDEnvironmentError
 
     json_data = await request.json()
     ref = json_data.get("ref")
@@ -168,21 +172,22 @@ async def checkout_commit(request: web.Request, env) -> web.Response:
     if not ref:
         return web.json_response({"error": "ref is required"}, status=400)
 
-    # Check for uncommitted changes if not forcing
-    if not force:
-        has_uncommitted = await run_sync(env.git_manager.has_uncommitted_changes)
-        if has_uncommitted:
-            return web.json_response({
-                "status": "warning",
-                "reason": "uncommitted_changes",
-                "message": "You have uncommitted changes that will be lost"
-            })
-
-    # Do checkout
+    # Call orchestrator method
     try:
-        await run_sync(env.git_manager.checkout, ref)
+        await run_sync(env.checkout, ref, strategy=None, force=force)
     except ValueError as e:
         return web.json_response({"error": str(e)}, status=404)
+    except CDEnvironmentError as e:
+        # Handle uncommitted changes error
+        return web.json_response({
+            "status": "error",
+            "message": str(e)
+        }, status=400)
+    except Exception as e:
+        return web.json_response({
+            "status": "error",
+            "message": str(e)
+        }, status=500)
 
     # Trigger restart to sync
     async def delayed_exit():

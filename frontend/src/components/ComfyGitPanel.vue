@@ -573,6 +573,10 @@ async function handleCheckout(commit: CommitInfo) {
     destructive: hasChanges,
     onConfirm: async () => {
       confirmDialog.value = null
+
+      // Clear cached workflows before checkout so fresh versions load after restart
+      clearWorkflowCache()
+
       const toastId = showToast(`Checking out ${commit.short_hash || commit.hash?.slice(0, 7)}...`, 'info', 0)
 
       const result = await checkout(commit.hash, hasChanges)
@@ -608,6 +612,10 @@ async function handleBranchSwitch(branchName: string) {
     cancelLabel: 'Cancel',
     onConfirm: async () => {
       confirmDialog.value = null
+
+      // Clear cached workflows before switch so fresh versions load after restart
+      clearWorkflowCache()
+
       const toastId = showToast(`Switching to ${branchName}...`, 'info', 0)
 
       const result = await switchBranch(branchName, hasChanges)
@@ -652,6 +660,32 @@ async function handleBranchFromCommit(commit: CommitInfo) {
   }
 }
 
+// Clear workflow cache before context switches to force fresh load from disk
+function clearWorkflowCache() {
+  try {
+    // Clear workflow content (existing - working correctly)
+    localStorage.removeItem('workflow')
+    localStorage.removeItem('Comfy.PreviousWorkflow')
+
+    // Clear tab state (NEW - prevents tabs from auto-reopening)
+    localStorage.removeItem('Comfy.OpenWorkflowsPaths')
+    localStorage.removeItem('Comfy.ActiveWorkflowIndex')
+
+    // Clear ALL workflow-related sessionStorage
+    Object.keys(sessionStorage).forEach(key => {
+      if (key.startsWith('workflow:') ||
+          key.startsWith('Comfy.OpenWorkflowsPaths:') ||
+          key.startsWith('Comfy.ActiveWorkflowIndex:')) {
+        sessionStorage.removeItem(key)
+      }
+    })
+
+    console.log('[ComfyGit] Cleared workflow cache before context switch')
+  } catch (error) {
+    console.warn('[ComfyGit] Failed to clear workflow cache:', error)
+  }
+}
+
 // Environment switching flow
 async function handleEnvironmentSwitch(envName: string) {
   showEnvironmentSelector.value = false
@@ -662,6 +696,10 @@ async function handleEnvironmentSwitch(envName: string) {
 async function confirmEnvironmentSwitch() {
   showConfirmSwitch.value = false
   showSwitchProgress.value = true
+
+  // Clear cached workflows before switch so fresh versions load after restart
+  clearWorkflowCache()
+
   switchProgress.value = {
     progress: 10,
     state: getStateFromProgress(10),

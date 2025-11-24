@@ -24,8 +24,8 @@
 Before starting any work, familiarize yourself with the codebase by reviewing these key files:
 
 ### Architecture Maps (Start Here!)
-- **docs/server-map.md** - Backend structure (server/, API endpoints, logging)
-- **docs/frontend-map.md** - Frontend structure (Vue components, services, types)
+- @docs/server-map.md - Backend structure (server/, API endpoints, logging)
+- @docs/frontend-map.md - Frontend structure (Vue components, services, types)
 
 ### Testing Documentation
 - **testing/README.md** - Comprehensive test guide (69 panel API tests + orchestrator tests)
