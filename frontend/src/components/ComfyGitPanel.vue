@@ -573,6 +573,10 @@ async function handleCheckout(commit: CommitInfo) {
     destructive: hasChanges,
     onConfirm: async () => {
       confirmDialog.value = null
+
+      // Set flag to prompt for refresh after server restart
+      setRefreshFlag()
+
       const toastId = showToast(`Checking out ${commit.short_hash || commit.hash?.slice(0, 7)}...`, 'info', 0)
 
       const result = await checkout(commit.hash, hasChanges)
@@ -608,6 +612,10 @@ async function handleBranchSwitch(branchName: string) {
     cancelLabel: 'Cancel',
     onConfirm: async () => {
       confirmDialog.value = null
+
+      // Set flag to prompt for refresh after server restart
+      setRefreshFlag()
+
       const toastId = showToast(`Switching to ${branchName}...`, 'info', 0)
 
       const result = await switchBranch(branchName, hasChanges)
@@ -652,6 +660,12 @@ async function handleBranchFromCommit(commit: CommitInfo) {
   }
 }
 
+// Set flag to show refresh notification after server restart
+function setRefreshFlag() {
+  sessionStorage.setItem('ComfyGit.PendingRefresh', 'true')
+  console.log('[ComfyGit] Set refresh flag for post-restart notification')
+}
+
 // Environment switching flow
 async function handleEnvironmentSwitch(envName: string) {
   showEnvironmentSelector.value = false
@@ -662,6 +676,10 @@ async function handleEnvironmentSwitch(envName: string) {
 async function confirmEnvironmentSwitch() {
   showConfirmSwitch.value = false
   showSwitchProgress.value = true
+
+  // Set flag to prompt for refresh after server restart
+  setRefreshFlag()
+
   switchProgress.value = {
     progress: 10,
     state: getStateFromProgress(10),

@@ -79,6 +79,18 @@
           </div>
         </SectionGroup>
 
+        <!-- UI Settings -->
+        <SectionGroup title="UI SETTINGS">
+          <div class="settings-section">
+            <SettingRow
+              label="Auto-Refresh After Git Operations"
+              description="Automatically refresh the page after branch switches and checkouts. If disabled, shows a notification with a refresh button."
+            >
+              <Toggle v-model="autoRefresh" @update:modelValue="saveAutoRefreshSetting" />
+            </SettingRow>
+          </div>
+        </SectionGroup>
+
         <!-- Future Settings (Disabled) -->
         <SectionGroup title="ADDITIONAL SETTINGS (Coming Soon)">
           <div class="settings-section">
@@ -143,6 +155,9 @@ const huggingfaceToken = ref<string>('')  // Not yet supported
 const autoSyncModels = ref(true)          // Not yet supported
 const confirmDestructive = ref(true)      // Not yet supported
 
+// UI settings (stored in localStorage)
+const autoRefresh = ref(false)
+
 // Check if settings have changed
 const hasChanges = computed(() => {
   if (!originalConfig.value) return false
@@ -164,6 +179,10 @@ async function loadSettings() {
     huggingfaceToken.value = config.value.huggingface_token || ''
     autoSyncModels.value = config.value.auto_sync_models
     confirmDestructive.value = config.value.confirm_destructive
+
+    // Load UI settings from localStorage
+    const storedAutoRefresh = localStorage.getItem('ComfyGit.Settings.AutoRefresh')
+    autoRefresh.value = storedAutoRefresh === 'true'
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Failed to load settings'
   } finally {
@@ -210,6 +229,11 @@ function resetSettings() {
     confirmDestructive.value = originalConfig.value.confirm_destructive
     saveStatus.value = null
   }
+}
+
+function saveAutoRefreshSetting(value: boolean) {
+  localStorage.setItem('ComfyGit.Settings.AutoRefresh', String(value))
+  console.log('[ComfyGit] Auto-refresh setting saved:', value)
 }
 
 onMounted(loadSettings)

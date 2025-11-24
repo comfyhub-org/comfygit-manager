@@ -291,7 +291,60 @@ class TestBranchesEndpoint:
 
 @pytest.mark.integration
 class TestCheckoutEndpoint:
-    """POST /v2/comfygit/checkout - Checkout commit or branch."""
+    """POST /v2/comfygit/checkout - Checkout commit or branch.
+
+    CRITICAL BUG: Current implementation calls env.git_manager.checkout()
+    which bypasses environment synchronization. Should call env.checkout()
+    to properly sync workflows from .cec to ComfyUI/workflows/.
+    """
+
+    async def test_calls_orchestrator_checkout_method(
+        self,
+        client,
+        mock_environment
+    ):
+        """Should call env.checkout() NOT env.git_manager.checkout()."""
+        # Setup: Mock the orchestrator method
+        mock_environment.checkout = Mock()
+        mock_environment.git_manager = Mock()
+
+        # Execute
+        resp = await client.post("/v2/comfygit/checkout", json={
+            "ref": "abc123",
+            "force": False
+        })
+
+        # Verify response
+        assert resp.status == 200
+        data = await resp.json()
+        assert data["status"] == "success"
+
+        # CRITICAL: Should call env.checkout() to sync workflows
+        mock_environment.checkout.assert_called_once_with("abc123", strategy=None, force=False)
+
+        # Should NOT call low-level git_manager method
+        mock_environment.git_manager.checkout.assert_not_called()
+
+    async def test_calls_checkout_with_force(
+        self,
+        client,
+        mock_environment
+    ):
+        """Should pass force=True when requested."""
+        # Setup
+        mock_environment.checkout = Mock()
+
+        # Execute with force
+        resp = await client.post("/v2/comfygit/checkout", json={
+            "ref": "abc123",
+            "force": True
+        })
+
+        # Verify
+        assert resp.status == 200
+
+        # Should call with force flag
+        mock_environment.checkout.assert_called_once_with("abc123", strategy=None, force=True)
 
     async def test_success_checkout_no_changes(
         self,
@@ -300,15 +353,8 @@ class TestCheckoutEndpoint:
         monkeypatch
     ):
         """Should checkout ref when no uncommitted changes."""
-        # Setup: No uncommitted changes
-        mock_environment.git_manager = Mock()
-        mock_environment.git_manager.has_uncommitted_changes.return_value = False
-        mock_environment.git_manager.repo_path = "/tmp/repo"
-        mock_environment.workflow_manager.get_workflow_sync_status.return_value = Mock(has_changes=False)
-
-        # Mock the git command to prevent actual execution
-        mock_git = Mock()
-        monkeypatch.setattr("comfygit_core.utils.git._git", mock_git)
+        # Setup: Mock orchestrator method
+        mock_environment.checkout = Mock()
 
         # Execute
         resp = await client.post("/v2/comfygit/checkout", json={
@@ -322,55 +368,27 @@ class TestCheckoutEndpoint:
         assert data["status"] == "success"
         assert "Restarting" in data["message"]
 
-    async def test_warning_uncommitted_changes_no_force(
+    async def test_handles_invalid_ref_error(
         self,
         client,
         mock_environment
     ):
-        """Should return warning when uncommitted changes and force=False."""
-        # Setup: Has uncommitted changes
-        mock_environment.git_manager = Mock()
-        mock_environment.git_manager.has_uncommitted_changes.return_value = True
+        """Should return 404 when ref doesn't exist."""
+        # Setup: Mock orchestrator to raise ValueError for invalid ref
+        mock_environment.checkout = Mock(
+            side_effect=ValueError("Invalid ref: notexist")
+        )
 
         # Execute
         resp = await client.post("/v2/comfygit/checkout", json={
-            "ref": "develop",
+            "ref": "notexist",
             "force": False
         })
 
         # Verify
-        assert resp.status == 200
+        assert resp.status == 404
         data = await resp.json()
-        assert data["status"] == "warning"
-        assert data["reason"] == "uncommitted_changes"
-        assert "uncommitted changes" in data["message"].lower()
-
-    async def test_success_force_checkout_with_changes(
-        self,
-        client,
-        mock_environment,
-        monkeypatch
-    ):
-        """Should checkout with force when force=True even with changes."""
-        # Setup: Has uncommitted changes
-        mock_environment.git_manager = Mock()
-        mock_environment.git_manager.has_uncommitted_changes.return_value = True
-        mock_environment.git_manager.repo_path = "/tmp/repo"
-
-        # Mock the git command to prevent actual execution
-        mock_git = Mock()
-        monkeypatch.setattr("comfygit_core.utils.git._git", mock_git)
-
-        # Execute
-        resp = await client.post("/v2/comfygit/checkout", json={
-            "ref": "develop",
-            "force": True
-        })
-
-        # Verify
-        assert resp.status == 200
-        data = await resp.json()
-        assert data["status"] == "success"
+        assert "error" in data
 
     async def test_validation_missing_ref(self, client, mock_environment):
         """Should return 400 when ref is missing."""
@@ -487,6 +505,145 @@ class TestCreateBranchEndpoint:
 
         resp = await client.post("/v2/comfygit/branch", json={
             "name": "feature/test"
+        })
+
+        assert resp.status == 500
+
+
+@pytest.mark.integration
+class TestSwitchBranchEndpoint:
+    """POST /v2/comfygit/switch - Switch to a different branch.
+
+    CRITICAL BUG: Current implementation calls env.git_manager.switch_branch()
+    which bypasses environment synchronization. Should call env.switch_branch()
+    to properly sync workflows from .cec to ComfyUI/workflows/.
+    """
+
+    async def test_calls_orchestrator_switch_branch_method(
+        self,
+        client,
+        mock_environment,
+        monkeypatch
+    ):
+        """Should call env.switch_branch() NOT env.git_manager.switch_branch()."""
+        # Setup: Mock the orchestrator method
+        mock_environment.switch_branch = Mock()
+        mock_environment.git_manager = Mock()
+        mock_environment.git_manager.has_uncommitted_changes.return_value = False
+        mock_environment.workflow_manager = Mock()
+        mock_environment.workflow_manager.get_workflow_sync_status.return_value = Mock(has_changes=False)
+
+        # Execute
+        resp = await client.post("/v2/comfygit/switch", json={
+            "branch": "test-branch",
+            "force": False
+        })
+
+        # Verify response
+        assert resp.status == 200
+        data = await resp.json()
+        assert data["status"] == "success"
+
+        # CRITICAL: Should call env.switch_branch() to sync workflows
+        mock_environment.switch_branch.assert_called_once_with("test-branch", create=False)
+
+        # Should NOT call low-level git_manager method
+        mock_environment.git_manager.switch_branch.assert_not_called()
+
+    async def test_handles_workflow_conflict_error(
+        self,
+        client,
+        mock_environment
+    ):
+        """Should return 400 when env.switch_branch() raises CDEnvironmentError."""
+        from comfygit_core.models.exceptions import CDEnvironmentError
+
+        # Setup: Mock orchestrator method to raise conflict error
+        mock_environment.switch_branch = Mock(
+            side_effect=CDEnvironmentError("Cannot switch - would overwrite uncommitted workflows")
+        )
+
+        # Execute
+        resp = await client.post("/v2/comfygit/switch", json={
+            "branch": "test-branch",
+            "force": False
+        })
+
+        # Verify: Should return error to user
+        assert resp.status == 400
+        data = await resp.json()
+        assert data["status"] == "error"
+        assert "overwrite" in data["message"].lower()
+
+    async def test_success_switch_with_no_changes(
+        self,
+        client,
+        mock_environment
+    ):
+        """Should switch branch successfully when no uncommitted changes."""
+        # Setup
+        mock_environment.switch_branch = Mock()
+
+        # Execute
+        resp = await client.post("/v2/comfygit/switch", json={
+            "branch": "develop",
+            "force": False
+        })
+
+        # Verify
+        assert resp.status == 200
+        data = await resp.json()
+        assert data["status"] == "success"
+        assert "Restarting" in data["message"]
+
+        # Verify orchestrator method was called
+        mock_environment.switch_branch.assert_called_once_with("develop", create=False)
+
+    async def test_force_switch_discards_uncommitted_changes(
+        self,
+        client,
+        mock_environment
+    ):
+        """Should use checkout with force=True when force flag is set."""
+        # Setup
+        mock_environment.checkout = Mock()
+        mock_environment.switch_branch = Mock()
+
+        # Execute with force=True
+        resp = await client.post("/v2/comfygit/switch", json={
+            "branch": "main",
+            "force": True
+        })
+
+        # Verify response
+        assert resp.status == 200
+        data = await resp.json()
+        assert data["status"] == "success"
+
+        # Should call checkout with force, NOT switch_branch
+        mock_environment.checkout.assert_called_once_with("main", strategy=None, force=True)
+        mock_environment.switch_branch.assert_not_called()
+
+    async def test_validation_missing_branch(self, client, mock_environment):
+        """Should return 400 when branch is missing."""
+        # Execute: No branch in body
+        resp = await client.post("/v2/comfygit/switch", json={})
+
+        # Verify
+        assert resp.status == 400
+        data = await resp.json()
+        assert "error" in data
+        assert "branch is required" in data["error"]
+
+    async def test_error_no_environment(self, client, monkeypatch):
+        """Should return 500 when no environment detected."""
+        monkeypatch.setattr(
+            "comfygit_panel.get_environment_from_cwd",
+            lambda: None
+        )
+
+        resp = await client.post("/v2/comfygit/switch", json={
+            "branch": "develop"
         })
 
         assert resp.status == 500

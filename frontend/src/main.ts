@@ -40,9 +40,9 @@ const globalStatus = ref<ComfyGitStatus | null>(null)
 
 // Fetch status for commit indicator
 async function fetchStatus() {
-  if (!window.app?.api) return null
+  if (!app?.api) return null
   try {
-    const response = await window.app.api.fetchApi('/v2/comfygit/status')
+    const response = await app.api.fetchApi('/v2/comfygit/status')
     if (response.ok) {
       globalStatus.value = await response.json()
     }
@@ -300,10 +300,143 @@ app.registerExtension({
     await fetchStatus()
     updateCommitIndicator()
 
-    // Refresh status periodically
+    // Refresh status periodically (fallback for external changes)
     setInterval(async () => {
       await fetchStatus()
       updateCommitIndicator()
     }, 30000)
+
+    // Register custom WebSocket event type with ComfyUI API
+    // CRITICAL: Use the imported 'app' object, NOT window.app (which doesn't exist yet)
+    const api = (app as any).api
+
+    if (api) {
+      api.addEventListener('comfygit:workflow-changed', async (event: CustomEvent) => {
+        const { change_type, workflow_name } = event.detail
+        console.log(`[ComfyGit] Workflow ${change_type}: ${workflow_name}`)
+
+        // Trigger immediate status check
+        await fetchStatus()
+        updateCommitIndicator()
+      })
+
+      console.log('[ComfyGit] Registered workflow file change listener')
+
+      // ========== REFRESH PROMPT: Show notification after git operations ==========
+      let wasConnected = false
+
+      api.addEventListener('status', async (event: CustomEvent) => {
+        const isConnected = event.detail != null
+
+        // Detect reconnection after disconnect (server restart from git operation)
+        if (isConnected && !wasConnected) {
+          const pendingRefresh = sessionStorage.getItem('ComfyGit.PendingRefresh')
+          if (pendingRefresh) {
+            sessionStorage.removeItem('ComfyGit.PendingRefresh')
+
+            // Check if auto-refresh is enabled
+            const autoRefresh = localStorage.getItem('ComfyGit.Settings.AutoRefresh') === 'true'
+
+            if (autoRefresh) {
+              console.log('[ComfyGit] Auto-refresh enabled, reloading page...')
+              clearWorkflowStateAndReload()
+            } else {
+              showRefreshNotification()
+            }
+          }
+        }
+
+        wasConnected = isConnected
+      })
+
+      function clearWorkflowStateAndReload() {
+        // Clear all workflow state so ComfyUI starts fresh after refresh
+        localStorage.removeItem('workflow')
+        localStorage.removeItem('Comfy.PreviousWorkflow')
+        localStorage.removeItem('Comfy.OpenWorkflowsPaths')
+        localStorage.removeItem('Comfy.ActiveWorkflowIndex')
+
+        // Clear workflow content from sessionStorage
+        Object.keys(sessionStorage).forEach(key => {
+          if (key.startsWith('workflow:') ||
+              key.startsWith('Comfy.OpenWorkflowsPaths:') ||
+              key.startsWith('Comfy.ActiveWorkflowIndex:')) {
+            sessionStorage.removeItem(key)
+          }
+        })
+
+        // Reload the page
+        window.location.reload()
+      }
+
+      function showRefreshNotification() {
+        // Create toast container
+        const toast = document.createElement('div')
+        toast.style.cssText = `
+          position: fixed;
+          bottom: 20px;
+          left: 50%;
+          transform: translateX(-50%);
+          background: var(--bg-color);
+          border: 1px solid var(--border-color);
+          border-radius: 8px;
+          padding: 16px 20px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+          z-index: 10000;
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          font-family: sans-serif;
+          font-size: 14px;
+          color: var(--fg-color);
+        `
+
+        // Message
+        const message = document.createElement('span')
+        message.textContent = 'Workflows updated - refresh required'
+        toast.appendChild(message)
+
+        // Refresh button
+        const refreshBtn = document.createElement('button')
+        refreshBtn.textContent = 'Refresh'
+        refreshBtn.style.cssText = `
+          background: var(--comfy-menu-bg);
+          color: var(--fg-color);
+          border: 1px solid var(--border-color);
+          border-radius: 4px;
+          padding: 6px 16px;
+          cursor: pointer;
+          font-size: 13px;
+          font-weight: 500;
+        `
+        refreshBtn.onmouseover = () => refreshBtn.style.background = 'var(--comfy-input-bg)'
+        refreshBtn.onmouseout = () => refreshBtn.style.background = 'var(--comfy-menu-bg)'
+        refreshBtn.onclick = () => clearWorkflowStateAndReload()
+        toast.appendChild(refreshBtn)
+
+        // Close button
+        const closeBtn = document.createElement('button')
+        closeBtn.textContent = '×'
+        closeBtn.style.cssText = `
+          background: transparent;
+          border: none;
+          color: var(--fg-color);
+          font-size: 24px;
+          line-height: 1;
+          cursor: pointer;
+          padding: 0 4px;
+          opacity: 0.6;
+        `
+        closeBtn.onmouseover = () => closeBtn.style.opacity = '1'
+        closeBtn.onmouseout = () => closeBtn.style.opacity = '0.6'
+        closeBtn.onclick = () => toast.remove()
+        toast.appendChild(closeBtn)
+
+        document.body.appendChild(toast)
+        console.log('[ComfyGit] Refresh notification displayed')
+      }
+
+      console.log('[ComfyGit] Refresh notification system initialized')
+    }
   }
 })
