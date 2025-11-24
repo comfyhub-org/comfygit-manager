@@ -320,6 +320,15 @@ app.registerExtension({
         updateCommitIndicator()
       })
 
+      api.addEventListener('comfygit:status-ready', async (event: CustomEvent) => {
+        const { environment, has_uncommitted_changes } = event.detail
+        console.log(`[ComfyGit] Status ready for ${environment}, has changes: ${has_uncommitted_changes}`)
+
+        // Trigger immediate status check to show uncommitted changes on startup
+        await fetchStatus()
+        updateCommitIndicator()
+      })
+
       console.log('[ComfyGit] Registered workflow file change listener')
     }
   }
