@@ -214,13 +214,19 @@
             </div>
           </div>
         </div>
+
+        <!-- Applying Step -->
+        <ApplyingStep
+          v-if="currentStep === 'applying'"
+          :progress="progress"
+        />
       </div>
     </template>
 
     <template #footer>
-      <!-- Back button (shown on all steps except analysis) -->
+      <!-- Back button (shown on all steps except analysis and applying) -->
       <BaseButton
-        v-if="currentStep !== 'analysis'"
+        v-if="currentStep !== 'analysis' && currentStep !== 'applying'"
         variant="secondary"
         :disabled="applying"
         @click="navigateToPreviousSection"
@@ -230,8 +236,13 @@
 
       <div class="footer-spacer"></div>
 
-      <BaseButton variant="secondary" @click="emit('close')">
-        Cancel
+      <!-- Cancel/Close button - changes behavior based on step -->
+      <BaseButton
+        v-if="currentStep !== 'applying' || progress.phase === 'complete' || progress.phase === 'error'"
+        variant="secondary"
+        @click="emit('close')"
+      >
+        {{ progress.phase === 'complete' ? 'Close' : 'Cancel' }}
       </BaseButton>
 
       <!-- Analysis Step: Continue -->
@@ -289,6 +300,7 @@ import BaseButton from './base/BaseButton.vue'
 import ResolutionStepper from './base/molecules/ResolutionStepper.vue'
 import NodeResolutionStep from './base/organisms/NodeResolutionStep.vue'
 import ModelResolutionStep from './base/organisms/ModelResolutionStep.vue'
+import ApplyingStep from './base/organisms/ApplyingStep.vue'
 
 const props = defineProps<{
   workflowName: string
@@ -300,7 +312,7 @@ const emit = defineEmits<{
   refresh: []
 }>()
 
-const { analyzeWorkflow, applyResolution } = useWorkflowResolution()
+const { analyzeWorkflow, applyResolution, queueModelDownloads, progress, resetProgress } = useWorkflowResolution()
 
 // State
 const analysisResult = ref<FullResolutionResult | null>(null)
@@ -309,9 +321,10 @@ const applying = ref(false)
 const error = ref<string | null>(null)
 
 // Wizard state
-type WizardStep = 'analysis' | 'nodes' | 'models' | 'review'
+type WizardStep = 'analysis' | 'nodes' | 'models' | 'review' | 'applying'
 const currentStep = ref<WizardStep>('analysis')
 const completedSteps = ref<WizardStep[]>([])
+
 
 // User choices
 const nodeChoices = ref<Map<string, NodeChoice>>(new Map())
@@ -332,6 +345,11 @@ const wizardSteps = computed(() => {
   }
 
   steps.push({ id: 'review', label: 'Review' })
+
+  // Add applying step when in applying phase
+  if (currentStep.value === 'applying') {
+    steps.push({ id: 'applying', label: 'Applying' })
+  }
 
   return steps
 })
@@ -494,6 +512,13 @@ const stepStats = computed(() => {
   // Review is always accessible
   stats['review'] = { resolved: 1, total: 1 }
 
+  // Applying step shows download progress
+  if (currentStep.value === 'applying') {
+    const total = progress.totalFiles || 1
+    const resolved = progress.completedFiles.length
+    stats['applying'] = { resolved, total }
+  }
+
   return stats
 })
 
@@ -608,14 +633,33 @@ function handleModelClearChoice(filename: string) {
 async function handleApply() {
   applying.value = true
   error.value = null
+  resetProgress()
+  progress.phase = 'resolving'
+  currentStep.value = 'applying'
 
   try {
-    await applyResolution(props.workflowName, nodeChoices.value, modelChoices.value)
-    emit('install')
-    emit('refresh')
-    emit('close')
+    // Step 1: Apply resolution (updates pyproject.toml, returns what to install/download)
+    const result = await applyResolution(props.workflowName, nodeChoices.value, modelChoices.value)
+
+    // Step 2: Queue model downloads to background download queue (non-blocking)
+    if (result.models_to_download && result.models_to_download.length > 0) {
+      queueModelDownloads(props.workflowName, result.models_to_download)
+    }
+
+    // Step 3: Store nodes to install for UI display
+    progress.nodesToInstall = result.nodes_to_install || []
+    progress.phase = 'complete'
+
+    // Close modal after short delay to show completion message
+    setTimeout(() => {
+      emit('refresh')
+      emit('install')
+      emit('close')
+    }, 1000)
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Failed to apply resolution'
+    progress.error = error.value
+    progress.phase = 'error'
   } finally {
     applying.value = false
   }

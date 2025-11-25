@@ -476,3 +476,46 @@ export interface ModelSearchResult {
   has_download_source: boolean
   relative_path?: string
 }
+
+// SSE Resolution Progress Types
+export interface ResolutionProgressState {
+  phase: 'idle' | 'resolving' | 'downloading' | 'complete' | 'error'
+  currentFile?: string
+  currentFileIndex?: number
+  totalFiles?: number
+  bytesDownloaded?: number
+  bytesTotal?: number
+  completedFiles: Array<{ filename: string; success: boolean; error?: string; reused?: boolean }>
+  nodesToInstall: string[]
+  error?: string
+}
+
+export interface DownloadResult {
+  filename: string
+  success: boolean
+  error?: string
+  reused?: boolean
+}
+
+// Model Download Queue Types
+export interface DownloadQueueItem {
+  id: string
+  workflow: string
+  filename: string
+  url: string
+  targetPath: string
+  size: number
+  type: string
+  status: 'queued' | 'downloading' | 'paused' | 'completed' | 'failed'
+  progress: number
+  downloaded: number
+  speed: number
+  eta: number
+  error?: string
+  retries: number
+}
+
+export interface DownloadQueue {
+  items: DownloadQueueItem[]
+  status: 'idle' | 'downloading' | 'paused'
+}

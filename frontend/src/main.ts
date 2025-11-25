@@ -2,6 +2,8 @@ import { app } from '../../scripts/app.js'
 import { createApp, h, ref, watch } from 'vue'
 import ComfyGitPanel from '@/components/ComfyGitPanel.vue'
 import CommitPopover from '@/components/CommitPopover.vue'
+import ModelDownloadQueue from '@/components/ModelDownloadQueue.vue'
+import { useModelDownloadQueue } from '@/composables/useModelDownloadQueue'
 import type { ComfyGitStatus } from '@/types/comfygit'
 import { getInitialTheme, applyTheme } from '@/themes'
 
@@ -34,6 +36,8 @@ import { switchTheme, getCurrentTheme, type ThemeName } from '@/themes'
 let panelOverlay: HTMLElement | null = null
 let commitPopover: HTMLElement | null = null
 let commitVueApp: ReturnType<typeof createApp> | null = null
+let downloadQueueContainer: HTMLElement | null = null
+let downloadQueueApp: ReturnType<typeof createApp> | null = null
 
 // Global status for indicator
 const globalStatus = ref<ComfyGitStatus | null>(null)
@@ -157,6 +161,21 @@ function closeCommitPopover() {
     commitPopover.remove()
     commitPopover = null
   }
+}
+
+function mountDownloadQueue() {
+  if (downloadQueueContainer) return // Already mounted
+
+  downloadQueueContainer = document.createElement('div')
+  downloadQueueContainer.className = 'comfygit-download-queue-root'
+
+  downloadQueueApp = createApp({
+    render: () => h(ModelDownloadQueue)
+  })
+
+  downloadQueueApp.mount(downloadQueueContainer)
+  document.body.appendChild(downloadQueueContainer)
+  console.log('[ComfyGit] Model download queue mounted')
 }
 
 // Update commit button indicator
@@ -295,6 +314,13 @@ app.registerExtension({
       app.menu.settingsGroup.element.before(btnGroup)
       console.log('[ComfyGit] Control Panel buttons added to toolbar')
     }
+
+    // Mount global download queue
+    mountDownloadQueue()
+
+    // Load any pending downloads from previous session
+    const { loadPendingDownloads } = useModelDownloadQueue()
+    loadPendingDownloads()
 
     // Initial status fetch for indicator
     await fetchStatus()

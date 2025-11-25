@@ -135,6 +135,7 @@ def create_mock_commit(hash_val="abc123", message="Test commit"):
 def create_mock_resolution(
     nodes_resolved=None,
     nodes_unresolved=None,
+    nodes_ambiguous=None,
     models_resolved=None,
     models_unresolved=None,
     models_ambiguous=None
@@ -145,9 +146,10 @@ def create_mock_resolution(
     Args:
         nodes_resolved: List of resolved node objects
         nodes_unresolved: List of unresolved node type strings
+        nodes_ambiguous: List of lists of ambiguous node options
         models_resolved: List of resolved model objects
         models_unresolved: List of unresolved model references
-        models_ambiguous: List of ambiguous model references
+        models_ambiguous: List of lists of ambiguous model options
 
     Returns:
         Mock resolution object with iterable fields
@@ -155,6 +157,7 @@ def create_mock_resolution(
     resolution = Mock()
     resolution.nodes_resolved = nodes_resolved or []
     resolution.nodes_unresolved = nodes_unresolved or []
+    resolution.nodes_ambiguous = nodes_ambiguous or []
     resolution.models_resolved = models_resolved or []
     resolution.models_unresolved = models_unresolved or []
     resolution.models_ambiguous = models_ambiguous or []

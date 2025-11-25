@@ -1,13 +1,15 @@
-import { ref } from 'vue'
+import { ref, reactive } from 'vue'
 import type {
   FullResolutionResult,
   NodeChoice,
   ModelChoice,
   AppliedResolutionResult,
   NodeSearchResult,
-  ModelSearchResult
+  ModelSearchResult,
+  ResolutionProgressState
 } from '@/types/comfygit'
 import { mockApi, isMockApi } from '@/services/mockApi'
+import { useModelDownloadQueue } from './useModelDownloadQueue'
 
 declare global {
   interface Window {
@@ -184,6 +186,196 @@ export function useWorkflowResolution() {
     }
   }
 
+  // Progress state for streaming resolution
+  const progress = reactive<ResolutionProgressState>({
+    phase: 'idle',
+    completedFiles: [],
+    nodesToInstall: []
+  })
+
+  function resetProgress() {
+    progress.phase = 'idle'
+    progress.currentFile = undefined
+    progress.currentFileIndex = undefined
+    progress.totalFiles = undefined
+    progress.bytesDownloaded = undefined
+    progress.bytesTotal = undefined
+    progress.completedFiles = []
+    progress.nodesToInstall = []
+    progress.error = undefined
+  }
+
+  async function applyResolutionWithProgress(
+    workflowName: string,
+    nodeChoices: Map<string, NodeChoice>,
+    modelChoices: Map<string, ModelChoice>
+  ): Promise<void> {
+    resetProgress()
+    progress.phase = 'resolving'
+    error.value = null
+
+    if (isMockApi()) {
+      // Use mock API (non-streaming fallback)
+      const data = await mockApi.applyResolution(workflowName, nodeChoices, modelChoices)
+      appliedResult.value = data
+      progress.nodesToInstall = data.nodes_to_install
+      progress.phase = 'complete'
+      return
+    }
+
+    // Convert Map to plain object for JSON serialization
+    const nodeChoicesObj = Object.fromEntries(nodeChoices)
+    const modelChoicesObj = Object.fromEntries(modelChoices)
+
+    try {
+      // Use fetch directly for SSE streaming
+      const response = await fetch(`/v2/comfygit/workflow/${workflowName}/apply-resolution-stream`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          node_choices: nodeChoicesObj,
+          model_choices: modelChoicesObj
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error(`Request failed: ${response.status}`)
+      }
+
+      if (!response.body) {
+        throw new Error('No response body')
+      }
+
+      const reader = response.body.getReader()
+      const decoder = new TextDecoder()
+      let buffer = ''
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        buffer += decoder.decode(value, { stream: true })
+
+        // Process complete SSE events
+        const events = buffer.split('\n\n')
+        buffer = events.pop() || '' // Keep incomplete event in buffer
+
+        for (const eventStr of events) {
+          if (!eventStr.trim()) continue
+
+          // Parse SSE format: "event: type\ndata: {...}"
+          const lines = eventStr.split('\n')
+          let eventType = ''
+          let eventData = ''
+
+          for (const line of lines) {
+            if (line.startsWith('event: ')) {
+              eventType = line.slice(7)
+            } else if (line.startsWith('data: ')) {
+              eventData = line.slice(6)
+            }
+          }
+
+          if (!eventData) continue
+
+          try {
+            const data = JSON.parse(eventData)
+            handleProgressEvent(eventType, data)
+          } catch (parseErr) {
+            console.warn('Failed to parse SSE event:', parseErr)
+          }
+        }
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred'
+      error.value = errorMessage
+      progress.error = errorMessage
+      progress.phase = 'error'
+      throw err
+    }
+  }
+
+  function handleProgressEvent(eventType: string, data: Record<string, unknown>) {
+    switch (eventType) {
+      case 'batch_start':
+        progress.phase = 'downloading'
+        progress.totalFiles = data.total as number
+        break
+
+      case 'file_start':
+        progress.currentFile = data.filename as string
+        progress.currentFileIndex = data.index as number
+        progress.bytesDownloaded = 0
+        progress.bytesTotal = undefined
+        break
+
+      case 'file_progress':
+        progress.bytesDownloaded = data.downloaded as number
+        progress.bytesTotal = data.total as number | undefined
+        break
+
+      case 'file_complete':
+        progress.completedFiles.push({
+          filename: data.filename as string,
+          success: data.success as boolean,
+          error: data.error as string | undefined
+        })
+        break
+
+      case 'batch_complete':
+        // All downloads done
+        break
+
+      case 'done':
+        progress.nodesToInstall = (data.nodes_to_install as string[]) || []
+        if (data.download_results) {
+          // Update completed files with full info
+          progress.completedFiles = (data.download_results as Array<{
+            filename: string
+            success: boolean
+            error?: string
+            reused?: boolean
+          }>)
+        }
+        progress.phase = 'complete'
+        break
+
+      case 'error':
+        progress.error = data.message as string
+        progress.phase = 'error'
+        error.value = data.message as string
+        break
+    }
+  }
+
+  /**
+   * Queue models for async download (non-blocking).
+   * Adds to global download queue and returns immediately.
+   */
+  function queueModelDownloads(
+    workflowName: string,
+    models: Array<{ filename: string; url: string; target_path: string | null; size?: number }>
+  ) {
+    const { addToQueue } = useModelDownloadQueue()
+
+    const items = models
+      .filter(m => m.url && m.target_path)
+      .map(m => ({
+        workflow: workflowName,
+        filename: m.filename,
+        url: m.url,
+        targetPath: m.target_path!,
+        size: m.size || 0,
+        type: 'model'
+      }))
+
+    if (items.length > 0) {
+      addToQueue(items)
+    }
+
+    return items.length
+  }
+
   return {
     // State
     result,
@@ -192,11 +384,15 @@ export function useWorkflowResolution() {
     modelSearchResults,
     isLoading,
     error,
+    progress,
 
     // Methods
     analyzeWorkflow,
     applyResolution,
+    applyResolutionWithProgress,
     searchNodes,
-    searchModels
+    searchModels,
+    resetProgress,
+    queueModelDownloads
   }
 }

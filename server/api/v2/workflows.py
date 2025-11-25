@@ -1,13 +1,300 @@
 """Workflow operations API."""
+import asyncio
+import json
+from pathlib import Path
+
 from aiohttp import web
 
 from comfygit_core.strategies.auto import AutoNodeStrategy, AutoModelStrategy
+from comfygit_core.models.protocols import NodeResolutionStrategy, ModelResolutionStrategy
+from comfygit_core.models.workflow import (
+    NodeResolutionContext, ModelResolutionContext,
+    ResolvedNodePackage, ResolvedModel, WorkflowNodeWidgetRef,
+    BatchDownloadCallbacks
+)
 
 from cgm_core.decorators import requires_environment
 from cgm_core.serializers import serialize_workflow_details
 from cgm_utils.async_helpers import run_sync
 
 routes = web.RouteTableDef()
+
+
+# =============================================================================
+# Serialization Helpers for Interactive Resolution Wizard
+# =============================================================================
+
+def _serialize_resolved_node(node: ResolvedNodePackage, workflow_name: str) -> dict:
+    """Convert ResolvedNodePackage to frontend ResolvedNode format."""
+    return {
+        "reference": {
+            "node_type": node.node_type,
+            "workflow": workflow_name
+        },
+        "package": {
+            "package_id": node.package_id,
+            "title": node.package_data.display_name if node.package_data else node.package_id
+        },
+        "match_confidence": node.match_confidence,
+        "match_type": node.match_type,
+        "is_installed": False  # Will be determined by checking installed packages
+    }
+
+
+def _serialize_unresolved_node(node, workflow_name: str) -> dict:
+    """Convert WorkflowNode to frontend UnresolvedNode format."""
+    return {
+        "reference": {
+            "node_type": node.type,
+            "workflow": workflow_name,
+            "node_id": node.id
+        },
+        "reason": "not_found_in_registry"
+    }
+
+
+def _serialize_ambiguous_node(options: list[ResolvedNodePackage], workflow_name: str) -> dict:
+    """Convert ambiguous node options to frontend AmbiguousNode format."""
+    if not options:
+        return None
+    return {
+        "reference": {
+            "node_type": options[0].node_type,
+            "workflow": workflow_name
+        },
+        "options": [
+            {
+                "package": {
+                    "package_id": opt.package_id,
+                    "title": opt.package_data.display_name if opt.package_data else opt.package_id
+                },
+                "match_confidence": opt.match_confidence,
+                "match_type": opt.match_type,
+                "is_installed": False  # Check against installed packages
+            }
+            for opt in options
+        ]
+    }
+
+
+def _serialize_resolved_model(model: ResolvedModel) -> dict:
+    """Convert ResolvedModel to frontend format."""
+    return {
+        "reference": {
+            "workflow": model.workflow,
+            "node_id": model.reference.node_id,
+            "node_type": model.reference.node_type,
+            "widget_name": getattr(model.reference, 'widget_name', None),
+            "widget_value": model.reference.widget_value
+        },
+        "model": {
+            "filename": model.resolved_model.filename if model.resolved_model else None,
+            "hash": model.resolved_model.hash if model.resolved_model else None,
+            "size": model.resolved_model.file_size if model.resolved_model else 0,
+            "category": model.resolved_model.category if model.resolved_model else "unknown",
+            "relative_path": model.resolved_model.relative_path if model.resolved_model else None
+        } if model.resolved_model else None,
+        "match_confidence": model.match_confidence,
+        "match_type": model.match_type,
+        "needs_path_sync": model.needs_path_sync,
+        "has_download_source": bool(model.model_source),
+        "is_optional": model.is_optional
+    }
+
+
+def _serialize_unresolved_model(ref: WorkflowNodeWidgetRef, workflow_name: str) -> dict:
+    """Convert WorkflowNodeWidgetRef to frontend UnresolvedModel format."""
+    return {
+        "reference": {
+            "workflow": workflow_name,
+            "node_id": ref.node_id,
+            "node_type": ref.node_type,
+            "widget_name": getattr(ref, 'widget_name', None),
+            "widget_value": ref.widget_value
+        },
+        "reason": "not_found_in_index"
+    }
+
+
+def _serialize_ambiguous_model(options: list[ResolvedModel]) -> dict:
+    """Convert ambiguous model options to frontend AmbiguousModel format."""
+    if not options:
+        return None
+    ref = options[0].reference
+    return {
+        "reference": {
+            "workflow": options[0].workflow,
+            "node_id": ref.node_id,
+            "node_type": ref.node_type,
+            "widget_name": getattr(ref, 'widget_name', None),
+            "widget_value": ref.widget_value
+        },
+        "options": [
+            {
+                "model": {
+                    "filename": opt.resolved_model.filename,
+                    "hash": opt.resolved_model.hash,
+                    "size": opt.resolved_model.file_size,
+                    "category": opt.resolved_model.category,
+                    "relative_path": opt.resolved_model.relative_path
+                },
+                "match_confidence": opt.match_confidence,
+                "match_type": opt.match_type,
+                "has_download_source": bool(opt.model_source)
+            }
+            for opt in options if opt.resolved_model
+        ]
+    }
+
+
+# =============================================================================
+# Panel Strategy Classes for Interactive Resolution
+# =============================================================================
+
+class PanelNodeStrategy:
+    """Apply user's node choices from the panel wizard."""
+
+    def __init__(self, choices: dict[str, dict]):
+        """
+        Args:
+            choices: Dict mapping node_type to choice dict:
+                {
+                    "action": "install" | "optional" | "skip" | "manual",
+                    "package_id": str (for install/manual),
+                    "manual_url": str (for manual)
+                }
+        """
+        self.choices = choices
+
+    def resolve_unknown_node(
+        self,
+        node_type: str,
+        possible: list[ResolvedNodePackage],
+        context: NodeResolutionContext
+    ) -> ResolvedNodePackage | None:
+        choice = self.choices.get(node_type)
+
+        if not choice or choice.get("action") == "skip":
+            return None
+
+        action = choice.get("action")
+
+        if action == "optional":
+            return ResolvedNodePackage(
+                node_type=node_type,
+                match_type="optional",
+                package_id=None
+            )
+
+        if action in ("install", "manual"):
+            package_id = choice.get("package_id") or choice.get("manual_url")
+            if not package_id:
+                return None
+
+            # Find matching package from possible list if available
+            for pkg in possible:
+                if pkg.package_id == package_id:
+                    return ResolvedNodePackage(
+                        node_type=node_type,
+                        package_id=package_id,
+                        package_data=pkg.package_data,
+                        match_type="user_confirmed",
+                        match_confidence=1.0
+                    )
+
+            # User selected a package not in the suggestions (manual entry)
+            return ResolvedNodePackage(
+                node_type=node_type,
+                package_id=package_id,
+                package_data=None,
+                match_type="manual",
+                match_confidence=1.0
+            )
+
+        return None
+
+    def confirm_node_install(self, package: ResolvedNodePackage) -> bool:
+        return True
+
+
+class PanelModelStrategy:
+    """Apply user's model choices from the panel wizard."""
+
+    def __init__(self, choices: dict[str, dict]):
+        """
+        Args:
+            choices: Dict mapping filename to choice dict:
+                {
+                    "action": "download" | "select" | "optional" | "skip",
+                    "url": str (for download),
+                    "target_path": str (for download),
+                    "selected_model": dict (for select)
+                }
+        """
+        self.choices = choices
+
+    def resolve_model(
+        self,
+        reference: WorkflowNodeWidgetRef,
+        candidates: list[ResolvedModel],
+        context: ModelResolutionContext
+    ) -> ResolvedModel | None:
+        # Use widget_value as the key (the filename reference in workflow)
+        choice = self.choices.get(reference.widget_value)
+
+        if not choice or choice.get("action") == "skip":
+            return None
+
+        action = choice.get("action")
+
+        if action == "optional":
+            return ResolvedModel(
+                workflow=context.workflow_name,
+                reference=reference,
+                resolved_model=None,
+                is_optional=True,
+                match_type="optional_unresolved",
+                match_confidence=1.0
+            )
+
+        if action == "select":
+            selected = choice.get("selected_model")
+            if not selected:
+                return None
+
+            # Find matching candidate
+            for candidate in candidates:
+                if (candidate.resolved_model and
+                    candidate.resolved_model.filename == selected.get("filename")):
+                    return ResolvedModel(
+                        workflow=context.workflow_name,
+                        reference=reference,
+                        resolved_model=candidate.resolved_model,
+                        is_optional=False,
+                        match_type="user_confirmed",
+                        match_confidence=1.0
+                    )
+
+            return None
+
+        if action == "download":
+            url = choice.get("url")
+            target_path = choice.get("target_path")
+
+            if not url:
+                return None
+
+            return ResolvedModel(
+                workflow=context.workflow_name,
+                reference=reference,
+                resolved_model=None,
+                model_source=url,
+                is_optional=False,
+                match_type="download_intent",
+                target_path=Path(target_path) if target_path else None
+            )
+
+        return None
 
 
 @routes.get("/v2/comfygit/workflows")
@@ -153,3 +440,519 @@ async def install_workflow(request: web.Request, env) -> web.Response:
             "status": "error",
             "message": str(e)
         }, status=500)
+
+
+# =============================================================================
+# Interactive Resolution Wizard Endpoints
+# =============================================================================
+
+@routes.post("/v2/comfygit/workflow/{name}/analyze")
+@requires_environment
+async def analyze_workflow(request: web.Request, env) -> web.Response:
+    """Analyze workflow for interactive resolution wizard.
+
+    Uses workflow_manager.analyze_and_resolve_workflow directly to avoid
+    triggering any pending downloads - we just want the analysis data.
+    """
+    name = request.match_info["name"]
+
+    # Call analyze_and_resolve_workflow directly (NOT env.resolve_workflow)
+    # This gives us analysis + resolution WITHOUT executing downloads
+    _, result = await run_sync(
+        env.workflow_manager.analyze_and_resolve_workflow,
+        name
+    )
+
+    # Transform to frontend format
+    response = {
+        "workflow": name,
+        "nodes": {
+            "resolved": [_serialize_resolved_node(n, name) for n in result.nodes_resolved],
+            "unresolved": [_serialize_unresolved_node(n, name) for n in result.nodes_unresolved],
+            "ambiguous": [
+                amb for amb in [_serialize_ambiguous_node(opts, name) for opts in result.nodes_ambiguous]
+                if amb is not None
+            ]
+        },
+        "models": {
+            "resolved": [_serialize_resolved_model(m) for m in result.models_resolved],
+            "unresolved": [_serialize_unresolved_model(m, name) for m in result.models_unresolved],
+            "ambiguous": [
+                amb for amb in [_serialize_ambiguous_model(opts) for opts in result.models_ambiguous]
+                if amb is not None
+            ]
+        },
+        "stats": {
+            "total_nodes": len(result.nodes_resolved) + len(result.nodes_unresolved) + len(result.nodes_ambiguous),
+            "total_models": len(result.models_resolved) + len(result.models_unresolved) + len(result.models_ambiguous),
+            "needs_user_input": bool(result.nodes_unresolved or result.nodes_ambiguous or
+                                     result.models_unresolved or result.models_ambiguous)
+        }
+    }
+
+    return web.json_response(response)
+
+
+@routes.post("/v2/comfygit/workflow/search-nodes")
+@requires_environment
+async def search_nodes(request: web.Request, env) -> web.Response:
+    """Search node registry for packages matching query."""
+    try:
+        body = await request.json()
+    except Exception:
+        return web.json_response({"error": "Invalid JSON body"}, status=400)
+
+    query = body.get("query", "")
+    limit = body.get("limit", 10)
+
+    if not query:
+        return web.json_response({"results": [], "total": 0})
+
+    # Get installed packages for marking
+    installed = env.pyproject.nodes.get_existing()
+
+    # Search using core library
+    matches = await run_sync(
+        env.workflow_manager.global_node_resolver.search_packages,
+        query,
+        installed,
+        True,  # include_registry
+        limit
+    )
+
+    results = []
+    for match in matches:
+        results.append({
+            "package_id": match.package_id,
+            "match_confidence": match.score,
+            "match_type": match.confidence,  # "high", "medium", "low"
+            "description": match.package_data.description if match.package_data else None,
+            "repository": match.package_data.repository if match.package_data else None,
+            "is_installed": match.package_id in installed
+        })
+
+    return web.json_response({
+        "results": results,
+        "total": len(results)
+    })
+
+
+@routes.post("/v2/comfygit/workflow/search-models")
+@requires_environment
+async def search_models(request: web.Request, env) -> web.Response:
+    """Search workspace models matching query."""
+    try:
+        body = await request.json()
+    except Exception:
+        return web.json_response({"error": "Invalid JSON body"}, status=400)
+
+    query = body.get("query", "")
+    limit = body.get("limit", 10)
+
+    if not query:
+        return web.json_response({"results": [], "total": 0})
+
+    # Search using core library
+    matches = await run_sync(
+        env.workflow_manager.search_models,
+        query,
+        None,  # node_type filter
+        limit
+    )
+
+    # Get global models for download source info
+    global_models = {}
+    try:
+        all_global = env.pyproject.models.get_all()
+        for m in all_global:
+            global_models[m.hash] = m
+    except Exception:
+        pass
+
+    results = []
+    for match in matches:
+        model = match.model
+        global_model = global_models.get(model.hash)
+        has_source = bool(global_model and global_model.sources) if global_model else False
+
+        results.append({
+            "filename": model.filename,
+            "hash": model.hash,
+            "size": model.file_size,
+            "category": model.category,
+            "relative_path": model.relative_path,
+            "has_download_source": has_source,
+            "match_confidence": match.score
+        })
+
+    return web.json_response({
+        "results": results,
+        "total": len(results)
+    })
+
+
+@routes.post("/v2/comfygit/workflow/{name}/apply-resolution")
+@requires_environment
+async def apply_resolution(request: web.Request, env) -> web.Response:
+    """Apply user's resolution choices from the wizard.
+
+    IMPORTANT: Does NOT execute downloads inline. Returns models_to_download
+    for the frontend to queue in the async download manager.
+    """
+    name = request.match_info["name"]
+
+    try:
+        body = await request.json()
+    except Exception:
+        return web.json_response({"error": "Invalid JSON body"}, status=400)
+
+    node_choices = body.get("node_choices", {})
+    model_choices = body.get("model_choices", {})
+
+    # Create strategies from user choices
+    node_strategy = PanelNodeStrategy(node_choices)
+    model_strategy = PanelModelStrategy(model_choices)
+
+    # Get current resolution state (does NOT execute downloads)
+    _, result = await run_sync(
+        env.workflow_manager.analyze_and_resolve_workflow,
+        name
+    )
+
+    # Apply strategies to fix unresolved issues (writes to pyproject.toml)
+    if result.has_issues:
+        result = await run_sync(
+            env.workflow_manager.fix_resolution,
+            result,
+            node_strategy,
+            model_strategy
+        )
+
+    # Collect what needs to be installed
+    nodes_to_install = []
+    installed = env.pyproject.nodes.get_existing()
+    for node in result.nodes_resolved:
+        if node.package_id and node.match_type != "optional":
+            if node.package_id not in installed:
+                nodes_to_install.append(node.package_id)
+
+    # Collect models that need downloading (download_intent OR have model_source but no file)
+    models_to_download = []
+    for model in result.models_resolved:
+        if model.model_source and model.match_type == "download_intent":
+            models_to_download.append({
+                "filename": model.reference.widget_value,
+                "url": model.model_source,
+                "size": 0,  # Unknown until download starts
+                "target_path": str(model.target_path) if model.target_path else None
+            })
+
+    # Also check pyproject.toml for any unresolved models with sources
+    # (in case they weren't picked up from resolution result)
+    try:
+        all_workflows = env.pyproject.workflows.get_all_with_resolutions()
+        workflow_data = all_workflows.get(name, {})
+        for manifest_model in workflow_data.get("models", []):
+            if manifest_model.get("status") == "unresolved" and manifest_model.get("sources"):
+                sources = manifest_model.get("sources", [])
+                filename = manifest_model.get("filename")
+                # Avoid duplicates
+                if sources and not any(m["filename"] == filename for m in models_to_download):
+                    models_to_download.append({
+                        "filename": filename,
+                        "url": sources[0],
+                        "size": 0,
+                        "target_path": manifest_model.get("relative_path")
+                    })
+    except Exception:
+        pass  # Fallback if pyproject read fails
+
+    # Estimate time (rough: 30s per node, 120s per model)
+    estimated_time = len(nodes_to_install) * 30 + len(models_to_download) * 120
+
+    return web.json_response({
+        "status": "success",
+        "nodes_to_install": nodes_to_install,
+        "models_to_download": models_to_download,
+        "estimated_time_seconds": estimated_time
+    })
+
+
+@routes.post("/v2/comfygit/workflow/{name}/apply-resolution-stream")
+@requires_environment
+async def apply_resolution_stream(request: web.Request, env) -> web.StreamResponse:
+    """Apply user's resolution choices and stream progress via SSE.
+
+    Streams events for download progress, allowing frontend to show real-time updates.
+    Event types: batch_start, file_start, file_progress, file_complete, batch_complete, done, error
+    """
+    name = request.match_info["name"]
+
+    try:
+        body = await request.json()
+    except Exception:
+        return web.json_response({"error": "Invalid JSON body"}, status=400)
+
+    node_choices = body.get("node_choices", {})
+    model_choices = body.get("model_choices", {})
+
+    # Set up SSE response
+    response = web.StreamResponse(
+        status=200,
+        headers={
+            "Content-Type": "text/event-stream",
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no"  # Disable nginx buffering
+        }
+    )
+    await response.prepare(request)
+
+    # Queue for passing events from sync callbacks to async response
+    event_queue: asyncio.Queue = asyncio.Queue()
+
+    async def send_event(event_type: str, data: dict):
+        """Send an SSE event."""
+        event_data = json.dumps({"type": event_type, **data})
+        await response.write(f"event: {event_type}\ndata: {event_data}\n\n".encode())
+
+    def queue_event(event_type: str, data: dict):
+        """Queue an event from sync context."""
+        asyncio.get_event_loop().call_soon_threadsafe(
+            event_queue.put_nowait, (event_type, data)
+        )
+
+    # Create callbacks that queue events
+    callbacks = BatchDownloadCallbacks(
+        on_batch_start=lambda total: queue_event("batch_start", {"total": total}),
+        on_file_start=lambda filename, idx, total: queue_event("file_start", {
+            "filename": filename,
+            "index": idx,
+            "total": total
+        }),
+        on_file_progress=lambda downloaded, total: queue_event("file_progress", {
+            "downloaded": downloaded,
+            "total": total
+        }),
+        on_file_complete=lambda filename, success, error: queue_event("file_complete", {
+            "filename": filename,
+            "success": success,
+            "error": error
+        }),
+        on_batch_complete=lambda success_count, total: queue_event("batch_complete", {
+            "success_count": success_count,
+            "total": total
+        })
+    )
+
+    # Create strategies from user choices
+    node_strategy = PanelNodeStrategy(node_choices)
+    model_strategy = PanelModelStrategy(model_choices)
+
+    async def run_resolution():
+        """Run resolution in thread pool and signal completion."""
+        try:
+            result = await run_sync(
+                env.resolve_workflow,
+                name,
+                node_strategy=node_strategy,
+                model_strategy=model_strategy,
+                fix=True,
+                download_callbacks=callbacks
+            )
+
+            # Collect nodes to install
+            nodes_to_install = []
+            for node in result.nodes_resolved:
+                if node.package_id and node.match_type != "optional":
+                    installed = env.pyproject.nodes.get_existing()
+                    if node.package_id not in installed:
+                        nodes_to_install.append(node.package_id)
+
+            # Get download results
+            download_results = []
+            if result.download_results:
+                for dr in result.download_results:
+                    download_results.append({
+                        "filename": dr.filename,
+                        "success": dr.success,
+                        "error": dr.error,
+                        "reused": getattr(dr, 'reused', False)
+                    })
+
+            queue_event("done", {
+                "status": "success",
+                "nodes_to_install": nodes_to_install,
+                "download_results": download_results
+            })
+        except Exception as e:
+            queue_event("error", {"message": str(e)})
+
+    # Start resolution in background
+    resolution_task = asyncio.create_task(run_resolution())
+
+    # Stream events until done
+    try:
+        done = False
+        while not done:
+            try:
+                # Wait for event with timeout to allow checking task status
+                event_type, data = await asyncio.wait_for(event_queue.get(), timeout=0.5)
+                await send_event(event_type, data)
+                if event_type in ("done", "error"):
+                    done = True
+            except asyncio.TimeoutError:
+                # Check if resolution task failed unexpectedly
+                if resolution_task.done():
+                    exc = resolution_task.exception()
+                    if exc:
+                        await send_event("error", {"message": str(exc)})
+                    done = True
+    finally:
+        if not resolution_task.done():
+            resolution_task.cancel()
+            try:
+                await resolution_task
+            except asyncio.CancelledError:
+                pass
+
+    return response
+
+
+# =============================================================================
+# Pending Downloads Endpoint (for async download queue)
+# =============================================================================
+
+@routes.get("/v2/comfygit/models/pending-downloads")
+@requires_environment
+async def get_pending_downloads(request: web.Request, env) -> web.Response:
+    """Get all pending download intents across all workflows.
+
+    Returns models that have download URLs but haven't been downloaded yet.
+    Reads directly from pyproject.toml for reliability.
+    Used by the frontend to populate the download queue on app startup.
+    """
+    pending_downloads = []
+
+    try:
+        # Read directly from pyproject.toml - more reliable than resolution flow
+        all_workflows = env.pyproject.workflows.get_all_with_resolutions()
+
+        for workflow_name, workflow_data in all_workflows.items():
+            models = workflow_data.get("models", [])
+
+            for model in models:
+                # Check for unresolved models with sources (download URLs)
+                if model.get("status") == "unresolved" and model.get("sources"):
+                    sources = model.get("sources", [])
+                    if sources:
+                        pending_downloads.append({
+                            "workflow": workflow_name,
+                            "filename": model.get("filename", "unknown"),
+                            "url": sources[0],  # Use first source URL
+                            "target_path": model.get("relative_path"),
+                            "size": 0  # Unknown until download starts
+                        })
+
+        return web.json_response({
+            "pending_downloads": pending_downloads,
+            "count": len(pending_downloads)
+        })
+
+    except Exception as e:
+        return web.json_response({
+            "error": str(e),
+            "pending_downloads": [],
+            "count": 0
+        }, status=500)
+
+
+# =============================================================================
+# Model Download Streaming Endpoint (for async download queue)
+# =============================================================================
+
+@routes.get("/v2/comfygit/models/download-stream")
+@requires_environment
+async def download_model_stream(request: web.Request, env) -> web.StreamResponse:
+    """Stream a single model download with progress via SSE.
+
+    Query params:
+        url: Download URL
+        target_path: Where to save the file (relative to models dir)
+        filename: Display name for the file
+    """
+    url = request.query.get("url")
+    target_path = request.query.get("target_path")
+    filename = request.query.get("filename", "model.safetensors")
+
+    if not url or not target_path:
+        return web.json_response(
+            {"error": "Missing url or target_path parameter"},
+            status=400
+        )
+
+    # Set up SSE response
+    response = web.StreamResponse(
+        status=200,
+        headers={
+            "Content-Type": "text/event-stream",
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no"
+        }
+    )
+    await response.prepare(request)
+
+    async def send_event(event_type: str, data: dict):
+        """Send an SSE event."""
+        event_data = json.dumps({"type": event_type, **data})
+        await response.write(f"data: {event_data}\n\n".encode())
+
+    try:
+        # Resolve full target path using workspace config manager
+        models_dir = env.workspace.workspace_config_manager.get_models_directory()
+        full_target = models_dir / target_path
+
+        # Ensure parent directory exists
+        full_target.parent.mkdir(parents=True, exist_ok=True)
+
+        # Download with progress
+        import aiohttp
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as dl_response:
+                if dl_response.status != 200:
+                    await send_event("error", {
+                        "message": f"Download failed: HTTP {dl_response.status}"
+                    })
+                    return response
+
+                total = int(dl_response.headers.get("content-length", 0))
+                downloaded = 0
+                last_progress = 0
+
+                with open(full_target, "wb") as f:
+                    async for chunk in dl_response.content.iter_chunked(64 * 1024):
+                        f.write(chunk)
+                        downloaded += len(chunk)
+
+                        # Send progress every 1% or 1MB
+                        progress = int((downloaded / total * 100)) if total else 0
+                        if progress > last_progress or downloaded - last_progress > 1024 * 1024:
+                            await send_event("progress", {
+                                "downloaded": downloaded,
+                                "total": total
+                            })
+                            last_progress = progress
+
+        await send_event("complete", {
+            "downloaded": downloaded,
+            "total": total,
+            "path": str(full_target)
+        })
+
+    except asyncio.CancelledError:
+        await send_event("error", {"message": "Download cancelled"})
+    except Exception as e:
+        await send_event("error", {"message": str(e)})
+
+    return response
