@@ -868,22 +868,52 @@ async def get_pending_downloads(request: web.Request, env) -> web.Response:
 
 
 # =============================================================================
-# Model Download Streaming Endpoint (for async download queue)
+# Model Download Endpoint (for async download queue)
 # =============================================================================
+
+# Track active downloads to prevent duplicates and allow reconnection
+_active_downloads: dict[str, dict] = {}  # url -> {task, queues, result, cancelled, env, workflow, filename}
+
+
+class DownloadCancelled(Exception):
+    """Raised when download is cancelled by user."""
+    pass
+
+
+@routes.delete("/v2/comfygit/models/download")
+@requires_environment
+async def cancel_download(request: web.Request, env) -> web.Response:
+    """Cancel an active download."""
+    url = request.query.get("url")
+    if not url:
+        return web.json_response({"error": "Missing url parameter"}, status=400)
+
+    if url not in _active_downloads:
+        return web.json_response({"error": "No active download for this URL"}, status=404)
+
+    # Set cancellation flag - progress callback will raise exception
+    _active_downloads[url]["cancelled"] = True
+    return web.json_response({"status": "cancelled"})
+
 
 @routes.get("/v2/comfygit/models/download-stream")
 @requires_environment
 async def download_model_stream(request: web.Request, env) -> web.StreamResponse:
-    """Stream a single model download with progress via SSE.
+    """Download a model with progress via SSE, then update pyproject.toml.
+
+    Uses core library's ModelDownloader for proper indexing and state management.
+    Supports reconnection: if download is already in progress, client joins existing download.
 
     Query params:
         url: Download URL
         target_path: Where to save the file (relative to models dir)
         filename: Display name for the file
+        workflow: Workflow name (for updating pyproject.toml)
     """
     url = request.query.get("url")
     target_path = request.query.get("target_path")
     filename = request.query.get("filename", "model.safetensors")
+    workflow_name = request.query.get("workflow")
 
     if not url or not target_path:
         return web.json_response(
@@ -903,56 +933,184 @@ async def download_model_stream(request: web.Request, env) -> web.StreamResponse
     )
     await response.prepare(request)
 
-    async def send_event(event_type: str, data: dict):
-        """Send an SSE event."""
-        event_data = json.dumps({"type": event_type, **data})
-        await response.write(f"data: {event_data}\n\n".encode())
+    # Track if client is still connected
+    client_connected = True
 
-    try:
-        # Resolve full target path using workspace config manager
-        models_dir = env.workspace.workspace_config_manager.get_models_directory()
+    async def send_event(event_type: str, data: dict) -> bool:
+        """Send an SSE event. Returns False if client disconnected."""
+        nonlocal client_connected
+        if not client_connected:
+            return False
+        try:
+            event_data = json.dumps({"type": event_type, **data})
+            await response.write(f"data: {event_data}\n\n".encode())
+            return True
+        except (ConnectionResetError, BrokenPipeError):
+            client_connected = False
+            return False
+        except Exception:
+            client_connected = False
+            return False
+
+    # Check if this URL is already being downloaded
+    if url in _active_downloads:
+        # Join existing download
+        active = _active_downloads[url]
+        my_queue: asyncio.Queue = asyncio.Queue()
+        active["queues"].append(my_queue)
+
+        try:
+            # Stream progress until download completes or client disconnects
+            while not active["task"].done() and client_connected:
+                try:
+                    event_type, data = await asyncio.wait_for(my_queue.get(), timeout=0.5)
+                    await send_event(event_type, data)
+                except asyncio.TimeoutError:
+                    continue
+
+            # If download completed while we were watching, send final result
+            if client_connected and active.get("result"):
+                result = active["result"]
+                if result.success and result.model:
+                    await send_event("complete", {
+                        "downloaded": result.model.file_size,
+                        "total": result.model.file_size,
+                        "hash": result.model.hash,
+                        "path": result.model.relative_path
+                    })
+                else:
+                    await send_event("error", {"message": result.error or "Download failed"})
+        except Exception:
+            client_connected = False
+        finally:
+            if my_queue in active.get("queues", []):
+                active["queues"].remove(my_queue)
+
+        return response
+
+    # Start new download
+    loop = asyncio.get_running_loop()
+    active = {"queues": [], "result": None, "cancelled": False, "env": env, "workflow": workflow_name, "filename": filename}
+    _active_downloads[url] = active
+
+    def broadcast_progress(downloaded: int, total: int | None):
+        """Broadcast progress to all connected clients. Raises if cancelled."""
+        if active["cancelled"]:
+            raise DownloadCancelled("Download cancelled by user")
+        for q in active["queues"]:
+            loop.call_soon_threadsafe(q.put_nowait, ("progress", {"downloaded": downloaded, "total": total or 0}))
+
+    async def run_download():
+        """Run download in thread pool."""
+        from comfygit_core.services.model_downloader import DownloadRequest
+
+        downloader = env.workflow_manager.downloader
+        models_dir = downloader.models_dir
         full_target = models_dir / target_path
 
-        # Ensure parent directory exists
-        full_target.parent.mkdir(parents=True, exist_ok=True)
+        request_obj = DownloadRequest(
+            url=url,
+            target_path=full_target,
+            workflow_name=workflow_name
+        )
 
-        # Download with progress
-        import aiohttp
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url) as dl_response:
-                if dl_response.status != 200:
-                    await send_event("error", {
-                        "message": f"Download failed: HTTP {dl_response.status}"
-                    })
-                    return response
+        return await run_sync(downloader.download, request_obj, broadcast_progress)
 
-                total = int(dl_response.headers.get("content-length", 0))
-                downloaded = 0
-                last_progress = 0
+    # Add our queue to subscribers
+    my_queue: asyncio.Queue = asyncio.Queue()
+    active["queues"].append(my_queue)
 
-                with open(full_target, "wb") as f:
-                    async for chunk in dl_response.content.iter_chunked(64 * 1024):
-                        f.write(chunk)
-                        downloaded += len(chunk)
+    try:
+        # Start download
+        download_task = asyncio.create_task(run_download())
+        active["task"] = download_task
 
-                        # Send progress every 1% or 1MB
-                        progress = int((downloaded / total * 100)) if total else 0
-                        if progress > last_progress or downloaded - last_progress > 1024 * 1024:
-                            await send_event("progress", {
-                                "downloaded": downloaded,
-                                "total": total
-                            })
-                            last_progress = progress
+        # Stream progress until download completes or client disconnects
+        while not download_task.done() and client_connected:
+            try:
+                event_type, data = await asyncio.wait_for(my_queue.get(), timeout=0.5)
+                await send_event(event_type, data)
+            except asyncio.TimeoutError:
+                continue
 
-        await send_event("complete", {
-            "downloaded": downloaded,
-            "total": total,
-            "path": str(full_target)
-        })
+        # Get result (may raise if cancelled)
+        result = await download_task
+        active["result"] = result
 
+        # Broadcast final result to all remaining subscribers
+        if result.success and result.model:
+            for q in active["queues"]:
+                loop.call_soon_threadsafe(q.put_nowait, ("complete", {
+                    "downloaded": result.model.file_size,
+                    "total": result.model.file_size,
+                    "hash": result.model.hash,
+                    "path": result.model.relative_path
+                }))
+            # Finalize if any client is watching
+            if active["queues"] and workflow_name:
+                await _finalize_download(env, workflow_name, filename, result.model.hash)
+        else:
+            for q in active["queues"]:
+                loop.call_soon_threadsafe(q.put_nowait, ("error", {"message": result.error or "Download failed"}))
+
+    except DownloadCancelled:
+        # Download was cancelled - notify all subscribers
+        for q in active.get("queues", []):
+            loop.call_soon_threadsafe(q.put_nowait, ("error", {"message": "Download cancelled"}))
     except asyncio.CancelledError:
-        await send_event("error", {"message": "Download cancelled"})
+        client_connected = False
     except Exception as e:
-        await send_event("error", {"message": str(e)})
+        # Check if it's a wrapped DownloadCancelled
+        if "cancelled" in str(e).lower():
+            for q in active.get("queues", []):
+                loop.call_soon_threadsafe(q.put_nowait, ("error", {"message": "Download cancelled"}))
+        client_connected = False
+    finally:
+        # Clean up tracking
+        if my_queue in active.get("queues", []):
+            active["queues"].remove(my_queue)
+        # Remove from active downloads when complete or cancelled
+        if url in _active_downloads:
+            task = active.get("task")
+            if (not active.get("queues") and task and task.done()) or active.get("cancelled"):
+                del _active_downloads[url]
 
     return response
+
+
+async def _finalize_download(env, workflow_name: str, filename: str, model_hash: str):
+    """Update pyproject.toml after successful download.
+
+    Finds the workflow model by filename and updates it to resolved status.
+    """
+    from comfygit_core.models.manifest import ManifestModel
+
+    models = env.pyproject.workflows.get_workflow_models(workflow_name)
+
+    for model in models:
+        if model.filename == filename and model.status == "unresolved" and model.sources:
+            # Get model from repository
+            resolved_model = env.workflow_manager.model_repository.get_model(model_hash)
+            if not resolved_model:
+                return  # Model not indexed yet - skip update
+
+            # Create global table entry with download source preserved
+            manifest_model = ManifestModel(
+                hash=model_hash,
+                filename=resolved_model.filename,
+                relative_path=resolved_model.relative_path,
+                category=model.category,
+                size=resolved_model.file_size,
+                sources=model.sources  # Preserve download URL
+            )
+            env.pyproject.models.add_model(manifest_model)
+
+            # Update workflow model to resolved
+            model.hash = model_hash
+            model.status = "resolved"
+            model.sources = []
+            model.relative_path = None
+
+            # Save changes
+            env.pyproject.workflows.set_workflow_models(workflow_name, models)
+            return

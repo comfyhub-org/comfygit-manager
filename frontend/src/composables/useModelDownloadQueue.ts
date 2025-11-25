@@ -66,11 +66,12 @@ async function downloadFile(item: DownloadQueueItem): Promise<void> {
       activeEventSource = null
     }
 
-    // Start SSE download stream
+    // Start SSE download stream with workflow context for pyproject update
     const params = new URLSearchParams({
       url: item.url,
       target_path: item.targetPath,
-      filename: item.filename
+      filename: item.filename,
+      workflow: item.workflow
     })
 
     const eventSource = new EventSource(`/v2/comfygit/models/download-stream?${params}`)
@@ -211,12 +212,21 @@ export function useModelDownloadQueue() {
   }
 
   // Cancel a download
-  function cancelDownload(id: string) {
+  async function cancelDownload(id: string) {
     const item = getItem(id)
     if (!item) return
 
     if (item.status === 'downloading') {
-      // Cancel active download
+      // Tell backend to cancel the download
+      try {
+        await fetch(`/v2/comfygit/models/download?url=${encodeURIComponent(item.url)}`, {
+          method: 'DELETE'
+        })
+      } catch {
+        // Ignore errors - download may have already completed
+      }
+
+      // Close SSE connection
       if (activeEventSource) {
         activeEventSource.close()
         activeEventSource = null
