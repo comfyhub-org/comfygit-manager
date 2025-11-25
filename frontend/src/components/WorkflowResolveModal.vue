@@ -64,8 +64,13 @@
                 <div class="stat-items">
                   <div class="stat-item success">
                     <span class="stat-icon">✓</span>
-                    <span class="stat-count">{{ analysisResult.models.resolved.length }}</span>
+                    <span class="stat-count">{{ analysisResult.models.resolved.length - analysisResult.stats.download_intents }}</span>
                     <span class="stat-label">resolved</span>
+                  </div>
+                  <div v-if="analysisResult.stats.download_intents > 0" class="stat-item info">
+                    <span class="stat-icon">⬇</span>
+                    <span class="stat-count">{{ analysisResult.stats.download_intents }}</span>
+                    <span class="stat-label">pending download</span>
                   </div>
                   <div v-if="analysisResult.models.ambiguous.length > 0" class="stat-item warning">
                     <span class="stat-icon">?</span>
@@ -84,6 +89,10 @@
             <div v-if="needsUserInput" class="status-message warning">
               <span class="status-icon">⚠</span>
               <span class="status-text">{{ unresolvedAndAmbiguousNodes.length + unresolvedAndAmbiguousModels.length }} items need your input</span>
+            </div>
+            <div v-else-if="hasDownloadIntents" class="status-message info">
+              <span class="status-icon">⬇</span>
+              <span class="status-text">{{ analysisResult.stats.download_intents }} model{{ analysisResult.stats.download_intents > 1 ? 's' : '' }} pending download - click Continue to review</span>
             </div>
             <div v-else class="status-message success">
               <span class="status-icon">✓</span>
@@ -107,7 +116,7 @@
         <!-- Model Resolution Step -->
         <ModelResolutionStep
           v-if="currentStep === 'models'"
-          :models="unresolvedAndAmbiguousModels"
+          :models="allEditableModels"
           :model-choices="modelChoices"
           @mark-optional="handleModelMarkOptional"
           @skip="handleModelSkip"
@@ -177,11 +186,11 @@
             </div>
 
             <!-- Model Choices Review -->
-            <div v-if="unresolvedAndAmbiguousModels.length > 0" class="review-section">
-              <h4 class="section-title">Models ({{ unresolvedAndAmbiguousModels.length }})</h4>
+            <div v-if="allEditableModels.length > 0" class="review-section">
+              <h4 class="section-title">Models ({{ allEditableModels.length }})</h4>
               <div class="review-items">
                 <div
-                  v-for="model in unresolvedAndAmbiguousModels"
+                  v-for="model in allEditableModels"
                   :key="model.filename"
                   class="review-item"
                 >
@@ -200,6 +209,14 @@
                       <span v-else-if="modelChoices.get(model.filename)?.action === 'skip'" class="choice-badge skip">
                         Skip
                       </span>
+                      <span v-else-if="modelChoices.get(model.filename)?.action === 'cancel_download'" class="choice-badge skip">
+                        Cancel Download
+                      </span>
+                    </template>
+                    <template v-else-if="model.is_download_intent">
+                      <span class="choice-badge download">
+                        Pending Download
+                      </span>
                     </template>
                     <span v-else class="choice-badge pending">
                       No action (skipped)
@@ -209,7 +226,7 @@
               </div>
             </div>
 
-            <div v-if="unresolvedAndAmbiguousNodes.length === 0 && unresolvedAndAmbiguousModels.length === 0" class="no-choices">
+            <div v-if="unresolvedAndAmbiguousNodes.length === 0 && allEditableModels.length === 0" class="no-choices">
               No dependencies need resolution.
             </div>
           </div>
@@ -261,7 +278,7 @@
         variant="primary"
         @click="navigateToNextSection"
       >
-        {{ needsModelResolution ? 'Continue to Models →' : 'Continue to Review →' }}
+        {{ (needsModelResolution || hasDownloadIntents) ? 'Continue to Models →' : 'Continue to Review →' }}
       </BaseButton>
 
       <!-- Models Step: Continue to Review -->
@@ -290,6 +307,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useWorkflowResolution } from '@/composables/useWorkflowResolution'
+import { useModelDownloadQueue } from '@/composables/useModelDownloadQueue'
 import type {
   FullResolutionResult,
   NodeChoice,
@@ -313,6 +331,7 @@ const emit = defineEmits<{
 }>()
 
 const { analyzeWorkflow, applyResolution, queueModelDownloads, progress, resetProgress } = useWorkflowResolution()
+const { loadPendingDownloads } = useModelDownloadQueue()
 
 // State
 const analysisResult = ref<FullResolutionResult | null>(null)
@@ -330,7 +349,7 @@ const completedSteps = ref<WizardStep[]>([])
 const nodeChoices = ref<Map<string, NodeChoice>>(new Map())
 const modelChoices = ref<Map<string, ModelChoice>>(new Map())
 
-// Wizard steps configuration
+// Wizard steps configuration - always show Models if there are download intents to review
 const wizardSteps = computed(() => {
   const steps = [
     { id: 'analysis', label: 'Analysis' }
@@ -340,7 +359,8 @@ const wizardSteps = computed(() => {
     steps.push({ id: 'nodes', label: 'Nodes' })
   }
 
-  if (needsModelResolution.value) {
+  // Show Models step if there are unresolved/ambiguous OR download intents to review
+  if (needsModelResolution.value || hasDownloadIntents.value) {
     steps.push({ id: 'models', label: 'Models' })
   }
 
@@ -370,6 +390,25 @@ const needsModelResolution = computed(() => {
   if (!analysisResult.value) return false
   return analysisResult.value.models.unresolved.length > 0 ||
          analysisResult.value.models.ambiguous.length > 0
+})
+
+// Check if there are download intents that user might want to edit
+const hasDownloadIntents = computed(() => {
+  if (!analysisResult.value) return false
+  return analysisResult.value.stats.download_intents > 0
+})
+
+// Download intents from resolved models - user can edit these
+const downloadIntentModels = computed(() => {
+  if (!analysisResult.value) return []
+  return analysisResult.value.models.resolved
+    .filter((m: { match_type: string }) => m.match_type === 'download_intent')
+    .map((m: { reference: { widget_value: string; node_id: string; node_type: string }; model: { filename: string; hash: string; size: number; category: string; relative_path: string } | null }) => ({
+      filename: m.reference.widget_value,
+      reference: m.reference,
+      is_download_intent: true,
+      resolved_model: m.model
+    }))
 })
 
 const unresolvedAndAmbiguousNodes = computed(() => {
@@ -428,6 +467,22 @@ const unresolvedAndAmbiguousModels = computed(() => {
   }))
 
   return [...unresolved, ...ambiguous]
+})
+
+// Combined list including download intents for the Models step
+const allEditableModels = computed(() => {
+  const base = unresolvedAndAmbiguousModels.value
+
+  // Add download intents as editable items
+  const downloadIntents = downloadIntentModels.value.map(m => ({
+    filename: m.filename,
+    reference: m.reference,
+    is_download_intent: true,
+    resolved_model: m.resolved_model,
+    options: undefined as undefined | ModelOptionType[]
+  }))
+
+  return [...base, ...downloadIntents]
 })
 
 // Review step computed counts
@@ -500,11 +555,12 @@ const stepStats = computed(() => {
     stats['nodes'] = { resolved, total }
   }
 
-  // Model stats
-  if (needsModelResolution.value) {
-    const total = unresolvedAndAmbiguousModels.value.length
-    const resolved = unresolvedAndAmbiguousModels.value.filter(
-      m => modelChoices.value.has(m.filename)
+  // Model stats - includes download intents
+  if (needsModelResolution.value || hasDownloadIntents.value) {
+    const total = allEditableModels.value.length
+    // For download intents without changes, consider them "resolved" (keeping current state)
+    const resolved = allEditableModels.value.filter(
+      m => modelChoices.value.has(m.filename) || m.is_download_intent
     ).length
     stats['models'] = { resolved, total }
   }
@@ -562,7 +618,7 @@ function handleContinueFromAnalysis() {
 
   if (needsNodeResolution.value) {
     currentStep.value = 'nodes'
-  } else if (needsModelResolution.value) {
+  } else if (needsModelResolution.value || hasDownloadIntents.value) {
     currentStep.value = 'models'
   } else {
     currentStep.value = 'review'
@@ -649,6 +705,9 @@ async function handleApply() {
     // Step 3: Store nodes to install for UI display
     progress.nodesToInstall = result.nodes_to_install || []
     progress.phase = 'complete'
+
+    // Step 4: Refresh download queue to reflect any cancelled downloads
+    await loadPendingDownloads()
 
     // Close modal after short delay to show completion message
     setTimeout(() => {
@@ -767,6 +826,7 @@ onMounted(loadAnalysis)
 .stat-item.success { color: var(--cg-color-success); }
 .stat-item.warning { color: var(--cg-color-warning); }
 .stat-item.error { color: var(--cg-color-error); }
+.stat-item.info { color: var(--cg-color-info); }
 
 .stat-icon {
   font-size: var(--cg-font-size-sm);
@@ -803,6 +863,12 @@ onMounted(loadAnalysis)
   background: var(--cg-color-success-muted);
   border: 1px solid var(--cg-color-success);
   color: var(--cg-color-success);
+}
+
+.status-message.info {
+  background: var(--cg-color-info-muted);
+  border: 1px solid var(--cg-color-info);
+  color: var(--cg-color-info);
 }
 
 .status-icon {

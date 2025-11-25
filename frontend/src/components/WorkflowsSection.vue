@@ -44,7 +44,7 @@
             <template #icon>⚠</template>
             <template #title>{{ wf.name }}</template>
             <template #subtitle>
-              Missing: {{ wf.missing_nodes }} nodes, {{ wf.missing_models }} models
+              {{ formatWorkflowIssues(wf) }}
             </template>
             <template #actions>
               <ActionButton
@@ -299,6 +299,22 @@ function handleResolveAll() {
 
 function handleInstall() {
   emit('refresh')
+}
+
+function formatWorkflowIssues(wf: WorkflowInfo): string {
+  const parts: string[] = []
+
+  if (wf.missing_nodes > 0) {
+    parts.push(`${wf.missing_nodes} missing node${wf.missing_nodes > 1 ? 's' : ''}`)
+  }
+  if (wf.missing_models > 0) {
+    parts.push(`${wf.missing_models} missing model${wf.missing_models > 1 ? 's' : ''}`)
+  }
+  if (wf.pending_downloads && wf.pending_downloads > 0) {
+    parts.push(`${wf.pending_downloads} pending download${wf.pending_downloads > 1 ? 's' : ''}`)
+  }
+
+  return parts.length > 0 ? parts.join(', ') : 'Has issues'
 }
 
 onMounted(loadWorkflows)

@@ -16,8 +16,6 @@
     <ItemNavigator
       v-if="currentNode"
       :item-name="currentNode.node_type"
-      :status="currentNodeStatus"
-      :status-label-override="currentNodeStatusLabel"
       :current-index="currentIndex"
       :total-items="nodes.length"
       @prev="goToItem(currentIndex - 1)"
@@ -31,6 +29,8 @@
         :has-multiple-options="!!currentNode.options?.length"
         :options="currentNode.options"
         :choice="nodeChoices?.get(currentNode.node_type)"
+        :status="currentNodeStatus"
+        :status-label="currentNodeStatusLabel"
         @mark-optional="handleMarkOptional"
         @skip="handleSkip"
         @manual-entry="handleManualEntry"
@@ -116,8 +116,8 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import NodeResolutionItem from '../molecules/NodeResolutionItem.vue'
+import type { ResolutionStatus } from '../molecules/NodeResolutionItem.vue'
 import ItemNavigator from '../molecules/ItemNavigator.vue'
-import type { ResolutionStatus } from '../molecules/ItemNavigator.vue'
 import ConfidenceBadge from '../atoms/ConfidenceBadge.vue'
 import BaseButton from '../BaseButton.vue'
 import BaseInput from '../BaseInput.vue'

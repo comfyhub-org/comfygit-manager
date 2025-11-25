@@ -310,6 +310,7 @@ async def get_workflows(request: web.Request, env) -> web.Response:
             "status": "broken" if wf.has_issues else wf.sync_state,
             "missing_nodes": wf.uninstalled_count,
             "missing_models": len(wf.resolution.models_unresolved) + len(wf.resolution.models_ambiguous),
+            "pending_downloads": wf.download_intents_count,
             "sync_state": wf.sync_state
         })
 
@@ -485,6 +486,7 @@ async def analyze_workflow(request: web.Request, env) -> web.Response:
         "stats": {
             "total_nodes": len(result.nodes_resolved) + len(result.nodes_unresolved) + len(result.nodes_ambiguous),
             "total_models": len(result.models_resolved) + len(result.models_unresolved) + len(result.models_ambiguous),
+            "download_intents": sum(1 for m in result.models_resolved if m.match_type == "download_intent"),
             "needs_user_input": bool(result.nodes_unresolved or result.nodes_ambiguous or
                                      result.models_unresolved or result.models_ambiguous)
         }
@@ -636,10 +638,46 @@ async def apply_resolution(request: web.Request, env) -> web.Response:
             if node.package_id not in installed:
                 nodes_to_install.append(node.package_id)
 
+    # Handle user overrides for existing download intents (cancel/optional)
+    # Get current workflow models from pyproject to check for download intents
+    try:
+        current_models = env.pyproject.workflows.get_workflow_models(name)
+        updated_models = False
+
+        for model in current_models:
+            if model.status == "unresolved" and model.sources:
+                # This is a download intent - check if user wants to change it
+                choice = model_choices.get(model.filename)
+                if choice:
+                    action = choice.get("action")
+                    if action in ("skip", "cancel_download"):
+                        # Cancel the download intent - clear sources and mark unresolved
+                        model.sources = []
+                        model.relative_path = None
+                        updated_models = True
+                    elif action == "optional":
+                        # Mark as optional and clear download intent
+                        model.status = "resolved"
+                        model.criticality = "optional"
+                        model.sources = []
+                        model.relative_path = None
+                        updated_models = True
+
+        if updated_models:
+            env.pyproject.workflows.set_workflow_models(name, current_models)
+    except Exception:
+        pass  # Continue even if update fails
+
     # Collect models that need downloading (download_intent OR have model_source but no file)
+    # Skip models where user chose to cancel/optional
     models_to_download = []
     for model in result.models_resolved:
         if model.model_source and model.match_type == "download_intent":
+            # Check if user cancelled this download
+            choice = model_choices.get(model.reference.widget_value)
+            if choice and choice.get("action") in ("skip", "cancel_download", "optional"):
+                continue  # User cancelled this download
+
             models_to_download.append({
                 "filename": model.reference.widget_value,
                 "url": model.model_source,
@@ -656,6 +694,12 @@ async def apply_resolution(request: web.Request, env) -> web.Response:
             if manifest_model.get("status") == "unresolved" and manifest_model.get("sources"):
                 sources = manifest_model.get("sources", [])
                 filename = manifest_model.get("filename")
+
+                # Check if user cancelled this download
+                choice = model_choices.get(filename)
+                if choice and choice.get("action") in ("skip", "cancel_download", "optional"):
+                    continue  # User cancelled this download
+
                 # Avoid duplicates
                 if sources and not any(m["filename"] == filename for m in models_to_download):
                     models_to_download.append({

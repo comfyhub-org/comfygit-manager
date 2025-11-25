@@ -1,9 +1,8 @@
 <template>
   <div class="item-navigator">
-    <!-- Left side: Item title and status -->
+    <!-- Left side: Item name with tooltip for truncated names -->
     <div class="nav-item-info">
-      <code class="item-name">{{ itemName }}</code>
-      <span :class="['status-badge', statusVariant]">{{ statusLabel }}</span>
+      <code class="item-name" :title="itemName">{{ itemName }}</code>
     </div>
 
     <!-- Right side: Navigation controls -->
@@ -32,8 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-
+// Status type exported for use by other components
 export type ResolutionStatus =
   | 'not-found'
   | 'ambiguous'
@@ -43,47 +41,16 @@ export type ResolutionStatus =
   | 'optional'
   | 'skip'
 
-const props = defineProps<{
+defineProps<{
   itemName: string
-  status: ResolutionStatus
   currentIndex: number
   totalItems: number
-  // Optional override for badge text
-  statusLabelOverride?: string
 }>()
 
 const emit = defineEmits<{
   prev: []
   next: []
 }>()
-
-const statusLabel = computed(() => {
-  if (props.statusLabelOverride) return props.statusLabelOverride
-
-  switch (props.status) {
-    case 'not-found': return 'Not Found'
-    case 'ambiguous': return 'Multiple Matches'
-    case 'install': return 'Installing'
-    case 'select': return 'Selected'
-    case 'download': return 'Downloading'
-    case 'optional': return 'Optional'
-    case 'skip': return 'Skipped'
-    default: return 'Pending'
-  }
-})
-
-const statusVariant = computed(() => {
-  switch (props.status) {
-    case 'not-found': return 'unresolved'
-    case 'ambiguous': return 'ambiguous'
-    case 'install':
-    case 'select':
-    case 'download': return 'resolved'
-    case 'optional': return 'optional'
-    case 'skip': return 'skip'
-    default: return 'unresolved'
-  }
-})
 </script>
 
 <style scoped>
@@ -117,43 +84,8 @@ const statusVariant = computed(() => {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 300px;
-}
-
-.status-badge {
-  padding: var(--cg-space-1) var(--cg-space-2);
-  border-radius: var(--cg-radius-sm);
-  font-size: var(--cg-font-size-xs);
-  font-weight: var(--cg-font-weight-medium);
-  text-transform: uppercase;
-  letter-spacing: var(--cg-letter-spacing-wide);
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.status-badge.unresolved {
-  background: var(--cg-color-error-muted);
-  color: var(--cg-color-error);
-}
-
-.status-badge.ambiguous {
-  background: var(--cg-color-warning-muted);
-  color: var(--cg-color-warning);
-}
-
-.status-badge.resolved {
-  background: var(--cg-color-success-muted);
-  color: var(--cg-color-success);
-}
-
-.status-badge.optional {
-  background: var(--cg-color-info-muted);
-  color: var(--cg-color-info);
-}
-
-.status-badge.skip {
-  background: var(--cg-color-bg-hover);
-  color: var(--cg-color-text-muted);
+  /* Tooltip shows full name on hover */
+  cursor: default;
 }
 
 .nav-controls {

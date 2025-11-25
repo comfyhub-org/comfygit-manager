@@ -193,6 +193,7 @@ export interface WorkflowInfo {
   status: 'broken' | 'new' | 'modified' | 'synced'
   missing_nodes: number // Count of missing nodes
   missing_models: number // Count of missing models
+  pending_downloads?: number // Count of models with download intents
   path?: string
   node_count?: number // Total node count
   model_count?: number // Total model count
@@ -440,7 +441,7 @@ export interface NodeChoice {
 }
 
 export interface ModelChoice {
-  action: 'download' | 'select' | 'optional' | 'skip'
+  action: 'download' | 'select' | 'optional' | 'skip' | 'cancel_download'
   url?: string
   target_path?: string
   selected_model?: ResolvedModelData

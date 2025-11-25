@@ -3,10 +3,12 @@
     <!-- Section Header -->
     <div class="step-header">
       <div class="step-info">
-        <h3 class="step-title">Resolve Missing Models</h3>
+        <h3 class="step-title">{{ hasDownloadIntents ? 'Review Model Downloads' : 'Resolve Missing Models' }}</h3>
         <p class="step-description">
-          Browse unresolved models and choose how to handle each one.
-          Unaddressed items will be skipped.
+          {{ hasDownloadIntents
+            ? 'Review pending downloads. Mark as optional or skip to cancel.'
+            : 'Browse unresolved models and choose how to handle each one. Unaddressed items will be skipped.'
+          }}
         </p>
       </div>
       <span class="stat-badge">{{ resolvedCount }}/{{ models.length }} resolved</span>
@@ -16,8 +18,6 @@
     <ItemNavigator
       v-if="currentModel"
       :item-name="currentModel.filename"
-      :status="currentModelStatus"
-      :status-label-override="currentModelStatusLabel"
       :current-index="currentIndex"
       :total-items="models.length"
       @prev="goToItem(currentIndex - 1)"
@@ -32,6 +32,8 @@
         :has-multiple-options="!!currentModel.options?.length"
         :options="currentModel.options"
         :choice="modelChoices?.get(currentModel.filename)"
+        :status="currentModelStatus"
+        :status-label="currentModelStatusLabel"
         @mark-optional="handleMarkOptional"
         @skip="handleSkip"
         @download-url="handleDownloadUrl"
@@ -125,8 +127,8 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import ModelResolutionItem from '../molecules/ModelResolutionItem.vue'
+import type { ResolutionStatus } from '../molecules/ModelResolutionItem.vue'
 import ItemNavigator from '../molecules/ItemNavigator.vue'
-import type { ResolutionStatus } from '../molecules/ItemNavigator.vue'
 import BaseButton from '../BaseButton.vue'
 import BaseInput from '../BaseInput.vue'
 import type { ModelSearchResult, ModelChoice } from '@/types/comfygit'
@@ -155,6 +157,8 @@ interface ModelToResolve {
   }
   reason?: string
   is_unresolved?: boolean
+  is_download_intent?: boolean
+  resolved_model?: ModelOption['model'] | null
   options?: ModelOption[]
 }
 
@@ -184,8 +188,15 @@ const isSearching = ref(false)
 // Computed
 const currentModel = computed(() => props.models[currentIndex.value])
 
+const hasDownloadIntents = computed(() => {
+  return props.models.some(m => m.is_download_intent)
+})
+
 const resolvedCount = computed(() => {
-  return props.models.filter(m => props.modelChoices.has(m.filename)).length
+  // Count models with choices + download intents (they're already "resolved" with a pending download)
+  return props.models.filter(m =>
+    props.modelChoices.has(m.filename) || m.is_download_intent
+  ).length
 })
 
 const suggestedPath = computed(() => {
@@ -204,10 +215,14 @@ const currentModelStatus = computed((): ResolutionStatus => {
       case 'download': return 'download'
       case 'optional': return 'optional'
       case 'skip': return 'skip'
+      case 'cancel_download': return 'skip'
     }
   }
 
   // No choice yet - show current state
+  if (currentModel.value.is_download_intent) {
+    return 'download'
+  }
   if (currentModel.value.options?.length) {
     return 'ambiguous'
   }
@@ -224,10 +239,14 @@ const currentModelStatusLabel = computed((): string | undefined => {
       case 'download': return 'Download'
       case 'optional': return 'Optional'
       case 'skip': return 'Skipped'
+      case 'cancel_download': return 'Cancelled'
     }
   }
 
-  // No choice yet
+  // No choice yet - check if it's a download intent
+  if (currentModel.value.is_download_intent) {
+    return 'Pending Download'
+  }
   if (currentModel.value.options?.length) {
     return `${currentModel.value.options.length} matches`
   }

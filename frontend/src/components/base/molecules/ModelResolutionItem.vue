@@ -1,8 +1,9 @@
 <template>
   <div :class="['model-resolution-item', { resolved: hasChoice, ambiguous: hasMultipleOptions }]">
-    <!-- Node info context -->
+    <!-- Node info context with status badge -->
     <div class="node-info">
-      Used by: <code>{{ nodeType }}</code>
+      <span class="node-info-text">Used by: <code>{{ nodeType }}</code></span>
+      <span v-if="statusLabel" :class="['status-badge', statusVariant]">{{ statusLabel }}</span>
     </div>
 
     <div class="item-body">
@@ -100,7 +101,7 @@ interface ModelOption {
 }
 
 interface ModelChoice {
-  action: 'download' | 'select' | 'optional' | 'skip'
+  action: 'download' | 'select' | 'optional' | 'skip' | 'cancel_download'
   url?: string
   target_path?: string
   selected_model?: {
@@ -108,6 +109,14 @@ interface ModelChoice {
     hash?: string
   }
 }
+
+export type ResolutionStatus =
+  | 'not-found'
+  | 'ambiguous'
+  | 'download'
+  | 'select'
+  | 'optional'
+  | 'skip'
 
 const props = defineProps<{
   filename: string
@@ -122,6 +131,9 @@ const props = defineProps<{
   options?: ModelOption[]
   selectedOptionIndex?: number
   choice?: ModelChoice
+  // Status badge props
+  status?: ResolutionStatus
+  statusLabel?: string
 }>()
 
 const emit = defineEmits<{
@@ -137,6 +149,19 @@ const emit = defineEmits<{
 const hasChoice = computed(() => !!props.choice)
 const choiceAction = computed(() => props.choice?.action)
 const choiceModel = computed(() => props.choice?.selected_model?.filename || 'selected')
+
+// Status badge variant based on status
+const statusVariant = computed(() => {
+  switch (props.status) {
+    case 'not-found': return 'unresolved'
+    case 'ambiguous': return 'ambiguous'
+    case 'download':
+    case 'select': return 'resolved'
+    case 'optional': return 'optional'
+    case 'skip': return 'skip'
+    default: return 'unresolved'
+  }
+})
 
 function handleOptionClick(index: number) {
   emit('option-selected', index)
@@ -170,6 +195,10 @@ function formatSize(bytes: number): string {
 }
 
 .node-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--cg-space-2);
   padding: var(--cg-space-2) var(--cg-space-3);
   font-size: var(--cg-font-size-xs);
   color: var(--cg-color-text-muted);
@@ -177,9 +206,50 @@ function formatSize(bytes: number): string {
   border-bottom: 1px solid var(--cg-color-border-subtle);
 }
 
+.node-info-text {
+  flex: 1;
+  min-width: 0;
+}
+
 .node-info code {
   font-family: var(--cg-font-mono);
   color: var(--cg-color-text-secondary);
+}
+
+.status-badge {
+  padding: var(--cg-space-1) var(--cg-space-2);
+  border-radius: var(--cg-radius-sm);
+  font-size: var(--cg-font-size-xs);
+  font-weight: var(--cg-font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--cg-letter-spacing-wide);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.status-badge.unresolved {
+  background: var(--cg-color-error-muted);
+  color: var(--cg-color-error);
+}
+
+.status-badge.ambiguous {
+  background: var(--cg-color-warning-muted);
+  color: var(--cg-color-warning);
+}
+
+.status-badge.resolved {
+  background: var(--cg-color-success-muted);
+  color: var(--cg-color-success);
+}
+
+.status-badge.optional {
+  background: var(--cg-color-info-muted);
+  color: var(--cg-color-info);
+}
+
+.status-badge.skip {
+  background: var(--cg-color-bg-hover);
+  color: var(--cg-color-text-muted);
 }
 
 .item-body {
