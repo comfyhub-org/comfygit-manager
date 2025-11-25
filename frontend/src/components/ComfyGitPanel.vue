@@ -170,6 +170,7 @@
           <!-- Workflows View -->
           <WorkflowsSection
             v-else-if="currentView === 'workflows'"
+            ref="workflowsSectionRef"
             @refresh="refresh"
           />
 
@@ -416,6 +417,9 @@ const error = ref<string | null>(null)
 const selectedCommit = ref<CommitInfo | null>(null)
 const showEnvironmentSelector = ref(false)
 
+// Ref to child components for triggering reloads
+const workflowsSectionRef = ref<{ loadWorkflows: (forceRefresh?: boolean) => Promise<void> } | null>(null)
+
 // Environment switching modals
 const showConfirmSwitch = ref(false)
 const showSwitchProgress = ref(false)
@@ -526,8 +530,9 @@ async function refresh() {
   error.value = null
 
   try {
+    // Use forceRefresh=true to clear cached environment state
     const [statusRes, historyRes, branchesRes, envsRes] = await Promise.all([
-      getStatus(),
+      getStatus(true),
       getHistory(),
       getBranches(),
       getEnvironments()
@@ -537,6 +542,11 @@ async function refresh() {
     branches.value = branchesRes.branches
     environments.value = envsRes
     emit('statusUpdate', statusRes)
+
+    // Also refresh workflows section if it's mounted
+    if (workflowsSectionRef.value) {
+      await workflowsSectionRef.value.loadWorkflows(true)
+    }
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Failed to load status'
     status.value = null

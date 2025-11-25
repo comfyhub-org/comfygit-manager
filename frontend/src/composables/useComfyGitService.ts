@@ -61,10 +61,11 @@ export function useComfyGitService() {
     return response.json()
   }
 
-  async function getStatus(): Promise<ComfyGitStatus> {
+  async function getStatus(forceRefresh = false): Promise<ComfyGitStatus> {
     if (USE_MOCK) return mockApi.getStatus()
 
-    return fetchApi<ComfyGitStatus>('/v2/comfygit/status')
+    const url = forceRefresh ? '/v2/comfygit/status?refresh=true' : '/v2/comfygit/status'
+    return fetchApi<ComfyGitStatus>(url)
   }
 
   async function commit(message: string, allowIssues = false): Promise<CommitResult> {
@@ -204,13 +205,14 @@ export function useComfyGitService() {
   }
 
   // Workflow Management
-  async function getWorkflows(): Promise<WorkflowInfo[]> {
+  async function getWorkflows(forceRefresh = false): Promise<WorkflowInfo[]> {
     if (USE_MOCK) return mockApi.getWorkflows()
 
     try {
-      return fetchApi<WorkflowInfo[]>('/v2/comfygit/workflows')
+      const url = forceRefresh ? '/v2/comfygit/workflows?refresh=true' : '/v2/comfygit/workflows'
+      return fetchApi<WorkflowInfo[]>(url)
     } catch {
-      const status = await getStatus()
+      const status = await getStatus(forceRefresh)
       const workflows: WorkflowInfo[] = []
 
       status.workflows.new.forEach(name => {

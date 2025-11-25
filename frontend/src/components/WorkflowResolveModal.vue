@@ -269,7 +269,7 @@
         :disabled="loading"
         @click="handleContinueFromAnalysis"
       >
-        {{ needsUserInput ? 'Continue' : 'Apply' }}
+        {{ (needsUserInput || hasDownloadIntents) ? 'Continue' : 'Apply' }}
       </BaseButton>
 
       <!-- Nodes Step: Continue to Models or Review -->

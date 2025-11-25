@@ -300,7 +300,21 @@ class PanelModelStrategy:
 @routes.get("/v2/comfygit/workflows")
 @requires_environment
 async def get_workflows(request: web.Request, env) -> web.Response:
-    """List all workflows with analysis."""
+    """List all workflows with analysis.
+
+    Query params:
+        refresh: If "true", forces refresh of cached environment before listing.
+    """
+    # Check if refresh is requested
+    if request.query.get("refresh", "").lower() == "true":
+        from comfygit_server import refresh_environment
+        refresh_environment()
+        # Re-get the environment after refresh
+        from cgm_core.context import get_environment_from_request
+        env = get_environment_from_request(request)
+        if not env:
+            return web.json_response({"error": "Failed to refresh environment"}, status=500)
+
     status = await run_sync(env.status)
 
     workflows = []

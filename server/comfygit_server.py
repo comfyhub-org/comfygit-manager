@@ -56,6 +56,19 @@ _workspace = None
 _environment = None
 
 
+def refresh_environment():
+    """Force refresh the cached environment object.
+
+    This clears the cached environment and workspace, forcing the next
+    get_environment_from_cwd() call to create fresh objects with updated
+    filesystem state.
+    """
+    global _workspace, _environment
+    _workspace = None
+    _environment = None
+    print("[ComfyGit] Environment cache cleared - next request will reload")
+
+
 def get_environment_from_cwd():
     """Infer workspace and environment from ComfyUI's working directory.
 

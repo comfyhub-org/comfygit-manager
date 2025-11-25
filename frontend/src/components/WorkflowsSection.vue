@@ -270,17 +270,20 @@ const displayedSynced = computed(() =>
   showAllSynced.value ? filteredSynced.value : filteredSynced.value.slice(0, 5)
 )
 
-async function loadWorkflows() {
+async function loadWorkflows(forceRefresh = false) {
   loading.value = true
   error.value = null
   try {
-    workflows.value = await getWorkflows()
+    workflows.value = await getWorkflows(forceRefresh)
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Failed to load workflows'
   } finally {
     loading.value = false
   }
 }
+
+// Expose loadWorkflows for parent components to call
+defineExpose({ loadWorkflows })
 
 function handleDetails(name: string) {
   selectedWorkflow.value = name
