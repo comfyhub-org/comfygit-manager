@@ -97,21 +97,25 @@
             <button class="model-modal-close-btn" @click="closeDownloadUrl">✕</button>
           </div>
           <div class="model-modal-body">
-            <BaseInput
-              v-model="downloadUrl"
-              label="Download URL"
-              placeholder="https://civitai.com/api/download/..."
-            />
-            <BaseInput
-              v-model="downloadPath"
-              label="Target Path (relative to models folder)"
-              :placeholder="suggestedPath"
-            />
+            <div class="model-input-group">
+              <label class="model-input-label">Download URL</label>
+              <BaseInput
+                v-model="downloadUrl"
+                placeholder="https://civitai.com/api/download/..."
+              />
+            </div>
+            <div class="model-input-group">
+              <label class="model-input-label">Host Path</label>
+              <BaseInput
+                v-model="downloadPath"
+                :placeholder="suggestedPath || 'e.g. loras/model.safetensors'"
+              />
+            </div>
             <div class="model-modal-actions">
               <BaseButton variant="secondary" @click="closeDownloadUrl">Cancel</BaseButton>
               <BaseButton
                 variant="primary"
-                :disabled="!downloadUrl.trim()"
+                :disabled="!downloadUrl.trim() || !downloadPath.trim()"
                 @click="submitDownloadUrl"
               >
                 Queue Download
@@ -132,6 +136,36 @@ import ItemNavigator from '../molecules/ItemNavigator.vue'
 import BaseButton from '../BaseButton.vue'
 import BaseInput from '../BaseInput.vue'
 import type { ModelSearchResult, ModelChoice } from '@/types/comfygit'
+
+// Node type to model directory mapping (from comfyui_models.py)
+const NODE_DIRECTORY_MAPPINGS: Record<string, string[]> = {
+  CheckpointLoaderSimple: ['checkpoints'],
+  CheckpointLoader: ['checkpoints'],
+  unCLIPCheckpointLoader: ['checkpoints'],
+  ImageOnlyCheckpointLoader: ['checkpoints'],
+  VAELoader: ['vae'],
+  LoraLoader: ['loras'],
+  LoraLoaderModelOnly: ['loras'],
+  CLIPLoader: ['clip'],
+  DualCLIPLoader: ['clip'],
+  TripleCLIPLoader: ['clip'],
+  QuadrupleCLIPLoader: ['clip'],
+  UNETLoader: ['diffusion_models'],
+  CLIPVisionLoader: ['clip_vision'],
+  ControlNetLoader: ['controlnet'],
+  DiffControlNetLoader: ['controlnet'],
+  StyleModelLoader: ['style_models'],
+  UpscaleModelLoader: ['upscale_models'],
+  GLIGENLoader: ['gligen'],
+  HypernetworkLoader: ['hypernetworks'],
+  PhotoMakerLoader: ['photomaker'],
+  DiffusersLoader: ['diffusers'],
+}
+
+function getDirectoryForNodeType(nodeType: string | undefined): string | null {
+  if (!nodeType) return null
+  return NODE_DIRECTORY_MAPPINGS[nodeType]?.[0] || null
+}
 
 interface ModelOption {
   model: {
@@ -200,8 +234,10 @@ const resolvedCount = computed(() => {
 })
 
 const suggestedPath = computed(() => {
-  if (!currentModel.value) return 'checkpoints/'
-  return `checkpoints/${currentModel.value.filename}`
+  if (!currentModel.value) return ''
+  const dir = getDirectoryForNodeType(currentModel.value.reference?.node_type)
+  if (!dir) return ''  // Unknown node type - user must specify path
+  return `${dir}/${currentModel.value.filename}`
 })
 
 // Compute status for ItemNavigator
@@ -458,6 +494,18 @@ function formatSize(bytes: number): string {
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+.model-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.model-input-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--cg-color-text-secondary, #aaa);
 }
 
 .model-modal-actions {

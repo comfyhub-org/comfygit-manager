@@ -693,8 +693,11 @@ async def apply_resolution(request: web.Request, env) -> web.Response:
     except Exception:
         pass  # Continue even if update fails
 
+    # Get models directory for checking if files already exist
+    models_dir = env.workspace.workspace_config_manager.get_models_directory()
+
     # Collect models that need downloading (download_intent OR have model_source but no file)
-    # Skip models where user chose to cancel/optional
+    # Skip models where user chose to cancel/optional, or file already exists
     models_to_download = []
     for model in result.models_resolved:
         if model.model_source and model.match_type == "download_intent":
@@ -703,11 +706,16 @@ async def apply_resolution(request: web.Request, env) -> web.Response:
             if choice and choice.get("action") in ("skip", "cancel_download", "optional"):
                 continue  # User cancelled this download
 
+            # Skip if file already exists at target path
+            target_path = str(model.target_path) if model.target_path else None
+            if target_path and models_dir and (models_dir / target_path).exists():
+                continue  # File already downloaded
+
             models_to_download.append({
                 "filename": model.reference.widget_value,
                 "url": model.model_source,
                 "size": 0,  # Unknown until download starts
-                "target_path": str(model.target_path) if model.target_path else None
+                "target_path": target_path
             })
 
     # Also check pyproject.toml for any unresolved models with sources
@@ -719,19 +727,24 @@ async def apply_resolution(request: web.Request, env) -> web.Response:
             if manifest_model.get("status") == "unresolved" and manifest_model.get("sources"):
                 sources = manifest_model.get("sources", [])
                 filename = manifest_model.get("filename")
+                rel_path = manifest_model.get("relative_path")
 
                 # Check if user cancelled this download
                 choice = model_choices.get(filename)
                 if choice and choice.get("action") in ("skip", "cancel_download", "optional"):
                     continue  # User cancelled this download
 
-                # Avoid duplicates
+                # Skip if file already exists
+                if rel_path and models_dir and (models_dir / rel_path).exists():
+                    continue  # File already downloaded
+
+                # Avoid duplicates in list
                 if sources and not any(m["filename"] == filename for m in models_to_download):
                     models_to_download.append({
                         "filename": filename,
                         "url": sources[0],
                         "size": 0,
-                        "target_path": manifest_model.get("relative_path")
+                        "target_path": rel_path
                     })
     except Exception:
         pass  # Fallback if pyproject read fails

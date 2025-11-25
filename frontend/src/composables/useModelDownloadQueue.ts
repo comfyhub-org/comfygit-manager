@@ -183,7 +183,7 @@ async function loadPendingDownloads(): Promise<void> {
 }
 
 export function useModelDownloadQueue() {
-  // Add items to download queue
+  // Add items to download queue (skips duplicates by URL+targetPath)
   function addToQueue(items: Array<{
     workflow: string
     filename: string
@@ -193,6 +193,17 @@ export function useModelDownloadQueue() {
     type?: string
   }>) {
     for (const item of items) {
+      // Skip if already in queue with same URL + target path (not failed/removed)
+      const isDuplicate = queue.items.some(existing =>
+        existing.url === item.url &&
+        existing.targetPath === item.targetPath &&
+        ['queued', 'downloading', 'paused', 'completed'].includes(existing.status)
+      )
+      if (isDuplicate) {
+        console.log(`[ComfyGit] Skipping duplicate download: ${item.filename}`)
+        continue
+      }
+
       const queueItem: DownloadQueueItem = {
         id: generateId(),
         workflow: item.workflow,
