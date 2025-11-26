@@ -1,12 +1,17 @@
 <template>
   <div class="status-grid">
-    <div class="status-grid__column">
-      <h4 class="status-grid__title">{{ leftTitle }}</h4>
-      <slot name="left"></slot>
+    <div class="status-grid__columns">
+      <div class="status-grid__column">
+        <h4 class="status-grid__title">{{ leftTitle }}</h4>
+        <slot name="left"></slot>
+      </div>
+      <div class="status-grid__column status-grid__column--right">
+        <h4 class="status-grid__title">{{ rightTitle }}</h4>
+        <slot name="right"></slot>
+      </div>
     </div>
-    <div class="status-grid__column status-grid__column--right">
-      <h4 class="status-grid__title">{{ rightTitle }}</h4>
-      <slot name="right"></slot>
+    <div v-if="$slots.footer" class="status-grid__footer">
+      <slot name="footer"></slot>
     </div>
   </div>
 </template>
@@ -46,13 +51,16 @@ defineProps<StatusGridProps>()
 
 <style scoped>
 .status-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0;
   background: var(--cg-color-bg-tertiary);
   border: 1px solid var(--cg-color-border-subtle);
   border-radius: var(--cg-radius-md);
   overflow: hidden;
+}
+
+.status-grid__columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
 }
 
 .status-grid__column {
@@ -73,5 +81,10 @@ defineProps<StatusGridProps>()
   color: var(--cg-color-text-muted);
   margin: 0 0 var(--cg-space-2) 0;
   letter-spacing: var(--cg-letter-spacing-wide);
+}
+
+.status-grid__footer {
+  border-top: 1px solid var(--cg-color-border-subtle);
+  padding: var(--cg-space-3) var(--cg-space-4);
 }
 </style>

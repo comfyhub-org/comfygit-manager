@@ -42,10 +42,10 @@
             Loading...
           </div>
 
-          <div v-if="hasUncommittedIssues" class="issues-warning">
-            <div class="warning-header">
-              <span class="warning-icon">⚠️</span>
-              <span class="warning-title">{{ uncommittedWorkflowsWithIssues.length }} workflow(s) with unresolved issues</span>
+          <div v-if="hasUncommittedIssues" class="issues-error">
+            <div class="error-header">
+              <span class="error-icon">⚠</span>
+              <span class="error-title">{{ uncommittedWorkflowsWithIssues.length }} workflow(s) can't run</span>
             </div>
             <div class="issues-list">
               <div v-for="workflow in uncommittedWorkflowsWithIssues" :key="workflow.name" class="issue-item">
@@ -130,10 +130,10 @@
         Loading...
       </div>
 
-      <div v-if="hasUncommittedIssues" class="issues-warning">
-        <div class="warning-header">
-          <span class="warning-icon">⚠️</span>
-          <span class="warning-title">{{ uncommittedWorkflowsWithIssues.length }} workflow(s) with unresolved issues</span>
+      <div v-if="hasUncommittedIssues" class="issues-error">
+        <div class="error-header">
+          <span class="error-icon">⚠</span>
+          <span class="error-title">{{ uncommittedWorkflowsWithIssues.length }} workflow(s) can't run</span>
         </div>
         <div class="issues-list">
           <div v-for="workflow in uncommittedWorkflowsWithIssues" :key="workflow.name" class="issue-item">
@@ -402,28 +402,28 @@ async function handleCommit() {
   color: #fca5a5;
 }
 
-.issues-warning {
-  background: var(--cg-color-warning-muted);
-  border: 1px solid var(--cg-color-warning);
+.issues-error {
+  background: var(--cg-color-error-muted);
+  border: 1px solid var(--cg-color-error);
   border-radius: var(--cg-radius-md);
   padding: 10px;
   margin-bottom: 12px;
 }
 
-.warning-header {
+.error-header {
   display: flex;
   align-items: center;
   gap: 6px;
   margin-bottom: 8px;
-  color: var(--cg-color-warning);
+  color: var(--cg-color-error);
 }
 
-.warning-icon {
+.error-icon {
   font-size: 14px;
   line-height: 1;
 }
 
-.warning-title {
+.error-title {
   font-size: var(--cg-font-size-xs);
   font-weight: var(--cg-font-weight-medium);
 }

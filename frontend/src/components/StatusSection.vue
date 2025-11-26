@@ -98,20 +98,17 @@
             variant="ok"
           />
         </template>
-      </StatusGrid>
-      </div>
-
-      <!-- Current Branch Section -->
-      <div style="margin-top: var(--cg-space-1);">
-        <BranchIndicator
-          :branch-name="status.branch || 'Detached HEAD'"
-        >
-          <template #actions>
-            <ActionButton variant="secondary" size="sm" @click="$emit('switch-branch')">
-              Switch Branch
+        <!-- Footer slot - actions when there are uncommitted changes -->
+        <template v-if="hasUncommittedWork" #footer>
+          <h4 class="footer-title">ACTIONS</h4>
+          <div class="suggestions-content">
+            <span class="suggestions-text">{{ uncommittedChangesSummary }}</span>
+            <ActionButton variant="primary" size="sm" @click="$emit('commit-changes')">
+              Commit
             </ActionButton>
-          </template>
-        </BranchIndicator>
+          </div>
+        </template>
+      </StatusGrid>
       </div>
 
       <!-- Detached HEAD Warning (Critical Priority) -->
@@ -131,19 +128,19 @@
       </IssueCard>
 
       <!-- Issues Detected Section -->
-      <div v-if="hasIssues" style="margin-top: var(--cg-space-4)">
+      <div v-if="hasActualIssues" style="margin-top: var(--cg-space-3)">
         <SectionTitle level="4" style="margin-bottom: var(--cg-space-2)">
           ISSUES DETECTED
         </SectionTitle>
 
-        <!-- Priority 1: CRITICAL - Broken Synced Workflows -->
+        <!-- ERROR: Broken Workflows (can't run - missing nodes/dependencies) -->
         <IssueCard
-          v-if="brokenSyncedWorkflows.length > 0"
+          v-if="allBrokenWorkflows.length > 0"
           severity="error"
           icon="⚠"
-          :title="`${brokenSyncedWorkflows.length} committed workflow${brokenSyncedWorkflows.length === 1 ? '' : 's'} can't run`"
-          description="These workflows were committed but dependencies are now missing. They need to be fixed to run."
-          :items="brokenSyncedWorkflows.map(w => `${w.name} — ${w.issue_summary}`)"
+          :title="`${allBrokenWorkflows.length} workflow${allBrokenWorkflows.length === 1 ? '' : 's'} can't run`"
+          description="These workflows have missing dependencies that must be resolved before they can run."
+          :items="allBrokenWorkflows.map(w => `${w.name} — ${w.issue_summary}`)"
         >
           <template #actions>
             <ActionButton variant="primary" size="sm" @click="$emit('view-workflows')">
@@ -152,14 +149,14 @@
           </template>
         </IssueCard>
 
-        <!-- Priority 2: WARNING - Broken Uncommitted Workflows + Path Sync Issues -->
+        <!-- WARNING: Path Sync Issues (can run but paths need fixing) -->
         <IssueCard
-          v-if="brokenUncommittedWorkflows.length > 0 || pathSyncWorkflows.length > 0"
+          v-if="pathSyncWorkflows.length > 0"
           severity="warning"
           icon="⚠"
-          :title="workflowsNeedingAttentionTitle"
-          :description="workflowsNeedingAttentionDescription"
-          :items="workflowsNeedingAttentionItems"
+          :title="`${pathSyncWorkflows.length} workflow${pathSyncWorkflows.length === 1 ? '' : 's'} with path issues`"
+          description="These workflows can run but have model paths that should be synced."
+          :items="pathSyncWorkflows.map(w => `${w.name} — ${w.models_needing_path_sync_count} model path${w.models_needing_path_sync_count === 1 ? '' : 's'} to sync`)"
         >
           <template #actions>
             <ActionButton variant="primary" size="sm" @click="$emit('view-workflows')">
@@ -168,7 +165,7 @@
           </template>
         </IssueCard>
 
-        <!-- Missing Models Issue (Legacy - kept for backward compatibility) -->
+        <!-- WARNING: Missing Models (not in broken workflows) -->
         <IssueCard
           v-if="status.missing_models_count > 0 && !hasBrokenWorkflows"
           severity="warning"
@@ -183,25 +180,7 @@
           </template>
         </IssueCard>
 
-        <!-- Unsaved Changes Issue -->
-        <IssueCard
-          v-if="hasUncommittedWork"
-          severity="warning"
-          icon="⚠"
-          title="You have uncommitted changes"
-          :description="uncommittedChangesDescription"
-        >
-          <template #actions>
-            <ActionButton variant="secondary" size="sm" @click="handleViewChanges">
-              View Changes
-            </ActionButton>
-            <ActionButton variant="primary" size="sm" @click="$emit('commit-changes')">
-              Commit Changes
-            </ActionButton>
-          </template>
-        </IssueCard>
-
-        <!-- Environment Not Synced Issue -->
+        <!-- ERROR: Environment Not Synced -->
         <IssueCard
           v-if="!status.comparison.is_synced"
           severity="error"
@@ -223,7 +202,7 @@
 
       <!-- All Good State -->
       <EmptyState
-        v-if="!hasIssues && !hasGitChanges"
+        v-if="!hasActualIssues && !hasUncommittedWork"
         icon="✅"
         message="Everything looks good! No issues detected."
         style="margin-top: var(--cg-space-4)"
@@ -243,7 +222,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import type { ComfyGitStatus } from '@/types/comfygit'
 import PanelLayout from '@/components/base/organisms/PanelLayout.vue'
 import PanelHeader from '@/components/base/molecules/PanelHeader.vue'
@@ -252,7 +231,6 @@ import StatusGrid from '@/components/base/molecules/StatusGrid.vue'
 import StatusItem from '@/components/base/atoms/StatusItem.vue'
 import IssueCard from '@/components/base/molecules/IssueCard.vue'
 import EmptyState from '@/components/base/molecules/EmptyState.vue'
-import BranchIndicator from '@/components/base/molecules/BranchIndicator.vue'
 import ActionButton from '@/components/base/atoms/ActionButton.vue'
 import StatusDetailModal from '@/components/base/molecules/StatusDetailModal.vue'
 
@@ -263,23 +241,8 @@ const props = defineProps<{
 const showDetailModal = ref(false)
 const showHealthActions = ref(false)
 
-onMounted(() => {
-  console.log('StatusSection mounted with status:', props.status)
-  console.log('StatusDetailModal component imported:', StatusDetailModal)
-})
-
 function handleShowAll() {
-  console.log('Show All clicked, opening modal')
-  console.log('showDetailModal before:', showDetailModal.value)
   showDetailModal.value = true
-  console.log('showDetailModal after:', showDetailModal.value)
-}
-
-function handleViewChanges() {
-  console.log('View Changes clicked, opening modal')
-  console.log('showDetailModal before:', showDetailModal.value)
-  showDetailModal.value = true
-  console.log('showDetailModal after:', showDetailModal.value)
 }
 
 function handleNavigateWorkflows() {
@@ -298,7 +261,6 @@ const emit = defineEmits<{
   'commit-changes': []
   'view-debug': []
   'sync-environment': []
-  'switch-branch': []
   'create-branch': []
   'view-nodes': []
 }>()
@@ -336,19 +298,12 @@ const hasOtherWorkflowChanges = computed(() => {
   return props.status.git_changes.has_other_changes
 })
 
-const brokenSyncedWorkflows = computed(() => {
-  return props.status.workflows.analyzed?.filter(w =>
-    w.status === 'broken' && w.sync_state === 'synced'
-  ) || []
+// All broken workflows (can't run - has_issues=true)
+const allBrokenWorkflows = computed(() => {
+  return props.status.workflows.analyzed?.filter(w => w.status === 'broken') || []
 })
 
-const brokenUncommittedWorkflows = computed(() => {
-  return props.status.workflows.analyzed?.filter(w =>
-    w.status === 'broken' && w.sync_state !== 'synced'
-  ) || []
-})
-
-// Workflows with path sync issues (not broken, but need attention)
+// Workflows with path sync issues only (can run but paths need fixing)
 const pathSyncWorkflows = computed(() => {
   return props.status.workflows.analyzed?.filter(w =>
     w.has_path_sync_issues && !w.has_issues
@@ -356,82 +311,37 @@ const pathSyncWorkflows = computed(() => {
 })
 
 const hasBrokenWorkflows = computed(() => {
-  return brokenSyncedWorkflows.value.length > 0 || brokenUncommittedWorkflows.value.length > 0
+  return allBrokenWorkflows.value.length > 0
 })
 
-const hasWorkflowsNeedingAttention = computed(() => {
-  return hasBrokenWorkflows.value || pathSyncWorkflows.value.length > 0
-})
-
-const hasIssues = computed(() => {
-  return hasWorkflowsNeedingAttention.value ||
+// Issues that are actual problems (not just uncommitted work)
+const hasActualIssues = computed(() => {
+  return hasBrokenWorkflows.value ||
+         pathSyncWorkflows.value.length > 0 ||
          props.status.missing_models_count > 0 ||
-         hasUncommittedWork.value ||
          !props.status.comparison.is_synced
 })
 
-// Combined title, description, and items for workflows needing attention card
-const workflowsNeedingAttentionTitle = computed(() => {
-  const brokenCount = brokenUncommittedWorkflows.value.length
-  const pathSyncCount = pathSyncWorkflows.value.length
-  const total = brokenCount + pathSyncCount
-  return `${total} workflow${total === 1 ? '' : 's'} need${total === 1 ? 's' : ''} attention`
-})
-
-const workflowsNeedingAttentionDescription = computed(() => {
-  const brokenCount = brokenUncommittedWorkflows.value.length
-  const pathSyncCount = pathSyncWorkflows.value.length
-
-  if (brokenCount > 0 && pathSyncCount > 0) {
-    return 'Some workflows have missing dependencies, others have model paths that need syncing.'
-  } else if (brokenCount > 0) {
-    return 'Fix dependencies before committing these workflows.'
-  } else {
-    return 'Model paths in these workflows need to be synced.'
-  }
-})
-
-const workflowsNeedingAttentionItems = computed(() => {
-  const items: string[] = []
-
-  // Broken workflows
-  brokenUncommittedWorkflows.value.forEach(w => {
-    items.push(`${w.name} — ${w.issue_summary}`)
-  })
-
-  // Path sync workflows (different message)
-  pathSyncWorkflows.value.forEach(w => {
-    const count = w.models_needing_path_sync_count
-    items.push(`${w.name} — ${count} model path${count === 1 ? '' : 's'} need${count === 1 ? 's' : ''} syncing`)
-  })
-
-  return items
-})
-
-const uncommittedChangesDescription = computed(() => {
+// Short summary for the suggestions box
+const uncommittedChangesSummary = computed(() => {
   const parts: string[] = []
 
   if (props.status.workflows.new.length > 0) {
-    parts.push(`${props.status.workflows.new.length} new workflow${props.status.workflows.new.length === 1 ? '' : 's'}`)
+    parts.push(`${props.status.workflows.new.length} new`)
   }
   if (props.status.workflows.modified.length > 0) {
-    parts.push(`${props.status.workflows.modified.length} modified workflow${props.status.workflows.modified.length === 1 ? '' : 's'}`)
+    parts.push(`${props.status.workflows.modified.length} modified`)
   }
   if (props.status.workflows.deleted.length > 0) {
-    parts.push(`${props.status.workflows.deleted.length} deleted workflow${props.status.workflows.deleted.length === 1 ? '' : 's'}`)
-  }
-  if (props.status.git_changes.nodes_added.length > 0) {
-    parts.push(`${props.status.git_changes.nodes_added.length} node${props.status.git_changes.nodes_added.length === 1 ? '' : 's'} added`)
-  }
-  if (props.status.git_changes.nodes_removed.length > 0) {
-    parts.push(`${props.status.git_changes.nodes_removed.length} node${props.status.git_changes.nodes_removed.length === 1 ? '' : 's'} removed`)
+    parts.push(`${props.status.workflows.deleted.length} deleted`)
   }
 
-  const description = parts.length > 0
-    ? parts.join(', ') + '.'
-    : 'You have uncommitted changes.'
+  if (parts.length > 0) {
+    return `${parts.join(', ')} workflow${parts.length === 1 && !parts[0].includes(',') ? '' : 's'} to commit`
+  }
 
-  return `${description} Your work could be lost if you switch branches without committing.`
+  // Fallback for git-only changes (nodes, config)
+  return 'Uncommitted changes ready to commit'
 })
 
 // Sync issue details for the environment not synced card
@@ -497,6 +407,28 @@ const syncIssueItems = computed(() => {
   position: absolute;
   top: 0;
   right: 0;
+}
+
+/* Footer section in StatusGrid */
+.footer-title {
+  font-size: var(--cg-font-size-xs);
+  font-weight: var(--cg-font-weight-semibold);
+  text-transform: uppercase;
+  color: var(--cg-color-text-muted);
+  margin: 0 0 var(--cg-space-2) 0;
+  letter-spacing: var(--cg-letter-spacing-wide);
+}
+
+.suggestions-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--cg-space-3);
+}
+
+.suggestions-text {
+  color: var(--cg-color-text-secondary);
+  font-size: var(--cg-font-size-sm);
 }
 
 /* Fade transition for Show All button */
