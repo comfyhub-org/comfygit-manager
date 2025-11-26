@@ -463,7 +463,11 @@ export interface FullResolutionResult {
   stats: {
     total_nodes: number
     total_models: number
+    download_intents: number
+    nodes_needing_installation: number  // Node types count
+    packages_needing_installation: number  // Unique packages count
     needs_user_input: boolean
+    is_fully_resolved: boolean
   }
 }
 
@@ -513,7 +517,7 @@ export interface ModelSearchResult {
 
 // SSE Resolution Progress Types
 export interface ResolutionProgressState {
-  phase: 'idle' | 'resolving' | 'downloading' | 'complete' | 'error'
+  phase: 'idle' | 'resolving' | 'installing' | 'downloading' | 'complete' | 'error'
   currentFile?: string
   currentFileIndex?: number
   totalFiles?: number
@@ -521,6 +525,9 @@ export interface ResolutionProgressState {
   bytesTotal?: number
   completedFiles: Array<{ filename: string; success: boolean; error?: string; reused?: boolean }>
   nodesToInstall: string[]
+  nodesInstalled: string[]
+  installError?: string
+  needsRestart?: boolean
   error?: string
 }
 

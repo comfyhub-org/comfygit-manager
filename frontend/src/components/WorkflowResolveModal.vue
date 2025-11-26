@@ -40,10 +40,15 @@
               <div class="stat-card">
                 <div class="stat-header">Nodes</div>
                 <div class="stat-items">
-                  <div class="stat-item success">
+                  <div v-if="installedNodesCount > 0" class="stat-item success">
                     <span class="stat-icon">✓</span>
-                    <span class="stat-count">{{ analysisResult.nodes.resolved.length }}</span>
-                    <span class="stat-label">resolved</span>
+                    <span class="stat-count">{{ installedNodesCount }}</span>
+                    <span class="stat-label">installed</span>
+                  </div>
+                  <div v-if="analysisResult.stats.nodes_needing_installation > 0" class="stat-item info">
+                    <span class="stat-icon">⬇</span>
+                    <span class="stat-count">{{ analysisResult.stats.nodes_needing_installation }}</span>
+                    <span class="stat-label">to install</span>
                   </div>
                   <div v-if="analysisResult.nodes.ambiguous.length > 0" class="stat-item warning">
                     <span class="stat-icon">?</span>
@@ -89,6 +94,10 @@
             <div v-if="needsUserInput" class="status-message warning">
               <span class="status-icon">⚠</span>
               <span class="status-text">{{ unresolvedAndAmbiguousNodes.length + unresolvedAndAmbiguousModels.length }} items need your input</span>
+            </div>
+            <div v-else-if="hasNodesToInstall" class="status-message info">
+              <span class="status-icon">⬇</span>
+              <span class="status-text">{{ analysisResult.stats.packages_needing_installation }} package{{ analysisResult.stats.packages_needing_installation > 1 ? 's' : '' }} to install ({{ analysisResult.stats.nodes_needing_installation }} node type{{ analysisResult.stats.nodes_needing_installation > 1 ? 's' : '' }}){{ hasDownloadIntents ? `, ${analysisResult.stats.download_intents} model${analysisResult.stats.download_intents > 1 ? 's' : ''} to download` : '' }}</span>
             </div>
             <div v-else-if="hasDownloadIntents" class="status-message info">
               <span class="status-icon">⬇</span>
@@ -155,9 +164,26 @@
               </div>
             </div>
 
-            <!-- Node Choices Review -->
+            <!-- Nodes to Install (auto-resolved, need installation) -->
+            <div v-if="nodesToInstall.length > 0" class="review-section">
+              <h4 class="section-title">Node Packages to Install ({{ nodesToInstall.length }})</h4>
+              <div class="review-items">
+                <div
+                  v-for="node in nodesToInstall"
+                  :key="node.package.package_id"
+                  class="review-item"
+                >
+                  <code class="item-name">{{ node.package.package_id }}</code>
+                  <div class="item-choice">
+                    <span class="choice-badge install">Will Install</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Node Choices Review (for ambiguous/unresolved nodes that needed user input) -->
             <div v-if="unresolvedAndAmbiguousNodes.length > 0" class="review-section">
-              <h4 class="section-title">Node Packages ({{ unresolvedAndAmbiguousNodes.length }})</h4>
+              <h4 class="section-title">Node Choices ({{ unresolvedAndAmbiguousNodes.length }})</h4>
               <div class="review-items">
                 <div
                   v-for="node in unresolvedAndAmbiguousNodes"
@@ -226,7 +252,7 @@
               </div>
             </div>
 
-            <div v-if="unresolvedAndAmbiguousNodes.length === 0 && allEditableModels.length === 0" class="no-choices">
+            <div v-if="nodesToInstall.length === 0 && unresolvedAndAmbiguousNodes.length === 0 && allEditableModels.length === 0" class="no-choices">
               No dependencies need resolution.
             </div>
           </div>
@@ -236,6 +262,7 @@
         <ApplyingStep
           v-if="currentStep === 'applying'"
           :progress="progress"
+          @restart="handleRestart"
         />
       </div>
     </template>
@@ -328,9 +355,10 @@ const emit = defineEmits<{
   close: []
   install: []
   refresh: []
+  restart: []
 }>()
 
-const { analyzeWorkflow, applyResolution, queueModelDownloads, progress, resetProgress } = useWorkflowResolution()
+const { analyzeWorkflow, applyResolution, installNodes, queueModelDownloads, progress, resetProgress } = useWorkflowResolution()
 const { loadPendingDownloads } = useModelDownloadQueue()
 
 // State
@@ -396,6 +424,32 @@ const needsModelResolution = computed(() => {
 const hasDownloadIntents = computed(() => {
   if (!analysisResult.value) return false
   return analysisResult.value.stats.download_intents > 0
+})
+
+// Check if there are nodes that need their packages installed
+const hasNodesToInstall = computed(() => {
+  if (!analysisResult.value) return false
+  return analysisResult.value.stats.nodes_needing_installation > 0
+})
+
+// Count of resolved nodes that are already installed
+const installedNodesCount = computed(() => {
+  if (!analysisResult.value) return 0
+  return analysisResult.value.nodes.resolved.length - analysisResult.value.stats.nodes_needing_installation
+})
+
+// Packages that are resolved but not installed (for review/installation)
+// Deduplicated by package_id since multiple node types can come from one package
+const nodesToInstall = computed(() => {
+  if (!analysisResult.value) return []
+  const uninstalledNodes = analysisResult.value.nodes.resolved.filter(n => !n.is_installed)
+  // Dedupe by package_id
+  const seen = new Set<string>()
+  return uninstalledNodes.filter(n => {
+    if (seen.has(n.package.package_id)) return false
+    seen.add(n.package.package_id)
+    return true
+  })
 })
 
 // Download intents from resolved models - user can edit these
@@ -491,7 +545,10 @@ const allEditableModels = computed(() => {
 
 // Review step computed counts
 const installCount = computed(() => {
-  let count = 0
+  // Start with auto-install nodes (resolved but not installed)
+  let count = nodesToInstall.value.length
+
+  // Add user-selected node installs (for ambiguous/unresolved)
   for (const choice of nodeChoices.value.values()) {
     if (choice.action === 'install') count++
   }
@@ -706,19 +763,35 @@ async function handleApply() {
       queueModelDownloads(props.workflowName, result.models_to_download)
     }
 
-    // Step 3: Store nodes to install for UI display
-    progress.nodesToInstall = result.nodes_to_install || []
+    // Step 3: Store nodes to install for UI display (include auto-install nodes)
+    const allNodesToInstall = [
+      ...(result.nodes_to_install || []),
+      ...nodesToInstall.value.map(n => n.package.package_id)
+    ]
+    // Deduplicate
+    progress.nodesToInstall = [...new Set(allNodesToInstall)]
+
+    // Step 4: Install nodes if any
+    if (progress.nodesToInstall.length > 0) {
+      await installNodes(props.workflowName)
+    }
+
+    // Step 5: Mark complete
     progress.phase = 'complete'
 
-    // Step 4: Refresh download queue to reflect any cancelled downloads
+    // Step 6: Refresh download queue to reflect any cancelled downloads
     await loadPendingDownloads()
 
-    // Close modal after short delay to show completion message
-    setTimeout(() => {
-      emit('refresh')
-      emit('install')
-      emit('close')
-    }, 1000)
+    // If nodes were installed, we need restart - don't auto-close
+    if (!progress.needsRestart) {
+      // Close modal after short delay to show completion message
+      setTimeout(() => {
+        emit('refresh')
+        emit('install')
+        emit('close')
+      }, 1000)
+    }
+    // If needsRestart is true, modal stays open with restart prompt
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Failed to apply resolution'
     progress.error = error.value
@@ -726,6 +799,12 @@ async function handleApply() {
   } finally {
     applying.value = false
   }
+}
+
+function handleRestart() {
+  emit('refresh')
+  emit('restart')
+  emit('close')
 }
 
 onMounted(loadAnalysis)

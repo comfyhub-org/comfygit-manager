@@ -24,8 +24,9 @@ routes = web.RouteTableDef()
 # Serialization Helpers for Interactive Resolution Wizard
 # =============================================================================
 
-def _serialize_resolved_node(node: ResolvedNodePackage, workflow_name: str) -> dict:
+def _serialize_resolved_node(node: ResolvedNodePackage, workflow_name: str, uninstalled_set: set = None) -> dict:
     """Convert ResolvedNodePackage to frontend ResolvedNode format."""
+    uninstalled_set = uninstalled_set or set()
     return {
         "reference": {
             "node_type": node.node_type,
@@ -37,7 +38,7 @@ def _serialize_resolved_node(node: ResolvedNodePackage, workflow_name: str) -> d
         },
         "match_confidence": node.match_confidence,
         "match_type": node.match_type,
-        "is_installed": False  # Will be determined by checking installed packages
+        "is_installed": node.package_id not in uninstalled_set
     }
 
 
@@ -53,10 +54,11 @@ def _serialize_unresolved_node(node, workflow_name: str) -> dict:
     }
 
 
-def _serialize_ambiguous_node(options: list[ResolvedNodePackage], workflow_name: str) -> dict:
+def _serialize_ambiguous_node(options: list[ResolvedNodePackage], workflow_name: str, uninstalled_set: set = None) -> dict:
     """Convert ambiguous node options to frontend AmbiguousNode format."""
     if not options:
         return None
+    uninstalled_set = uninstalled_set or set()
     return {
         "reference": {
             "node_type": options[0].node_type,
@@ -70,7 +72,7 @@ def _serialize_ambiguous_node(options: list[ResolvedNodePackage], workflow_name:
                 },
                 "match_confidence": opt.match_confidence,
                 "match_type": opt.match_type,
-                "is_installed": False  # Check against installed packages
+                "is_installed": opt.package_id not in uninstalled_set
             }
             for opt in options
         ]
@@ -556,14 +558,41 @@ async def analyze_workflow(request: web.Request, env) -> web.Response:
         name
     )
 
+    # Get uninstalled nodes from environment status
+    # This is more reliable than get_uninstalled_nodes() which may not find the workflow
+    status = await run_sync(env.status)
+    workflow_status = next(
+        (wf for wf in status.workflow.analyzed_workflows if wf.name == name or wf.name == f"{name}.json"),
+        None
+    )
+    uninstalled_set = set(workflow_status.uninstalled_nodes) if workflow_status else set()
+
+    # Count node types that need their packages installed
+    # (may be more than package count if one package provides multiple node types)
+    nodes_needing_installation = sum(
+        1 for n in result.nodes_resolved if n.package_id in uninstalled_set
+    )
+
+    # Count unique packages to install (for display purposes)
+    packages_needing_installation = len(uninstalled_set)
+
+    # needs_user_input: user must make choices for unresolved/ambiguous items
+    needs_user_input = bool(
+        result.nodes_unresolved or result.nodes_ambiguous or
+        result.models_unresolved or result.models_ambiguous
+    )
+
+    # is_fully_resolved: workflow is ready to run (no user input needed AND all nodes installed)
+    is_fully_resolved = not needs_user_input and nodes_needing_installation == 0
+
     # Transform to frontend format
     response = {
         "workflow": name,
         "nodes": {
-            "resolved": [_serialize_resolved_node(n, name) for n in result.nodes_resolved],
+            "resolved": [_serialize_resolved_node(n, name, uninstalled_set) for n in result.nodes_resolved],
             "unresolved": [_serialize_unresolved_node(n, name) for n in result.nodes_unresolved],
             "ambiguous": [
-                amb for amb in [_serialize_ambiguous_node(opts, name) for opts in result.nodes_ambiguous]
+                amb for amb in [_serialize_ambiguous_node(opts, name, uninstalled_set) for opts in result.nodes_ambiguous]
                 if amb is not None
             ]
         },
@@ -579,8 +608,10 @@ async def analyze_workflow(request: web.Request, env) -> web.Response:
             "total_nodes": len(result.nodes_resolved) + len(result.nodes_unresolved) + len(result.nodes_ambiguous),
             "total_models": len(result.models_resolved) + len(result.models_unresolved) + len(result.models_ambiguous),
             "download_intents": sum(1 for m in result.models_resolved if m.match_type == "download_intent"),
-            "needs_user_input": bool(result.nodes_unresolved or result.nodes_ambiguous or
-                                     result.models_unresolved or result.models_ambiguous)
+            "nodes_needing_installation": nodes_needing_installation,  # Node types count
+            "packages_needing_installation": packages_needing_installation,  # Unique packages count
+            "needs_user_input": needs_user_input,
+            "is_fully_resolved": is_fully_resolved
         }
     }
 

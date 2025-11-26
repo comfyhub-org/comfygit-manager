@@ -190,7 +190,8 @@ export function useWorkflowResolution() {
   const progress = reactive<ResolutionProgressState>({
     phase: 'idle',
     completedFiles: [],
-    nodesToInstall: []
+    nodesToInstall: [],
+    nodesInstalled: []
   })
 
   function resetProgress() {
@@ -202,7 +203,50 @@ export function useWorkflowResolution() {
     progress.bytesTotal = undefined
     progress.completedFiles = []
     progress.nodesToInstall = []
+    progress.nodesInstalled = []
+    progress.installError = undefined
+    progress.needsRestart = undefined
     progress.error = undefined
+  }
+
+  /**
+   * Install node packages for a workflow.
+   * Returns list of installed package IDs.
+   */
+  async function installNodes(workflowName: string): Promise<{ nodes_installed: string[]; status: string; message?: string }> {
+    progress.phase = 'installing'
+    progress.nodesInstalled = []
+    progress.installError = undefined
+
+    try {
+      let data: { nodes_installed: string[]; status: string; message?: string }
+
+      if (isMockApi()) {
+        // Mock: simulate installation
+        await new Promise(resolve => setTimeout(resolve, 1500))
+        data = {
+          status: 'success',
+          nodes_installed: progress.nodesToInstall,
+          message: 'Nodes installed successfully'
+        }
+      } else {
+        data = await fetchApi<{ nodes_installed: string[]; status: string; message?: string }>(
+          `/v2/comfygit/workflow/${workflowName}/install`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+          }
+        )
+      }
+
+      progress.nodesInstalled = data.nodes_installed
+      progress.needsRestart = data.nodes_installed.length > 0
+      return data
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to install nodes'
+      progress.installError = errorMessage
+      throw err
+    }
   }
 
   async function applyResolutionWithProgress(
@@ -390,6 +434,7 @@ export function useWorkflowResolution() {
     analyzeWorkflow,
     applyResolution,
     applyResolutionWithProgress,
+    installNodes,
     searchNodes,
     searchModels,
     resetProgress,

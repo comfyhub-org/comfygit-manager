@@ -437,6 +437,15 @@ class TestWorkflowAnalyzeEndpoint:
         # analyze_and_resolve_workflow returns (dependencies, result) tuple
         mock_environment.workflow_manager.analyze_and_resolve_workflow.return_value = (Mock(), mock_result)
 
+        # Mock env.status() to return workflow with uninstalled_nodes
+        mock_wf_status = Mock()
+        mock_wf_status.name = "test.json"
+        mock_wf_status.uninstalled_nodes = []  # No uninstalled nodes
+        mock_status = Mock()
+        mock_status.workflow = Mock()
+        mock_status.workflow.analyzed_workflows = [mock_wf_status]
+        mock_environment.status.return_value = mock_status
+
         # Execute
         resp = await client.post("/v2/comfygit/workflow/test.json/analyze")
 
@@ -508,11 +517,118 @@ class TestWorkflowAnalyzeEndpoint:
         # analyze_and_resolve_workflow returns (dependencies, result) tuple
         mock_environment.workflow_manager.analyze_and_resolve_workflow.return_value = (Mock(), mock_result)
 
+        # Mock env.status() to return workflow with uninstalled_nodes
+        mock_wf_status = Mock()
+        mock_wf_status.name = "test.json"
+        mock_wf_status.uninstalled_nodes = []  # All nodes installed
+        mock_status = Mock()
+        mock_status.workflow = Mock()
+        mock_status.workflow.analyzed_workflows = [mock_wf_status]
+        mock_environment.status.return_value = mock_status
+
         resp = await client.post("/v2/comfygit/workflow/test.json/analyze")
 
         assert resp.status == 200
         data = await resp.json()
         assert data["stats"]["needs_user_input"] is False
+
+    async def test_resolved_nodes_include_installation_status(self, client, mock_environment):
+        """Resolved nodes should include is_installed=True/False based on actual install state.
+
+        This is the KEY test: when a workflow has nodes that are resolved to packages
+        but those packages are NOT installed, the API should report:
+        - is_installed: False for each uninstalled node
+        - stats.nodes_needing_installation: count of uninstalled resolved nodes
+        - stats.is_fully_resolved: False (because install is required)
+        """
+        # Setup: 2 resolved nodes, but one is not installed
+        mock_installed_node = Mock()
+        mock_installed_node.node_type = "InstalledNode"
+        mock_installed_node.package_id = "installed-pkg"
+        mock_installed_node.package_data = None
+        mock_installed_node.match_confidence = 1.0
+        mock_installed_node.match_type = "exact"
+
+        mock_uninstalled_node = Mock()
+        mock_uninstalled_node.node_type = "UninstalledNode"
+        mock_uninstalled_node.package_id = "uninstalled-pkg"
+        mock_uninstalled_node.package_data = None
+        mock_uninstalled_node.match_confidence = 1.0
+        mock_uninstalled_node.match_type = "exact"
+
+        mock_result = create_mock_resolution(
+            nodes_resolved=[mock_installed_node, mock_uninstalled_node],
+            nodes_unresolved=[],
+            nodes_ambiguous=[],
+            models_resolved=[],
+            models_unresolved=[],
+            models_ambiguous=[]
+        )
+        mock_environment.workflow_manager.analyze_and_resolve_workflow.return_value = (Mock(), mock_result)
+
+        # Mock env.status() to return workflow with one uninstalled node
+        mock_wf_status = Mock()
+        mock_wf_status.name = "test.json"
+        mock_wf_status.uninstalled_nodes = ["uninstalled-pkg"]  # This package is not installed
+        mock_status = Mock()
+        mock_status.workflow = Mock()
+        mock_status.workflow.analyzed_workflows = [mock_wf_status]
+        mock_environment.status.return_value = mock_status
+
+        resp = await client.post("/v2/comfygit/workflow/test.json/analyze")
+
+        assert resp.status == 200
+        data = await resp.json()
+
+        # Find the nodes by package_id
+        installed = next(n for n in data["nodes"]["resolved"] if n["package"]["package_id"] == "installed-pkg")
+        uninstalled = next(n for n in data["nodes"]["resolved"] if n["package"]["package_id"] == "uninstalled-pkg")
+
+        # KEY ASSERTIONS: is_installed should reflect actual installation state
+        assert installed["is_installed"] is True, "Installed node should have is_installed=True"
+        assert uninstalled["is_installed"] is False, "Uninstalled node should have is_installed=False"
+
+        # Stats should include installation info
+        assert data["stats"]["nodes_needing_installation"] == 1
+        assert data["stats"]["is_fully_resolved"] is False  # Not fully resolved since install needed
+
+    async def test_is_fully_resolved_true_when_all_installed(self, client, mock_environment):
+        """is_fully_resolved should be True only when all resolved nodes are installed."""
+        mock_resolved_node = Mock()
+        mock_resolved_node.node_type = "InstalledNode"
+        mock_resolved_node.package_id = "installed-pkg"
+        mock_resolved_node.package_data = None
+        mock_resolved_node.match_confidence = 1.0
+        mock_resolved_node.match_type = "exact"
+
+        mock_result = create_mock_resolution(
+            nodes_resolved=[mock_resolved_node],
+            nodes_unresolved=[],
+            nodes_ambiguous=[],
+            models_resolved=[],
+            models_unresolved=[],
+            models_ambiguous=[]
+        )
+        mock_environment.workflow_manager.analyze_and_resolve_workflow.return_value = (Mock(), mock_result)
+
+        # Mock env.status() with all nodes installed (empty uninstalled_nodes)
+        mock_wf_status = Mock()
+        mock_wf_status.name = "test.json"
+        mock_wf_status.uninstalled_nodes = []  # All installed
+        mock_status = Mock()
+        mock_status.workflow = Mock()
+        mock_status.workflow.analyzed_workflows = [mock_wf_status]
+        mock_environment.status.return_value = mock_status
+
+        resp = await client.post("/v2/comfygit/workflow/test.json/analyze")
+
+        assert resp.status == 200
+        data = await resp.json()
+
+        # All resolved, all installed
+        assert data["stats"]["needs_user_input"] is False
+        assert data["stats"]["nodes_needing_installation"] == 0
+        assert data["stats"]["is_fully_resolved"] is True
 
     async def test_error_no_environment(self, client, monkeypatch):
         """Should return 500 when no environment detected."""
