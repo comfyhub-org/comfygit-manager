@@ -60,15 +60,18 @@
             </template>
             <template #details>
               <DetailRow
-                label="Status:"
-                value="This node exists in custom_nodes/ but is not in your environment manifest."
-              />
-              <DetailRow
                 label="Used by:"
                 :value="getUsageLabel(node)"
               />
             </template>
             <template #actions>
+              <ActionButton
+                variant="secondary"
+                size="xs"
+                @click="showDetails(node)"
+              >
+                View Details
+              </ActionButton>
               <ActionButton
                 variant="primary"
                 size="sm"
@@ -111,43 +114,24 @@
             </template>
             <template #details>
               <DetailRow
-                v-if="node.description"
-                label="Description:"
-                :value="node.description"
-              />
-              <DetailRow
-                v-if="node.repository"
-                label="Repository:"
-                :value="node.repository"
-              />
-              <DetailRow
                 label="Used by:"
                 :value="getUsageLabel(node)"
               />
             </template>
             <template #actions>
               <ActionButton
-                v-if="node.repository"
                 variant="secondary"
                 size="xs"
-                @click="viewRepository(node.repository)"
+                @click="showDetails(node)"
               >
-                View Repo
+                View Details
               </ActionButton>
               <ActionButton
-                v-if="node.source === 'registry' || node.source === 'git'"
                 variant="secondary"
                 size="xs"
-                @click="handleUpdateNode(node.name)"
+                @click="openNodeManager"
               >
-                Update
-              </ActionButton>
-              <ActionButton
-                variant="destructive"
-                size="xs"
-                @click="handleUninstallNode(node.name)"
-              >
-                Uninstall
+                Manage
               </ActionButton>
             </template>
           </ItemCard>
@@ -173,35 +157,24 @@
             </template>
             <template #details>
               <DetailRow
-                v-if="node.description"
-                label="Description:"
-                :value="node.description"
-              />
-              <DetailRow
-                v-if="node.repository"
-                label="Repository:"
-                :value="node.repository"
-              />
-              <DetailRow
                 label="Required by:"
                 :value="getUsageLabel(node)"
               />
             </template>
             <template #actions>
               <ActionButton
+                variant="secondary"
+                size="xs"
+                @click="showDetails(node)"
+              >
+                View Details
+              </ActionButton>
+              <ActionButton
                 variant="primary"
                 size="sm"
                 @click="handleInstallNode(node.name)"
               >
                 Install
-              </ActionButton>
-              <ActionButton
-                v-if="node.repository"
-                variant="secondary"
-                size="sm"
-                @click="viewRepository(node.repository)"
-              >
-                View Repo
               </ActionButton>
             </template>
           </ItemCard>
@@ -243,6 +216,13 @@
       </ActionButton>
     </template>
   </InfoPopover>
+
+  <!-- Node Details Modal -->
+  <NodeDetailsModal
+    v-if="selectedNode"
+    :node="selectedNode"
+    @close="selectedNode = null"
+  />
 </template>
 
 <script setup lang="ts">
@@ -261,12 +241,13 @@ import EmptyState from '@/components/base/molecules/EmptyState.vue'
 import LoadingState from '@/components/base/organisms/LoadingState.vue'
 import ErrorState from '@/components/base/organisms/ErrorState.vue'
 import InfoPopover from '@/components/base/molecules/InfoPopover.vue'
+import NodeDetailsModal from '@/components/NodeDetailsModal.vue'
 
 const emit = defineEmits<{
   'open-node-manager': []
 }>()
 
-const { getNodes, trackNodeAsDev, installNode, updateNode, uninstallNode } = useComfyGitService()
+const { getNodes, trackNodeAsDev, installNode, uninstallNode } = useComfyGitService()
 
 const nodesData = ref<NodesResult>({
   nodes: [],
@@ -280,6 +261,7 @@ const loading = ref(false)
 const error = ref<string | null>(null)
 const searchQuery = ref('')
 const showPopover = ref(false)
+const selectedNode = ref<NodeInfo | null>(null)
 
 // Computed properties for filtering by category
 const filteredNodes = computed(() => {
@@ -329,8 +311,8 @@ function getUsageLabel(node: NodeInfo): string {
   return `${node.used_in_workflows.length} workflows`
 }
 
-function viewRepository(repoUrl: string) {
-  window.open(repoUrl, '_blank')
+function showDetails(node: NodeInfo) {
+  selectedNode.value = node
 }
 
 function openNodeManager() {
@@ -365,7 +347,6 @@ async function handleRemoveUntracked(nodeName: string) {
 
   try {
     loading.value = true
-    // For untracked nodes, we use uninstall which will remove from filesystem
     const result = await uninstallNode(nodeName)
     if (result.status === 'success') {
       alert(`Node "${nodeName}" removed!`)
@@ -396,48 +377,6 @@ async function handleInstallNode(nodeName: string) {
     }
   } catch (err) {
     alert(`Error installing node: ${err instanceof Error ? err.message : 'Unknown error'}`)
-  } finally {
-    loading.value = false
-  }
-}
-
-async function handleUpdateNode(nodeName: string) {
-  if (!confirm(`Check for updates for "${nodeName}"?`)) {
-    return
-  }
-
-  try {
-    loading.value = true
-    const result = await updateNode(nodeName)
-    if (result.status === 'success') {
-      alert(`Node "${nodeName}" is up to date or has been updated!`)
-      await loadNodes()
-    } else {
-      alert(`Update check failed: ${result.message || 'Unknown error'}`)
-    }
-  } catch (err) {
-    alert(`Error checking for updates: ${err instanceof Error ? err.message : 'Unknown error'}`)
-  } finally {
-    loading.value = false
-  }
-}
-
-async function handleUninstallNode(nodeName: string) {
-  if (!confirm(`Uninstall node "${nodeName}"?\n\nThis will remove the node from this environment.`)) {
-    return
-  }
-
-  try {
-    loading.value = true
-    const result = await uninstallNode(nodeName)
-    if (result.status === 'success') {
-      alert(`Node "${nodeName}" uninstalled!`)
-      await loadNodes()
-    } else {
-      alert(`Failed to uninstall node: ${result.message || 'Unknown error'}`)
-    }
-  } catch (err) {
-    alert(`Error uninstalling node: ${err instanceof Error ? err.message : 'Unknown error'}`)
   } finally {
     loading.value = false
   }
