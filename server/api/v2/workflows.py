@@ -338,7 +338,9 @@ async def get_workflows(request: web.Request, env) -> web.Response:
             "missing_nodes": wf.uninstalled_count,
             "missing_models": len(wf.resolution.models_unresolved) + len(wf.resolution.models_ambiguous),
             "pending_downloads": wf.download_intents_count,
-            "sync_state": wf.sync_state
+            "sync_state": wf.sync_state,
+            "has_path_sync_issues": wf.has_path_sync_issues,
+            "models_needing_path_sync": wf.models_needing_path_sync_count
         })
 
     return web.json_response(workflows)

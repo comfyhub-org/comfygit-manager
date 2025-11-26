@@ -74,11 +74,11 @@
           <ItemCard
             v-for="wf in filteredNew"
             :key="wf.name"
-            status="new"
+            :status="wf.has_path_sync_issues ? 'warning' : 'new'"
           >
-            <template #icon>●</template>
+            <template #icon>{{ wf.has_path_sync_issues ? '⚡' : '●' }}</template>
             <template #title>{{ wf.name }}</template>
-            <template #subtitle>New</template>
+            <template #subtitle>{{ formatWorkflowSubtitle(wf) }}</template>
             <template #actions>
               <ActionButton
                 variant="secondary"
@@ -100,11 +100,11 @@
           <ItemCard
             v-for="wf in filteredModified"
             :key="wf.name"
-            status="modified"
+            :status="wf.has_path_sync_issues ? 'warning' : 'modified'"
           >
             <template #icon>⚡</template>
             <template #title>{{ wf.name }}</template>
-            <template #subtitle>Modified</template>
+            <template #subtitle>{{ formatWorkflowSubtitle(wf) }}</template>
             <template #actions>
               <ActionButton
                 variant="secondary"
@@ -129,11 +129,11 @@
           <ItemCard
             v-for="wf in displayedSynced"
             :key="wf.name"
-            status="synced"
+            :status="wf.has_path_sync_issues ? 'warning' : 'synced'"
           >
-            <template #icon>✓</template>
+            <template #icon>{{ wf.has_path_sync_issues ? '⚡' : '✓' }}</template>
             <template #title>{{ wf.name }}</template>
-            <template #subtitle>Synced</template>
+            <template #subtitle>{{ formatWorkflowSubtitle(wf) }}</template>
             <template #actions>
               <ActionButton
                 variant="secondary"
@@ -319,6 +319,19 @@ function formatWorkflowIssues(wf: WorkflowInfo): string {
   }
 
   return parts.length > 0 ? parts.join(', ') : 'Has issues'
+}
+
+function formatWorkflowSubtitle(wf: WorkflowInfo): string {
+  // For non-broken workflows, show sync state + path issues if any
+  const syncLabel = wf.sync_state === 'new' ? 'New' :
+                    wf.sync_state === 'modified' ? 'Modified' :
+                    wf.sync_state === 'synced' ? 'Synced' : wf.sync_state
+
+  if (wf.has_path_sync_issues && wf.models_needing_path_sync && wf.models_needing_path_sync > 0) {
+    return `${wf.models_needing_path_sync} model path${wf.models_needing_path_sync > 1 ? 's' : ''} need${wf.models_needing_path_sync === 1 ? 's' : ''} sync`
+  }
+
+  return syncLabel || 'Unknown'
 }
 
 onMounted(loadWorkflows)

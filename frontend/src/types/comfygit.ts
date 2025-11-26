@@ -201,6 +201,8 @@ export interface WorkflowInfo {
   node_count?: number // Total node count
   model_count?: number // Total model count
   sync_state?: 'new' | 'modified' | 'synced' | 'deleted' // Git sync state
+  has_path_sync_issues?: boolean // Has model paths that need syncing
+  models_needing_path_sync?: number // Count of models needing path sync
 }
 
 export interface ModelUsageInfo {
