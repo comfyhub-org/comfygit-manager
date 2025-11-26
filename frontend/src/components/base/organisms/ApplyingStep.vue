@@ -15,11 +15,40 @@
         <div class="loading-spinner"></div>
         <h3 class="phase-title">Installing Node Packages</h3>
       </div>
-      <p class="phase-description">Installing {{ progress.nodesToInstall.length }} package{{ progress.nodesToInstall.length > 1 ? 's' : '' }}...</p>
+      <p class="phase-description">
+        Installing {{ (progress.nodeInstallProgress?.currentIndex ?? 0) + 1 }} of
+        {{ progress.nodeInstallProgress?.totalNodes ?? progress.nodesToInstall.length }} packages...
+      </p>
+
+      <!-- Progress bar -->
+      <div class="overall-progress">
+        <div class="progress-bar">
+          <div
+            class="progress-fill"
+            :style="{ width: `${installProgressPercent}%` }"
+          ></div>
+        </div>
+        <span class="progress-label">
+          {{ progress.nodeInstallProgress?.completedNodes.length ?? 0 }} /
+          {{ progress.nodeInstallProgress?.totalNodes ?? progress.nodesToInstall.length }}
+        </span>
+      </div>
+
+      <!-- Individual node items -->
       <div class="install-list">
-        <div v-for="pkg in progress.nodesToInstall" :key="pkg" class="install-item">
-          <span class="install-icon">⬇</span>
+        <div
+          v-for="(pkg, index) in progress.nodesToInstall"
+          :key="pkg"
+          :class="['install-item', getNodeInstallStatus(pkg, index)]"
+        >
+          <span class="install-icon">
+            <span v-if="getNodeInstallStatus(pkg, index) === 'pending'">○</span>
+            <span v-else-if="getNodeInstallStatus(pkg, index) === 'installing'" class="spinner">◌</span>
+            <span v-else-if="getNodeInstallStatus(pkg, index) === 'complete'">✓</span>
+            <span v-else-if="getNodeInstallStatus(pkg, index) === 'failed'">✗</span>
+          </span>
           <code>{{ pkg }}</code>
+          <span v-if="getNodeInstallError(pkg)" class="install-error">{{ getNodeInstallError(pkg) }}</span>
         </div>
       </div>
     </div>
@@ -27,8 +56,12 @@
     <!-- Phase: Complete -->
     <div v-else-if="progress.phase === 'complete'" class="phase-content">
       <div class="phase-header">
-        <span class="phase-icon success">✓</span>
-        <h3 class="phase-title">Resolution Complete</h3>
+        <span :class="['phase-icon', hasFailures ? 'warning' : 'success']">
+          {{ hasFailures ? '⚠' : '✓' }}
+        </span>
+        <h3 class="phase-title">
+          {{ hasFailures ? 'Resolution Completed with Errors' : 'Resolution Complete' }}
+        </h3>
       </div>
 
       <!-- Summary -->
@@ -39,13 +72,26 @@
           <span class="summary-text">{{ progress.nodesInstalled.length }} node package{{ progress.nodesInstalled.length > 1 ? 's' : '' }} installed</span>
         </div>
 
-        <!-- Installation error -->
-        <div v-if="progress.installError" class="summary-item error">
+        <!-- Failed installations summary -->
+        <div v-if="failedNodes.length > 0" class="summary-item error">
           <span class="summary-icon">✗</span>
-          <span class="summary-text">Installation error: {{ progress.installError }}</span>
+          <span class="summary-text">{{ failedNodes.length }} package{{ failedNodes.length > 1 ? 's' : '' }} failed to install</span>
         </div>
 
-        <div class="summary-item success">
+        <!-- Failed packages detail list -->
+        <div v-if="failedNodes.length > 0" class="failed-list">
+          <div v-for="node in failedNodes" :key="node.node_id" class="failed-item">
+            <code class="failed-node-id">{{ node.node_id }}</code>
+            <span class="failed-error">{{ node.error }}</span>
+          </div>
+        </div>
+
+        <!-- Retry failed button -->
+        <button v-if="failedNodes.length > 0" class="retry-button" @click="$emit('retry-failed')">
+          Retry Failed ({{ failedNodes.length }})
+        </button>
+
+        <div v-if="!hasFailures" class="summary-item success">
           <span class="summary-icon">✓</span>
           <span class="summary-text">Workflow dependencies resolved</span>
         </div>
@@ -80,15 +126,47 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { ResolutionProgressState } from '@/types/comfygit'
 
-defineProps<{
+const props = defineProps<{
   progress: ResolutionProgressState
 }>()
 
 defineEmits<{
   restart: []
+  'retry-failed': []
 }>()
+
+const installProgressPercent = computed(() => {
+  const total = props.progress.nodeInstallProgress?.totalNodes || props.progress.nodesToInstall.length
+  if (!total) return 0
+  const completed = props.progress.nodeInstallProgress?.completedNodes.length ?? 0
+  return Math.round((completed / total) * 100)
+})
+
+const failedNodes = computed(() => {
+  return props.progress.nodeInstallProgress?.completedNodes.filter(n => !n.success) || []
+})
+
+const hasFailures = computed(() => {
+  return failedNodes.value.length > 0
+})
+
+function getNodeInstallStatus(nodeId: string, index: number): 'pending' | 'installing' | 'complete' | 'failed' {
+  const completed = props.progress.nodeInstallProgress?.completedNodes.find(n => n.node_id === nodeId)
+  if (completed) {
+    return completed.success ? 'complete' : 'failed'
+  }
+  if (props.progress.nodeInstallProgress?.currentIndex === index) {
+    return 'installing'
+  }
+  return 'pending'
+}
+
+function getNodeInstallError(nodeId: string): string | undefined {
+  return props.progress.nodeInstallProgress?.completedNodes.find(n => n.node_id === nodeId)?.error
+}
 </script>
 
 <style scoped>
@@ -118,6 +196,10 @@ defineEmits<{
 
 .phase-icon.error {
   color: var(--cg-color-error);
+}
+
+.phase-icon.warning {
+  color: var(--cg-color-warning);
 }
 
 .phase-title {
@@ -201,6 +283,36 @@ defineEmits<{
   color: var(--cg-color-error);
 }
 
+/* Overall progress bar */
+.overall-progress {
+  display: flex;
+  align-items: center;
+  gap: var(--cg-space-3);
+  margin-bottom: var(--cg-space-2);
+}
+
+.progress-bar {
+  flex: 1;
+  height: 6px;
+  background: var(--cg-color-bg-tertiary);
+  border-radius: var(--cg-radius-full);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--cg-color-accent);
+  border-radius: var(--cg-radius-full);
+  transition: width var(--cg-transition-fast);
+}
+
+.progress-label {
+  font-size: var(--cg-font-size-xs);
+  font-family: var(--cg-font-mono);
+  color: var(--cg-color-text-muted);
+  white-space: nowrap;
+}
+
 /* Install list */
 .install-list {
   display: flex;
@@ -219,15 +331,52 @@ defineEmits<{
   gap: var(--cg-space-2);
   font-size: var(--cg-font-size-sm);
   color: var(--cg-color-text-secondary);
+  padding: var(--cg-space-1) var(--cg-space-2);
+  border-radius: var(--cg-radius-sm);
+  border-left: 3px solid transparent;
+}
+
+.install-item.pending {
+  border-left-color: var(--cg-color-border);
+}
+
+.install-item.installing {
+  border-left-color: var(--cg-color-accent);
+  background: var(--cg-color-bg-tertiary);
+}
+
+.install-item.complete {
+  border-left-color: var(--cg-color-success);
+}
+
+.install-item.failed {
+  border-left-color: var(--cg-color-error);
 }
 
 .install-icon {
-  color: var(--cg-color-info);
+  width: 16px;
+  text-align: center;
+}
+
+.install-item.pending .install-icon { color: var(--cg-color-text-muted); }
+.install-item.installing .install-icon { color: var(--cg-color-accent); }
+.install-item.complete .install-icon { color: var(--cg-color-success); }
+.install-item.failed .install-icon { color: var(--cg-color-error); }
+
+.install-icon .spinner {
+  display: inline-block;
+  animation: spin 1s linear infinite;
 }
 
 .install-item code {
   font-family: var(--cg-font-mono);
   color: var(--cg-color-text-primary);
+}
+
+.install-error {
+  font-size: var(--cg-font-size-xs);
+  color: var(--cg-color-error);
+  margin-left: auto;
 }
 
 /* Restart prompt */
@@ -285,6 +434,59 @@ defineEmits<{
 }
 
 .restart-button:hover {
+  filter: brightness(1.1);
+}
+
+/* Failed packages list */
+.failed-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cg-space-1);
+  padding: var(--cg-space-2);
+  background: var(--cg-color-error-muted);
+  border: 1px solid var(--cg-color-error);
+  border-radius: var(--cg-radius-md);
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.failed-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cg-space-1);
+  padding: var(--cg-space-1) var(--cg-space-2);
+  background: var(--cg-color-bg-primary);
+  border-radius: var(--cg-radius-sm);
+}
+
+.failed-node-id {
+  font-family: var(--cg-font-mono);
+  font-size: var(--cg-font-size-sm);
+  color: var(--cg-color-error);
+}
+
+.failed-error {
+  font-size: var(--cg-font-size-xs);
+  color: var(--cg-color-text-muted);
+  word-break: break-word;
+}
+
+/* Retry button */
+.retry-button {
+  align-self: flex-start;
+  margin-top: var(--cg-space-2);
+  padding: var(--cg-space-2) var(--cg-space-4);
+  background: var(--cg-color-accent);
+  color: var(--cg-color-bg-primary);
+  border: none;
+  border-radius: var(--cg-radius-md);
+  font-size: var(--cg-font-size-sm);
+  font-weight: var(--cg-font-weight-semibold);
+  cursor: pointer;
+  transition: all var(--cg-transition-fast);
+}
+
+.retry-button:hover {
   filter: brightness(1.1);
 }
 </style>

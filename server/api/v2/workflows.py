@@ -505,35 +505,70 @@ async def resolve_workflow(request: web.Request, env) -> web.Response:
 @routes.post("/v2/comfygit/workflow/{name}/install")
 @requires_environment
 async def install_workflow(request: web.Request, env) -> web.Response:
-    """Install all missing dependencies for a workflow."""
+    """Install missing dependencies for a workflow.
+
+    Optionally accepts a JSON body with 'packages' array to install specific packages.
+    If not provided, installs all uninstalled packages for the workflow.
+    """
     name = request.match_info["name"]
 
     try:
-        # Get uninstalled nodes for workflow
-        uninstalled = await run_sync(env.get_uninstalled_nodes, workflow_name=name)
+        # Check if specific packages were requested
+        packages_to_install = None
+        try:
+            body = await request.json()
+            packages_to_install = body.get("packages")
+        except Exception:
+            pass  # No body or invalid JSON - use default behavior
+
+        if packages_to_install is not None:
+            # Install only the requested packages
+            uninstalled = packages_to_install
+        else:
+            # Get uninstalled nodes for workflow
+            uninstalled = await run_sync(env.get_uninstalled_nodes, workflow_name=name)
 
         if not uninstalled:
             return web.json_response({
                 "status": "success",
                 "message": "All dependencies already installed",
-                "nodes_installed": []
+                "nodes_installed": [],
+                "failed": []
             })
 
-        # Install each node
+        # Install each node, continuing on failure
         installed = []
+        failed = []
         for node_id in uninstalled:
-            await run_sync(env.install_node, node_id)
-            installed.append(node_id)
+            try:
+                await run_sync(env.add_node, node_id)
+                installed.append(node_id)
+            except Exception as e:
+                failed.append({"node_id": node_id, "error": str(e)})
+
+        # Determine overall status
+        if len(failed) == 0:
+            status = "success"
+            message = f"Installed {len(installed)} node packages"
+        elif len(installed) == 0:
+            status = "error"
+            message = f"All {len(failed)} packages failed to install"
+        else:
+            status = "partial"
+            message = f"Installed {len(installed)} packages, {len(failed)} failed"
 
         return web.json_response({
-            "status": "success",
-            "message": f"Installed {len(installed)} node packages",
-            "nodes_installed": installed
+            "status": status,
+            "message": message,
+            "nodes_installed": installed,
+            "failed": failed
         })
     except Exception as e:
         return web.json_response({
             "status": "error",
-            "message": str(e)
+            "message": str(e),
+            "nodes_installed": [],
+            "failed": []
         }, status=500)
 
 
@@ -733,6 +768,7 @@ async def apply_resolution(request: web.Request, env) -> web.Response:
 
     node_choices = body.get("node_choices", {})
     model_choices = body.get("model_choices", {})
+    skipped_packages = set(body.get("skipped_packages", []))
 
     # Create strategies from user choices
     node_strategy = PanelNodeStrategy(node_choices)
@@ -753,12 +789,12 @@ async def apply_resolution(request: web.Request, env) -> web.Response:
             model_strategy
         )
 
-    # Collect what needs to be installed
+    # Collect what needs to be installed (excluding user-skipped packages)
     nodes_to_install = []
     installed = env.pyproject.nodes.get_existing()
     for node in result.nodes_resolved:
         if node.package_id and node.match_type != "optional":
-            if node.package_id not in installed:
+            if node.package_id not in installed and node.package_id not in skipped_packages:
                 nodes_to_install.append(node.package_id)
 
     # Handle user overrides for existing download intents

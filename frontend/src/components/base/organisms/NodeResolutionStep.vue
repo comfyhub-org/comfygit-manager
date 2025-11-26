@@ -1,47 +1,93 @@
 <template>
   <div class="node-resolution-step">
-    <!-- Section Header -->
-    <div class="step-header">
-      <div class="step-info">
-        <h3 class="step-title">Resolve Missing Nodes</h3>
-        <p class="step-description">
-          Browse unresolved nodes and choose how to handle each one.
-          Unaddressed items will be skipped.
-        </p>
+    <!-- Auto-resolved packages section (shown first if exists) -->
+    <div v-if="autoResolvedPackages.length > 0" class="auto-resolved-section">
+      <div class="section-header">
+        <div class="section-info">
+          <h4 class="section-title">Packages to Install</h4>
+          <p class="section-description">
+            These packages were automatically resolved. You can skip any if needed.
+          </p>
+        </div>
+        <span class="stat-badge">{{ packagesToInstallCount }}/{{ autoResolvedPackages.length }} to install</span>
       </div>
-      <span class="stat-badge">{{ resolvedCount }}/{{ nodes.length }} resolved</span>
+
+      <div class="resolved-packages-list">
+        <div
+          v-for="pkg in autoResolvedPackages"
+          :key="pkg.package_id"
+          class="resolved-package-item"
+        >
+          <div class="package-info">
+            <code class="package-id">{{ pkg.package_id }}</code>
+            <span class="node-count">{{ pkg.node_types_count }} node type{{ pkg.node_types_count > 1 ? 's' : '' }}</span>
+          </div>
+          <div class="package-actions">
+            <span v-if="!isPackageSkipped(pkg.package_id)" class="status-badge install">
+              WILL INSTALL
+            </span>
+            <span v-else class="status-badge skip">
+              SKIPPED
+            </span>
+            <button
+              class="toggle-skip-btn"
+              @click="togglePackageSkip(pkg.package_id)"
+            >
+              {{ isPackageSkipped(pkg.package_id) ? 'Include' : 'Skip' }}
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Item Navigator -->
-    <ItemNavigator
-      v-if="currentNode"
-      :item-name="currentNode.node_type"
-      :current-index="currentIndex"
-      :total-items="nodes.length"
-      @prev="goToItem(currentIndex - 1)"
-      @next="goToItem(currentIndex + 1)"
-    />
+    <!-- Divider between sections -->
+    <div v-if="autoResolvedPackages.length > 0 && nodes.length > 0" class="section-divider"></div>
 
-    <!-- Current Node Card -->
-    <div v-if="currentNode" class="step-body">
-      <NodeResolutionItem
-        :node-type="currentNode.node_type"
-        :has-multiple-options="!!currentNode.options?.length"
-        :options="currentNode.options"
-        :choice="nodeChoices?.get(currentNode.node_type)"
-        :status="currentNodeStatus"
-        :status-label="currentNodeStatusLabel"
-        @mark-optional="handleMarkOptional"
-        @skip="handleSkip"
-        @manual-entry="handleManualEntry"
-        @search="handleSearch"
-        @option-selected="handleOptionSelected"
-        @clear-choice="handleClearChoice"
+    <!-- Unresolved/ambiguous nodes section -->
+    <template v-if="nodes.length > 0">
+      <!-- Section Header -->
+      <div class="step-header">
+        <div class="step-info">
+          <h3 class="step-title">Resolve Missing Nodes</h3>
+          <p class="step-description">
+            Browse unresolved nodes and choose how to handle each one.
+            Unaddressed items will be skipped.
+          </p>
+        </div>
+        <span class="stat-badge">{{ resolvedCount }}/{{ nodes.length }} resolved</span>
+      </div>
+
+      <!-- Item Navigator -->
+      <ItemNavigator
+        v-if="currentNode"
+        :item-name="currentNode.node_type"
+        :current-index="currentIndex"
+        :total-items="nodes.length"
+        @prev="goToItem(currentIndex - 1)"
+        @next="goToItem(currentIndex + 1)"
       />
-    </div>
 
-    <!-- Empty state if no nodes -->
-    <div v-else class="empty-state">
+      <!-- Current Node Card -->
+      <div v-if="currentNode" class="step-body">
+        <NodeResolutionItem
+          :node-type="currentNode.node_type"
+          :has-multiple-options="!!currentNode.options?.length"
+          :options="currentNode.options"
+          :choice="nodeChoices?.get(currentNode.node_type)"
+          :status="currentNodeStatus"
+          :status-label="currentNodeStatusLabel"
+          @mark-optional="handleMarkOptional"
+          @skip="handleSkip"
+          @manual-entry="handleManualEntry"
+          @search="handleSearch"
+          @option-selected="handleOptionSelected"
+          @clear-choice="handleClearChoice"
+        />
+      </div>
+    </template>
+
+    <!-- Empty state if no nodes AND no packages -->
+    <div v-if="nodes.length === 0 && autoResolvedPackages.length === 0" class="empty-state">
       <p>No nodes need resolution.</p>
     </div>
 
@@ -138,9 +184,17 @@ interface NodeToResolve {
   options?: NodeOption[]
 }
 
+interface AutoResolvedPackage {
+  package_id: string
+  title: string
+  node_types_count: number
+}
+
 const props = defineProps<{
   nodes: NodeToResolve[]
   nodeChoices: Map<string, NodeChoice>
+  autoResolvedPackages: AutoResolvedPackage[]
+  skippedPackages: Set<string>
 }>()
 
 const emit = defineEmits<{
@@ -149,6 +203,7 @@ const emit = defineEmits<{
   (e: 'option-selected', nodeType: string, index: number): void
   (e: 'manual-entry', nodeType: string, packageId: string): void
   (e: 'clear-choice', nodeType: string): void
+  (e: 'package-skip', packageId: string): void
 }>()
 
 // Local state
@@ -166,6 +221,19 @@ const currentNode = computed(() => props.nodes[currentIndex.value])
 const resolvedCount = computed(() => {
   return props.nodes.filter(n => props.nodeChoices.has(n.node_type)).length
 })
+
+// Auto-resolved packages helpers
+const packagesToInstallCount = computed(() => {
+  return props.autoResolvedPackages.filter(p => !props.skippedPackages.has(p.package_id)).length
+})
+
+function isPackageSkipped(packageId: string): boolean {
+  return props.skippedPackages.has(packageId)
+}
+
+function togglePackageSkip(packageId: string) {
+  emit('package-skip', packageId)
+}
 
 // Compute status for ItemNavigator
 const currentNodeStatus = computed((): ResolutionStatus => {
@@ -285,6 +353,120 @@ function submitManualEntry() {
   min-height: 400px;
 }
 
+/* Auto-resolved packages section */
+.auto-resolved-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cg-space-2);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--cg-space-3);
+}
+
+.section-info {
+  flex: 1;
+}
+
+.section-title {
+  font-size: var(--cg-font-size-sm);
+  font-weight: var(--cg-font-weight-semibold);
+  color: var(--cg-color-text-primary);
+  margin: 0;
+}
+
+.section-description {
+  font-size: var(--cg-font-size-xs);
+  color: var(--cg-color-text-muted);
+  margin: 2px 0 0 0;
+}
+
+.resolved-packages-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cg-space-1);
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.resolved-package-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--cg-space-2) var(--cg-space-3);
+  background: var(--cg-color-bg-secondary);
+  border-radius: var(--cg-radius-sm);
+  border-left: 3px solid var(--cg-color-success);
+}
+
+.package-info {
+  display: flex;
+  align-items: center;
+  gap: var(--cg-space-3);
+}
+
+.package-id {
+  font-family: var(--cg-font-mono);
+  font-size: var(--cg-font-size-sm);
+  color: var(--cg-color-accent);
+}
+
+.node-count {
+  font-size: var(--cg-font-size-xs);
+  color: var(--cg-color-text-muted);
+}
+
+.package-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--cg-space-2);
+}
+
+.status-badge {
+  font-size: var(--cg-font-size-xs);
+  font-family: var(--cg-font-mono);
+  padding: 2px 6px;
+  border-radius: var(--cg-radius-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.status-badge.install {
+  background: var(--cg-color-success-muted);
+  color: var(--cg-color-success);
+}
+
+.status-badge.skip {
+  background: var(--cg-color-bg-hover);
+  color: var(--cg-color-text-muted);
+}
+
+.toggle-skip-btn {
+  font-size: var(--cg-font-size-xs);
+  padding: var(--cg-space-1) var(--cg-space-2);
+  background: var(--cg-color-bg-tertiary);
+  border: 1px solid var(--cg-color-border);
+  border-radius: var(--cg-radius-sm);
+  color: var(--cg-color-text-secondary);
+  cursor: pointer;
+  transition: all var(--cg-transition-fast);
+}
+
+.toggle-skip-btn:hover {
+  background: var(--cg-color-bg-hover);
+  color: var(--cg-color-text-primary);
+}
+
+.section-divider {
+  height: 1px;
+  background: var(--cg-color-border);
+  margin: var(--cg-space-2) 0;
+}
+
+/* Step header for unresolved nodes */
 .step-header {
   display: flex;
   justify-content: space-between;

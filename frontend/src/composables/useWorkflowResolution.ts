@@ -80,7 +80,8 @@ export function useWorkflowResolution() {
   async function applyResolution(
     workflowName: string,
     nodeChoices: Map<string, NodeChoice>,
-    modelChoices: Map<string, ModelChoice>
+    modelChoices: Map<string, ModelChoice>,
+    skippedPackages?: Set<string>
   ): Promise<AppliedResolutionResult> {
     isLoading.value = true
     error.value = null
@@ -95,6 +96,7 @@ export function useWorkflowResolution() {
         // Convert Map to plain object for JSON serialization
         const nodeChoicesObj = Object.fromEntries(nodeChoices)
         const modelChoicesObj = Object.fromEntries(modelChoices)
+        const skippedPackagesArr = skippedPackages ? Array.from(skippedPackages) : []
 
         data = await fetchApi<AppliedResolutionResult>(
           `/v2/comfygit/workflow/${workflowName}/apply-resolution`,
@@ -103,7 +105,8 @@ export function useWorkflowResolution() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               node_choices: nodeChoicesObj,
-              model_choices: modelChoicesObj
+              model_choices: modelChoicesObj,
+              skipped_packages: skippedPackagesArr
             })
           }
         )
@@ -207,46 +210,99 @@ export function useWorkflowResolution() {
     progress.installError = undefined
     progress.needsRestart = undefined
     progress.error = undefined
+    progress.nodeInstallProgress = undefined
   }
 
   /**
-   * Install node packages for a workflow.
-   * Returns list of installed package IDs.
+   * Install node packages for a workflow with progress tracking.
+   * Uses SSE for real-time progress updates.
    */
   async function installNodes(workflowName: string): Promise<{ nodes_installed: string[]; status: string; message?: string }> {
     progress.phase = 'installing'
     progress.nodesInstalled = []
     progress.installError = undefined
+    progress.nodeInstallProgress = {
+      completedNodes: []
+    }
 
     try {
-      let data: { nodes_installed: string[]; status: string; message?: string }
-
       if (isMockApi()) {
-        // Mock: simulate installation
-        await new Promise(resolve => setTimeout(resolve, 1500))
-        data = {
+        // Mock: simulate installation with progress
+        progress.nodeInstallProgress.totalNodes = progress.nodesToInstall.length
+        for (let i = 0; i < progress.nodesToInstall.length; i++) {
+          progress.nodeInstallProgress.currentNode = progress.nodesToInstall[i]
+          progress.nodeInstallProgress.currentIndex = i
+          await new Promise(resolve => setTimeout(resolve, 500))
+          progress.nodeInstallProgress.completedNodes.push({
+            node_id: progress.nodesToInstall[i],
+            success: true
+          })
+        }
+        progress.nodesInstalled = progress.nodesToInstall
+        progress.needsRestart = progress.nodesToInstall.length > 0
+        return {
           status: 'success',
           nodes_installed: progress.nodesToInstall,
           message: 'Nodes installed successfully'
         }
-      } else {
-        data = await fetchApi<{ nodes_installed: string[]; status: string; message?: string }>(
-          `/v2/comfygit/workflow/${workflowName}/install`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
-          }
-        )
       }
 
-      progress.nodesInstalled = data.nodes_installed
-      progress.needsRestart = data.nodes_installed.length > 0
-      return data
+      // Real API: try SSE first, fallback to regular endpoint
+      return await installNodesWithFallback(workflowName)
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to install nodes'
       progress.installError = errorMessage
       throw err
     }
+  }
+
+  /**
+   * Install nodes with SSE progress, falling back to regular endpoint if SSE unavailable
+   */
+  async function installNodesWithFallback(workflowName: string): Promise<{ nodes_installed: string[]; status: string; message?: string }> {
+    // Try regular endpoint (SSE endpoint not implemented yet)
+    // When backend SSE is ready, can switch to trying SSE first
+    const data = await fetchApi<{
+      nodes_installed: string[]
+      status: string
+      message?: string
+      failed?: Array<{ node_id: string; error: string }>
+    }>(
+      `/v2/comfygit/workflow/${workflowName}/install`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          packages: progress.nodesToInstall
+        })
+      }
+    )
+
+    // Build progress completion with success/failure status
+    if (progress.nodeInstallProgress) {
+      progress.nodeInstallProgress.totalNodes = progress.nodesToInstall.length
+      const failedMap = new Map(data.failed?.map(f => [f.node_id, f.error]) || [])
+
+      for (let i = 0; i < progress.nodesToInstall.length; i++) {
+        const nodeId = progress.nodesToInstall[i]
+        const error = failedMap.get(nodeId)
+        progress.nodeInstallProgress.completedNodes.push({
+          node_id: nodeId,
+          success: !error,
+          error
+        })
+      }
+    }
+
+    progress.nodesInstalled = data.nodes_installed
+    progress.needsRestart = data.nodes_installed.length > 0
+
+    // Store install error summary if there were failures
+    if (data.failed && data.failed.length > 0) {
+      progress.installError = `${data.failed.length} package(s) failed to install`
+    }
+
+    return data
   }
 
   async function applyResolutionWithProgress(

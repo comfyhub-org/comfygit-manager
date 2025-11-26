@@ -40,14 +40,14 @@
               <div class="stat-card">
                 <div class="stat-header">Nodes</div>
                 <div class="stat-items">
-                  <div v-if="installedNodesCount > 0" class="stat-item success">
+                  <div v-if="resolvedNodesCount > 0" class="stat-item success">
                     <span class="stat-icon">✓</span>
-                    <span class="stat-count">{{ installedNodesCount }}</span>
-                    <span class="stat-label">installed</span>
+                    <span class="stat-count">{{ resolvedNodesCount }}</span>
+                    <span class="stat-label">resolved</span>
                   </div>
-                  <div v-if="analysisResult.stats.nodes_needing_installation > 0" class="stat-item info">
+                  <div v-if="analysisResult.stats.packages_needing_installation > 0" class="stat-item info">
                     <span class="stat-icon">⬇</span>
-                    <span class="stat-count">{{ analysisResult.stats.nodes_needing_installation }}</span>
+                    <span class="stat-count">{{ analysisResult.stats.packages_needing_installation }}</span>
                     <span class="stat-label">to install</span>
                   </div>
                   <div v-if="analysisResult.nodes.ambiguous.length > 0" class="stat-item warning">
@@ -115,11 +115,14 @@
           v-if="currentStep === 'nodes'"
           :nodes="unresolvedAndAmbiguousNodes"
           :node-choices="nodeChoices"
+          :auto-resolved-packages="autoResolvedPackages"
+          :skipped-packages="skippedPackages"
           @mark-optional="handleNodeMarkOptional"
           @skip="handleNodeSkip"
           @option-selected="handleNodeOptionSelected"
           @manual-entry="handleNodeManualEntry"
           @clear-choice="handleNodeClearChoice"
+          @package-skip="handlePackageSkip"
         />
 
         <!-- Model Resolution Step -->
@@ -165,17 +168,18 @@
             </div>
 
             <!-- Nodes to Install (auto-resolved, need installation) -->
-            <div v-if="nodesToInstall.length > 0" class="review-section">
-              <h4 class="section-title">Node Packages to Install ({{ nodesToInstall.length }})</h4>
+            <div v-if="autoResolvedPackages.length > 0" class="review-section">
+              <h4 class="section-title">Node Packages ({{ autoResolvedPackages.length }})</h4>
               <div class="review-items">
                 <div
-                  v-for="node in nodesToInstall"
-                  :key="node.package.package_id"
+                  v-for="pkg in autoResolvedPackages"
+                  :key="pkg.package_id"
                   class="review-item"
                 >
-                  <code class="item-name">{{ node.package.package_id }}</code>
+                  <code class="item-name">{{ pkg.package_id }}</code>
                   <div class="item-choice">
-                    <span class="choice-badge install">Will Install</span>
+                    <span v-if="!skippedPackages.has(pkg.package_id)" class="choice-badge install">Will Install</span>
+                    <span v-else class="choice-badge skip">Skipped</span>
                   </div>
                 </div>
               </div>
@@ -263,6 +267,7 @@
           v-if="currentStep === 'applying'"
           :progress="progress"
           @restart="handleRestart"
+          @retry-failed="handleRetryFailed"
         />
       </div>
     </template>
@@ -296,7 +301,7 @@
         :disabled="loading"
         @click="handleContinueFromAnalysis"
       >
-        {{ (needsUserInput || hasDownloadIntents) ? 'Continue' : 'Apply' }}
+        Continue
       </BaseButton>
 
       <!-- Nodes Step: Continue to Models or Review -->
@@ -377,13 +382,17 @@ const completedSteps = ref<WizardStep[]>([])
 const nodeChoices = ref<Map<string, NodeChoice>>(new Map())
 const modelChoices = ref<Map<string, ModelChoice>>(new Map())
 
-// Wizard steps configuration - always show Models if there are download intents to review
+// Track which auto-resolved packages user wants to skip
+const skippedPackages = ref<Set<string>>(new Set())
+
+// Wizard steps configuration - always show Nodes if there are packages to install (for override capability)
 const wizardSteps = computed(() => {
   const steps = [
     { id: 'analysis', label: 'Analysis' }
   ]
 
-  if (needsNodeResolution.value) {
+  // Show Nodes step if ANY nodes need resolution OR packages need installation
+  if (needsNodeResolution.value || hasNodesToInstall.value) {
     steps.push({ id: 'nodes', label: 'Nodes' })
   }
 
@@ -432,10 +441,10 @@ const hasNodesToInstall = computed(() => {
   return analysisResult.value.stats.nodes_needing_installation > 0
 })
 
-// Count of resolved nodes that are already installed
-const installedNodesCount = computed(() => {
+// Count of all resolved nodes (matched to packages, may or may not be installed)
+const resolvedNodesCount = computed(() => {
   if (!analysisResult.value) return 0
-  return analysisResult.value.nodes.resolved.length - analysisResult.value.stats.nodes_needing_installation
+  return analysisResult.value.nodes.resolved.length
 })
 
 // Packages that are resolved but not installed (for review/installation)
@@ -450,6 +459,32 @@ const nodesToInstall = computed(() => {
     seen.add(n.package.package_id)
     return true
   })
+})
+
+// Auto-resolved packages with node type counts (for NodeResolutionStep)
+const autoResolvedPackages = computed(() => {
+  if (!analysisResult.value) return []
+  const uninstalledNodes = analysisResult.value.nodes.resolved.filter(n => !n.is_installed)
+  // Group by package_id and count node types
+  const packageMap = new Map<string, { package_id: string; title: string; node_types_count: number }>()
+  for (const node of uninstalledNodes) {
+    const pkg = packageMap.get(node.package.package_id)
+    if (pkg) {
+      pkg.node_types_count++
+    } else {
+      packageMap.set(node.package.package_id, {
+        package_id: node.package.package_id,
+        title: node.package.title,
+        node_types_count: 1
+      })
+    }
+  }
+  return Array.from(packageMap.values())
+})
+
+// Final list of packages to install (excluding skipped)
+const finalNodesToInstall = computed(() => {
+  return nodesToInstall.value.filter(n => !skippedPackages.value.has(n.package.package_id))
 })
 
 // Download intents from resolved models - user can edit these
@@ -545,8 +580,8 @@ const allEditableModels = computed(() => {
 
 // Review step computed counts
 const installCount = computed(() => {
-  // Start with auto-install nodes (resolved but not installed)
-  let count = nodesToInstall.value.length
+  // Start with auto-install nodes (resolved but not installed, minus skipped)
+  let count = finalNodesToInstall.value.length
 
   // Add user-selected node installs (for ambiguous/unresolved)
   for (const choice of nodeChoices.value.values()) {
@@ -578,8 +613,8 @@ const optionalCount = computed(() => {
 })
 
 const skippedCount = computed(() => {
-  // Count items without choices + explicit skips
-  let count = 0
+  // Count items without choices + explicit skips + skipped packages
+  let count = skippedPackages.value.size
 
   // Explicit skips
   for (const choice of nodeChoices.value.values()) {
@@ -677,7 +712,8 @@ function handleContinueFromAnalysis() {
     completedSteps.value.push('analysis')
   }
 
-  if (needsNodeResolution.value) {
+  // Always show nodes step if there are packages to install (for override capability)
+  if (needsNodeResolution.value || hasNodesToInstall.value) {
     currentStep.value = 'nodes'
   } else if (needsModelResolution.value || hasDownloadIntents.value) {
     currentStep.value = 'models'
@@ -714,6 +750,15 @@ function handleNodeManualEntry(nodeType: string, packageId: string) {
 
 function handleNodeClearChoice(nodeType: string) {
   nodeChoices.value.delete(nodeType)
+}
+
+// Auto-resolved package skip handler
+function handlePackageSkip(packageId: string) {
+  if (skippedPackages.value.has(packageId)) {
+    skippedPackages.value.delete(packageId)
+  } else {
+    skippedPackages.value.add(packageId)
+  }
 }
 
 // Model resolution handlers
@@ -756,17 +801,17 @@ async function handleApply() {
 
   try {
     // Step 1: Apply resolution (updates pyproject.toml, returns what to install/download)
-    const result = await applyResolution(props.workflowName, nodeChoices.value, modelChoices.value)
+    const result = await applyResolution(props.workflowName, nodeChoices.value, modelChoices.value, skippedPackages.value)
 
     // Step 2: Queue model downloads to background download queue (non-blocking)
     if (result.models_to_download && result.models_to_download.length > 0) {
       queueModelDownloads(props.workflowName, result.models_to_download)
     }
 
-    // Step 3: Store nodes to install for UI display (include auto-install nodes)
+    // Step 3: Store nodes to install for UI display (include auto-install nodes, minus skipped)
     const allNodesToInstall = [
       ...(result.nodes_to_install || []),
-      ...nodesToInstall.value.map(n => n.package.package_id)
+      ...finalNodesToInstall.value.map(n => n.package.package_id)
     ]
     // Deduplicate
     progress.nodesToInstall = [...new Set(allNodesToInstall)]
@@ -782,16 +827,19 @@ async function handleApply() {
     // Step 6: Refresh download queue to reflect any cancelled downloads
     await loadPendingDownloads()
 
-    // If nodes were installed, we need restart - don't auto-close
-    if (!progress.needsRestart) {
-      // Close modal after short delay to show completion message
+    // Keep modal open if:
+    // - Restart is needed (nodes were installed)
+    // - There were installation failures (user needs to see errors)
+    const hasFailures = progress.installError || (progress.nodeInstallProgress?.completedNodes.some(n => !n.success))
+    if (!progress.needsRestart && !hasFailures) {
+      // Auto-close only if everything succeeded and no restart needed
       setTimeout(() => {
         emit('refresh')
         emit('install')
         emit('close')
-      }, 1000)
+      }, 1500)
     }
-    // If needsRestart is true, modal stays open with restart prompt
+    // Otherwise modal stays open for user to review
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Failed to apply resolution'
     progress.error = error.value
@@ -805,6 +853,33 @@ function handleRestart() {
   emit('refresh')
   emit('restart')
   emit('close')
+}
+
+async function handleRetryFailed() {
+  // Get the failed package IDs
+  const failedPackages = progress.nodeInstallProgress?.completedNodes
+    .filter(n => !n.success)
+    .map(n => n.node_id) || []
+
+  if (failedPackages.length === 0) return
+
+  // Reset progress for retry
+  progress.phase = 'installing'
+  progress.nodeInstallProgress = {
+    completedNodes: [],
+    totalNodes: failedPackages.length
+  }
+  progress.nodesToInstall = failedPackages
+  progress.nodesInstalled = []
+  progress.installError = undefined
+
+  try {
+    await installNodes(props.workflowName)
+    progress.phase = 'complete'
+  } catch (err) {
+    progress.error = err instanceof Error ? err.message : 'Retry failed'
+    progress.phase = 'error'
+  }
 }
 
 onMounted(loadAnalysis)

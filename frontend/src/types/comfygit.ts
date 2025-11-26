@@ -515,6 +515,14 @@ export interface ModelSearchResult {
   relative_path?: string
 }
 
+// Node installation progress tracking
+export interface NodeInstallProgress {
+  currentNode?: string
+  currentIndex?: number
+  totalNodes?: number
+  completedNodes: Array<{ node_id: string; success: boolean; error?: string }>
+}
+
 // SSE Resolution Progress Types
 export interface ResolutionProgressState {
   phase: 'idle' | 'resolving' | 'installing' | 'downloading' | 'complete' | 'error'
@@ -529,6 +537,7 @@ export interface ResolutionProgressState {
   installError?: string
   needsRestart?: boolean
   error?: string
+  nodeInstallProgress?: NodeInstallProgress
 }
 
 export interface DownloadResult {
