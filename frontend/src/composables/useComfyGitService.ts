@@ -134,6 +134,19 @@ export function useComfyGitService() {
     })
   }
 
+  async function deleteBranch(name: string, force = false): Promise<{ status: 'success' | 'error', message?: string }> {
+    if (USE_MOCK) {
+      await mockApi.deleteBranch(name)
+      return { status: 'success' }
+    }
+
+    return fetchApi(`/v2/comfygit/branch/${encodeURIComponent(name)}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ force })
+    })
+  }
+
   // Environment Management
   async function getEnvironments(): Promise<EnvironmentInfo[]> {
     if (USE_MOCK) return mockApi.getEnvironments()
@@ -605,6 +618,7 @@ export function useComfyGitService() {
     checkout,
     createBranch,
     switchBranch,
+    deleteBranch,
     // Environment Management
     getEnvironments,
     switchEnvironment,

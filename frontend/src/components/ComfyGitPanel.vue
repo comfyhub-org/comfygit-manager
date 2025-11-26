@@ -187,6 +187,7 @@
             :current="status?.branch || null"
             @switch="handleBranchSwitch"
             @create="handleBranchCreate"
+            @delete="handleBranchDelete"
           />
 
           <!-- History View -->
@@ -396,6 +397,7 @@ const {
   checkout,
   createBranch,
   switchBranch,
+  deleteBranch,
   getEnvironments,
   switchEnvironment,
   getSwitchProgress,
@@ -671,6 +673,70 @@ async function handleBranchCreate(name: string) {
     await refresh()
   } else {
     showToast(result.message || 'Failed to create branch', 'error')
+  }
+}
+
+async function handleBranchDelete(branchName: string, force = false) {
+  const doDelete = async (forceDelete: boolean) => {
+    const toastId = showToast(`Deleting branch ${branchName}...`, 'info', 0)
+    try {
+      const result = await deleteBranch(branchName, forceDelete)
+      removeToast(toastId)
+
+      if (result.status === 'success') {
+        showToast(`Branch "${branchName}" deleted`, 'success')
+        await refresh()
+      } else {
+        // Check if it's an unmerged branch error
+        if (result.message?.includes('not fully merged')) {
+          // Ask user if they want to force delete
+          confirmDialog.value = {
+            title: 'Branch Not Fully Merged',
+            message: `The branch "${branchName}" has commits that haven't been merged.`,
+            warning: 'Force deleting will permanently lose any unmerged commits.',
+            confirmLabel: 'Force Delete',
+            cancelLabel: 'Cancel',
+            onConfirm: async () => {
+              confirmDialog.value = null
+              await doDelete(true)
+            }
+          }
+        } else {
+          showToast(result.message || 'Failed to delete branch', 'error')
+        }
+      }
+    } catch (err) {
+      removeToast(toastId)
+      const errorMessage = err instanceof Error ? err.message : 'Failed to delete branch'
+      // Check if it's an unmerged branch error
+      if (errorMessage.includes('not fully merged')) {
+        confirmDialog.value = {
+          title: 'Branch Not Fully Merged',
+          message: `The branch "${branchName}" has commits that haven't been merged.`,
+          warning: 'Force deleting will permanently lose any unmerged commits.',
+          confirmLabel: 'Force Delete',
+          cancelLabel: 'Cancel',
+          onConfirm: async () => {
+            confirmDialog.value = null
+            await doDelete(true)
+          }
+        }
+      } else {
+        showToast(errorMessage, 'error')
+      }
+    }
+  }
+
+  confirmDialog.value = {
+    title: 'Delete Branch',
+    message: `Delete branch "${branchName}"?`,
+    warning: 'This action cannot be undone.',
+    confirmLabel: 'Delete',
+    cancelLabel: 'Cancel',
+    onConfirm: async () => {
+      confirmDialog.value = null
+      await doDelete(force)
+    }
   }
 }
 

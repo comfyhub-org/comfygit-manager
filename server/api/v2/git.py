@@ -109,6 +109,42 @@ async def create_branch(request: web.Request, env) -> web.Response:
     })
 
 
+@routes.delete("/v2/comfygit/branch/{name}")
+@requires_environment
+async def delete_branch(request: web.Request, env) -> web.Response:
+    """Delete a branch."""
+    name = request.match_info["name"]
+
+    # Prevent deleting the current branch
+    current = await run_sync(env.get_current_branch)
+    if name == current:
+        return web.json_response({
+            "status": "error",
+            "message": "Cannot delete the current branch"
+        }, status=400)
+
+    # Get force flag from body (if provided)
+    force = False
+    try:
+        json_data = await request.json()
+        force = json_data.get("force", False)
+    except Exception:
+        pass  # No body or invalid JSON is fine
+
+    try:
+        await run_sync(env.delete_branch, name, force)
+    except Exception as e:
+        return web.json_response({
+            "status": "error",
+            "message": str(e)
+        }, status=500)
+
+    return web.json_response({
+        "status": "success",
+        "branch": name
+    })
+
+
 @routes.post("/v2/comfygit/switch")
 @requires_environment
 async def switch_branch(request: web.Request, env) -> web.Response:

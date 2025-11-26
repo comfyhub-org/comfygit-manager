@@ -992,6 +992,11 @@ export const mockApi = {
     }
   },
 
+  deleteBranch: async (name: string): Promise<void> => {
+    await delay(300)
+    console.log(`[MOCK] Deleting branch: ${name}`)
+  },
+
   // Git Remotes Management
   getRemotes: async (): Promise<any> => {
     await delay(300)

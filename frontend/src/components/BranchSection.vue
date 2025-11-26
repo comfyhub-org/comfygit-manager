@@ -4,14 +4,12 @@
       <PanelHeader title="BRANCHES">
         <template #actions>
           <ActionButton
-            variant="ghost"
+            v-if="!showCreateInput"
+            variant="primary"
             size="sm"
             @click="showCreateInput = true"
-            title="Create new branch"
           >
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-              <path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="2" fill="none"/>
-            </svg>
+            + Create Branch
           </ActionButton>
         </template>
       </PanelHeader>
@@ -41,6 +39,14 @@
           :is-current="branch.is_current"
         >
           <template #actions>
+            <ActionButton
+              v-if="!branch.is_current"
+              variant="destructive"
+              size="xs"
+              @click="$emit('delete', branch.name)"
+            >
+              Delete
+            </ActionButton>
             <ActionButton
               v-if="!branch.is_current"
               variant="secondary"
@@ -74,6 +80,7 @@ defineProps<{
 const emit = defineEmits<{
   switch: [branch: string]
   create: [name: string]
+  delete: [branch: string]
 }>()
 
 const showCreateInput = ref(false)
