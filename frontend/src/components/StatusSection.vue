@@ -341,7 +341,7 @@ const uncommittedChangesSummary = computed(() => {
   }
 
   // Fallback for git-only changes (nodes, config)
-  return 'Uncommitted changes ready to commit'
+  return 'Changes ready to commit'
 })
 
 // Sync issue details for the environment not synced card

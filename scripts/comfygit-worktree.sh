@@ -157,7 +157,8 @@ ln -s "$WORKTREE_PATH" "$CUSTOM_NODES_DIR/comfygit-manager"
 
 # Step 5: Install dependencies with local core
 info "Installing comfygit-manager dependencies..."
-cg -e "$ENV_NAME" py uv add -r "$WORKTREE_PATH/requirements.txt" --group comfygit
+cg -e "$ENV_NAME" node add comfygit-manager --dev
+# cg -e "$ENV_NAME" py uv add -r "$WORKTREE_PATH/requirements.txt" --group comfygit
 
 info "Syncing all dependency groups..."
 cg -e "$ENV_NAME" py uv sync --all-groups

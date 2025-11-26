@@ -840,7 +840,7 @@ const mo = { class: "panel-layout" }, vo = {
       )) || [];
     }), M = U(() => w.value.length > 0), N = U(() => M.value || k.value.length > 0 || n.status.missing_models_count > 0 || !n.status.comparison.is_synced), R = U(() => {
       const z = [];
-      return n.status.workflows.new.length > 0 && z.push(`${n.status.workflows.new.length} new`), n.status.workflows.modified.length > 0 && z.push(`${n.status.workflows.modified.length} modified`), n.status.workflows.deleted.length > 0 && z.push(`${n.status.workflows.deleted.length} deleted`), z.length > 0 ? `${z.join(", ")} workflow${z.length === 1 && !z[0].includes(",") ? "" : "s"} to commit` : "Uncommitted changes ready to commit";
+      return n.status.workflows.new.length > 0 && z.push(`${n.status.workflows.new.length} new`), n.status.workflows.modified.length > 0 && z.push(`${n.status.workflows.modified.length} modified`), n.status.workflows.deleted.length > 0 && z.push(`${n.status.workflows.deleted.length} deleted`), z.length > 0 ? `${z.join(", ")} workflow${z.length === 1 && !z[0].includes(",") ? "" : "s"} to commit` : "Changes ready to commit";
     }), D = U(() => {
       var B, I;
       const z = [], T = n.status.comparison;
@@ -1140,7 +1140,7 @@ const mo = { class: "panel-layout" }, vo = {
       }, null, 8, ["show", "status"])
     ], 64));
   }
-}), On = /* @__PURE__ */ Y(Nn, [["__scopeId", "data-v-aff52ec0"]]), Un = ["type", "value", "placeholder", "disabled"], Bn = /* @__PURE__ */ X({
+}), On = /* @__PURE__ */ Y(Nn, [["__scopeId", "data-v-698b3f43"]]), Un = ["type", "value", "placeholder", "disabled"], Bn = /* @__PURE__ */ X({
   __name: "TextInput",
   props: {
     modelValue: {},
