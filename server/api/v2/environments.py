@@ -438,6 +438,69 @@ async def get_create_status(request: web.Request) -> web.Response:
         return web.json_response(_create_task_state.copy())
 
 
+@routes.delete("/v2/workspace/environments/{name}")
+async def delete_environment(request: web.Request) -> web.Response:
+    """
+    Delete an environment.
+
+    Path params:
+        name: Environment name to delete
+
+    Returns:
+        {
+            "status": "success",
+            "message": "Environment deleted"
+        }
+    """
+    is_managed, workspace, current_env = orchestrator.detect_environment_type()
+    if not is_managed or not workspace:
+        return web.json_response({
+            "status": "error",
+            "message": "Not in managed workspace"
+        }, status=500)
+
+    name = request.match_info.get("name", "").strip()
+    if not name:
+        return web.json_response({
+            "status": "error",
+            "message": "Environment name is required"
+        }, status=400)
+
+    # Cannot delete current environment
+    if current_env and current_env.name == name:
+        return web.json_response({
+            "status": "error",
+            "message": "Cannot delete the currently active environment. Switch to another environment first."
+        }, status=400)
+
+    # Check environment exists
+    try:
+        existing_envs = await run_sync(workspace.list_environments)
+        if not any(env.name == name for env in existing_envs):
+            return web.json_response({
+                "status": "error",
+                "message": f"Environment '{name}' not found"
+            }, status=404)
+    except Exception as e:
+        return web.json_response({
+            "status": "error",
+            "message": f"Failed to check environments: {e}"
+        }, status=500)
+
+    # Delete the environment
+    try:
+        await run_sync(workspace.delete_environment, name)
+        return web.json_response({
+            "status": "success",
+            "message": f"Environment '{name}' deleted"
+        })
+    except Exception as e:
+        return web.json_response({
+            "status": "error",
+            "message": f"Failed to delete environment: {e}"
+        }, status=500)
+
+
 @routes.get("/v2/workspace/comfyui_releases")
 async def get_comfyui_releases(request: web.Request) -> web.Response:
     """

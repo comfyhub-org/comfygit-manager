@@ -416,6 +416,7 @@ const {
   getSwitchProgress,
   createEnvironment,
   getCreateProgress,
+  deleteEnvironment,
   syncEnvironmentManually
 } = useComfyGitService()
 
@@ -1009,11 +1010,39 @@ function stopCreatePolling() {
 }
 
 async function handleEnvironmentDelete(envName: string) {
-  const toastId = showToast(`Deleting environment "${envName}"...`, 'info', 0)
-  // TODO: Implement environment deletion API call
-  removeToast(toastId)
-  showToast(`Environment deletion not yet implemented`, 'warning')
-  // After implementation, call: await refresh()
+  // Check if trying to delete current environment
+  if (currentEnvironment.value?.name === envName) {
+    showToast('Cannot delete the currently active environment. Switch to another environment first.', 'error')
+    return
+  }
+
+  confirmDialog.value = {
+    title: 'Delete Environment',
+    message: `Are you sure you want to delete "${envName}"?`,
+    warning: 'This will permanently delete the environment and all its data. This action cannot be undone.',
+    confirmLabel: 'Delete',
+    cancelLabel: 'Cancel',
+    destructive: true,
+    onConfirm: async () => {
+      confirmDialog.value = null
+
+      try {
+        const result = await deleteEnvironment(envName)
+
+        if (result.status === 'success') {
+          showToast(`Environment "${envName}" deleted`, 'success')
+          await refresh()
+          if (environmentsSectionRef.value) {
+            await environmentsSectionRef.value.loadEnvironments()
+          }
+        } else {
+          showToast(result.message || 'Failed to delete environment', 'error')
+        }
+      } catch (err) {
+        showToast(`Error deleting environment: ${err instanceof Error ? err.message : 'Unknown error'}`, 'error')
+      }
+    }
+  }
 }
 
 function handleEnvironmentViewDetails(envName: string) {

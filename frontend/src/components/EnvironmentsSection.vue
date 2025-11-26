@@ -359,9 +359,7 @@ function viewEnvironmentDetails(name: string) {
 }
 
 function confirmDelete(name: string) {
-  if (confirm(`Delete environment "${name}"?\n\nThis action cannot be undone.`)) {
-    emit('delete', name)
-  }
+  emit('delete', name)
 }
 
 async function loadEnvironments() {
