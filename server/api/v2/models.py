@@ -4,6 +4,8 @@ Provides two scopes:
 - Environment scope (/v2/comfygit/models/environment): Models used in current env's workflows
 - Workspace scope (/v2/workspace/models): All models in the shared workspace index
 """
+import platform
+import subprocess
 from pathlib import Path
 
 from aiohttp import web
@@ -198,3 +200,157 @@ async def scan_workspace_models(request: web.Request, env) -> web.Response:
         })
     except Exception as e:
         return web.json_response({"error": str(e)}, status=500)
+
+
+@routes.get("/v2/workspace/models/details/{identifier}")
+@requires_environment
+async def get_workspace_model_details(request: web.Request, env) -> web.Response:
+    """Get full details for a single model from the workspace index."""
+    identifier = request.match_info["identifier"]
+
+    try:
+        details = await run_sync(env.workspace.get_model_details, identifier)
+    except ValueError as e:
+        return web.json_response({"error": str(e)}, status=400)
+    except KeyError:
+        return web.json_response({"error": f"Model not found: {identifier}"}, status=404)
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)
+
+    model = details.model
+
+    # Format last_seen timestamp
+    from datetime import datetime
+    last_seen_str = None
+    if model.last_seen:
+        try:
+            last_seen_str = datetime.fromtimestamp(model.last_seen).strftime("%Y-%m-%d %H:%M:%S")
+        except Exception:
+            pass
+
+    # Get models directory for building full paths
+    models_dir = env.workspace.workspace_config_manager.get_models_directory()
+
+    # Build primary model full path as fallback
+    primary_path = str(models_dir / model.relative_path) if models_dir and model.relative_path else model.relative_path
+
+    # Format locations with modified times
+    locations = []
+    for loc in details.all_locations:
+        # Try various possible keys for the path
+        path = (
+            loc.get("path") or
+            loc.get("full_path") or
+            loc.get("relative_path") or
+            ""
+        )
+        # If path is relative, make it absolute using models_dir
+        if path and not path.startswith("/") and models_dir:
+            path = str(models_dir / path)
+        # If still no path, use the primary model path
+        if not path:
+            path = primary_path
+
+        loc_info = {"path": path}
+        if "mtime" in loc:
+            try:
+                loc_info["modified"] = datetime.fromtimestamp(loc["mtime"]).strftime("%Y-%m-%d %H:%M:%S")
+            except Exception:
+                pass
+        locations.append(loc_info)
+
+    # If no locations found at all, add the primary model location
+    if not locations and primary_path:
+        loc_info = {"path": primary_path}
+        if model.mtime:
+            try:
+                loc_info["modified"] = datetime.fromtimestamp(model.mtime).strftime("%Y-%m-%d %H:%M:%S")
+            except Exception:
+                pass
+        locations.append(loc_info)
+
+    # Format sources
+    sources = []
+    for src in details.sources:
+        sources.append({
+            "type": src.get("type", "unknown"),
+            "url": src.get("url", ""),
+        })
+
+    return web.json_response({
+        "filename": model.filename,
+        "hash": model.hash,
+        "blake3": model.blake3_hash,
+        "sha256": model.sha256_hash,
+        "size": model.file_size,
+        "category": model.category,
+        "relative_path": model.relative_path,
+        "last_seen": last_seen_str,
+        "locations": locations,
+        "sources": sources,
+    })
+
+
+def _is_wsl() -> bool:
+    """Detect if running under Windows Subsystem for Linux."""
+    try:
+        with open("/proc/version", "r") as f:
+            return "microsoft" in f.read().lower()
+    except Exception:
+        return False
+
+
+def _wsl_path_to_windows(linux_path: str) -> str:
+    """Convert a WSL Linux path to Windows path format."""
+    try:
+        result = subprocess.run(
+            ["wslpath", "-w", linux_path],
+            capture_output=True,
+            text=True,
+            timeout=5
+        )
+        if result.returncode == 0:
+            return result.stdout.strip()
+    except Exception:
+        pass
+    return linux_path
+
+
+@routes.post("/v2/workspace/open-location")
+@requires_environment
+async def open_file_location(request: web.Request, env) -> web.Response:
+    """Open a file's containing folder in the system file browser."""
+    try:
+        body = await request.json()
+    except Exception:
+        return web.json_response({"error": "Invalid JSON"}, status=400)
+
+    file_path = body.get("path")
+    if not file_path:
+        return web.json_response({"error": "Missing 'path' field"}, status=400)
+
+    path = Path(file_path)
+    if not path.exists():
+        return web.json_response({"error": f"Path does not exist: {file_path}"}, status=404)
+
+    try:
+        system = platform.system()
+
+        if system == "Windows":
+            # Windows: explorer /select,<path> to highlight the file
+            subprocess.Popen(["explorer", "/select,", str(path)])
+        elif system == "Darwin":
+            # macOS: open -R reveals in Finder
+            subprocess.Popen(["open", "-R", str(path)])
+        elif _is_wsl():
+            # WSL: Convert path to Windows format and use explorer.exe
+            win_path = _wsl_path_to_windows(str(path))
+            subprocess.Popen(["explorer.exe", "/select,", win_path])
+        else:
+            # Linux: open the containing directory
+            parent = path.parent if path.is_file() else path
+            subprocess.Popen(["xdg-open", str(parent)])
+
+        return web.json_response({"status": "success"})
+    except Exception as e:
+        return web.json_response({"error": f"Failed to open location: {e}"}, status=500)

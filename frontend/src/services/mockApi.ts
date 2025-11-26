@@ -766,6 +766,24 @@ export const mockApi = {
     return MOCK_WORKSPACE_MODELS
   },
 
+  getModelDetails: async (identifier: string): Promise<any> => {
+    await delay(200)
+    return {
+      filename: identifier,
+      hash: "762871a9ab79bfa2",
+      blake3: null,
+      sha256: null,
+      size: 17_300_000_000,
+      category: "checkpoints",
+      relative_path: `checkpoints/${identifier}`,
+      last_seen: "2025-11-11 23:34:23",
+      locations: [
+        { path: `/workspace/models/checkpoints/${identifier}`, modified: "2024-08-03 13:16:22" }
+      ],
+      sources: []
+    }
+  },
+
   updateModelSource: async (sha256: string, sourceUrl: string): Promise<void> => {
     await delay(300)
     console.log(`[MOCK] Updating source for ${sha256}: ${sourceUrl}`)

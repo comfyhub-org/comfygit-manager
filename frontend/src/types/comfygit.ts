@@ -251,6 +251,19 @@ export interface ModelInfo {
   used_in_workflows?: string[]
 }
 
+export interface ModelDetails {
+  filename: string
+  hash: string
+  blake3: string | null
+  sha256: string | null
+  size: number
+  category: string
+  relative_path: string
+  last_seen: string | null
+  locations: Array<{ path: string; modified?: string }>
+  sources: Array<{ type: string; url: string }>
+}
+
 export interface DownloadModelRequest {
   source: 'civitai' | 'huggingface' | 'custom'
   url: string

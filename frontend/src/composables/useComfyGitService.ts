@@ -17,6 +17,7 @@ import type {
   WorkflowDetails,
   WorkflowResolutionPlan,
   ModelInfo,
+  ModelDetails,
   DownloadModelRequest,
   ConfigSettings,
   LogEntry,
@@ -287,6 +288,25 @@ export function useComfyGitService() {
     }
   }
 
+  async function getModelDetails(identifier: string): Promise<ModelDetails> {
+    if (USE_MOCK) return mockApi.getModelDetails(identifier)
+
+    return fetchApi<ModelDetails>(`/v2/workspace/models/details/${encodeURIComponent(identifier)}`)
+  }
+
+  async function openFileLocation(path: string): Promise<{ status: string }> {
+    if (USE_MOCK) {
+      console.log(`[MOCK] Opening file location: ${path}`)
+      return { status: 'success' }
+    }
+
+    return fetchApi('/v2/workspace/open-location', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ path })
+    })
+  }
+
   async function updateModelSource(sha256: string, sourceUrl: string): Promise<void> {
     if (USE_MOCK) return mockApi.updateModelSource(sha256, sourceUrl)
 
@@ -543,6 +563,8 @@ export function useComfyGitService() {
     // Model Management
     getEnvironmentModels,
     getWorkspaceModels,
+    getModelDetails,
+    openFileLocation,
     updateModelSource,
     deleteModel,
     downloadModel,

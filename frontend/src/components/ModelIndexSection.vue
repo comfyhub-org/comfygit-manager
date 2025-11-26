@@ -64,27 +64,15 @@
             <template #subtitle>{{ formatSize(model.size) }}</template>
             <template #details>
               <DetailRow
-                v-if="model.sha256 || (model as any).sha256_hash"
-                label="SHA256:"
-                :value="(model.sha256 || (model as any).sha256_hash).substring(0, 16) + '...'"
+                label="Hash:"
+                :value="model.hash ? model.hash.substring(0, 16) + '...' : 'N/A'"
                 :mono="true"
                 value-variant="hash"
               />
-              <DetailRow
-                v-if="model.source_url || (model as any).sources?.[0]"
-                label="Source URL:"
-                :value="model.source_url || (model as any).sources?.[0]"
-              />
-              <DetailRow v-else label="Source URL:" value-variant="warning">
-                <template #value>(none)</template>
-              </DetailRow>
             </template>
             <template #actions>
-              <ActionButton variant="secondary" size="xs" @click="editUrl(model)">
-                Edit URL
-              </ActionButton>
-              <ActionButton v-if="model.sha256 || (model as any).sha256_hash" variant="secondary" size="xs" @click="copyHash(model.sha256 || (model as any).sha256_hash)">
-                Copy Hash
+              <ActionButton variant="secondary" size="xs" @click="viewDetails(model)">
+                View Details
               </ActionButton>
               <ActionButton variant="destructive" size="xs" @click="deleteModel(model)">
                 Delete
@@ -116,6 +104,13 @@
       </p>
     </template>
   </InfoPopover>
+
+  <!-- Model Detail Modal -->
+  <ModelDetailModal
+    v-if="selectedModelId"
+    :identifier="selectedModelId"
+    @close="selectedModelId = null"
+  />
 </template>
 
 <script setup lang="ts">
@@ -134,6 +129,7 @@ import EmptyState from '@/components/base/molecules/EmptyState.vue'
 import LoadingState from '@/components/base/organisms/LoadingState.vue'
 import ErrorState from '@/components/base/organisms/ErrorState.vue'
 import InfoPopover from '@/components/base/molecules/InfoPopover.vue'
+import ModelDetailModal from '@/components/ModelDetailModal.vue'
 
 const { getWorkspaceModels } = useComfyGitService()
 
@@ -142,6 +138,7 @@ const loading = ref(false)
 const error = ref<string | null>(null)
 const searchQuery = ref('')
 const showPopover = ref(false)
+const selectedModelId = ref<string | null>(null)
 
 const totalSize = computed(() =>
   models.value.reduce((sum, m) => sum + (m.size || 0), 0)
@@ -197,16 +194,9 @@ function formatSize(bytes: number | undefined): string {
   return `${(bytes / 1024).toFixed(0)} KB`
 }
 
-function copyHash(hash: string) {
-  navigator.clipboard.writeText(hash)
-  alert('Hash copied to clipboard')
-}
-
-function editUrl(model: ModelInfo) {
-  const newUrl = prompt('Enter model source URL:', model.source_url || '')
-  if (newUrl !== null) {
-    alert('URL update not yet implemented')
-  }
+function viewDetails(model: ModelInfo) {
+  // Use hash as identifier for the detail lookup
+  selectedModelId.value = model.hash || model.filename
 }
 
 function deleteModel(model: ModelInfo) {

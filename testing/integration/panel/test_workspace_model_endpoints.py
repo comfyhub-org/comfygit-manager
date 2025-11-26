@@ -2,6 +2,7 @@
 
 These endpoints operate at workspace scope (shared across all environments):
 - GET /v2/workspace/models - List all models in workspace index
+- GET /v2/workspace/models/details/{identifier} - Get full model details
 - POST /v2/workspace/models/{identifier}/source - Update model download source
 - DELETE /v2/workspace/models/{identifier} - Delete a model from workspace
 - POST /v2/workspace/models/scan - Trigger model directory scan
@@ -254,6 +255,84 @@ class TestWorkspaceModelDeleteEndpoint:
         )
 
         resp = await client.delete("/v2/workspace/models/abc12345")
+
+        assert resp.status == 500
+
+
+@pytest.mark.integration
+class TestWorkspaceModelDetailsEndpoint:
+    """GET /v2/workspace/models/details/{identifier} - Get full model details."""
+
+    async def test_success_get_details(self, client, mock_environment):
+        """Should return full model details."""
+        # Arrange
+        mock_model = create_mock_model(
+            filename="model.safetensors",
+            hash_val="abc12345",
+            file_size=16_000_000_000,
+            category="checkpoints",
+            sha256_hash="sha256abc123",
+            blake3_hash="blake3xyz789"
+        )
+        mock_model.last_seen = 1700000000
+
+        mock_details = Mock()
+        mock_details.model = mock_model
+        mock_details.all_locations = [
+            {"path": "/workspace/models/checkpoints/model.safetensors", "mtime": 1699000000}
+        ]
+        mock_details.sources = [
+            {"type": "civitai", "url": "https://civitai.com/api/download/models/12345"}
+        ]
+        mock_environment.workspace.get_model_details.return_value = mock_details
+
+        # Mock the models directory
+        mock_environment.workspace.workspace_config_manager.get_models_directory.return_value = Path("/workspace/models")
+
+        # Act
+        resp = await client.get("/v2/workspace/models/details/abc12345")
+
+        # Assert
+        assert resp.status == 200
+        data = await resp.json()
+        assert data["filename"] == "model.safetensors"
+        assert data["hash"] == "abc12345"
+        assert data["sha256"] == "sha256abc123"
+        assert data["blake3"] == "blake3xyz789"
+        assert data["size"] == 16_000_000_000
+        assert data["category"] == "checkpoints"
+        assert len(data["locations"]) == 1
+        assert len(data["sources"]) == 1
+        assert data["sources"][0]["type"] == "civitai"
+
+    async def test_error_not_found(self, client, mock_environment):
+        """Should return 404 when model not found."""
+        mock_environment.workspace.get_model_details.side_effect = KeyError("Not found")
+
+        resp = await client.get("/v2/workspace/models/details/nonexistent")
+
+        assert resp.status == 404
+        data = await resp.json()
+        assert "error" in data
+
+    async def test_error_ambiguous(self, client, mock_environment):
+        """Should return 400 when identifier is ambiguous."""
+        mock_environment.workspace.get_model_details.side_effect = ValueError("Multiple matches")
+
+        resp = await client.get("/v2/workspace/models/details/amb")
+
+        assert resp.status == 400
+        data = await resp.json()
+        assert "error" in data
+
+    async def test_error_no_environment(self, client, monkeypatch):
+        """Should return 500 when no environment detected."""
+        monkeypatch.setattr(
+            "comfygit_panel.get_environment_from_cwd",
+            lambda: None
+        )
+
+        resp = await client.get("/v2/workspace/models/details/abc12345")
 
         assert resp.status == 500
 
