@@ -99,7 +99,7 @@ withDefaults(defineProps<EnvironmentListItemProps>(), {
   display: flex;
   align-items: center;
   gap: var(--cg-space-2);
-  width: 100%;
+  flex-wrap: wrap;
 }
 
 .current-badge {
@@ -112,7 +112,6 @@ withDefaults(defineProps<EnvironmentListItemProps>(), {
   text-transform: uppercase;
   letter-spacing: var(--cg-letter-spacing-wide);
   border-radius: var(--cg-radius-sm);
-  margin-left: auto;
 }
 
 .branch-info {

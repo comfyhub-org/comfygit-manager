@@ -1,44 +1,44 @@
-import { app as it } from "../../scripts/app.js";
-import { defineComponent as Q, createElementBlock as s, openBlock as o, createCommentVNode as d, createElementVNode as e, renderSlot as ue, createBlock as x, resolveDynamicComponent as Ot, normalizeClass as ne, withCtx as l, toDisplayString as a, createVNode as f, createTextVNode as y, computed as B, Fragment as H, renderList as se, normalizeStyle as Qe, ref as b, onMounted as _e, watch as Bt, Teleport as xe, withModifiers as ke, Transition as yo, createSlots as Mt, withKeys as Je, onUnmounted as wo, reactive as Xt, readonly as ko, unref as me, withDirectives as kt, vModelText as bo, vModelSelect as Lt, vModelCheckbox as _o, TransitionGroup as $o, createApp as Pt, h as Vt } from "vue";
-const Co = { class: "panel-layout" }, xo = {
+import { app as rt } from "../../scripts/app.js";
+import { defineComponent as J, createElementBlock as s, openBlock as o, createCommentVNode as u, createElementVNode as e, renderSlot as ue, createBlock as x, resolveDynamicComponent as Ut, normalizeClass as se, withCtx as i, toDisplayString as a, createVNode as g, createTextVNode as y, computed as B, Fragment as H, renderList as oe, normalizeStyle as Qe, ref as b, onMounted as _e, watch as Bt, Teleport as Se, withModifiers as ke, Transition as ho, createSlots as Mt, withKeys as Je, onUnmounted as yo, reactive as Qt, readonly as wo, unref as me, withDirectives as at, vModelText as Yt, nextTick as ko, vModelSelect as Lt, vModelCheckbox as bo, TransitionGroup as _o, createApp as Pt, h as Vt } from "vue";
+const $o = { class: "panel-layout" }, Co = {
   key: 0,
   class: "panel-layout-header"
-}, So = {
+}, xo = {
   key: 1,
   class: "panel-layout-search"
-}, Io = { class: "panel-layout-content" }, Eo = {
+}, So = { class: "panel-layout-content" }, Io = {
   key: 2,
   class: "panel-layout-footer"
-}, Mo = /* @__PURE__ */ Q({
+}, Eo = /* @__PURE__ */ J({
   __name: "PanelLayout",
   setup(t) {
-    return (c, n) => (o(), s("div", Co, [
-      c.$slots.header ? (o(), s("div", xo, [
+    return (c, n) => (o(), s("div", $o, [
+      c.$slots.header ? (o(), s("div", Co, [
         ue(c.$slots, "header", {}, void 0, !0)
-      ])) : d("", !0),
-      c.$slots.search ? (o(), s("div", So, [
+      ])) : u("", !0),
+      c.$slots.search ? (o(), s("div", xo, [
         ue(c.$slots, "search", {}, void 0, !0)
-      ])) : d("", !0),
-      e("div", Io, [
+      ])) : u("", !0),
+      e("div", So, [
         ue(c.$slots, "content", {}, void 0, !0)
       ]),
-      c.$slots.footer ? (o(), s("div", Eo, [
+      c.$slots.footer ? (o(), s("div", Io, [
         ue(c.$slots, "footer", {}, void 0, !0)
-      ])) : d("", !0)
+      ])) : u("", !0)
     ]));
   }
-}), Y = (t, c) => {
+}), Q = (t, c) => {
   const n = t.__vccOpts || t;
   for (const [r, p] of c)
     n[r] = p;
   return n;
-}, Ie = /* @__PURE__ */ Y(Mo, [["__scopeId", "data-v-21565df9"]]), zo = {
+}, Ie = /* @__PURE__ */ Q(Eo, [["__scopeId", "data-v-21565df9"]]), Mo = {
   key: 0,
   class: "panel-title-prefix"
-}, Lo = {
+}, zo = {
   key: 1,
   class: "panel-title-prefix-theme"
-}, To = /* @__PURE__ */ Q({
+}, Lo = /* @__PURE__ */ J({
   __name: "PanelTitle",
   props: {
     level: { default: 3 },
@@ -47,17 +47,17 @@ const Co = { class: "panel-layout" }, xo = {
     prefix: { default: "> " }
   },
   setup(t) {
-    return (c, n) => (o(), x(Ot(`h${t.level}`), {
-      class: ne(["panel-title", t.variant])
+    return (c, n) => (o(), x(Ut(`h${t.level}`), {
+      class: se(["panel-title", t.variant])
     }, {
-      default: l(() => [
-        t.showPrefix ? (o(), s("span", zo, a(t.prefix), 1)) : (o(), s("span", Lo)),
+      default: i(() => [
+        t.showPrefix ? (o(), s("span", Mo, a(t.prefix), 1)) : (o(), s("span", zo)),
         ue(c.$slots, "default", {}, void 0, !0)
       ]),
       _: 3
     }, 8, ["class"]));
   }
-}), Do = /* @__PURE__ */ Y(To, [["__scopeId", "data-v-c3875efc"]]), Ro = ["title"], No = ["width", "height"], Uo = /* @__PURE__ */ Q({
+}), To = /* @__PURE__ */ Q(Lo, [["__scopeId", "data-v-c3875efc"]]), Do = ["title"], Ro = ["width", "height"], No = /* @__PURE__ */ J({
   __name: "InfoButton",
   props: {
     size: { default: 16 },
@@ -92,13 +92,13 @@ const Co = { class: "panel-layout" }, xo = {
           "font-weight": "bold",
           fill: "currentColor"
         }, "i", -1)
-      ])], 8, No))
-    ], 8, Ro));
+      ])], 8, Ro))
+    ], 8, Do));
   }
-}), Zt = /* @__PURE__ */ Y(Uo, [["__scopeId", "data-v-6fc7f16d"]]), Oo = { class: "header-left" }, Bo = {
+}), Xt = /* @__PURE__ */ Q(No, [["__scopeId", "data-v-6fc7f16d"]]), Oo = { class: "header-left" }, Uo = {
   key: 0,
   class: "header-actions"
-}, Po = /* @__PURE__ */ Q({
+}, Bo = /* @__PURE__ */ J({
   __name: "PanelHeader",
   props: {
     title: {},
@@ -109,32 +109,32 @@ const Co = { class: "panel-layout" }, xo = {
   emits: ["info-click"],
   setup(t) {
     return (c, n) => (o(), s("div", {
-      class: ne(["panel-header", { stacked: t.stacked }])
+      class: se(["panel-header", { stacked: t.stacked }])
     }, [
       e("div", Oo, [
-        f(Do, { "show-prefix": t.showPrefix }, {
-          default: l(() => [
+        g(To, { "show-prefix": t.showPrefix }, {
+          default: i(() => [
             y(a(t.title), 1)
           ]),
           _: 1
         }, 8, ["show-prefix"]),
-        t.showInfo ? (o(), x(Zt, {
+        t.showInfo ? (o(), x(Xt, {
           key: 0,
           onClick: n[0] || (n[0] = (r) => c.$emit("info-click"))
-        })) : d("", !0)
+        })) : u("", !0)
       ]),
-      c.$slots.actions ? (o(), s("div", Bo, [
+      c.$slots.actions ? (o(), s("div", Uo, [
         ue(c.$slots, "actions", {}, void 0, !0)
-      ])) : d("", !0)
+      ])) : u("", !0)
     ], 2));
   }
-}), Ee = /* @__PURE__ */ Y(Po, [["__scopeId", "data-v-55a62cd6"]]), Vo = {
+}), Ee = /* @__PURE__ */ Q(Bo, [["__scopeId", "data-v-55a62cd6"]]), Po = {
   key: 0,
   class: "section-title-count"
-}, Fo = {
+}, Vo = {
   key: 1,
   class: "section-title-icon"
-}, Ao = /* @__PURE__ */ Q({
+}, Ao = /* @__PURE__ */ J({
   __name: "SectionTitle",
   props: {
     level: { default: 4 },
@@ -144,51 +144,51 @@ const Co = { class: "panel-layout" }, xo = {
   },
   emits: ["click"],
   setup(t) {
-    return (c, n) => (o(), x(Ot(`h${t.level}`), {
-      class: ne(["section-title", { clickable: t.clickable }]),
+    return (c, n) => (o(), x(Ut(`h${t.level}`), {
+      class: se(["section-title", { clickable: t.clickable }]),
       onClick: n[0] || (n[0] = (r) => t.clickable && c.$emit("click"))
     }, {
-      default: l(() => [
+      default: i(() => [
         ue(c.$slots, "default", {}, void 0, !0),
-        t.count !== void 0 ? (o(), s("span", Vo, "(" + a(t.count) + ")", 1)) : d("", !0),
-        t.clickable ? (o(), s("span", Fo, a(t.expanded ? "▼" : "▸"), 1)) : d("", !0)
+        t.count !== void 0 ? (o(), s("span", Po, "(" + a(t.count) + ")", 1)) : u("", !0),
+        t.clickable ? (o(), s("span", Vo, a(t.expanded ? "▼" : "▸"), 1)) : u("", !0)
       ]),
       _: 3
     }, 8, ["class"]));
   }
-}), ze = /* @__PURE__ */ Y(Ao, [["__scopeId", "data-v-559361eb"]]), Wo = { class: "status-grid" }, Go = { class: "status-grid__columns" }, jo = { class: "status-grid__column" }, Ho = { class: "status-grid__title" }, qo = { class: "status-grid__column status-grid__column--right" }, Ko = { class: "status-grid__title" }, Jo = {
+}), ze = /* @__PURE__ */ Q(Ao, [["__scopeId", "data-v-559361eb"]]), Fo = { class: "status-grid" }, Wo = { class: "status-grid__columns" }, Go = { class: "status-grid__column" }, jo = { class: "status-grid__title" }, Ho = { class: "status-grid__column status-grid__column--right" }, qo = { class: "status-grid__title" }, Ko = {
   key: 0,
   class: "status-grid__footer"
-}, Qo = /* @__PURE__ */ Q({
+}, Jo = /* @__PURE__ */ J({
   __name: "StatusGrid",
   props: {
     leftTitle: {},
     rightTitle: {}
   },
   setup(t) {
-    return (c, n) => (o(), s("div", Wo, [
-      e("div", Go, [
-        e("div", jo, [
-          e("h4", Ho, a(t.leftTitle), 1),
+    return (c, n) => (o(), s("div", Fo, [
+      e("div", Wo, [
+        e("div", Go, [
+          e("h4", jo, a(t.leftTitle), 1),
           ue(c.$slots, "left", {}, void 0, !0)
         ]),
-        e("div", qo, [
-          e("h4", Ko, a(t.rightTitle), 1),
+        e("div", Ho, [
+          e("h4", qo, a(t.rightTitle), 1),
           ue(c.$slots, "right", {}, void 0, !0)
         ])
       ]),
-      c.$slots.footer ? (o(), s("div", Jo, [
+      c.$slots.footer ? (o(), s("div", Ko, [
         ue(c.$slots, "footer", {}, void 0, !0)
-      ])) : d("", !0)
+      ])) : u("", !0)
     ]));
   }
-}), Yo = /* @__PURE__ */ Y(Qo, [["__scopeId", "data-v-73b7ba3f"]]), Xo = {
+}), Qo = /* @__PURE__ */ Q(Jo, [["__scopeId", "data-v-73b7ba3f"]]), Yo = {
   key: 0,
   class: "status-item__icon"
-}, Zo = {
+}, Xo = {
   key: 1,
   class: "status-item__count"
-}, es = { class: "status-item__label" }, ts = /* @__PURE__ */ Q({
+}, Zo = { class: "status-item__label" }, es = /* @__PURE__ */ J({
   __name: "StatusItem",
   props: {
     icon: {},
@@ -200,26 +200,26 @@ const Co = { class: "panel-layout" }, xo = {
   setup(t) {
     const c = t, n = B(() => `status-item--${c.variant}`);
     return (r, p) => (o(), s("div", {
-      class: ne(["status-item", n.value, { "is-separator": t.separator }])
+      class: se(["status-item", n.value, { "is-separator": t.separator }])
     }, [
-      t.icon ? (o(), s("span", Xo, a(t.icon), 1)) : d("", !0),
-      t.count !== void 0 ? (o(), s("span", Zo, a(t.count), 1)) : d("", !0),
-      e("span", es, a(t.label), 1)
+      t.icon ? (o(), s("span", Yo, a(t.icon), 1)) : u("", !0),
+      t.count !== void 0 ? (o(), s("span", Xo, a(t.count), 1)) : u("", !0),
+      e("span", Zo, a(t.label), 1)
     ], 2));
   }
-}), Pe = /* @__PURE__ */ Y(ts, [["__scopeId", "data-v-6f929183"]]), os = { class: "issue-card__header" }, ss = { class: "issue-card__icon" }, ns = { class: "issue-card__title" }, as = {
+}), Pe = /* @__PURE__ */ Q(es, [["__scopeId", "data-v-6f929183"]]), ts = { class: "issue-card__header" }, os = { class: "issue-card__icon" }, ss = { class: "issue-card__title" }, ns = {
   key: 0,
   class: "issue-card__content"
-}, ls = {
+}, as = {
   key: 0,
   class: "issue-card__description"
-}, is = {
+}, ls = {
   key: 1,
   class: "issue-card__items"
-}, rs = {
+}, is = {
   key: 2,
   class: "issue-card__actions"
-}, ds = /* @__PURE__ */ Q({
+}, rs = /* @__PURE__ */ J({
   __name: "IssueCard",
   props: {
     severity: { default: "warning" },
@@ -231,34 +231,34 @@ const Co = { class: "panel-layout" }, xo = {
   setup(t) {
     const c = t, n = B(() => `issue-card--${c.severity}`);
     return (r, p) => (o(), s("div", {
-      class: ne(["issue-card", n.value])
+      class: se(["issue-card", n.value])
     }, [
-      e("div", os, [
-        e("span", ss, a(t.icon), 1),
-        e("h4", ns, a(t.title), 1)
+      e("div", ts, [
+        e("span", os, a(t.icon), 1),
+        e("h4", ss, a(t.title), 1)
       ]),
-      r.$slots.default || t.description ? (o(), s("div", as, [
-        t.description ? (o(), s("p", ls, a(t.description), 1)) : d("", !0),
+      r.$slots.default || t.description ? (o(), s("div", ns, [
+        t.description ? (o(), s("p", as, a(t.description), 1)) : u("", !0),
         ue(r.$slots, "default", {}, void 0, !0)
-      ])) : d("", !0),
-      t.items && t.items.length ? (o(), s("div", is, [
-        (o(!0), s(H, null, se(t.items, (g, h) => (o(), s("div", {
+      ])) : u("", !0),
+      t.items && t.items.length ? (o(), s("div", ls, [
+        (o(!0), s(H, null, oe(t.items, (f, h) => (o(), s("div", {
           key: h,
           class: "issue-card__item"
         }, [
           p[0] || (p[0] = e("span", { class: "issue-card__bullet" }, "•", -1)),
-          e("span", null, a(g), 1)
+          e("span", null, a(f), 1)
         ]))), 128))
-      ])) : d("", !0),
-      r.$slots.actions ? (o(), s("div", rs, [
+      ])) : u("", !0),
+      r.$slots.actions ? (o(), s("div", is, [
         ue(r.$slots, "actions", {}, void 0, !0)
-      ])) : d("", !0)
+      ])) : u("", !0)
     ], 2));
   }
-}), at = /* @__PURE__ */ Y(ds, [["__scopeId", "data-v-df6aa348"]]), cs = ["type", "disabled"], us = {
+}), lt = /* @__PURE__ */ Q(rs, [["__scopeId", "data-v-df6aa348"]]), ds = ["type", "disabled"], cs = {
   key: 0,
   class: "spinner"
-}, ms = /* @__PURE__ */ Q({
+}, us = /* @__PURE__ */ J({
   __name: "ActionButton",
   props: {
     variant: { default: "primary" },
@@ -272,17 +272,17 @@ const Co = { class: "panel-layout" }, xo = {
     return (c, n) => (o(), s("button", {
       type: t.type,
       disabled: t.disabled || t.loading,
-      class: ne(["action-btn", t.variant, t.size, { loading: t.loading }]),
+      class: se(["action-btn", t.variant, t.size, { loading: t.loading }]),
       onClick: n[0] || (n[0] = (r) => c.$emit("click", r))
     }, [
-      t.loading ? (o(), s("span", us)) : d("", !0),
-      t.loading ? d("", !0) : ue(c.$slots, "default", { key: 1 }, void 0, !0)
-    ], 10, cs));
+      t.loading ? (o(), s("span", cs)) : u("", !0),
+      t.loading ? u("", !0) : ue(c.$slots, "default", { key: 1 }, void 0, !0)
+    ], 10, ds));
   }
-}), Z = /* @__PURE__ */ Y(ms, [["__scopeId", "data-v-772abe47"]]), vs = { class: "empty-state" }, fs = {
+}), Z = /* @__PURE__ */ Q(us, [["__scopeId", "data-v-772abe47"]]), ms = { class: "empty-state" }, vs = {
   key: 0,
   class: "empty-icon"
-}, gs = { class: "empty-message" }, ps = /* @__PURE__ */ Q({
+}, fs = { class: "empty-message" }, gs = /* @__PURE__ */ J({
   __name: "EmptyState",
   props: {
     icon: {},
@@ -292,36 +292,36 @@ const Co = { class: "panel-layout" }, xo = {
   },
   emits: ["action"],
   setup(t) {
-    return (c, n) => (o(), s("div", vs, [
-      t.icon ? (o(), s("div", fs, a(t.icon), 1)) : d("", !0),
-      e("p", gs, a(t.message), 1),
+    return (c, n) => (o(), s("div", ms, [
+      t.icon ? (o(), s("div", vs, a(t.icon), 1)) : u("", !0),
+      e("p", fs, a(t.message), 1),
       t.actionLabel ? (o(), x(Z, {
         key: 1,
         variant: t.actionVariant || "secondary",
         size: "sm",
         onClick: n[0] || (n[0] = (r) => c.$emit("action"))
       }, {
-        default: l(() => [
+        default: i(() => [
           y(a(t.actionLabel), 1)
         ]),
         _: 1
-      }, 8, ["variant"])) : d("", !0)
+      }, 8, ["variant"])) : u("", !0)
     ]));
   }
-}), Ue = /* @__PURE__ */ Y(ps, [["__scopeId", "data-v-4466284f"]]), hs = /* @__PURE__ */ Q({
+}), Oe = /* @__PURE__ */ Q(gs, [["__scopeId", "data-v-4466284f"]]), ps = /* @__PURE__ */ J({
   __name: "Label",
   props: {
     minWidth: { default: "70px" }
   },
   setup(t) {
     return (c, n) => (o(), s("span", {
-      class: ne(["detail-label"]),
+      class: se(["detail-label"]),
       style: Qe({ minWidth: t.minWidth })
     }, [
       ue(c.$slots, "default", {}, void 0, !0)
     ], 4));
   }
-}), Nt = /* @__PURE__ */ Y(hs, [["__scopeId", "data-v-75e9eeb8"]]), ys = /* @__PURE__ */ Q({
+}), Nt = /* @__PURE__ */ Q(ps, [["__scopeId", "data-v-75e9eeb8"]]), hs = /* @__PURE__ */ J({
   __name: "Value",
   props: {
     mono: { type: Boolean, default: !1 },
@@ -330,12 +330,12 @@ const Co = { class: "panel-layout" }, xo = {
   },
   setup(t) {
     return (c, n) => (o(), s("span", {
-      class: ne(["detail-value", t.variant, { mono: t.mono, truncate: t.truncate }])
+      class: se(["detail-value", t.variant, { mono: t.mono, truncate: t.truncate }])
     }, [
       ue(c.$slots, "default", {}, void 0, !0)
     ], 2));
   }
-}), Ut = /* @__PURE__ */ Y(ys, [["__scopeId", "data-v-2f186e4c"]]), ws = { class: "detail-row" }, ks = /* @__PURE__ */ Q({
+}), Ot = /* @__PURE__ */ Q(hs, [["__scopeId", "data-v-2f186e4c"]]), ys = { class: "detail-row" }, ws = /* @__PURE__ */ J({
   __name: "DetailRow",
   props: {
     label: {},
@@ -346,105 +346,105 @@ const Co = { class: "panel-layout" }, xo = {
     labelMinWidth: { default: "70px" }
   },
   setup(t) {
-    return (c, n) => (o(), s("div", ws, [
-      f(Nt, { "min-width": t.labelMinWidth }, {
-        default: l(() => [
+    return (c, n) => (o(), s("div", ys, [
+      g(Nt, { "min-width": t.labelMinWidth }, {
+        default: i(() => [
           y(a(t.label), 1)
         ]),
         _: 1
       }, 8, ["min-width"]),
-      t.value ? (o(), x(Ut, {
+      t.value ? (o(), x(Ot, {
         key: 0,
         mono: t.mono,
         variant: t.valueVariant,
         truncate: t.truncate
       }, {
-        default: l(() => [
+        default: i(() => [
           y(a(t.value), 1)
         ]),
         _: 1
       }, 8, ["mono", "variant", "truncate"])) : ue(c.$slots, "value", { key: 1 }, void 0, !0)
     ]));
   }
-}), pe = /* @__PURE__ */ Y(ks, [["__scopeId", "data-v-ef15664a"]]), bs = { class: "modal-header" }, _s = { class: "modal-body" }, $s = { class: "status-section" }, Cs = {
+}), pe = /* @__PURE__ */ Q(ws, [["__scopeId", "data-v-ef15664a"]]), ks = { class: "modal-header" }, bs = { class: "modal-body" }, _s = { class: "status-section" }, $s = {
   key: 0,
   class: "status-section"
-}, xs = { class: "section-header-row" }, Ss = {
+}, Cs = { class: "section-header-row" }, xs = {
   key: 0,
   class: "workflow-group"
-}, Is = { class: "workflow-group-header" }, Es = { class: "workflow-group-title" }, Ms = { class: "workflow-list" }, zs = { class: "workflow-name" }, Ls = { class: "workflow-issue" }, Ts = {
+}, Ss = { class: "workflow-group-header" }, Is = { class: "workflow-group-title" }, Es = { class: "workflow-list" }, Ms = { class: "workflow-name" }, zs = { class: "workflow-issue" }, Ls = {
   key: 1,
   class: "workflow-group"
-}, Ds = { class: "workflow-group-header" }, Rs = { class: "workflow-group-title" }, Ns = { class: "workflow-list" }, Us = { class: "workflow-name" }, Os = { class: "workflow-issue" }, Bs = {
+}, Ts = { class: "workflow-group-header" }, Ds = { class: "workflow-group-title" }, Rs = { class: "workflow-list" }, Ns = { class: "workflow-name" }, Os = { class: "workflow-issue" }, Us = {
   key: 2,
   class: "workflow-group"
-}, Ps = { class: "workflow-group-header" }, Vs = { class: "workflow-group-title" }, Fs = { class: "workflow-list" }, As = { class: "workflow-name" }, Ws = {
+}, Bs = { class: "workflow-group-header" }, Ps = { class: "workflow-group-title" }, Vs = { class: "workflow-list" }, As = { class: "workflow-name" }, Fs = {
   key: 3,
   class: "workflow-group"
-}, Gs = { class: "workflow-group-header" }, js = { class: "workflow-group-title" }, Hs = { class: "workflow-list" }, qs = { class: "workflow-name" }, Ks = {
+}, Ws = { class: "workflow-group-header" }, Gs = { class: "workflow-group-title" }, js = { class: "workflow-list" }, Hs = { class: "workflow-name" }, qs = {
   key: 4,
   class: "workflow-group"
-}, Js = { class: "workflow-group-header" }, Qs = { class: "workflow-group-title" }, Ys = { class: "workflow-list" }, Xs = { class: "workflow-name" }, Zs = {
+}, Ks = { class: "workflow-group-header" }, Js = { class: "workflow-group-title" }, Qs = { class: "workflow-list" }, Ys = { class: "workflow-name" }, Xs = {
   key: 5,
   class: "workflow-group"
-}, en = { class: "workflow-group-title" }, tn = { class: "expand-icon" }, on = {
+}, Zs = { class: "workflow-group-title" }, en = { class: "expand-icon" }, tn = {
   key: 0,
   class: "workflow-list"
-}, sn = { class: "workflow-name" }, nn = {
+}, on = { class: "workflow-name" }, sn = {
   key: 1,
   class: "status-section"
-}, an = {
+}, nn = {
   key: 0,
   class: "change-group"
-}, ln = { class: "change-group-header" }, rn = { class: "change-group-title" }, dn = { class: "change-list" }, cn = { class: "node-name" }, un = {
+}, an = { class: "change-group-header" }, ln = { class: "change-group-title" }, rn = { class: "change-list" }, dn = { class: "node-name" }, cn = {
   key: 0,
   class: "dev-badge"
-}, mn = {
+}, un = {
   key: 1,
   class: "change-group"
-}, vn = { class: "change-group-header" }, fn = { class: "change-group-title" }, gn = { class: "change-list" }, pn = { class: "node-name" }, hn = {
+}, mn = { class: "change-group-header" }, vn = { class: "change-group-title" }, fn = { class: "change-list" }, gn = { class: "node-name" }, pn = {
   key: 0,
   class: "dev-badge"
-}, yn = {
+}, hn = {
   key: 2,
   class: "change-group"
-}, wn = { class: "change-list" }, kn = { class: "change-item" }, bn = { class: "node-name" }, _n = {
+}, yn = { class: "change-list" }, wn = { class: "change-item" }, kn = { class: "node-name" }, bn = {
   key: 3,
   class: "change-group"
-}, $n = {
+}, _n = {
   key: 2,
   class: "status-section"
-}, Cn = { class: "section-header-row" }, xn = {
+}, $n = { class: "section-header-row" }, Cn = {
   key: 0,
   class: "drift-item"
-}, Sn = { class: "drift-list" }, In = {
+}, xn = { class: "drift-list" }, Sn = {
   key: 0,
   class: "drift-list-more"
-}, En = {
+}, In = {
   key: 1,
   class: "drift-item"
-}, Mn = { class: "drift-list" }, zn = {
+}, En = { class: "drift-list" }, Mn = {
   key: 0,
   class: "drift-list-more"
-}, Ln = {
+}, zn = {
   key: 2,
+  class: "drift-item"
+}, Ln = {
+  key: 3,
   class: "drift-item"
 }, Tn = {
   key: 3,
-  class: "drift-item"
-}, Dn = {
-  key: 3,
   class: "status-section"
-}, Rn = { class: "info-box" }, Nn = { class: "drift-list" }, Un = {
+}, Dn = { class: "info-box" }, Rn = { class: "drift-list" }, Nn = {
   key: 0,
   class: "drift-list-more"
 }, On = {
   key: 4,
   class: "status-section"
-}, Bn = { class: "warning-box" }, Pn = {
+}, Un = { class: "warning-box" }, Bn = {
   key: 5,
   class: "empty-state-inline"
-}, Vn = { class: "modal-actions" }, Fn = /* @__PURE__ */ Q({
+}, Pn = { class: "modal-actions" }, Vn = /* @__PURE__ */ J({
   __name: "StatusDetailModal",
   props: {
     show: { type: Boolean },
@@ -455,234 +455,234 @@ const Co = { class: "panel-layout" }, xo = {
     const c = t, n = b(!1);
     _e(() => {
       console.log("StatusDetailModal mounted, initial show value:", c.show);
-    }), Bt(() => c.show, (M, C) => {
-      console.log("StatusDetailModal show prop changed from", C, "to", M);
+    }), Bt(() => c.show, (E, C) => {
+      console.log("StatusDetailModal show prop changed from", C, "to", E);
     }, { immediate: !0 });
     const r = B(() => {
-      var M, C, L;
-      return ((L = (C = (M = c.status) == null ? void 0 : M.workflows) == null ? void 0 : C.analyzed) == null ? void 0 : L.filter(
+      var E, C, z;
+      return ((z = (C = (E = c.status) == null ? void 0 : E.workflows) == null ? void 0 : C.analyzed) == null ? void 0 : z.filter(
         (w) => w.status === "broken" && w.sync_state === "synced"
       )) || [];
     }), p = B(() => {
-      var M, C, L;
-      return ((L = (C = (M = c.status) == null ? void 0 : M.workflows) == null ? void 0 : C.analyzed) == null ? void 0 : L.filter(
+      var E, C, z;
+      return ((z = (C = (E = c.status) == null ? void 0 : E.workflows) == null ? void 0 : C.analyzed) == null ? void 0 : z.filter(
         (w) => w.status === "broken" && w.sync_state !== "synced"
       )) || [];
-    }), g = B(() => {
-      var M, C, L;
-      return ((L = (C = (M = c.status) == null ? void 0 : M.workflows) == null ? void 0 : C.synced) == null ? void 0 : L.filter((w) => {
-        var k, R, A;
-        const _ = (A = (R = (k = c.status) == null ? void 0 : k.workflows) == null ? void 0 : R.analyzed) == null ? void 0 : A.find((j) => j.name === w);
-        return !_ || _.status !== "broken";
+    }), f = B(() => {
+      var E, C, z;
+      return ((z = (C = (E = c.status) == null ? void 0 : E.workflows) == null ? void 0 : C.synced) == null ? void 0 : z.filter((w) => {
+        var _, T, N;
+        const k = (N = (T = (_ = c.status) == null ? void 0 : _.workflows) == null ? void 0 : T.analyzed) == null ? void 0 : N.find((U) => U.name === w);
+        return !k || k.status !== "broken";
       })) || [];
     }), h = B(() => {
-      var M, C, L, w, _;
-      return (M = c.status) != null && M.workflows ? (((C = c.status.workflows.new) == null ? void 0 : C.length) ?? 0) > 0 || (((L = c.status.workflows.modified) == null ? void 0 : L.length) ?? 0) > 0 || (((w = c.status.workflows.deleted) == null ? void 0 : w.length) ?? 0) > 0 || (((_ = c.status.workflows.synced) == null ? void 0 : _.length) ?? 0) > 0 : !1;
-    }), v = B(() => {
-      var C, L, w;
-      const M = (C = c.status) == null ? void 0 : C.git_changes;
-      return M ? (((L = M.nodes_added) == null ? void 0 : L.length) ?? 0) > 0 || (((w = M.nodes_removed) == null ? void 0 : w.length) ?? 0) > 0 || M.workflow_changes || M.has_other_changes : !1;
-    }), i = B(() => {
-      var M, C, L, w, _, k;
-      return !h.value && !v.value && ((C = (M = c.status) == null ? void 0 : M.comparison) == null ? void 0 : C.is_synced) && (((L = c.status) == null ? void 0 : L.missing_models_count) ?? 0) === 0 && (((k = (_ = (w = c.status) == null ? void 0 : w.comparison) == null ? void 0 : _.disabled_nodes) == null ? void 0 : k.length) ?? 0) === 0;
+      var E, C, z, w, k;
+      return (E = c.status) != null && E.workflows ? (((C = c.status.workflows.new) == null ? void 0 : C.length) ?? 0) > 0 || (((z = c.status.workflows.modified) == null ? void 0 : z.length) ?? 0) > 0 || (((w = c.status.workflows.deleted) == null ? void 0 : w.length) ?? 0) > 0 || (((k = c.status.workflows.synced) == null ? void 0 : k.length) ?? 0) > 0 : !1;
     }), m = B(() => {
-      var C, L;
-      const M = (L = (C = c.status) == null ? void 0 : C.git_changes) == null ? void 0 : L.workflow_changes;
-      return M ? typeof M == "number" ? M : Object.keys(M).length : 0;
+      var C, z, w;
+      const E = (C = c.status) == null ? void 0 : C.git_changes;
+      return E ? (((z = E.nodes_added) == null ? void 0 : z.length) ?? 0) > 0 || (((w = E.nodes_removed) == null ? void 0 : w.length) ?? 0) > 0 || E.workflow_changes || E.has_other_changes : !1;
+    }), l = B(() => {
+      var E, C, z, w, k, _;
+      return !h.value && !m.value && ((C = (E = c.status) == null ? void 0 : E.comparison) == null ? void 0 : C.is_synced) && (((z = c.status) == null ? void 0 : z.missing_models_count) ?? 0) === 0 && (((_ = (k = (w = c.status) == null ? void 0 : w.comparison) == null ? void 0 : k.disabled_nodes) == null ? void 0 : _.length) ?? 0) === 0;
+    }), v = B(() => {
+      var C, z;
+      const E = (z = (C = c.status) == null ? void 0 : C.git_changes) == null ? void 0 : z.workflow_changes;
+      return E ? typeof E == "number" ? E : Object.keys(E).length : 0;
     });
-    function $(M) {
-      return typeof M == "string" ? M : M.name;
+    function $(E) {
+      return typeof E == "string" ? E : E.name;
     }
-    function u(M) {
-      return typeof M == "object" && M.is_development === !0;
+    function d(E) {
+      return typeof E == "object" && E.is_development === !0;
     }
-    return (M, C) => {
-      var L, w, _, k, R, A, j, K, P, T, O, z, S, V, W, X, oe, E, G, N, U, ae;
-      return o(), x(xe, { to: "body" }, [
+    return (E, C) => {
+      var z, w, k, _, T, N, U, j, P, L, V, M, S, F, W, Y, le, G, te, O, R, ne;
+      return o(), x(Se, { to: "body" }, [
         t.show ? (o(), s("div", {
           key: 0,
           class: "modal-overlay",
-          onClick: C[6] || (C[6] = (ee) => M.$emit("close"))
+          onClick: C[6] || (C[6] = (X) => E.$emit("close"))
         }, [
           e("div", {
             class: "modal-content",
             onClick: C[5] || (C[5] = ke(() => {
             }, ["stop"]))
           }, [
-            e("div", bs, [
+            e("div", ks, [
               C[7] || (C[7] = e("h3", { class: "modal-title" }, "ENVIRONMENT STATUS DETAILS", -1)),
               e("button", {
                 class: "modal-close",
-                onClick: C[0] || (C[0] = (ee) => M.$emit("close"))
+                onClick: C[0] || (C[0] = (X) => E.$emit("close"))
               }, "✕")
             ]),
-            e("div", _s, [
-              e("div", $s, [
-                f(ze, { level: "4" }, {
-                  default: l(() => [...C[8] || (C[8] = [
+            e("div", bs, [
+              e("div", _s, [
+                g(ze, { level: "4" }, {
+                  default: i(() => [...C[8] || (C[8] = [
                     y("BRANCH", -1)
                   ])]),
                   _: 1
                 }),
-                f(pe, {
+                g(pe, {
                   label: "Current Branch:",
                   value: t.status.current_branch || "detached HEAD",
                   mono: !0
                 }, null, 8, ["value"])
               ]),
-              h.value ? (o(), s("div", Cs, [
-                e("div", xs, [
-                  f(ze, { level: "4" }, {
-                    default: l(() => [...C[9] || (C[9] = [
+              h.value ? (o(), s("div", $s, [
+                e("div", Cs, [
+                  g(ze, { level: "4" }, {
+                    default: i(() => [...C[9] || (C[9] = [
                       y("WORKFLOWS", -1)
                     ])]),
                     _: 1
                   }),
                   e("button", {
                     class: "link-btn",
-                    onClick: C[1] || (C[1] = (ee) => M.$emit("navigate-workflows"))
+                    onClick: C[1] || (C[1] = (X) => E.$emit("navigate-workflows"))
                   }, " See Workflows → ")
                 ]),
-                r.value.length ? (o(), s("div", Ss, [
-                  e("div", Is, [
+                r.value.length ? (o(), s("div", xs, [
+                  e("div", Ss, [
                     C[10] || (C[10] = e("span", { class: "workflow-status-icon broken" }, "⚠", -1)),
-                    e("span", Es, "BROKEN (COMMITTED) (" + a(r.value.length) + ")", 1)
+                    e("span", Is, "BROKEN (COMMITTED) (" + a(r.value.length) + ")", 1)
                   ]),
-                  e("div", Ms, [
-                    (o(!0), s(H, null, se(r.value, (ee) => (o(), s("div", {
-                      key: ee.name,
+                  e("div", Es, [
+                    (o(!0), s(H, null, oe(r.value, (X) => (o(), s("div", {
+                      key: X.name,
                       class: "workflow-item"
                     }, [
-                      e("span", zs, a(ee.name), 1),
-                      e("span", Ls, a(ee.issue_summary), 1)
+                      e("span", Ms, a(X.name), 1),
+                      e("span", zs, a(X.issue_summary), 1)
                     ]))), 128))
                   ])
-                ])) : d("", !0),
-                p.value.length ? (o(), s("div", Ts, [
-                  e("div", Ds, [
+                ])) : u("", !0),
+                p.value.length ? (o(), s("div", Ls, [
+                  e("div", Ts, [
                     C[11] || (C[11] = e("span", { class: "workflow-status-icon broken" }, "⚠", -1)),
-                    e("span", Rs, "BROKEN (UNCOMMITTED) (" + a(p.value.length) + ")", 1)
+                    e("span", Ds, "BROKEN (UNCOMMITTED) (" + a(p.value.length) + ")", 1)
                   ]),
-                  e("div", Ns, [
-                    (o(!0), s(H, null, se(p.value, (ee) => (o(), s("div", {
-                      key: ee.name,
+                  e("div", Rs, [
+                    (o(!0), s(H, null, oe(p.value, (X) => (o(), s("div", {
+                      key: X.name,
                       class: "workflow-item"
                     }, [
-                      e("span", Us, a(ee.name), 1),
-                      e("span", Os, a(ee.issue_summary), 1)
+                      e("span", Ns, a(X.name), 1),
+                      e("span", Os, a(X.issue_summary), 1)
                     ]))), 128))
                   ])
-                ])) : d("", !0),
-                (w = (L = t.status.workflows) == null ? void 0 : L.new) != null && w.length ? (o(), s("div", Bs, [
-                  e("div", Ps, [
+                ])) : u("", !0),
+                (w = (z = t.status.workflows) == null ? void 0 : z.new) != null && w.length ? (o(), s("div", Us, [
+                  e("div", Bs, [
                     C[12] || (C[12] = e("span", { class: "workflow-status-icon new" }, "●", -1)),
-                    e("span", Vs, "NEW (" + a(t.status.workflows.new.length) + ")", 1)
+                    e("span", Ps, "NEW (" + a(t.status.workflows.new.length) + ")", 1)
                   ]),
-                  e("div", Fs, [
-                    (o(!0), s(H, null, se(t.status.workflows.new, (ee) => (o(), s("div", {
-                      key: ee,
+                  e("div", Vs, [
+                    (o(!0), s(H, null, oe(t.status.workflows.new, (X) => (o(), s("div", {
+                      key: X,
                       class: "workflow-item"
                     }, [
-                      e("span", As, a(ee), 1)
+                      e("span", As, a(X), 1)
                     ]))), 128))
                   ])
-                ])) : d("", !0),
-                (k = (_ = t.status.workflows) == null ? void 0 : _.modified) != null && k.length ? (o(), s("div", Ws, [
-                  e("div", Gs, [
+                ])) : u("", !0),
+                (_ = (k = t.status.workflows) == null ? void 0 : k.modified) != null && _.length ? (o(), s("div", Fs, [
+                  e("div", Ws, [
                     C[13] || (C[13] = e("span", { class: "workflow-status-icon modified" }, "●", -1)),
-                    e("span", js, "MODIFIED (" + a(t.status.workflows.modified.length) + ")", 1)
+                    e("span", Gs, "MODIFIED (" + a(t.status.workflows.modified.length) + ")", 1)
                   ]),
-                  e("div", Hs, [
-                    (o(!0), s(H, null, se(t.status.workflows.modified, (ee) => (o(), s("div", {
-                      key: ee,
+                  e("div", js, [
+                    (o(!0), s(H, null, oe(t.status.workflows.modified, (X) => (o(), s("div", {
+                      key: X,
                       class: "workflow-item"
                     }, [
-                      e("span", qs, a(ee), 1)
+                      e("span", Hs, a(X), 1)
                     ]))), 128))
                   ])
-                ])) : d("", !0),
-                (A = (R = t.status.workflows) == null ? void 0 : R.deleted) != null && A.length ? (o(), s("div", Ks, [
-                  e("div", Js, [
+                ])) : u("", !0),
+                (N = (T = t.status.workflows) == null ? void 0 : T.deleted) != null && N.length ? (o(), s("div", qs, [
+                  e("div", Ks, [
                     C[14] || (C[14] = e("span", { class: "workflow-status-icon deleted" }, "●", -1)),
-                    e("span", Qs, "DELETED (" + a(t.status.workflows.deleted.length) + ")", 1)
+                    e("span", Js, "DELETED (" + a(t.status.workflows.deleted.length) + ")", 1)
                   ]),
-                  e("div", Ys, [
-                    (o(!0), s(H, null, se(t.status.workflows.deleted, (ee) => (o(), s("div", {
-                      key: ee,
+                  e("div", Qs, [
+                    (o(!0), s(H, null, oe(t.status.workflows.deleted, (X) => (o(), s("div", {
+                      key: X,
                       class: "workflow-item"
                     }, [
-                      e("span", Xs, a(ee), 1)
+                      e("span", Ys, a(X), 1)
                     ]))), 128))
                   ])
-                ])) : d("", !0),
-                g.value.length ? (o(), s("div", Zs, [
+                ])) : u("", !0),
+                f.value.length ? (o(), s("div", Xs, [
                   e("div", {
                     class: "workflow-group-header clickable",
-                    onClick: C[2] || (C[2] = (ee) => n.value = !n.value)
+                    onClick: C[2] || (C[2] = (X) => n.value = !n.value)
                   }, [
                     C[15] || (C[15] = e("span", { class: "workflow-status-icon synced" }, "✓", -1)),
-                    e("span", en, "SYNCED (" + a(g.value.length) + ")", 1),
-                    e("span", tn, a(n.value ? "▼" : "▶"), 1)
+                    e("span", Zs, "SYNCED (" + a(f.value.length) + ")", 1),
+                    e("span", en, a(n.value ? "▼" : "▶"), 1)
                   ]),
-                  n.value ? (o(), s("div", on, [
-                    (o(!0), s(H, null, se(g.value, (ee) => (o(), s("div", {
-                      key: ee,
+                  n.value ? (o(), s("div", tn, [
+                    (o(!0), s(H, null, oe(f.value, (X) => (o(), s("div", {
+                      key: X,
                       class: "workflow-item"
                     }, [
-                      e("span", sn, a(ee), 1)
+                      e("span", on, a(X), 1)
                     ]))), 128))
-                  ])) : d("", !0)
-                ])) : d("", !0)
-              ])) : d("", !0),
-              v.value ? (o(), s("div", nn, [
-                f(ze, { level: "4" }, {
-                  default: l(() => [...C[16] || (C[16] = [
+                  ])) : u("", !0)
+                ])) : u("", !0)
+              ])) : u("", !0),
+              m.value ? (o(), s("div", sn, [
+                g(ze, { level: "4" }, {
+                  default: i(() => [...C[16] || (C[16] = [
                     y("UNCOMMITTED CHANGES", -1)
                   ])]),
                   _: 1
                 }),
-                (K = (j = t.status.git_changes) == null ? void 0 : j.nodes_added) != null && K.length ? (o(), s("div", an, [
-                  e("div", ln, [
+                (j = (U = t.status.git_changes) == null ? void 0 : U.nodes_added) != null && j.length ? (o(), s("div", nn, [
+                  e("div", an, [
                     C[17] || (C[17] = e("span", { class: "change-icon add" }, "+", -1)),
-                    e("span", rn, "NODES ADDED (" + a(t.status.git_changes.nodes_added.length) + ")", 1)
+                    e("span", ln, "NODES ADDED (" + a(t.status.git_changes.nodes_added.length) + ")", 1)
                   ]),
-                  e("div", dn, [
-                    (o(!0), s(H, null, se(t.status.git_changes.nodes_added, (ee) => (o(), s("div", {
-                      key: $(ee),
+                  e("div", rn, [
+                    (o(!0), s(H, null, oe(t.status.git_changes.nodes_added, (X) => (o(), s("div", {
+                      key: $(X),
                       class: "change-item"
                     }, [
-                      e("span", cn, a($(ee)), 1),
-                      u(ee) ? (o(), s("span", un, "dev")) : d("", !0)
+                      e("span", dn, a($(X)), 1),
+                      d(X) ? (o(), s("span", cn, "dev")) : u("", !0)
                     ]))), 128))
                   ])
-                ])) : d("", !0),
-                (T = (P = t.status.git_changes) == null ? void 0 : P.nodes_removed) != null && T.length ? (o(), s("div", mn, [
-                  e("div", vn, [
+                ])) : u("", !0),
+                (L = (P = t.status.git_changes) == null ? void 0 : P.nodes_removed) != null && L.length ? (o(), s("div", un, [
+                  e("div", mn, [
                     C[18] || (C[18] = e("span", { class: "change-icon remove" }, "-", -1)),
-                    e("span", fn, "NODES REMOVED (" + a(t.status.git_changes.nodes_removed.length) + ")", 1)
+                    e("span", vn, "NODES REMOVED (" + a(t.status.git_changes.nodes_removed.length) + ")", 1)
                   ]),
-                  e("div", gn, [
-                    (o(!0), s(H, null, se(t.status.git_changes.nodes_removed, (ee) => (o(), s("div", {
-                      key: $(ee),
+                  e("div", fn, [
+                    (o(!0), s(H, null, oe(t.status.git_changes.nodes_removed, (X) => (o(), s("div", {
+                      key: $(X),
                       class: "change-item"
                     }, [
-                      e("span", pn, a($(ee)), 1),
-                      u(ee) ? (o(), s("span", hn, "dev")) : d("", !0)
+                      e("span", gn, a($(X)), 1),
+                      d(X) ? (o(), s("span", pn, "dev")) : u("", !0)
                     ]))), 128))
                   ])
-                ])) : d("", !0),
-                (O = t.status.git_changes) != null && O.workflow_changes ? (o(), s("div", yn, [
+                ])) : u("", !0),
+                (V = t.status.git_changes) != null && V.workflow_changes ? (o(), s("div", hn, [
                   C[19] || (C[19] = e("div", { class: "change-group-header" }, [
                     e("span", { class: "change-icon modified" }, "~"),
                     e("span", { class: "change-group-title" }, "WORKFLOW FILES CHANGED")
                   ], -1)),
-                  e("div", wn, [
-                    e("div", kn, [
-                      e("span", bn, a(m.value) + " workflow file(s) modified", 1)
+                  e("div", yn, [
+                    e("div", wn, [
+                      e("span", kn, a(v.value) + " workflow file(s) modified", 1)
                     ])
                   ])
-                ])) : d("", !0),
-                (z = t.status.git_changes) != null && z.has_other_changes ? (o(), s("div", _n, [...C[20] || (C[20] = [
+                ])) : u("", !0),
+                (M = t.status.git_changes) != null && M.has_other_changes ? (o(), s("div", bn, [...C[20] || (C[20] = [
                   e("div", { class: "change-group-header" }, [
                     e("span", { class: "change-icon modified" }, "~"),
                     e("span", { class: "change-group-title" }, "OTHER CHANGES")
@@ -692,125 +692,125 @@ const Co = { class: "panel-layout" }, xo = {
                       e("span", { class: "node-name" }, "Configuration or other files modified")
                     ])
                   ], -1)
-                ])])) : d("", !0)
-              ])) : d("", !0),
-              (S = t.status.comparison) != null && S.is_synced ? d("", !0) : (o(), s("div", $n, [
-                e("div", Cn, [
-                  f(ze, { level: "4" }, {
-                    default: l(() => [...C[21] || (C[21] = [
+                ])])) : u("", !0)
+              ])) : u("", !0),
+              (S = t.status.comparison) != null && S.is_synced ? u("", !0) : (o(), s("div", _n, [
+                e("div", $n, [
+                  g(ze, { level: "4" }, {
+                    default: i(() => [...C[21] || (C[21] = [
                       y("ENVIRONMENT DRIFT", -1)
                     ])]),
                     _: 1
                   }),
                   e("button", {
                     class: "link-btn",
-                    onClick: C[3] || (C[3] = (ee) => M.$emit("navigate-nodes"))
+                    onClick: C[3] || (C[3] = (X) => E.$emit("navigate-nodes"))
                   }, " See Nodes → ")
                 ]),
                 C[22] || (C[22] = e("div", { class: "warning-box" }, [
                   e("span", { class: "warning-icon" }, "⚠"),
                   e("span", null, "Environment needs repair")
                 ], -1)),
-                (W = (V = t.status.comparison) == null ? void 0 : V.missing_nodes) != null && W.length ? (o(), s("div", xn, [
-                  f(pe, {
+                (W = (F = t.status.comparison) == null ? void 0 : F.missing_nodes) != null && W.length ? (o(), s("div", Cn, [
+                  g(pe, {
                     label: "Missing Nodes:",
                     value: `${t.status.comparison.missing_nodes.length} nodes in pyproject.toml not installed`
                   }, null, 8, ["value"]),
-                  e("div", Sn, [
-                    (o(!0), s(H, null, se(t.status.comparison.missing_nodes.slice(0, 10), (ee) => (o(), s("div", {
-                      key: ee,
+                  e("div", xn, [
+                    (o(!0), s(H, null, oe(t.status.comparison.missing_nodes.slice(0, 10), (X) => (o(), s("div", {
+                      key: X,
                       class: "drift-list-item"
-                    }, " - " + a(ee), 1))), 128)),
-                    t.status.comparison.missing_nodes.length > 10 ? (o(), s("div", In, " ... and " + a(t.status.comparison.missing_nodes.length - 10) + " more ", 1)) : d("", !0)
+                    }, " - " + a(X), 1))), 128)),
+                    t.status.comparison.missing_nodes.length > 10 ? (o(), s("div", Sn, " ... and " + a(t.status.comparison.missing_nodes.length - 10) + " more ", 1)) : u("", !0)
                   ])
-                ])) : d("", !0),
-                (oe = (X = t.status.comparison) == null ? void 0 : X.extra_nodes) != null && oe.length ? (o(), s("div", En, [
-                  f(pe, {
+                ])) : u("", !0),
+                (le = (Y = t.status.comparison) == null ? void 0 : Y.extra_nodes) != null && le.length ? (o(), s("div", In, [
+                  g(pe, {
                     label: "Extra Nodes:",
                     value: `${t.status.comparison.extra_nodes.length} untracked nodes on filesystem`
                   }, null, 8, ["value"]),
-                  e("div", Mn, [
-                    (o(!0), s(H, null, se(t.status.comparison.extra_nodes.slice(0, 10), (ee) => (o(), s("div", {
-                      key: ee,
+                  e("div", En, [
+                    (o(!0), s(H, null, oe(t.status.comparison.extra_nodes.slice(0, 10), (X) => (o(), s("div", {
+                      key: X,
                       class: "drift-list-item"
-                    }, " - " + a(ee), 1))), 128)),
-                    t.status.comparison.extra_nodes.length > 10 ? (o(), s("div", zn, " ... and " + a(t.status.comparison.extra_nodes.length - 10) + " more ", 1)) : d("", !0)
+                    }, " - " + a(X), 1))), 128)),
+                    t.status.comparison.extra_nodes.length > 10 ? (o(), s("div", Mn, " ... and " + a(t.status.comparison.extra_nodes.length - 10) + " more ", 1)) : u("", !0)
                   ])
-                ])) : d("", !0),
-                (G = (E = t.status.comparison) == null ? void 0 : E.version_mismatches) != null && G.length ? (o(), s("div", Ln, [
-                  f(pe, {
+                ])) : u("", !0),
+                (te = (G = t.status.comparison) == null ? void 0 : G.version_mismatches) != null && te.length ? (o(), s("div", zn, [
+                  g(pe, {
                     label: "Version Mismatches:",
                     value: `${t.status.comparison.version_mismatches.length} packages have version conflicts`
                   }, null, 8, ["value"])
-                ])) : d("", !0),
-                (N = t.status.comparison) != null && N.packages_in_sync ? d("", !0) : (o(), s("div", Tn, [
-                  f(pe, {
+                ])) : u("", !0),
+                (O = t.status.comparison) != null && O.packages_in_sync ? u("", !0) : (o(), s("div", Ln, [
+                  g(pe, {
                     label: "Package Sync:",
                     value: "Python packages out of sync",
                     "value-variant": "warning"
                   })
                 ]))
               ])),
-              (ae = (U = t.status.comparison) == null ? void 0 : U.disabled_nodes) != null && ae.length ? (o(), s("div", Dn, [
-                f(ze, { level: "4" }, {
-                  default: l(() => [...C[23] || (C[23] = [
+              (ne = (R = t.status.comparison) == null ? void 0 : R.disabled_nodes) != null && ne.length ? (o(), s("div", Tn, [
+                g(ze, { level: "4" }, {
+                  default: i(() => [...C[23] || (C[23] = [
                     y("DISABLED NODES", -1)
                   ])]),
                   _: 1
                 }),
-                e("div", Rn, [
+                e("div", Dn, [
                   C[24] || (C[24] = e("span", { class: "info-icon" }, "ℹ", -1)),
                   e("span", null, a(t.status.comparison.disabled_nodes.length) + " nodes are disabled", 1)
                 ]),
-                e("div", Nn, [
-                  (o(!0), s(H, null, se(t.status.comparison.disabled_nodes.slice(0, 10), (ee) => (o(), s("div", {
-                    key: ee,
+                e("div", Rn, [
+                  (o(!0), s(H, null, oe(t.status.comparison.disabled_nodes.slice(0, 10), (X) => (o(), s("div", {
+                    key: X,
                     class: "drift-list-item"
-                  }, " • " + a(ee), 1))), 128)),
-                  t.status.comparison.disabled_nodes.length > 10 ? (o(), s("div", Un, " ... and " + a(t.status.comparison.disabled_nodes.length - 10) + " more ", 1)) : d("", !0)
+                  }, " • " + a(X), 1))), 128)),
+                  t.status.comparison.disabled_nodes.length > 10 ? (o(), s("div", Nn, " ... and " + a(t.status.comparison.disabled_nodes.length - 10) + " more ", 1)) : u("", !0)
                 ])
-              ])) : d("", !0),
+              ])) : u("", !0),
               (t.status.missing_models_count ?? 0) > 0 ? (o(), s("div", On, [
-                f(ze, { level: "4" }, {
-                  default: l(() => [...C[25] || (C[25] = [
+                g(ze, { level: "4" }, {
+                  default: i(() => [...C[25] || (C[25] = [
                     y("MISSING MODELS", -1)
                   ])]),
                   _: 1
                 }),
-                e("div", Bn, [
+                e("div", Un, [
                   C[26] || (C[26] = e("span", { class: "warning-icon" }, "⚠", -1)),
                   e("span", null, a(t.status.missing_models_count) + " model(s) not found in workspace", 1)
                 ]),
                 C[27] || (C[27] = e("p", { class: "help-text" }, " Some workflows reference models that need to be downloaded or resolved. Use the Workflows section to resolve these issues. ", -1))
-              ])) : d("", !0),
-              i.value ? (o(), s("div", Pn, [...C[28] || (C[28] = [
+              ])) : u("", !0),
+              l.value ? (o(), s("div", Bn, [...C[28] || (C[28] = [
                 e("div", { class: "empty-icon" }, "✅", -1),
                 e("div", { class: "empty-message" }, [
                   e("strong", null, "Environment is clean!"),
                   e("p", null, "No workflows, no uncommitted changes, no issues detected.")
                 ], -1)
-              ])])) : d("", !0)
+              ])])) : u("", !0)
             ]),
-            e("div", Vn, [
-              f(Z, {
+            e("div", Pn, [
+              g(Z, {
                 variant: "secondary",
-                onClick: C[4] || (C[4] = (ee) => M.$emit("close"))
+                onClick: C[4] || (C[4] = (X) => E.$emit("close"))
               }, {
-                default: l(() => [...C[29] || (C[29] = [
+                default: i(() => [...C[29] || (C[29] = [
                   y(" Close ", -1)
                 ])]),
                 _: 1
               })
             ])
           ])
-        ])) : d("", !0)
+        ])) : u("", !0)
       ]);
     };
   }
-}), An = /* @__PURE__ */ Y(Fn, [["__scopeId", "data-v-c67eed17"]]), Wn = { class: "health-section-header" }, Gn = { class: "suggestions-content" }, jn = { class: "suggestions-text" }, Hn = {
+}), An = /* @__PURE__ */ Q(Vn, [["__scopeId", "data-v-c67eed17"]]), Fn = { class: "health-section-header" }, Wn = { class: "suggestions-content" }, Gn = { class: "suggestions-text" }, jn = {
   key: 1,
   style: { "margin-top": "var(--cg-space-3)" }
-}, qn = /* @__PURE__ */ Q({
+}, Hn = /* @__PURE__ */ J({
   __name: "StatusSection",
   props: {
     status: {}
@@ -818,150 +818,150 @@ const Co = { class: "panel-layout" }, xo = {
   emits: ["view-workflows", "view-history", "commit-changes", "view-debug", "sync-environment", "create-branch", "view-nodes"],
   setup(t, { emit: c }) {
     const n = t, r = b(!1), p = b(!1);
-    function g() {
+    function f() {
       r.value = !0;
     }
     function h() {
-      r.value = !1, i("view-workflows");
+      r.value = !1, l("view-workflows");
     }
-    function v() {
-      r.value = !1, i("view-nodes");
+    function m() {
+      r.value = !1, l("view-nodes");
     }
-    const i = c, m = B(() => n.status.workflows.new.length > 0 || n.status.workflows.modified.length > 0 || n.status.workflows.deleted.length > 0), $ = B(() => n.status.has_changes), u = B(() => {
+    const l = c, v = B(() => n.status.workflows.new.length > 0 || n.status.workflows.modified.length > 0 || n.status.workflows.deleted.length > 0), $ = B(() => n.status.has_changes), d = B(() => {
       const P = n.status.git_changes;
       return P.nodes_added.length > 0 || P.nodes_removed.length > 0 || P.workflow_changes;
-    }), M = B(() => n.status.has_changes || m.value), C = B(() => Object.keys(n.status.git_changes.workflow_changes_detail).length), L = B(() => n.status.git_changes.has_other_changes), w = B(() => {
+    }), E = B(() => n.status.has_changes || v.value), C = B(() => Object.keys(n.status.git_changes.workflow_changes_detail).length), z = B(() => n.status.git_changes.has_other_changes), w = B(() => {
       var P;
-      return ((P = n.status.workflows.analyzed) == null ? void 0 : P.filter((T) => T.status === "broken")) || [];
-    }), _ = B(() => {
+      return ((P = n.status.workflows.analyzed) == null ? void 0 : P.filter((L) => L.status === "broken")) || [];
+    }), k = B(() => {
       var P;
       return ((P = n.status.workflows.analyzed) == null ? void 0 : P.filter(
-        (T) => T.has_path_sync_issues && !T.has_issues
+        (L) => L.has_path_sync_issues && !L.has_issues
       )) || [];
-    }), k = B(() => w.value.length > 0), R = B(() => k.value || _.value.length > 0 || n.status.missing_models_count > 0 || !n.status.comparison.is_synced), A = B(() => {
+    }), _ = B(() => w.value.length > 0), T = B(() => _.value || k.value.length > 0 || n.status.missing_models_count > 0 || !n.status.comparison.is_synced), N = B(() => {
       const P = [];
       return n.status.workflows.new.length > 0 && P.push(`${n.status.workflows.new.length} new`), n.status.workflows.modified.length > 0 && P.push(`${n.status.workflows.modified.length} modified`), n.status.workflows.deleted.length > 0 && P.push(`${n.status.workflows.deleted.length} deleted`), P.length > 0 ? `${P.join(", ")} workflow${P.length === 1 && !P[0].includes(",") ? "" : "s"} to commit` : "Changes ready to commit";
+    }), U = B(() => {
+      var V, M;
+      const P = [], L = n.status.comparison;
+      return (V = L.missing_nodes) != null && V.length && P.push(`${L.missing_nodes.length} missing node${L.missing_nodes.length === 1 ? "" : "s"}`), (M = L.extra_nodes) != null && M.length && P.push(`${L.extra_nodes.length} untracked node${L.extra_nodes.length === 1 ? "" : "s"}`), P.length === 0 ? "Your environment state does not match the manifest." : `Environment has ${P.join(" and ")}.`;
     }), j = B(() => {
-      var O, z;
-      const P = [], T = n.status.comparison;
-      return (O = T.missing_nodes) != null && O.length && P.push(`${T.missing_nodes.length} missing node${T.missing_nodes.length === 1 ? "" : "s"}`), (z = T.extra_nodes) != null && z.length && P.push(`${T.extra_nodes.length} untracked node${T.extra_nodes.length === 1 ? "" : "s"}`), P.length === 0 ? "Your environment state does not match the manifest." : `Environment has ${P.join(" and ")}.`;
-    }), K = B(() => {
-      var O, z;
-      const P = [], T = n.status.comparison;
-      return (O = T.extra_nodes) != null && O.length && (T.extra_nodes.slice(0, 3).forEach((S) => {
+      var V, M;
+      const P = [], L = n.status.comparison;
+      return (V = L.extra_nodes) != null && V.length && (L.extra_nodes.slice(0, 3).forEach((S) => {
         P.push(`Untracked: ${S}`);
-      }), T.extra_nodes.length > 3 && P.push(`...and ${T.extra_nodes.length - 3} more untracked`)), (z = T.missing_nodes) != null && z.length && (T.missing_nodes.slice(0, 3).forEach((S) => {
+      }), L.extra_nodes.length > 3 && P.push(`...and ${L.extra_nodes.length - 3} more untracked`)), (M = L.missing_nodes) != null && M.length && (L.missing_nodes.slice(0, 3).forEach((S) => {
         P.push(`Missing: ${S}`);
-      }), T.missing_nodes.length > 3 && P.push(`...and ${T.missing_nodes.length - 3} more missing`)), P;
+      }), L.missing_nodes.length > 3 && P.push(`...and ${L.missing_nodes.length - 3} more missing`)), P;
     });
-    return (P, T) => (o(), s(H, null, [
-      f(Ie, null, {
-        header: l(() => [
-          f(Ee, { title: "STATUS" })
+    return (P, L) => (o(), s(H, null, [
+      g(Ie, null, {
+        header: i(() => [
+          g(Ee, { title: "STATUS" })
         ]),
-        content: l(() => [
+        content: i(() => [
           e("div", {
             class: "health-section-wrapper",
-            onMouseenter: T[1] || (T[1] = (O) => p.value = !0),
-            onMouseleave: T[2] || (T[2] = (O) => p.value = !1)
+            onMouseenter: L[1] || (L[1] = (V) => p.value = !0),
+            onMouseleave: L[2] || (L[2] = (V) => p.value = !1)
           }, [
-            e("div", Wn, [
-              f(ze, {
+            e("div", Fn, [
+              g(ze, {
                 level: "4",
                 style: { "margin-bottom": "var(--cg-space-2)" }
               }, {
-                default: l(() => [...T[9] || (T[9] = [
+                default: i(() => [...L[9] || (L[9] = [
                   y(" ENVIRONMENT HEALTH ", -1)
                 ])]),
                 _: 1
               }),
-              f(yo, { name: "fade" }, {
-                default: l(() => [
+              g(ho, { name: "fade" }, {
+                default: i(() => [
                   p.value ? (o(), x(Z, {
                     key: 0,
                     variant: "ghost",
                     size: "xs",
                     class: "show-all-button",
-                    onClick: g
+                    onClick: f
                   }, {
-                    default: l(() => [...T[10] || (T[10] = [
+                    default: i(() => [...L[10] || (L[10] = [
                       y(" Show All ", -1)
                     ])]),
                     _: 1
-                  })) : d("", !0)
+                  })) : u("", !0)
                 ]),
                 _: 1
               })
             ]),
-            f(Yo, {
+            g(Qo, {
               "left-title": "WORKFLOWS",
               "right-title": "GIT CHANGES"
             }, Mt({
-              left: l(() => [
+              left: i(() => [
                 t.status.workflows.new.length ? (o(), x(Pe, {
                   key: 0,
                   icon: "●",
                   count: t.status.workflows.new.length,
                   label: "new",
                   variant: "new"
-                }, null, 8, ["count"])) : d("", !0),
+                }, null, 8, ["count"])) : u("", !0),
                 t.status.workflows.modified.length ? (o(), x(Pe, {
                   key: 1,
                   icon: "●",
                   count: t.status.workflows.modified.length,
                   label: "modified",
                   variant: "modified"
-                }, null, 8, ["count"])) : d("", !0),
+                }, null, 8, ["count"])) : u("", !0),
                 t.status.workflows.deleted.length ? (o(), x(Pe, {
                   key: 2,
                   icon: "●",
                   count: t.status.workflows.deleted.length,
                   label: "deleted",
                   variant: "deleted"
-                }, null, 8, ["count"])) : d("", !0),
-                f(Pe, {
+                }, null, 8, ["count"])) : u("", !0),
+                g(Pe, {
                   icon: "✓",
                   count: t.status.workflows.synced.length,
                   label: "synced",
                   variant: "synced",
-                  separator: m.value
+                  separator: v.value
                 }, null, 8, ["count", "separator"])
               ]),
-              right: l(() => [
+              right: i(() => [
                 t.status.git_changes.nodes_added.length ? (o(), x(Pe, {
                   key: 0,
                   icon: "●",
                   count: t.status.git_changes.nodes_added.length,
                   label: t.status.git_changes.nodes_added.length === 1 ? "node added" : "nodes added",
                   variant: "new"
-                }, null, 8, ["count", "label"])) : d("", !0),
+                }, null, 8, ["count", "label"])) : u("", !0),
                 t.status.git_changes.nodes_removed.length ? (o(), x(Pe, {
                   key: 1,
                   icon: "●",
                   count: t.status.git_changes.nodes_removed.length,
                   label: t.status.git_changes.nodes_removed.length === 1 ? "node removed" : "nodes removed",
                   variant: "deleted"
-                }, null, 8, ["count", "label"])) : d("", !0),
+                }, null, 8, ["count", "label"])) : u("", !0),
                 t.status.git_changes.workflow_changes ? (o(), x(Pe, {
                   key: 2,
                   icon: "●",
                   count: C.value,
                   label: C.value === 1 ? "workflow changed" : "workflows changed",
                   variant: "modified"
-                }, null, 8, ["count", "label"])) : d("", !0),
-                L.value ? (o(), x(Pe, {
+                }, null, 8, ["count", "label"])) : u("", !0),
+                z.value ? (o(), x(Pe, {
                   key: 3,
                   icon: "●",
                   label: "other changes",
                   variant: "modified"
-                })) : d("", !0),
-                $.value && !u.value && !L.value ? (o(), x(Pe, {
+                })) : u("", !0),
+                $.value && !d.value && !z.value ? (o(), x(Pe, {
                   key: 4,
                   icon: "●",
                   label: "configuration updated",
                   variant: "modified"
-                })) : d("", !0),
-                $.value ? d("", !0) : (o(), x(Pe, {
+                })) : u("", !0),
+                $.value ? u("", !0) : (o(), x(Pe, {
                   key: 5,
                   icon: "✓",
                   label: "No uncommitted changes",
@@ -970,18 +970,18 @@ const Co = { class: "panel-layout" }, xo = {
               ]),
               _: 2
             }, [
-              M.value ? {
+              E.value ? {
                 name: "footer",
-                fn: l(() => [
-                  T[12] || (T[12] = e("h4", { class: "footer-title" }, "ACTIONS", -1)),
-                  e("div", Gn, [
-                    e("span", jn, a(A.value), 1),
-                    f(Z, {
+                fn: i(() => [
+                  L[12] || (L[12] = e("h4", { class: "footer-title" }, "ACTIONS", -1)),
+                  e("div", Wn, [
+                    e("span", Gn, a(N.value), 1),
+                    g(Z, {
                       variant: "primary",
                       size: "sm",
-                      onClick: T[0] || (T[0] = (O) => P.$emit("commit-changes"))
+                      onClick: L[0] || (L[0] = (V) => P.$emit("commit-changes"))
                     }, {
-                      default: l(() => [...T[11] || (T[11] = [
+                      default: i(() => [...L[11] || (L[11] = [
                         y(" Commit ", -1)
                       ])]),
                       _: 1
@@ -992,7 +992,7 @@ const Co = { class: "panel-layout" }, xo = {
               } : void 0
             ]), 1024)
           ], 32),
-          t.status.is_detached_head ? (o(), x(at, {
+          t.status.is_detached_head ? (o(), x(lt, {
             key: 0,
             severity: "error",
             icon: "⚠",
@@ -1000,120 +1000,120 @@ const Co = { class: "panel-layout" }, xo = {
             description: "Any commits you make will not be saved to a branch! Create a branch to preserve your work.",
             style: { "margin-top": "var(--cg-space-3)" }
           }, {
-            actions: l(() => [
-              f(Z, {
+            actions: i(() => [
+              g(Z, {
                 variant: "primary",
                 size: "sm",
-                onClick: T[3] || (T[3] = (O) => P.$emit("create-branch"))
+                onClick: L[3] || (L[3] = (V) => P.$emit("create-branch"))
               }, {
-                default: l(() => [...T[13] || (T[13] = [
+                default: i(() => [...L[13] || (L[13] = [
                   y(" Create Branch ", -1)
                 ])]),
                 _: 1
               })
             ]),
             _: 1
-          })) : d("", !0),
-          R.value ? (o(), s("div", Hn, [
-            f(ze, {
+          })) : u("", !0),
+          T.value ? (o(), s("div", jn, [
+            g(ze, {
               level: "4",
               style: { "margin-bottom": "var(--cg-space-2)" }
             }, {
-              default: l(() => [...T[14] || (T[14] = [
+              default: i(() => [...L[14] || (L[14] = [
                 y(" ISSUES DETECTED ", -1)
               ])]),
               _: 1
             }),
-            w.value.length > 0 ? (o(), x(at, {
+            w.value.length > 0 ? (o(), x(lt, {
               key: 0,
               severity: "error",
               icon: "⚠",
               title: `${w.value.length} workflow${w.value.length === 1 ? "" : "s"} can't run`,
               description: "These workflows have missing dependencies that must be resolved before they can run.",
-              items: w.value.map((O) => `${O.name} — ${O.issue_summary}`)
+              items: w.value.map((V) => `${V.name} — ${V.issue_summary}`)
             }, {
-              actions: l(() => [
-                f(Z, {
+              actions: i(() => [
+                g(Z, {
                   variant: "primary",
                   size: "sm",
-                  onClick: T[4] || (T[4] = (O) => P.$emit("view-workflows"))
+                  onClick: L[4] || (L[4] = (V) => P.$emit("view-workflows"))
                 }, {
-                  default: l(() => [...T[15] || (T[15] = [
+                  default: i(() => [...L[15] || (L[15] = [
                     y(" See Workflows ", -1)
                   ])]),
                   _: 1
                 })
               ]),
               _: 1
-            }, 8, ["title", "items"])) : d("", !0),
-            _.value.length > 0 ? (o(), x(at, {
+            }, 8, ["title", "items"])) : u("", !0),
+            k.value.length > 0 ? (o(), x(lt, {
               key: 1,
               severity: "warning",
               icon: "⚠",
-              title: `${_.value.length} workflow${_.value.length === 1 ? "" : "s"} with path issues`,
+              title: `${k.value.length} workflow${k.value.length === 1 ? "" : "s"} with path issues`,
               description: "These workflows can run but have model paths that should be synced.",
-              items: _.value.map((O) => `${O.name} — ${O.models_needing_path_sync_count} model path${O.models_needing_path_sync_count === 1 ? "" : "s"} to sync`)
+              items: k.value.map((V) => `${V.name} — ${V.models_needing_path_sync_count} model path${V.models_needing_path_sync_count === 1 ? "" : "s"} to sync`)
             }, {
-              actions: l(() => [
-                f(Z, {
+              actions: i(() => [
+                g(Z, {
                   variant: "primary",
                   size: "sm",
-                  onClick: T[5] || (T[5] = (O) => P.$emit("view-workflows"))
+                  onClick: L[5] || (L[5] = (V) => P.$emit("view-workflows"))
                 }, {
-                  default: l(() => [...T[16] || (T[16] = [
+                  default: i(() => [...L[16] || (L[16] = [
                     y(" See Workflows ", -1)
                   ])]),
                   _: 1
                 })
               ]),
               _: 1
-            }, 8, ["title", "items"])) : d("", !0),
-            t.status.missing_models_count > 0 && !k.value ? (o(), x(at, {
+            }, 8, ["title", "items"])) : u("", !0),
+            t.status.missing_models_count > 0 && !_.value ? (o(), x(lt, {
               key: 2,
               severity: "warning",
               icon: "⚠",
               title: `${t.status.missing_models_count} missing model${t.status.missing_models_count === 1 ? "" : "s"}`,
               description: "Some workflows reference models that are not found in the workspace index."
             }, {
-              actions: l(() => [
-                f(Z, {
+              actions: i(() => [
+                g(Z, {
                   variant: "primary",
                   size: "sm",
-                  onClick: T[6] || (T[6] = (O) => P.$emit("view-workflows"))
+                  onClick: L[6] || (L[6] = (V) => P.$emit("view-workflows"))
                 }, {
-                  default: l(() => [...T[17] || (T[17] = [
+                  default: i(() => [...L[17] || (L[17] = [
                     y(" See Workflows ", -1)
                   ])]),
                   _: 1
                 })
               ]),
               _: 1
-            }, 8, ["title"])) : d("", !0),
-            t.status.comparison.is_synced ? d("", !0) : (o(), x(at, {
+            }, 8, ["title"])) : u("", !0),
+            t.status.comparison.is_synced ? u("", !0) : (o(), x(lt, {
               key: 3,
               severity: "error",
               icon: "⚠",
               title: "Environment not synced",
-              description: j.value,
-              items: K.value
+              description: U.value,
+              items: j.value
             }, {
-              actions: l(() => [
-                f(Z, {
+              actions: i(() => [
+                g(Z, {
                   variant: "secondary",
                   size: "sm",
-                  onClick: g
+                  onClick: f
                 }, {
-                  default: l(() => [...T[18] || (T[18] = [
+                  default: i(() => [...L[18] || (L[18] = [
                     y(" View Details ", -1)
                   ])]),
                   _: 1
                 }),
-                f(Z, {
+                g(Z, {
                   variant: "primary",
                   size: "sm",
-                  onClick: T[7] || (T[7] = (O) => P.$emit("view-nodes"))
+                  onClick: L[7] || (L[7] = (V) => P.$emit("view-nodes"))
                 }, {
-                  default: l(() => [...T[19] || (T[19] = [
+                  default: i(() => [...L[19] || (L[19] = [
                     y(" See Nodes ", -1)
                   ])]),
                   _: 1
@@ -1121,26 +1121,26 @@ const Co = { class: "panel-layout" }, xo = {
               ]),
               _: 1
             }, 8, ["description", "items"]))
-          ])) : d("", !0),
-          !R.value && !M.value ? (o(), x(Ue, {
+          ])) : u("", !0),
+          !T.value && !E.value ? (o(), x(Oe, {
             key: 2,
             icon: "✅",
             message: "Everything looks good! No issues detected.",
             style: { "margin-top": "var(--cg-space-4)" }
-          })) : d("", !0)
+          })) : u("", !0)
         ]),
         _: 1
       }),
-      f(An, {
+      g(An, {
         show: r.value,
         status: t.status,
-        onClose: T[8] || (T[8] = (O) => r.value = !1),
+        onClose: L[8] || (L[8] = (V) => r.value = !1),
         onNavigateWorkflows: h,
-        onNavigateNodes: v
+        onNavigateNodes: m
       }, null, 8, ["show", "status"])
     ], 64));
   }
-}), Kn = /* @__PURE__ */ Y(qn, [["__scopeId", "data-v-698b3f43"]]), Jn = ["type", "value", "placeholder", "disabled"], Qn = /* @__PURE__ */ Q({
+}), qn = /* @__PURE__ */ Q(Hn, [["__scopeId", "data-v-698b3f43"]]), Kn = ["type", "value", "placeholder", "disabled"], Jn = /* @__PURE__ */ J({
   __name: "TextInput",
   props: {
     modelValue: {},
@@ -1153,80 +1153,80 @@ const Co = { class: "panel-layout" }, xo = {
   },
   emits: ["update:modelValue", "enter", "escape", "focus", "blur"],
   setup(t, { expose: c, emit: n }) {
-    const r = t, p = n, g = b(null);
-    function h(v) {
-      const i = v.target.value;
-      p("update:modelValue", i);
+    const r = t, p = n, f = b(null);
+    function h(m) {
+      const l = m.target.value;
+      p("update:modelValue", l);
     }
     return _e(() => {
-      r.autoFocus && g.value && g.value.focus();
+      r.autoFocus && f.value && f.value.focus();
     }), c({
       focus: () => {
-        var v;
-        return (v = g.value) == null ? void 0 : v.focus();
+        var m;
+        return (m = f.value) == null ? void 0 : m.focus();
       },
       blur: () => {
-        var v;
-        return (v = g.value) == null ? void 0 : v.blur();
+        var m;
+        return (m = f.value) == null ? void 0 : m.blur();
       }
-    }), (v, i) => (o(), s("input", {
+    }), (m, l) => (o(), s("input", {
       ref_key: "inputRef",
-      ref: g,
+      ref: f,
       type: t.type,
       value: t.modelValue,
       placeholder: t.placeholder,
       disabled: t.disabled,
-      class: ne(["text-input", { error: t.hasError, monospace: t.monospace }]),
+      class: se(["text-input", { error: t.hasError, monospace: t.monospace }]),
       onInput: h,
       onKeyup: [
-        i[0] || (i[0] = Je((m) => v.$emit("enter"), ["enter"])),
-        i[1] || (i[1] = Je((m) => v.$emit("escape"), ["escape"]))
+        l[0] || (l[0] = Je((v) => m.$emit("enter"), ["enter"])),
+        l[1] || (l[1] = Je((v) => m.$emit("escape"), ["escape"]))
       ],
-      onFocus: i[2] || (i[2] = (m) => v.$emit("focus")),
-      onBlur: i[3] || (i[3] = (m) => v.$emit("blur"))
-    }, null, 42, Jn));
+      onFocus: l[2] || (l[2] = (v) => m.$emit("focus")),
+      onBlur: l[3] || (l[3] = (v) => m.$emit("blur"))
+    }, null, 42, Kn));
   }
-}), Ct = /* @__PURE__ */ Y(Qn, [["__scopeId", "data-v-0380d08f"]]), Yn = { class: "branch-create-form" }, Xn = { class: "form-actions" }, Zn = /* @__PURE__ */ Q({
+}), Et = /* @__PURE__ */ Q(Jn, [["__scopeId", "data-v-0380d08f"]]), Qn = { class: "branch-create-form" }, Yn = { class: "form-actions" }, Xn = /* @__PURE__ */ J({
   __name: "BranchCreateForm",
   emits: ["create", "cancel"],
   setup(t, { emit: c }) {
     const n = c, r = b(""), p = B(() => {
-      const v = r.value.trim();
-      return v.length > 0 && !v.startsWith("-") && !v.endsWith(".lock") && !/[\s~^:?*\[\\]/.test(v);
+      const m = r.value.trim();
+      return m.length > 0 && !m.startsWith("-") && !m.endsWith(".lock") && !/[\s~^:?*\[\\]/.test(m);
     });
-    function g() {
+    function f() {
       p.value && (n("create", r.value.trim()), r.value = "");
     }
     function h() {
       r.value = "", n("cancel");
     }
-    return (v, i) => (o(), s("div", Yn, [
-      f(Ct, {
+    return (m, l) => (o(), s("div", Qn, [
+      g(Et, {
         modelValue: r.value,
-        "onUpdate:modelValue": i[0] || (i[0] = (m) => r.value = m),
+        "onUpdate:modelValue": l[0] || (l[0] = (v) => r.value = v),
         placeholder: "Branch name...",
         "auto-focus": !0,
-        onEnter: g,
+        onEnter: f,
         onEscape: h
       }, null, 8, ["modelValue"]),
-      e("div", Xn, [
-        f(Z, {
+      e("div", Yn, [
+        g(Z, {
           variant: "primary",
           size: "sm",
           disabled: !p.value,
-          onClick: g
+          onClick: f
         }, {
-          default: l(() => [...i[1] || (i[1] = [
+          default: i(() => [...l[1] || (l[1] = [
             y(" Create ", -1)
           ])]),
           _: 1
         }, 8, ["disabled"]),
-        f(Z, {
+        g(Z, {
           variant: "secondary",
           size: "sm",
           onClick: h
         }, {
-          default: l(() => [...i[2] || (i[2] = [
+          default: i(() => [...l[2] || (l[2] = [
             y(" Cancel ", -1)
           ])]),
           _: 1
@@ -1234,13 +1234,13 @@ const Co = { class: "panel-layout" }, xo = {
       ])
     ]));
   }
-}), ea = /* @__PURE__ */ Y(Zn, [["__scopeId", "data-v-7c500394"]]), ta = { class: "branch-list-item__indicator" }, oa = { class: "branch-list-item__name" }, sa = {
+}), Zn = /* @__PURE__ */ Q(Xn, [["__scopeId", "data-v-7c500394"]]), ea = { class: "branch-list-item__indicator" }, ta = { class: "branch-list-item__name" }, oa = {
   key: 0,
   class: "branch-list-item__actions"
-}, na = {
+}, sa = {
   key: 0,
   class: "branch-list-item__current-label"
-}, aa = /* @__PURE__ */ Q({
+}, na = /* @__PURE__ */ J({
   __name: "BranchListItem",
   props: {
     branchName: {},
@@ -1251,21 +1251,21 @@ const Co = { class: "panel-layout" }, xo = {
   emits: ["click"],
   setup(t) {
     return (c, n) => (o(), s("div", {
-      class: ne(["branch-list-item", { current: t.isCurrent, clickable: t.clickable }]),
+      class: se(["branch-list-item", { current: t.isCurrent, clickable: t.clickable }]),
       onClick: n[0] || (n[0] = (r) => t.clickable && c.$emit("click"))
     }, [
-      e("span", ta, a(t.isCurrent ? "●" : "○"), 1),
-      e("span", oa, a(t.branchName), 1),
-      c.$slots.actions || t.showCurrentLabel ? (o(), s("div", sa, [
+      e("span", ea, a(t.isCurrent ? "●" : "○"), 1),
+      e("span", ta, a(t.branchName), 1),
+      c.$slots.actions || t.showCurrentLabel ? (o(), s("div", oa, [
         ue(c.$slots, "actions", {}, void 0, !0),
-        t.isCurrent && t.showCurrentLabel ? (o(), s("span", na, " current ")) : d("", !0)
-      ])) : d("", !0)
+        t.isCurrent && t.showCurrentLabel ? (o(), s("span", sa, " current ")) : u("", !0)
+      ])) : u("", !0)
     ], 2));
   }
-}), la = /* @__PURE__ */ Y(aa, [["__scopeId", "data-v-c6581a24"]]), ia = {
+}), aa = /* @__PURE__ */ Q(na, [["__scopeId", "data-v-c6581a24"]]), la = {
   key: 2,
   class: "branch-list"
-}, ra = /* @__PURE__ */ Q({
+}, ia = /* @__PURE__ */ J({
   __name: "BranchSection",
   props: {
     branches: {},
@@ -1275,22 +1275,22 @@ const Co = { class: "panel-layout" }, xo = {
   setup(t, { emit: c }) {
     const n = c, r = b(!1);
     function p(h) {
-      n("create", h), g();
+      n("create", h), f();
     }
-    function g() {
+    function f() {
       r.value = !1;
     }
-    return (h, v) => (o(), x(Ie, null, {
-      header: l(() => [
-        f(Ee, { title: "BRANCHES" }, {
-          actions: l(() => [
-            f(Z, {
+    return (h, m) => (o(), x(Ie, null, {
+      header: i(() => [
+        g(Ee, { title: "BRANCHES" }, {
+          actions: i(() => [
+            g(Z, {
               variant: "ghost",
               size: "sm",
-              onClick: v[0] || (v[0] = (i) => r.value = !0),
+              onClick: m[0] || (m[0] = (l) => r.value = !0),
               title: "Create new branch"
             }, {
-              default: l(() => [...v[1] || (v[1] = [
+              default: i(() => [...m[1] || (m[1] = [
                 e("svg", {
                   width: "14",
                   height: "14",
@@ -1311,30 +1311,30 @@ const Co = { class: "panel-layout" }, xo = {
           _: 1
         })
       ]),
-      content: l(() => [
-        r.value ? (o(), x(ea, {
+      content: i(() => [
+        r.value ? (o(), x(Zn, {
           key: 0,
           onCreate: p,
-          onCancel: g
-        })) : d("", !0),
-        t.branches.length === 0 ? (o(), x(Ue, {
+          onCancel: f
+        })) : u("", !0),
+        t.branches.length === 0 ? (o(), x(Oe, {
           key: 1,
           icon: "○",
           message: "No branches found"
-        })) : (o(), s("div", ia, [
-          (o(!0), s(H, null, se(t.branches, (i) => (o(), x(la, {
-            key: i.name,
-            "branch-name": i.name,
-            "is-current": i.is_current
+        })) : (o(), s("div", la, [
+          (o(!0), s(H, null, oe(t.branches, (l) => (o(), x(aa, {
+            key: l.name,
+            "branch-name": l.name,
+            "is-current": l.is_current
           }, {
-            actions: l(() => [
-              i.is_current ? d("", !0) : (o(), x(Z, {
+            actions: i(() => [
+              l.is_current ? u("", !0) : (o(), x(Z, {
                 key: 0,
                 variant: "secondary",
                 size: "xs",
-                onClick: (m) => h.$emit("switch", i.name)
+                onClick: (v) => h.$emit("switch", l.name)
               }, {
-                default: l(() => [...v[2] || (v[2] = [
+                default: i(() => [...m[2] || (m[2] = [
                   y(" Switch ", -1)
                 ])]),
                 _: 1
@@ -1347,14 +1347,14 @@ const Co = { class: "panel-layout" }, xo = {
       _: 1
     }));
   }
-}), da = /* @__PURE__ */ Y(ra, [["__scopeId", "data-v-763d6ec4"]]), ca = { class: "commit-list" }, ua = /* @__PURE__ */ Q({
+}), ra = /* @__PURE__ */ Q(ia, [["__scopeId", "data-v-763d6ec4"]]), da = { class: "commit-list" }, ca = /* @__PURE__ */ J({
   __name: "CommitList",
   setup(t) {
-    return (c, n) => (o(), s("div", ca, [
+    return (c, n) => (o(), s("div", da, [
       ue(c.$slots, "default", {}, void 0, !0)
     ]));
   }
-}), ma = /* @__PURE__ */ Y(ua, [["__scopeId", "data-v-8c5ee761"]]), va = { class: "commit-hash" }, fa = /* @__PURE__ */ Q({
+}), ua = /* @__PURE__ */ Q(ca, [["__scopeId", "data-v-8c5ee761"]]), ma = { class: "commit-hash" }, va = /* @__PURE__ */ J({
   __name: "CommitHash",
   props: {
     hash: {},
@@ -1362,9 +1362,9 @@ const Co = { class: "panel-layout" }, xo = {
   },
   setup(t) {
     const c = t, n = B(() => c.hash.slice(0, c.length));
-    return (r, p) => (o(), s("span", va, a(n.value), 1));
+    return (r, p) => (o(), s("span", ma, a(n.value), 1));
   }
-}), eo = /* @__PURE__ */ Y(fa, [["__scopeId", "data-v-7c333cc6"]]), ga = { class: "commit-message" }, pa = { class: "commit-date" }, ha = /* @__PURE__ */ Q({
+}), Zt = /* @__PURE__ */ Q(va, [["__scopeId", "data-v-7c333cc6"]]), fa = { class: "commit-message" }, ga = { class: "commit-date" }, pa = /* @__PURE__ */ J({
   __name: "CommitItem",
   props: {
     hash: {},
@@ -1378,24 +1378,24 @@ const Co = { class: "panel-layout" }, xo = {
     function p() {
       n.clickable && r("click");
     }
-    return (g, h) => (o(), s("div", {
-      class: ne(["commit-item", { clickable: t.clickable }]),
+    return (f, h) => (o(), s("div", {
+      class: se(["commit-item", { clickable: t.clickable }]),
       onClick: p
     }, [
-      f(eo, { hash: t.hash }, null, 8, ["hash"]),
-      e("span", ga, a(t.message), 1),
-      e("span", pa, a(t.relativeDate), 1),
-      g.$slots.actions ? (o(), s("div", {
+      g(Zt, { hash: t.hash }, null, 8, ["hash"]),
+      e("span", fa, a(t.message), 1),
+      e("span", ga, a(t.relativeDate), 1),
+      f.$slots.actions ? (o(), s("div", {
         key: 0,
         class: "commit-actions",
         onClick: h[0] || (h[0] = ke(() => {
         }, ["stop"]))
       }, [
-        ue(g.$slots, "actions", {}, void 0, !0)
-      ])) : d("", !0)
+        ue(f.$slots, "actions", {}, void 0, !0)
+      ])) : u("", !0)
     ], 2));
   }
-}), ya = /* @__PURE__ */ Y(ha, [["__scopeId", "data-v-dd7c621b"]]), wa = /* @__PURE__ */ Q({
+}), ha = /* @__PURE__ */ Q(pa, [["__scopeId", "data-v-dd7c621b"]]), ya = /* @__PURE__ */ J({
   __name: "HistorySection",
   props: {
     commits: {}
@@ -1403,31 +1403,31 @@ const Co = { class: "panel-layout" }, xo = {
   emits: ["select", "checkout"],
   setup(t) {
     return (c, n) => (o(), x(Ie, null, {
-      header: l(() => [
-        f(Ee, { title: "HISTORY" })
+      header: i(() => [
+        g(Ee, { title: "HISTORY" })
       ]),
-      content: l(() => [
-        t.commits.length === 0 ? (o(), x(Ue, {
+      content: i(() => [
+        t.commits.length === 0 ? (o(), x(Oe, {
           key: 0,
           icon: "📜",
           message: "No commits yet"
-        })) : (o(), x(ma, { key: 1 }, {
-          default: l(() => [
-            (o(!0), s(H, null, se(t.commits, (r) => (o(), x(ya, {
+        })) : (o(), x(ua, { key: 1 }, {
+          default: i(() => [
+            (o(!0), s(H, null, oe(t.commits, (r) => (o(), x(ha, {
               key: r.hash,
               hash: r.short_hash || r.hash,
               message: r.message,
               "relative-date": r.date_relative || r.relative_date,
               onClick: (p) => c.$emit("select", r)
             }, {
-              actions: l(() => [
-                f(Z, {
+              actions: i(() => [
+                g(Z, {
                   variant: "ghost",
                   size: "xs",
                   onClick: (p) => c.$emit("checkout", r),
                   title: "Checkout this commit"
                 }, {
-                  default: l(() => [...n[0] || (n[0] = [
+                  default: i(() => [...n[0] || (n[0] = [
                     e("svg", {
                       width: "12",
                       height: "12",
@@ -1449,7 +1449,7 @@ const Co = { class: "panel-layout" }, xo = {
       _: 1
     }));
   }
-}), ka = /* @__PURE__ */ Y(wa, [["__scopeId", "data-v-981c3c64"]]), Q1 = [
+}), wa = /* @__PURE__ */ Q(ya, [["__scopeId", "data-v-981c3c64"]]), Y1 = [
   // BROKEN workflows (3) - Missing dependencies
   {
     name: "flux-dev-img2img.json",
@@ -1519,7 +1519,7 @@ const Co = { class: "panel-layout" }, xo = {
     model_count: 1 + c % 3,
     sync_state: "synced"
   }))
-], Y1 = {
+], X1 = {
   "flux-dev-img2img.json": {
     name: "flux-dev-img2img.json",
     status: "broken",
@@ -1622,7 +1622,7 @@ const Co = { class: "panel-layout" }, xo = {
       }
     ]
   }
-}, ba = [
+}, ka = [
   {
     filename: "flux1-dev-fp8.safetensors",
     hash: "a11e2e7b",
@@ -1696,8 +1696,8 @@ const Co = { class: "panel-layout" }, xo = {
       clip_type: "clip_l"
     }
   }
-], X1 = [
-  ...ba,
+], Z1 = [
+  ...ka,
   {
     filename: "v1-5-pruned.ckpt",
     hash: "c33g4g9d",
@@ -1748,224 +1748,224 @@ const Co = { class: "panel-layout" }, xo = {
     }
   }
 ];
-function gt() {
+function pt() {
   return !1;
 }
-function Se() {
+function Ce() {
   const t = b(!1), c = b(null);
-  async function n(J, de) {
+  async function n(K, de) {
     var D;
     if (!((D = window.app) != null && D.api))
       throw new Error("ComfyUI API not available");
-    const F = await window.app.api.fetchApi(J, de);
-    if (!F.ok) {
-      const te = await F.json().catch(() => ({}));
-      throw new Error(te.error || te.message || `Request failed: ${F.status}`);
+    const A = await window.app.api.fetchApi(K, de);
+    if (!A.ok) {
+      const ee = await A.json().catch(() => ({}));
+      throw new Error(ee.error || ee.message || `Request failed: ${A.status}`);
     }
-    return F.json();
+    return A.json();
   }
-  async function r(J = !1) {
-    return n(J ? "/v2/comfygit/status?refresh=true" : "/v2/comfygit/status");
+  async function r(K = !1) {
+    return n(K ? "/v2/comfygit/status?refresh=true" : "/v2/comfygit/status");
   }
-  async function p(J, de = !1) {
+  async function p(K, de = !1) {
     return n("/v2/comfygit/commit", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: J, allow_issues: de })
+      body: JSON.stringify({ message: K, allow_issues: de })
     });
   }
-  async function g(J = 10, de = 0) {
-    return n(`/v2/comfygit/log?limit=${J}&offset=${de}`);
+  async function f(K = 10, de = 0) {
+    return n(`/v2/comfygit/log?limit=${K}&offset=${de}`);
   }
-  async function h(J) {
+  async function h(K) {
     return n("/v2/comfygit/export", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ output_path: J })
+      body: JSON.stringify({ output_path: K })
     });
   }
-  async function v() {
+  async function m() {
     return n("/v2/comfygit/branches");
   }
-  async function i(J) {
-    return n(`/v2/comfygit/commit/${J}`);
+  async function l(K) {
+    return n(`/v2/comfygit/commit/${K}`);
   }
-  async function m(J, de = !1) {
+  async function v(K, de = !1) {
     return n("/v2/comfygit/checkout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ref: J, force: de })
+      body: JSON.stringify({ ref: K, force: de })
     });
   }
-  async function $(J, de = "HEAD") {
+  async function $(K, de = "HEAD") {
     return n("/v2/comfygit/branch", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: J, start_point: de })
+      body: JSON.stringify({ name: K, start_point: de })
     });
   }
-  async function u(J, de = !1) {
+  async function d(K, de = !1) {
     return n("/v2/comfygit/switch", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ branch: J, force: de })
+      body: JSON.stringify({ branch: K, force: de })
     });
   }
-  async function M() {
+  async function E() {
     try {
       return (await n("/v2/comfygit/environments")).environments;
     } catch {
       try {
-        const J = await r();
+        const K = await r();
         return [{
-          name: J.environment,
+          name: K.environment,
           is_current: !0,
-          path: "~/comfygit/environments/" + J.environment,
+          path: "~/comfygit/environments/" + K.environment,
           created_at: (/* @__PURE__ */ new Date()).toISOString(),
-          workflow_count: J.workflows.total,
+          workflow_count: K.workflows.total,
           node_count: 0,
           model_count: 0,
-          current_branch: J.branch
+          current_branch: K.branch
         }];
       } catch {
         return [];
       }
     }
   }
-  async function C(J) {
+  async function C(K) {
     return n("/v2/comfygit/switch_environment", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ target_env: J })
+      body: JSON.stringify({ target_env: K })
     });
   }
-  async function L() {
+  async function z() {
     try {
       return n("/v2/comfygit/switch_status");
     } catch {
       return null;
     }
   }
-  async function w(J) {
+  async function w(K) {
     return n("/v2/workspace/environments", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(J)
+      body: JSON.stringify(K)
     });
   }
-  async function _() {
+  async function k() {
     return n("/v2/workspace/environments/create_status");
   }
-  async function k(J = 20) {
-    return n(`/v2/workspace/comfyui_releases?limit=${J}`);
+  async function _(K = 20) {
+    return n(`/v2/workspace/comfyui_releases?limit=${K}`);
   }
-  async function R(J) {
-    return n(`/v2/workspace/environments/${J}`, {
+  async function T(K) {
+    return n(`/v2/workspace/environments/${K}`, {
       method: "DELETE"
     });
   }
-  async function A(J = !1) {
+  async function N(K = !1) {
     try {
-      return n(J ? "/v2/comfygit/workflows?refresh=true" : "/v2/comfygit/workflows");
+      return n(K ? "/v2/comfygit/workflows?refresh=true" : "/v2/comfygit/workflows");
     } catch {
-      const de = await r(J), F = [];
+      const de = await r(K), A = [];
       return de.workflows.new.forEach((D) => {
-        F.push({ name: D, status: "new", missing_nodes: 0, missing_models: 0, path: D });
+        A.push({ name: D, status: "new", missing_nodes: 0, missing_models: 0, path: D });
       }), de.workflows.modified.forEach((D) => {
-        F.push({ name: D, status: "modified", missing_nodes: 0, missing_models: 0, path: D });
+        A.push({ name: D, status: "modified", missing_nodes: 0, missing_models: 0, path: D });
       }), de.workflows.synced.forEach((D) => {
-        F.push({ name: D, status: "synced", missing_nodes: 0, missing_models: 0, path: D });
-      }), F;
+        A.push({ name: D, status: "synced", missing_nodes: 0, missing_models: 0, path: D });
+      }), A;
     }
   }
-  async function j(J) {
-    return n(`/v2/comfygit/workflow/${encodeURIComponent(J)}/details`);
+  async function U(K) {
+    return n(`/v2/comfygit/workflow/${encodeURIComponent(K)}/details`);
   }
-  async function K(J) {
-    return n(`/v2/comfygit/workflow/${encodeURIComponent(J)}/resolve`, {
+  async function j(K) {
+    return n(`/v2/comfygit/workflow/${encodeURIComponent(K)}/resolve`, {
       method: "POST"
     });
   }
-  async function P(J, de, F) {
-    return n(`/v2/comfygit/workflow/${encodeURIComponent(J)}/install`, {
+  async function P(K, de, A) {
+    return n(`/v2/comfygit/workflow/${encodeURIComponent(K)}/install`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ install_nodes: de, install_models: F })
+      body: JSON.stringify({ install_nodes: de, install_models: A })
     });
   }
-  async function T(J, de, F) {
-    return n(`/v2/comfygit/workflow/${encodeURIComponent(J)}/model-importance`, {
+  async function L(K, de, A) {
+    return n(`/v2/comfygit/workflow/${encodeURIComponent(K)}/model-importance`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ model: de, importance: F })
+      body: JSON.stringify({ model: de, importance: A })
     });
   }
-  async function O() {
+  async function V() {
     try {
       return n("/v2/comfygit/models/environment");
     } catch {
       return [];
     }
   }
-  async function z() {
+  async function M() {
     try {
       return n("/v2/workspace/models");
     } catch {
       return [];
     }
   }
-  async function S(J) {
-    return n(`/v2/workspace/models/details/${encodeURIComponent(J)}`);
+  async function S(K) {
+    return n(`/v2/workspace/models/details/${encodeURIComponent(K)}`);
   }
-  async function V(J) {
+  async function F(K) {
     return n("/v2/workspace/open-location", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ path: J })
+      body: JSON.stringify({ path: K })
     });
   }
-  async function W(J, de) {
-    return n(`/v2/workspace/models/${J}/source`, {
+  async function W(K, de) {
+    return n(`/v2/workspace/models/${K}/source`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ source_url: de })
     });
   }
-  async function X(J, de) {
-    return n(`/v2/workspace/models/${J}/source`, {
+  async function Y(K, de) {
+    return n(`/v2/workspace/models/${K}/source`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ source_url: de })
     });
   }
-  async function oe(J) {
-    return n(`/v2/workspace/models/${J}`, {
+  async function le(K) {
+    return n(`/v2/workspace/models/${K}`, {
       method: "DELETE"
     });
   }
-  async function E(J) {
+  async function G(K) {
     return n("/v2/workspace/models/download", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(J)
+      body: JSON.stringify(K)
     });
   }
-  async function G() {
+  async function te() {
     return n("/v2/workspace/models/scan", {
       method: "POST"
     });
   }
-  async function N() {
+  async function O() {
     return n("/v2/workspace/models/directory");
   }
-  async function U(J) {
+  async function R(K) {
     return n("/v2/workspace/models/directory", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ path: J })
+      body: JSON.stringify({ path: K })
     });
   }
-  async function ae() {
+  async function ne() {
     try {
       return n("/v2/comfygit/config");
     } catch {
@@ -1977,30 +1977,30 @@ function Se() {
       };
     }
   }
-  async function ee(J) {
+  async function X(K) {
     return n("/v2/comfygit/config", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(J)
+      body: JSON.stringify(K)
     });
   }
-  async function $e(J, de) {
+  async function $e(K, de) {
     try {
-      const F = new URLSearchParams();
-      return J && F.append("level", J), de && F.append("lines", de.toString()), n(`/v2/comfygit/debug/logs?${F}`);
+      const A = new URLSearchParams();
+      return K && A.append("level", K), de && A.append("lines", de.toString()), n(`/v2/comfygit/debug/logs?${A}`);
     } catch {
       return [];
     }
   }
-  async function le(J, de) {
+  async function ae(K, de) {
     try {
-      const F = new URLSearchParams();
-      return J && F.append("level", J), de && F.append("lines", de.toString()), n(`/v2/workspace/debug/logs?${F}`);
+      const A = new URLSearchParams();
+      return K && A.append("level", K), de && A.append("lines", de.toString()), n(`/v2/workspace/debug/logs?${A}`);
     } catch {
       return [];
     }
   }
-  async function Ye() {
+  async function Xe() {
     try {
       return n("/v2/comfygit/nodes");
     } catch {
@@ -2013,23 +2013,23 @@ function Se() {
       };
     }
   }
-  async function he(J) {
-    return n(`/v2/comfygit/nodes/${encodeURIComponent(J)}/track-dev`, {
+  async function he(K) {
+    return n(`/v2/comfygit/nodes/${encodeURIComponent(K)}/track-dev`, {
       method: "POST"
     });
   }
-  async function ut(J) {
-    return n(`/v2/comfygit/nodes/${encodeURIComponent(J)}/install`, {
+  async function mt(K) {
+    return n(`/v2/comfygit/nodes/${encodeURIComponent(K)}/install`, {
       method: "POST"
     });
   }
-  async function mt(J) {
-    return n(`/v2/comfygit/nodes/${encodeURIComponent(J)}/update`, {
+  async function vt(K) {
+    return n(`/v2/comfygit/nodes/${encodeURIComponent(K)}/update`, {
       method: "POST"
     });
   }
-  async function vt(J) {
-    return n(`/v2/comfygit/nodes/${encodeURIComponent(J)}`, {
+  async function ft(K) {
+    return n(`/v2/comfygit/nodes/${encodeURIComponent(K)}`, {
       method: "DELETE"
     });
   }
@@ -2040,43 +2040,43 @@ function Se() {
       return { remotes: [] };
     }
   }
-  async function Ke(J, de) {
+  async function Ke(K, de) {
     return n("/v2/comfygit/remotes", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: J, url: de })
+      body: JSON.stringify({ name: K, url: de })
     });
   }
-  async function Fe(J) {
-    return n(`/v2/comfygit/remotes/${encodeURIComponent(J)}`, {
+  async function Ae(K) {
+    return n(`/v2/comfygit/remotes/${encodeURIComponent(K)}`, {
       method: "DELETE"
     });
   }
-  async function Oe(J, de, F) {
-    return n(`/v2/comfygit/remotes/${encodeURIComponent(J)}`, {
+  async function Ue(K, de, A) {
+    return n(`/v2/comfygit/remotes/${encodeURIComponent(K)}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url: de, push_url: F })
+      body: JSON.stringify({ url: de, push_url: A })
     });
   }
-  async function ft(J) {
-    return n(`/v2/comfygit/remotes/${encodeURIComponent(J)}/fetch`, {
+  async function gt(K) {
+    return n(`/v2/comfygit/remotes/${encodeURIComponent(K)}/fetch`, {
       method: "POST"
     });
   }
-  async function fe(J) {
+  async function fe(K) {
     try {
-      return n(`/v2/comfygit/remotes/${encodeURIComponent(J)}/status`);
+      return n(`/v2/comfygit/remotes/${encodeURIComponent(K)}/status`);
     } catch {
       return null;
     }
   }
-  async function Be(J = "skip", de = !0) {
+  async function Be(K = "skip", de = !0) {
     return n("/v2/comfygit/sync", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        model_strategy: J,
+        model_strategy: K,
         remove_extra_nodes: de
       })
     });
@@ -2086,76 +2086,76 @@ function Se() {
     error: c,
     getStatus: r,
     commit: p,
-    getHistory: g,
+    getHistory: f,
     exportEnv: h,
     // Git Operations
-    getBranches: v,
-    getCommitDetail: i,
-    checkout: m,
+    getBranches: m,
+    getCommitDetail: l,
+    checkout: v,
     createBranch: $,
-    switchBranch: u,
+    switchBranch: d,
     // Environment Management
-    getEnvironments: M,
+    getEnvironments: E,
     switchEnvironment: C,
-    getSwitchProgress: L,
+    getSwitchProgress: z,
     createEnvironment: w,
-    getCreateProgress: _,
-    getComfyUIReleases: k,
-    deleteEnvironment: R,
+    getCreateProgress: k,
+    getComfyUIReleases: _,
+    deleteEnvironment: T,
     // Workflow Management
-    getWorkflows: A,
-    getWorkflowDetails: j,
-    resolveWorkflow: K,
+    getWorkflows: N,
+    getWorkflowDetails: U,
+    resolveWorkflow: j,
     installWorkflowDeps: P,
-    setModelImportance: T,
+    setModelImportance: L,
     // Model Management
-    getEnvironmentModels: O,
-    getWorkspaceModels: z,
+    getEnvironmentModels: V,
+    getWorkspaceModels: M,
     getModelDetails: S,
-    openFileLocation: V,
+    openFileLocation: F,
     addModelSource: W,
-    removeModelSource: X,
-    deleteModel: oe,
-    downloadModel: E,
-    scanWorkspaceModels: G,
-    getModelsDirectory: N,
-    setModelsDirectory: U,
+    removeModelSource: Y,
+    deleteModel: le,
+    downloadModel: G,
+    scanWorkspaceModels: te,
+    getModelsDirectory: O,
+    setModelsDirectory: R,
     // Settings
-    getConfig: ae,
-    updateConfig: ee,
+    getConfig: ne,
+    updateConfig: X,
     // Debug/Logs
     getEnvironmentLogs: $e,
-    getWorkspaceLogs: le,
+    getWorkspaceLogs: ae,
     // Node Management
-    getNodes: Ye,
+    getNodes: Xe,
     trackNodeAsDev: he,
-    installNode: ut,
-    updateNode: mt,
-    uninstallNode: vt,
+    installNode: mt,
+    updateNode: vt,
+    uninstallNode: ft,
     // Git Remotes
     getRemotes: we,
     addRemote: Ke,
-    removeRemote: Fe,
-    updateRemoteUrl: Oe,
-    fetchRemote: ft,
+    removeRemote: Ae,
+    updateRemoteUrl: Ue,
+    fetchRemote: gt,
     getRemoteSyncStatus: fe,
     // Environment Sync
     syncEnvironmentManually: Be
   };
 }
-const _a = { class: "base-modal-header" }, $a = {
+const ba = { class: "base-modal-header" }, _a = {
   key: 0,
   class: "base-modal-title"
-}, Ca = { class: "base-modal-body" }, xa = {
+}, $a = { class: "base-modal-body" }, Ca = {
   key: 0,
   class: "base-modal-loading"
-}, Sa = {
+}, xa = {
   key: 1,
   class: "base-modal-error"
-}, Ia = {
+}, Sa = {
   key: 0,
   class: "base-modal-footer"
-}, Ea = /* @__PURE__ */ Q({
+}, Ia = /* @__PURE__ */ J({
   __name: "BaseModal",
   props: {
     title: {},
@@ -2172,32 +2172,32 @@ const _a = { class: "base-modal-header" }, $a = {
     function p() {
       n.closeOnOverlayClick && r("close");
     }
-    function g(h) {
+    function f(h) {
       h.key === "Escape" && r("close");
     }
     return _e(() => {
-      document.addEventListener("keydown", g), document.body.style.overflow = "hidden";
-    }), wo(() => {
-      document.removeEventListener("keydown", g), document.body.style.overflow = "";
-    }), (h, v) => (o(), x(xe, { to: "body" }, [
+      document.addEventListener("keydown", f), document.body.style.overflow = "hidden";
+    }), yo(() => {
+      document.removeEventListener("keydown", f), document.body.style.overflow = "";
+    }), (h, m) => (o(), x(Se, { to: "body" }, [
       e("div", {
         class: "base-modal-overlay",
         onClick: p
       }, [
         e("div", {
-          class: ne(["base-modal-content", t.size, { "fixed-height": t.fixedHeight }]),
-          onClick: v[1] || (v[1] = ke(() => {
+          class: se(["base-modal-content", t.size, { "fixed-height": t.fixedHeight }]),
+          onClick: m[1] || (m[1] = ke(() => {
           }, ["stop"]))
         }, [
-          e("div", _a, [
+          e("div", ba, [
             ue(h.$slots, "header", {}, () => [
-              t.title ? (o(), s("h3", $a, a(t.title), 1)) : d("", !0)
+              t.title ? (o(), s("h3", _a, a(t.title), 1)) : u("", !0)
             ], !0),
             t.showCloseButton ? (o(), s("button", {
               key: 0,
               class: "base-modal-close",
-              onClick: v[0] || (v[0] = (i) => h.$emit("close"))
-            }, [...v[2] || (v[2] = [
+              onClick: m[0] || (m[0] = (l) => h.$emit("close"))
+            }, [...m[2] || (m[2] = [
               e("svg", {
                 width: "16",
                 height: "16",
@@ -2206,22 +2206,22 @@ const _a = { class: "base-modal-header" }, $a = {
               }, [
                 e("path", { d: "M4.28 3.22a.75.75 0 0 0-1.06 1.06L6.94 8l-3.72 3.72a.75.75 0 1 0 1.06 1.06L8 9.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L9.06 8l3.72-3.72a.75.75 0 0 0-1.06-1.06L8 6.94 4.28 3.22z" })
               ], -1)
-            ])])) : d("", !0)
+            ])])) : u("", !0)
           ]),
-          e("div", Ca, [
-            t.loading ? (o(), s("div", xa, "Loading...")) : t.error ? (o(), s("div", Sa, a(t.error), 1)) : ue(h.$slots, "body", { key: 2 }, void 0, !0)
+          e("div", $a, [
+            t.loading ? (o(), s("div", Ca, "Loading...")) : t.error ? (o(), s("div", xa, a(t.error), 1)) : ue(h.$slots, "body", { key: 2 }, void 0, !0)
           ]),
-          h.$slots.footer ? (o(), s("div", Ia, [
+          h.$slots.footer ? (o(), s("div", Sa, [
             ue(h.$slots, "footer", {}, void 0, !0)
-          ])) : d("", !0)
+          ])) : u("", !0)
         ], 2)
       ])
     ]));
   }
-}), st = /* @__PURE__ */ Y(Ea, [["__scopeId", "data-v-2125a0e6"]]), Ma = ["type", "disabled"], za = {
+}), Ye = /* @__PURE__ */ Q(Ia, [["__scopeId", "data-v-2125a0e6"]]), Ea = ["type", "disabled"], Ma = {
   key: 0,
   class: "spinner"
-}, La = /* @__PURE__ */ Q({
+}, za = /* @__PURE__ */ J({
   __name: "BaseButton",
   props: {
     variant: { default: "primary" },
@@ -2236,17 +2236,17 @@ const _a = { class: "base-modal-header" }, $a = {
     return (c, n) => (o(), s("button", {
       type: t.type,
       disabled: t.disabled || t.loading,
-      class: ne(["base-btn", t.variant, t.size, { "full-width": t.fullWidth, loading: t.loading }]),
+      class: se(["base-btn", t.variant, t.size, { "full-width": t.fullWidth, loading: t.loading }]),
       onClick: n[0] || (n[0] = (r) => c.$emit("click", r))
     }, [
-      t.loading ? (o(), s("span", za)) : d("", !0),
+      t.loading ? (o(), s("span", Ma)) : u("", !0),
       ue(c.$slots, "default", {}, void 0, !0)
-    ], 10, Ma));
+    ], 10, Ea));
   }
-}), ie = /* @__PURE__ */ Y(La, [["__scopeId", "data-v-f3452606"]]), Ta = {
+}), ie = /* @__PURE__ */ Q(za, [["__scopeId", "data-v-f3452606"]]), La = {
   key: 0,
   class: "base-title-count"
-}, Da = /* @__PURE__ */ Q({
+}, Ta = /* @__PURE__ */ J({
   __name: "BaseTitle",
   props: {
     level: { default: 3 },
@@ -2254,24 +2254,24 @@ const _a = { class: "base-modal-header" }, $a = {
     count: {}
   },
   setup(t) {
-    return (c, n) => (o(), x(Ot(`h${t.level}`), {
-      class: ne(["base-title", t.variant])
+    return (c, n) => (o(), x(Ut(`h${t.level}`), {
+      class: se(["base-title", t.variant])
     }, {
-      default: l(() => [
+      default: i(() => [
         ue(c.$slots, "default", {}, void 0, !0),
-        t.count !== void 0 ? (o(), s("span", Ta, "(" + a(t.count) + ")", 1)) : d("", !0)
+        t.count !== void 0 ? (o(), s("span", La, "(" + a(t.count) + ")", 1)) : u("", !0)
       ]),
       _: 3
     }, 8, ["class"]));
   }
-}), bt = /* @__PURE__ */ Y(Da, [["__scopeId", "data-v-5a01561d"]]), Ra = ["value", "disabled"], Na = {
+}), bt = /* @__PURE__ */ Q(Ta, [["__scopeId", "data-v-5a01561d"]]), Da = ["value", "disabled"], Ra = {
   key: 0,
   value: "",
   disabled: ""
-}, Ua = ["value"], Oa = {
+}, Na = ["value"], Oa = {
   key: 0,
   class: "base-select-error"
-}, Ba = /* @__PURE__ */ Q({
+}, Ua = /* @__PURE__ */ J({
   __name: "BaseSelect",
   props: {
     modelValue: {},
@@ -2290,27 +2290,27 @@ const _a = { class: "base-modal-header" }, $a = {
       return typeof r == "string" ? r : r.label;
     }
     return (r, p) => (o(), s("div", {
-      class: ne(["base-select-wrapper", { "full-width": t.fullWidth, error: !!t.error }])
+      class: se(["base-select-wrapper", { "full-width": t.fullWidth, error: !!t.error }])
     }, [
       e("select", {
         value: t.modelValue,
         disabled: t.disabled,
-        class: ne(["base-select", { error: !!t.error }]),
-        onChange: p[0] || (p[0] = (g) => r.$emit("update:modelValue", g.target.value))
+        class: se(["base-select", { error: !!t.error }]),
+        onChange: p[0] || (p[0] = (f) => r.$emit("update:modelValue", f.target.value))
       }, [
-        t.placeholder ? (o(), s("option", Na, a(t.placeholder), 1)) : d("", !0),
-        (o(!0), s(H, null, se(t.options, (g) => (o(), s("option", {
-          key: c(g),
-          value: c(g)
-        }, a(n(g)), 9, Ua))), 128))
-      ], 42, Ra),
-      t.error ? (o(), s("span", Oa, a(t.error), 1)) : d("", !0)
+        t.placeholder ? (o(), s("option", Ra, a(t.placeholder), 1)) : u("", !0),
+        (o(!0), s(H, null, oe(t.options, (f) => (o(), s("option", {
+          key: c(f),
+          value: c(f)
+        }, a(n(f)), 9, Na))), 128))
+      ], 42, Da),
+      t.error ? (o(), s("span", Oa, a(t.error), 1)) : u("", !0)
     ], 2));
   }
-}), Pa = /* @__PURE__ */ Y(Ba, [["__scopeId", "data-v-7436d745"]]), Va = { class: "popover-header" }, Fa = { class: "popover-title" }, Aa = { class: "popover-content" }, Wa = {
+}), Ba = /* @__PURE__ */ Q(Ua, [["__scopeId", "data-v-7436d745"]]), Pa = { class: "popover-header" }, Va = { class: "popover-title" }, Aa = { class: "popover-content" }, Fa = {
   key: 0,
   class: "popover-actions"
-}, Ga = /* @__PURE__ */ Q({
+}, Wa = /* @__PURE__ */ J({
   __name: "InfoPopover",
   props: {
     show: { type: Boolean },
@@ -2319,7 +2319,7 @@ const _a = { class: "base-modal-header" }, $a = {
   },
   emits: ["close"],
   setup(t) {
-    return (c, n) => (o(), x(xe, { to: "body" }, [
+    return (c, n) => (o(), x(Se, { to: "body" }, [
       t.show ? (o(), s("div", {
         key: 0,
         class: "popover-overlay",
@@ -2331,8 +2331,8 @@ const _a = { class: "base-modal-header" }, $a = {
           onClick: n[1] || (n[1] = ke(() => {
           }, ["stop"]))
         }, [
-          e("div", Va, [
-            e("h4", Fa, a(t.title), 1),
+          e("div", Pa, [
+            e("h4", Va, a(t.title), 1),
             e("button", {
               class: "popover-close",
               onClick: n[0] || (n[0] = (r) => c.$emit("close"))
@@ -2341,45 +2341,45 @@ const _a = { class: "base-modal-header" }, $a = {
           e("div", Aa, [
             ue(c.$slots, "content", {}, void 0, !0)
           ]),
-          c.$slots.actions ? (o(), s("div", Wa, [
+          c.$slots.actions ? (o(), s("div", Fa, [
             ue(c.$slots, "actions", {}, void 0, !0)
-          ])) : d("", !0)
+          ])) : u("", !0)
         ], 4)
-      ])) : d("", !0)
+      ])) : u("", !0)
     ]));
   }
-}), je = /* @__PURE__ */ Y(Ga, [["__scopeId", "data-v-42815ace"]]), ja = { class: "detail-section" }, Ha = {
+}), je = /* @__PURE__ */ Q(Wa, [["__scopeId", "data-v-42815ace"]]), Ga = { class: "detail-section" }, ja = {
   key: 0,
   class: "empty-message"
-}, qa = { class: "model-header" }, Ka = { class: "model-name" }, Ja = { class: "model-details" }, Qa = { class: "model-row" }, Ya = { class: "model-row" }, Xa = { class: "label" }, Za = {
+}, Ha = { class: "model-header" }, qa = { class: "model-name" }, Ka = { class: "model-details" }, Ja = { class: "model-row" }, Qa = { class: "model-row" }, Ya = { class: "label" }, Xa = {
   key: 0,
   class: "model-row model-row-nodes"
-}, el = { class: "node-list" }, tl = ["onClick"], ol = {
+}, Za = { class: "node-list" }, el = ["onClick"], tl = {
   key: 1,
   class: "model-row"
-}, sl = { class: "value" }, nl = {
+}, ol = { class: "value" }, sl = {
   key: 0,
   class: "model-actions"
-}, al = { class: "detail-section" }, ll = {
+}, nl = { class: "detail-section" }, al = {
   key: 0,
   class: "empty-message"
-}, il = { class: "node-name" }, rl = {
+}, ll = { class: "node-name" }, il = {
   key: 0,
   class: "node-version"
-}, dl = /* @__PURE__ */ Q({
+}, rl = /* @__PURE__ */ J({
   __name: "WorkflowDetailsModal",
   props: {
     workflowName: {}
   },
   emits: ["close", "resolve", "refresh"],
   setup(t, { emit: c }) {
-    const n = t, r = c, { getWorkflowDetails: p, setModelImportance: g, installWorkflowDeps: h } = Se(), v = b(null), i = b(!1), m = b(null), $ = b(!1), u = b({}), M = b({}), C = b(!1), L = b(/* @__PURE__ */ new Set()), w = [
+    const n = t, r = c, { getWorkflowDetails: p, setModelImportance: f, installWorkflowDeps: h } = Ce(), m = b(null), l = b(!1), v = b(null), $ = b(!1), d = b({}), E = b({}), C = b(!1), z = b(/* @__PURE__ */ new Set()), w = [
       { label: "Required", value: "required" },
       { label: "Flexible", value: "flexible" },
       { label: "Optional", value: "optional" }
     ];
-    function _(z) {
-      switch (z) {
+    function k(M) {
+      switch (M) {
         case "available":
           return "success";
         case "path_mismatch":
@@ -2391,8 +2391,8 @@ const _a = { class: "base-modal-header" }, $a = {
           return "error";
       }
     }
-    function k(z) {
-      switch (z) {
+    function _(M) {
+      switch (M) {
         case "available":
           return "✓ Available";
         case "path_mismatch":
@@ -2404,141 +2404,141 @@ const _a = { class: "base-modal-header" }, $a = {
           return "✗ Missing";
       }
     }
-    function R(z) {
-      if (!z.loaded_by || z.loaded_by.length === 0) return [];
-      const S = z.hash || z.filename;
-      return L.value.has(S) ? z.loaded_by : z.loaded_by.slice(0, 3);
+    function T(M) {
+      if (!M.loaded_by || M.loaded_by.length === 0) return [];
+      const S = M.hash || M.filename;
+      return z.value.has(S) ? M.loaded_by : M.loaded_by.slice(0, 3);
     }
-    function A(z) {
-      return L.value.has(z);
+    function N(M) {
+      return z.value.has(M);
     }
-    function j(z) {
-      L.value.has(z) ? L.value.delete(z) : L.value.add(z), L.value = new Set(L.value);
+    function U(M) {
+      z.value.has(M) ? z.value.delete(M) : z.value.add(M), z.value = new Set(z.value);
     }
-    async function K() {
-      i.value = !0, m.value = null;
+    async function j() {
+      l.value = !0, v.value = null;
       try {
-        v.value = await p(n.workflowName);
-      } catch (z) {
-        m.value = z instanceof Error ? z.message : "Failed to load workflow details";
+        m.value = await p(n.workflowName);
+      } catch (M) {
+        v.value = M instanceof Error ? M.message : "Failed to load workflow details";
       } finally {
-        i.value = !1;
+        l.value = !1;
       }
     }
-    function P(z, S) {
-      u.value[z] = S, $.value = !0;
+    function P(M, S) {
+      d.value[M] = S, $.value = !0;
     }
-    async function T() {
+    async function L() {
       if (!$.value) {
         r("close");
         return;
       }
-      i.value = !0, m.value = null;
+      l.value = !0, v.value = null;
       try {
-        for (const [z, S] of Object.entries(u.value))
-          await g(n.workflowName, z, S);
+        for (const [M, S] of Object.entries(d.value))
+          await f(n.workflowName, M, S);
         r("refresh"), r("close");
-      } catch (z) {
-        m.value = z instanceof Error ? z.message : "Failed to save changes";
+      } catch (M) {
+        v.value = M instanceof Error ? M.message : "Failed to save changes";
       } finally {
-        i.value = !1;
+        l.value = !1;
       }
     }
-    async function O(z) {
-      M.value[z] = !0, m.value = null;
+    async function V(M) {
+      E.value[M] = !0, v.value = null;
       try {
-        await h(n.workflowName, !0, !1), await K();
+        await h(n.workflowName, !0, !1), await j();
       } catch (S) {
-        m.value = S instanceof Error ? S.message : "Failed to install node";
+        v.value = S instanceof Error ? S.message : "Failed to install node";
       } finally {
-        M.value[z] = !1;
+        E.value[M] = !1;
       }
     }
-    return _e(K), (z, S) => (o(), s(H, null, [
-      f(st, {
+    return _e(j), (M, S) => (o(), s(H, null, [
+      g(Ye, {
         title: `WORKFLOW DETAILS: ${t.workflowName}`,
         size: "lg",
-        loading: i.value,
-        error: m.value || void 0,
-        onClose: S[5] || (S[5] = (V) => r("close"))
+        loading: l.value,
+        error: v.value || void 0,
+        onClose: S[5] || (S[5] = (F) => r("close"))
       }, {
-        body: l(() => [
-          v.value ? (o(), s(H, { key: 0 }, [
-            e("section", ja, [
-              f(bt, { variant: "section" }, {
-                default: l(() => [
-                  y("MODELS USED (" + a(v.value.models.length) + ")", 1)
+        body: i(() => [
+          m.value ? (o(), s(H, { key: 0 }, [
+            e("section", Ga, [
+              g(bt, { variant: "section" }, {
+                default: i(() => [
+                  y("MODELS USED (" + a(m.value.models.length) + ")", 1)
                 ]),
                 _: 1
               }),
-              v.value.models.length === 0 ? (o(), s("div", Ha, " No models used in this workflow ")) : d("", !0),
-              (o(!0), s(H, null, se(v.value.models, (V) => (o(), s("div", {
-                key: V.hash || V.filename,
+              m.value.models.length === 0 ? (o(), s("div", ja, " No models used in this workflow ")) : u("", !0),
+              (o(!0), s(H, null, oe(m.value.models, (F) => (o(), s("div", {
+                key: F.hash || F.filename,
                 class: "model-card"
               }, [
-                e("div", qa, [
+                e("div", Ha, [
                   S[7] || (S[7] = e("span", { class: "model-icon" }, "📦", -1)),
-                  e("span", Ka, a(V.filename), 1)
+                  e("span", qa, a(F.filename), 1)
                 ]),
-                e("div", Ja, [
-                  e("div", Qa, [
+                e("div", Ka, [
+                  e("div", Ja, [
                     S[8] || (S[8] = e("span", { class: "label" }, "Status:", -1)),
                     e("span", {
-                      class: ne(["value", _(V.status)])
-                    }, a(k(V.status)), 3)
+                      class: se(["value", k(F.status)])
+                    }, a(_(F.status)), 3)
                   ]),
-                  e("div", Ya, [
-                    e("span", Xa, [
+                  e("div", Qa, [
+                    e("span", Ya, [
                       S[9] || (S[9] = y(" Importance: ", -1)),
-                      f(Zt, {
+                      g(Xt, {
                         size: 14,
                         title: "About importance levels",
                         onClick: S[0] || (S[0] = (W) => C.value = !0)
                       })
                     ]),
-                    f(Pa, {
-                      "model-value": u.value[V.filename] || V.importance,
+                    g(Ba, {
+                      "model-value": d.value[F.filename] || F.importance,
                       options: w,
-                      "onUpdate:modelValue": (W) => P(V.filename, W)
+                      "onUpdate:modelValue": (W) => P(F.filename, W)
                     }, null, 8, ["model-value", "onUpdate:modelValue"])
                   ]),
-                  V.loaded_by && V.loaded_by.length > 0 ? (o(), s("div", Za, [
+                  F.loaded_by && F.loaded_by.length > 0 ? (o(), s("div", Xa, [
                     S[10] || (S[10] = e("span", { class: "label" }, "Loaded by:", -1)),
-                    e("div", el, [
-                      (o(!0), s(H, null, se(R(V), (W, X) => (o(), s("div", {
-                        key: `${W.node_id}-${X}`,
+                    e("div", Za, [
+                      (o(!0), s(H, null, oe(T(F), (W, Y) => (o(), s("div", {
+                        key: `${W.node_id}-${Y}`,
                         class: "node-reference"
                       }, a(W.node_type) + " (Node #" + a(W.node_id) + ") ", 1))), 128)),
-                      V.loaded_by.length > 3 ? (o(), s("button", {
+                      F.loaded_by.length > 3 ? (o(), s("button", {
                         key: 0,
                         class: "expand-toggle",
-                        onClick: (W) => j(V.hash || V.filename)
-                      }, a(A(V.hash || V.filename) ? "▼ Show less" : `▶ View all (${V.loaded_by.length})`), 9, tl)) : d("", !0)
+                        onClick: (W) => U(F.hash || F.filename)
+                      }, a(N(F.hash || F.filename) ? "▼ Show less" : `▶ View all (${F.loaded_by.length})`), 9, el)) : u("", !0)
                     ])
-                  ])) : d("", !0),
-                  V.size_mb ? (o(), s("div", ol, [
+                  ])) : u("", !0),
+                  F.size_mb ? (o(), s("div", tl, [
                     S[11] || (S[11] = e("span", { class: "label" }, "Size:", -1)),
-                    e("span", sl, a(V.size_mb) + " MB", 1)
-                  ])) : d("", !0)
+                    e("span", ol, a(F.size_mb) + " MB", 1)
+                  ])) : u("", !0)
                 ]),
-                V.status !== "available" ? (o(), s("div", nl, [
-                  V.status === "downloadable" ? (o(), x(ie, {
+                F.status !== "available" ? (o(), s("div", sl, [
+                  F.status === "downloadable" ? (o(), x(ie, {
                     key: 0,
                     variant: "primary",
                     size: "sm",
                     onClick: S[1] || (S[1] = (W) => r("resolve"))
                   }, {
-                    default: l(() => [...S[12] || (S[12] = [
+                    default: i(() => [...S[12] || (S[12] = [
                       y(" Download ", -1)
                     ])]),
                     _: 1
-                  })) : V.status === "path_mismatch" ? (o(), x(ie, {
+                  })) : F.status === "path_mismatch" ? (o(), x(ie, {
                     key: 1,
                     variant: "secondary",
                     size: "sm",
                     onClick: S[2] || (S[2] = (W) => r("resolve"))
                   }, {
-                    default: l(() => [...S[13] || (S[13] = [
+                    default: i(() => [...S[13] || (S[13] = [
                       y(" Sync Path ", -1)
                     ])]),
                     _: 1
@@ -2548,54 +2548,54 @@ const _a = { class: "base-modal-header" }, $a = {
                     size: "sm",
                     onClick: S[3] || (S[3] = (W) => r("resolve"))
                   }, {
-                    default: l(() => [...S[14] || (S[14] = [
+                    default: i(() => [...S[14] || (S[14] = [
                       y(" Resolve ", -1)
                     ])]),
                     _: 1
                   }))
-                ])) : d("", !0)
+                ])) : u("", !0)
               ]))), 128))
             ]),
-            e("section", al, [
-              f(bt, { variant: "section" }, {
-                default: l(() => [
-                  y("NODES USED (" + a(v.value.nodes.length) + ")", 1)
+            e("section", nl, [
+              g(bt, { variant: "section" }, {
+                default: i(() => [
+                  y("NODES USED (" + a(m.value.nodes.length) + ")", 1)
                 ]),
                 _: 1
               }),
-              v.value.nodes.length === 0 ? (o(), s("div", ll, " No custom nodes used in this workflow ")) : d("", !0),
-              (o(!0), s(H, null, se(v.value.nodes, (V) => (o(), s("div", {
-                key: V.name,
+              m.value.nodes.length === 0 ? (o(), s("div", al, " No custom nodes used in this workflow ")) : u("", !0),
+              (o(!0), s(H, null, oe(m.value.nodes, (F) => (o(), s("div", {
+                key: F.name,
                 class: "node-item"
               }, [
                 e("span", {
-                  class: ne(["node-status", V.status === "installed" ? "installed" : "missing"])
-                }, a(V.status === "installed" ? "✓" : "✕"), 3),
-                e("span", il, a(V.name), 1),
-                V.version ? (o(), s("span", rl, "v" + a(V.version), 1)) : d("", !0),
-                V.status === "missing" ? (o(), x(ie, {
+                  class: se(["node-status", F.status === "installed" ? "installed" : "missing"])
+                }, a(F.status === "installed" ? "✓" : "✕"), 3),
+                e("span", ll, a(F.name), 1),
+                F.version ? (o(), s("span", il, "v" + a(F.version), 1)) : u("", !0),
+                F.status === "missing" ? (o(), x(ie, {
                   key: 1,
                   variant: "primary",
                   size: "sm",
-                  loading: M.value[V.name],
-                  onClick: (W) => O(V.name),
+                  loading: E.value[F.name],
+                  onClick: (W) => V(F.name),
                   class: "node-install-btn"
                 }, {
-                  default: l(() => [...S[15] || (S[15] = [
+                  default: i(() => [...S[15] || (S[15] = [
                     y(" Install ", -1)
                   ])]),
                   _: 1
-                }, 8, ["loading", "onClick"])) : d("", !0)
+                }, 8, ["loading", "onClick"])) : u("", !0)
               ]))), 128))
             ])
-          ], 64)) : d("", !0)
+          ], 64)) : u("", !0)
         ]),
-        footer: l(() => [
-          f(ie, {
+        footer: i(() => [
+          g(ie, {
             variant: "secondary",
-            onClick: S[4] || (S[4] = (V) => r("close"))
+            onClick: S[4] || (S[4] = (F) => r("close"))
           }, {
-            default: l(() => [...S[16] || (S[16] = [
+            default: i(() => [...S[16] || (S[16] = [
               y(" Close ", -1)
             ])]),
             _: 1
@@ -2603,22 +2603,22 @@ const _a = { class: "base-modal-header" }, $a = {
           $.value ? (o(), x(ie, {
             key: 0,
             variant: "primary",
-            onClick: T
+            onClick: L
           }, {
-            default: l(() => [...S[17] || (S[17] = [
+            default: i(() => [...S[17] || (S[17] = [
               y(" Save Changes ", -1)
             ])]),
             _: 1
-          })) : d("", !0)
+          })) : u("", !0)
         ]),
         _: 1
       }, 8, ["title", "loading", "error"]),
-      f(je, {
+      g(je, {
         show: C.value,
         title: "Model Importance Levels",
-        onClose: S[6] || (S[6] = (V) => C.value = !1)
+        onClose: S[6] || (S[6] = (F) => C.value = !1)
       }, {
-        content: l(() => [...S[18] || (S[18] = [
+        content: i(() => [...S[18] || (S[18] = [
           e("ul", { class: "importance-info-list" }, [
             e("li", null, [
               e("strong", null, "Required"),
@@ -2638,18 +2638,18 @@ const _a = { class: "base-modal-header" }, $a = {
       }, 8, ["show"])
     ], 64));
   }
-}), cl = /* @__PURE__ */ Y(dl, [["__scopeId", "data-v-0b14d32e"]]), ve = Xt({
+}), dl = /* @__PURE__ */ Q(rl, [["__scopeId", "data-v-0b14d32e"]]), ve = Qt({
   items: [],
   status: "idle"
 });
 let Ve = null;
-function to() {
+function eo() {
   return `dl-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 }
 function Tt(t) {
   return ve.items.find((c) => c.id === t);
 }
-async function lt() {
+async function it() {
   if (ve.status === "downloading") return;
   const t = ve.items.find((c) => c.status === "queued");
   if (!t) {
@@ -2658,14 +2658,14 @@ async function lt() {
   }
   ve.status = "downloading", t.status = "downloading", t.progress = 0, t.downloaded = 0;
   try {
-    await ul(t), t.status = "completed", t.progress = 100;
+    await cl(t), t.status = "completed", t.progress = 100;
   } catch (c) {
     t.status = "failed", t.error = c instanceof Error ? c.message : "Download failed", t.retries++;
   } finally {
-    ve.status = "idle", lt();
+    ve.status = "idle", it();
   }
 }
-async function ul(t) {
+async function cl(t) {
   return new Promise((c, n) => {
     Ve && (Ve.close(), Ve = null);
     const r = new URLSearchParams({
@@ -2675,17 +2675,17 @@ async function ul(t) {
       workflow: t.workflow
     }), p = new EventSource(`/v2/comfygit/models/download-stream?${r}`);
     Ve = p;
-    let g = Date.now(), h = 0, v = !1;
-    p.onmessage = (i) => {
+    let f = Date.now(), h = 0, m = !1;
+    p.onmessage = (l) => {
       try {
-        const m = JSON.parse(i.data);
-        switch (m.type) {
+        const v = JSON.parse(l.data);
+        switch (v.type) {
           case "progress":
-            t.downloaded = m.downloaded || 0, t.size = m.total || t.size;
-            const $ = Date.now(), u = ($ - g) / 1e3;
-            if (u > 0.5) {
-              const M = t.downloaded - h;
-              if (t.speed = M / u, g = $, h = t.downloaded, t.speed > 0 && t.size > 0) {
+            t.downloaded = v.downloaded || 0, t.size = v.total || t.size;
+            const $ = Date.now(), d = ($ - f) / 1e3;
+            if (d > 0.5) {
+              const E = t.downloaded - h;
+              if (t.speed = E / d, f = $, h = t.downloaded, t.speed > 0 && t.size > 0) {
                 const C = t.size - t.downloaded;
                 t.eta = C / t.speed;
               }
@@ -2693,20 +2693,20 @@ async function ul(t) {
             t.size > 0 && (t.progress = Math.round(t.downloaded / t.size * 100));
             break;
           case "complete":
-            v = !0, p.close(), Ve = null, c();
+            m = !0, p.close(), Ve = null, c();
             break;
           case "error":
-            v = !0, p.close(), Ve = null, n(new Error(m.message || "Download failed"));
+            m = !0, p.close(), Ve = null, n(new Error(v.message || "Download failed"));
             break;
         }
       } catch {
       }
     }, p.onerror = () => {
-      p.close(), Ve = null, v || n(new Error("Connection lost"));
+      p.close(), Ve = null, m || n(new Error("Connection lost"));
     };
   });
 }
-async function ml() {
+async function ul() {
   try {
     const t = await fetch("/v2/comfygit/models/pending-downloads");
     if (!t.ok) return;
@@ -2716,7 +2716,7 @@ async function ml() {
       if (ve.items.some((p) => p.url === n.url && p.filename === n.filename))
         continue;
       const r = {
-        id: to(),
+        id: eo(),
         workflow: n.workflow,
         filename: n.filename,
         url: n.url,
@@ -2738,23 +2738,23 @@ async function ml() {
     console.warn("[ComfyGit] Failed to load pending downloads:", t);
   }
 }
-function xt() {
-  function t(_) {
-    for (const k of _) {
+function Ct() {
+  function t(k) {
+    for (const _ of k) {
       if (ve.items.some(
-        (j) => j.url === k.url && j.targetPath === k.targetPath && ["queued", "downloading", "paused", "completed"].includes(j.status)
+        (U) => U.url === _.url && U.targetPath === _.targetPath && ["queued", "downloading", "paused", "completed"].includes(U.status)
       )) {
-        console.log(`[ComfyGit] Skipping duplicate download: ${k.filename}`);
+        console.log(`[ComfyGit] Skipping duplicate download: ${_.filename}`);
         continue;
       }
-      const A = {
-        id: to(),
-        workflow: k.workflow,
-        filename: k.filename,
-        url: k.url,
-        targetPath: k.targetPath,
-        size: k.size || 0,
-        type: k.type || "model",
+      const N = {
+        id: eo(),
+        workflow: _.workflow,
+        filename: _.filename,
+        url: _.url,
+        targetPath: _.targetPath,
+        size: _.size || 0,
+        type: _.type || "model",
         status: "queued",
         progress: 0,
         downloaded: 0,
@@ -2762,77 +2762,77 @@ function xt() {
         eta: 0,
         retries: 0
       };
-      ve.items.push(A);
+      ve.items.push(N);
     }
-    ve.status === "idle" && lt();
+    ve.status === "idle" && it();
   }
-  async function c(_) {
-    const k = Tt(_);
-    if (k) {
-      if (k.status === "downloading") {
+  async function c(k) {
+    const _ = Tt(k);
+    if (_) {
+      if (_.status === "downloading") {
         try {
-          await fetch(`/v2/comfygit/models/download?url=${encodeURIComponent(k.url)}`, {
+          await fetch(`/v2/comfygit/models/download?url=${encodeURIComponent(_.url)}`, {
             method: "DELETE"
           });
         } catch {
         }
-        Ve && (Ve.close(), Ve = null), k.status = "failed", k.error = "Cancelled by user", ve.status = "idle", lt();
-      } else if (k.status === "queued") {
-        const R = ve.items.findIndex((A) => A.id === _);
-        R >= 0 && ve.items.splice(R, 1);
+        Ve && (Ve.close(), Ve = null), _.status = "failed", _.error = "Cancelled by user", ve.status = "idle", it();
+      } else if (_.status === "queued") {
+        const T = ve.items.findIndex((N) => N.id === k);
+        T >= 0 && ve.items.splice(T, 1);
       }
     }
   }
-  function n(_) {
-    const k = Tt(_);
-    !k || k.status !== "failed" || (k.status = "queued", k.error = void 0, k.progress = 0, k.downloaded = 0, ve.status === "idle" && lt());
+  function n(k) {
+    const _ = Tt(k);
+    !_ || _.status !== "failed" || (_.status = "queued", _.error = void 0, _.progress = 0, _.downloaded = 0, ve.status === "idle" && it());
   }
-  function r(_) {
-    const k = Tt(_);
-    !k || k.status !== "paused" || (k.status = "queued", ve.status === "idle" && lt());
+  function r(k) {
+    const _ = Tt(k);
+    !_ || _.status !== "paused" || (_.status = "queued", ve.status === "idle" && it());
   }
   function p() {
-    const _ = ve.items.filter((k) => k.status === "paused");
-    for (const k of _)
-      k.status = "queued";
-    ve.status === "idle" && lt();
+    const k = ve.items.filter((_) => _.status === "paused");
+    for (const _ of k)
+      _.status = "queued";
+    ve.status === "idle" && it();
   }
-  function g(_) {
-    const k = ve.items.findIndex((R) => R.id === _);
-    k >= 0 && ["completed", "failed", "paused"].includes(ve.items[k].status) && ve.items.splice(k, 1);
+  function f(k) {
+    const _ = ve.items.findIndex((T) => T.id === k);
+    _ >= 0 && ["completed", "failed", "paused"].includes(ve.items[_].status) && ve.items.splice(_, 1);
   }
   function h() {
-    ve.items = ve.items.filter((_) => _.status !== "completed");
+    ve.items = ve.items.filter((k) => k.status !== "completed");
   }
-  function v() {
-    ve.items = ve.items.filter((_) => _.status !== "failed");
+  function m() {
+    ve.items = ve.items.filter((k) => k.status !== "failed");
   }
-  const i = B(
-    () => ve.items.find((_) => _.status === "downloading")
-  ), m = B(
-    () => ve.items.filter((_) => _.status === "queued")
+  const l = B(
+    () => ve.items.find((k) => k.status === "downloading")
+  ), v = B(
+    () => ve.items.filter((k) => k.status === "queued")
   ), $ = B(
-    () => ve.items.filter((_) => _.status === "completed")
-  ), u = B(
-    () => ve.items.filter((_) => _.status === "failed")
-  ), M = B(
-    () => ve.items.filter((_) => _.status === "paused")
-  ), C = B(() => ve.items.length > 0), L = B(
-    () => ve.items.filter((_) => _.status === "queued" || _.status === "downloading").length
+    () => ve.items.filter((k) => k.status === "completed")
+  ), d = B(
+    () => ve.items.filter((k) => k.status === "failed")
+  ), E = B(
+    () => ve.items.filter((k) => k.status === "paused")
+  ), C = B(() => ve.items.length > 0), z = B(
+    () => ve.items.filter((k) => k.status === "queued" || k.status === "downloading").length
   ), w = B(
-    () => ve.items.some((_) => _.status === "paused")
+    () => ve.items.some((k) => k.status === "paused")
   );
   return {
     // State (readonly to prevent external mutations)
-    queue: ko(ve),
+    queue: wo(ve),
     // Computed
-    currentDownload: i,
-    queuedItems: m,
+    currentDownload: l,
+    queuedItems: v,
     completedItems: $,
-    failedItems: u,
-    pausedItems: M,
+    failedItems: d,
+    pausedItems: E,
     hasItems: C,
-    activeCount: L,
+    activeCount: z,
     hasPaused: w,
     // Actions
     addToQueue: t,
@@ -2840,217 +2840,217 @@ function xt() {
     retryDownload: n,
     resumeDownload: r,
     resumeAllPaused: p,
-    removeItem: g,
+    removeItem: f,
     clearCompleted: h,
-    clearFailed: v,
-    loadPendingDownloads: ml
+    clearFailed: m,
+    loadPendingDownloads: ul
   };
 }
-function vl() {
-  const t = b(null), c = b(null), n = b([]), r = b([]), p = b(!1), g = b(null);
-  async function h(k, R) {
-    var j;
-    if (!((j = window.app) != null && j.api))
+function ml() {
+  const t = b(null), c = b(null), n = b([]), r = b([]), p = b(!1), f = b(null);
+  async function h(_, T) {
+    var U;
+    if (!((U = window.app) != null && U.api))
       throw new Error("ComfyUI API not available");
-    const A = await window.app.api.fetchApi(k, R);
-    if (!A.ok) {
-      const K = await A.json().catch(() => ({})), P = K.error || K.message || `Request failed: ${A.status}`;
+    const N = await window.app.api.fetchApi(_, T);
+    if (!N.ok) {
+      const j = await N.json().catch(() => ({})), P = j.error || j.message || `Request failed: ${N.status}`;
       throw new Error(P);
     }
-    return A.json();
+    return N.json();
   }
-  async function v(k) {
-    p.value = !0, g.value = null;
+  async function m(_) {
+    p.value = !0, f.value = null;
     try {
-      let R;
-      return gt() || (R = await h(
-        `/v2/comfygit/workflow/${k}/analyze`,
+      let T;
+      return pt() || (T = await h(
+        `/v2/comfygit/workflow/${_}/analyze`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" }
         }
-      )), t.value = R, R;
-    } catch (R) {
-      const A = R instanceof Error ? R.message : "Unknown error occurred";
-      throw g.value = A, R;
+      )), t.value = T, T;
+    } catch (T) {
+      const N = T instanceof Error ? T.message : "Unknown error occurred";
+      throw f.value = N, T;
     } finally {
       p.value = !1;
     }
   }
-  async function i(k, R, A) {
-    p.value = !0, g.value = null;
+  async function l(_, T, N) {
+    p.value = !0, f.value = null;
     try {
-      let j;
-      if (!gt()) {
-        const K = Object.fromEntries(R), P = Object.fromEntries(A);
-        j = await h(
-          `/v2/comfygit/workflow/${k}/apply-resolution`,
+      let U;
+      if (!pt()) {
+        const j = Object.fromEntries(T), P = Object.fromEntries(N);
+        U = await h(
+          `/v2/comfygit/workflow/${_}/apply-resolution`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              node_choices: K,
+              node_choices: j,
               model_choices: P
             })
           }
         );
       }
-      return c.value = j, j;
-    } catch (j) {
-      const K = j instanceof Error ? j.message : "Unknown error occurred";
-      throw g.value = K, j;
+      return c.value = U, U;
+    } catch (U) {
+      const j = U instanceof Error ? U.message : "Unknown error occurred";
+      throw f.value = j, U;
     } finally {
       p.value = !1;
     }
   }
-  async function m(k, R = 10) {
-    p.value = !0, g.value = null;
+  async function v(_, T = 10) {
+    p.value = !0, f.value = null;
     try {
-      let A;
-      return gt() || (A = await h(
+      let N;
+      return pt() || (N = await h(
         "/v2/comfygit/workflow/search-nodes",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ query: k, limit: R })
+          body: JSON.stringify({ query: _, limit: T })
         }
-      )), n.value = A.results, A.results;
-    } catch (A) {
-      const j = A instanceof Error ? A.message : "Unknown error occurred";
-      throw g.value = j, A;
+      )), n.value = N.results, N.results;
+    } catch (N) {
+      const U = N instanceof Error ? N.message : "Unknown error occurred";
+      throw f.value = U, N;
     } finally {
       p.value = !1;
     }
   }
-  async function $(k, R = 10) {
-    p.value = !0, g.value = null;
+  async function $(_, T = 10) {
+    p.value = !0, f.value = null;
     try {
-      let A;
-      return gt() || (A = await h(
+      let N;
+      return pt() || (N = await h(
         "/v2/comfygit/workflow/search-models",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ query: k, limit: R })
+          body: JSON.stringify({ query: _, limit: T })
         }
-      )), r.value = A.results, A.results;
-    } catch (A) {
-      const j = A instanceof Error ? A.message : "Unknown error occurred";
-      throw g.value = j, A;
+      )), r.value = N.results, N.results;
+    } catch (N) {
+      const U = N instanceof Error ? N.message : "Unknown error occurred";
+      throw f.value = U, N;
     } finally {
       p.value = !1;
     }
   }
-  const u = Xt({
+  const d = Qt({
     phase: "idle",
     completedFiles: [],
     nodesToInstall: [],
     nodesInstalled: []
   });
-  function M() {
-    u.phase = "idle", u.currentFile = void 0, u.currentFileIndex = void 0, u.totalFiles = void 0, u.bytesDownloaded = void 0, u.bytesTotal = void 0, u.completedFiles = [], u.nodesToInstall = [], u.nodesInstalled = [], u.installError = void 0, u.needsRestart = void 0, u.error = void 0;
+  function E() {
+    d.phase = "idle", d.currentFile = void 0, d.currentFileIndex = void 0, d.totalFiles = void 0, d.bytesDownloaded = void 0, d.bytesTotal = void 0, d.completedFiles = [], d.nodesToInstall = [], d.nodesInstalled = [], d.installError = void 0, d.needsRestart = void 0, d.error = void 0;
   }
-  async function C(k) {
-    u.phase = "installing", u.nodesInstalled = [], u.installError = void 0;
+  async function C(_) {
+    d.phase = "installing", d.nodesInstalled = [], d.installError = void 0;
     try {
-      let R;
-      return gt() || (R = await h(
-        `/v2/comfygit/workflow/${k}/install`,
+      let T;
+      return pt() || (T = await h(
+        `/v2/comfygit/workflow/${_}/install`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" }
         }
-      )), u.nodesInstalled = R.nodes_installed, u.needsRestart = R.nodes_installed.length > 0, R;
-    } catch (R) {
-      const A = R instanceof Error ? R.message : "Failed to install nodes";
-      throw u.installError = A, R;
+      )), d.nodesInstalled = T.nodes_installed, d.needsRestart = T.nodes_installed.length > 0, T;
+    } catch (T) {
+      const N = T instanceof Error ? T.message : "Failed to install nodes";
+      throw d.installError = N, T;
     }
   }
-  async function L(k, R, A) {
-    M(), u.phase = "resolving", g.value = null;
-    const j = Object.fromEntries(R), K = Object.fromEntries(A);
+  async function z(_, T, N) {
+    E(), d.phase = "resolving", f.value = null;
+    const U = Object.fromEntries(T), j = Object.fromEntries(N);
     try {
-      const P = await fetch(`/v2/comfygit/workflow/${k}/apply-resolution-stream`, {
+      const P = await fetch(`/v2/comfygit/workflow/${_}/apply-resolution-stream`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          node_choices: j,
-          model_choices: K
+          node_choices: U,
+          model_choices: j
         })
       });
       if (!P.ok)
         throw new Error(`Request failed: ${P.status}`);
       if (!P.body)
         throw new Error("No response body");
-      const T = P.body.getReader(), O = new TextDecoder();
-      let z = "";
+      const L = P.body.getReader(), V = new TextDecoder();
+      let M = "";
       for (; ; ) {
-        const { done: S, value: V } = await T.read();
+        const { done: S, value: F } = await L.read();
         if (S) break;
-        z += O.decode(V, { stream: !0 });
-        const W = z.split(`
+        M += V.decode(F, { stream: !0 });
+        const W = M.split(`
 
 `);
-        z = W.pop() || "";
-        for (const X of W) {
-          if (!X.trim()) continue;
-          const oe = X.split(`
+        M = W.pop() || "";
+        for (const Y of W) {
+          if (!Y.trim()) continue;
+          const le = Y.split(`
 `);
-          let E = "", G = "";
-          for (const N of oe)
-            N.startsWith("event: ") ? E = N.slice(7) : N.startsWith("data: ") && (G = N.slice(6));
-          if (G)
+          let G = "", te = "";
+          for (const O of le)
+            O.startsWith("event: ") ? G = O.slice(7) : O.startsWith("data: ") && (te = O.slice(6));
+          if (te)
             try {
-              const N = JSON.parse(G);
-              w(E, N);
-            } catch (N) {
-              console.warn("Failed to parse SSE event:", N);
+              const O = JSON.parse(te);
+              w(G, O);
+            } catch (O) {
+              console.warn("Failed to parse SSE event:", O);
             }
         }
       }
     } catch (P) {
-      const T = P instanceof Error ? P.message : "Unknown error occurred";
-      throw g.value = T, u.error = T, u.phase = "error", P;
+      const L = P instanceof Error ? P.message : "Unknown error occurred";
+      throw f.value = L, d.error = L, d.phase = "error", P;
     }
   }
-  function w(k, R) {
-    switch (k) {
+  function w(_, T) {
+    switch (_) {
       case "batch_start":
-        u.phase = "downloading", u.totalFiles = R.total;
+        d.phase = "downloading", d.totalFiles = T.total;
         break;
       case "file_start":
-        u.currentFile = R.filename, u.currentFileIndex = R.index, u.bytesDownloaded = 0, u.bytesTotal = void 0;
+        d.currentFile = T.filename, d.currentFileIndex = T.index, d.bytesDownloaded = 0, d.bytesTotal = void 0;
         break;
       case "file_progress":
-        u.bytesDownloaded = R.downloaded, u.bytesTotal = R.total;
+        d.bytesDownloaded = T.downloaded, d.bytesTotal = T.total;
         break;
       case "file_complete":
-        u.completedFiles.push({
-          filename: R.filename,
-          success: R.success,
-          error: R.error
+        d.completedFiles.push({
+          filename: T.filename,
+          success: T.success,
+          error: T.error
         });
         break;
       case "batch_complete":
         break;
       case "done":
-        u.nodesToInstall = R.nodes_to_install || [], R.download_results && (u.completedFiles = R.download_results), u.phase = "complete";
+        d.nodesToInstall = T.nodes_to_install || [], T.download_results && (d.completedFiles = T.download_results), d.phase = "complete";
         break;
       case "error":
-        u.error = R.message, u.phase = "error", g.value = R.message;
+        d.error = T.message, d.phase = "error", f.value = T.message;
         break;
     }
   }
-  function _(k, R) {
-    const { addToQueue: A } = xt(), j = R.filter((K) => K.url && K.target_path).map((K) => ({
-      workflow: k,
-      filename: K.filename,
-      url: K.url,
-      targetPath: K.target_path,
-      size: K.size || 0,
+  function k(_, T) {
+    const { addToQueue: N } = Ct(), U = T.filter((j) => j.url && j.target_path).map((j) => ({
+      workflow: _,
+      filename: j.filename,
+      url: j.url,
+      targetPath: j.target_path,
+      size: j.size || 0,
       type: "model"
     }));
-    return j.length > 0 && A(j), j.length;
+    return U.length > 0 && N(U), U.length;
   }
   return {
     // State
@@ -3059,29 +3059,29 @@ function vl() {
     searchResults: n,
     modelSearchResults: r,
     isLoading: p,
-    error: g,
-    progress: u,
+    error: f,
+    progress: d,
     // Methods
-    analyzeWorkflow: v,
-    applyResolution: i,
-    applyResolutionWithProgress: L,
+    analyzeWorkflow: m,
+    applyResolution: l,
+    applyResolutionWithProgress: z,
     installNodes: C,
-    searchNodes: m,
+    searchNodes: v,
     searchModels: $,
-    resetProgress: M,
-    queueModelDownloads: _
+    resetProgress: E,
+    queueModelDownloads: k
   };
 }
-const fl = { class: "resolution-stepper" }, gl = { class: "stepper-header" }, pl = ["onClick"], hl = {
+const vl = { class: "resolution-stepper" }, fl = { class: "stepper-header" }, gl = ["onClick"], pl = {
   key: 0,
   class: "step-icon"
-}, yl = {
+}, hl = {
   key: 1,
   class: "step-number"
-}, wl = { class: "step-label" }, kl = {
+}, yl = { class: "step-label" }, wl = {
   key: 0,
   class: "step-connector"
-}, bl = { class: "stepper-content" }, _l = /* @__PURE__ */ Q({
+}, kl = { class: "stepper-content" }, bl = /* @__PURE__ */ J({
   __name: "ResolutionStepper",
   props: {
     steps: {},
@@ -3092,58 +3092,58 @@ const fl = { class: "resolution-stepper" }, gl = { class: "stepper-header" }, pl
   emits: ["step-change"],
   setup(t, { emit: c }) {
     const n = t, r = c;
-    function p(m) {
+    function p(v) {
       var $;
-      if (($ = n.stepStats) != null && $[m]) {
-        const u = n.stepStats[m];
-        return u.total > 0 && u.resolved === u.total;
+      if (($ = n.stepStats) != null && $[v]) {
+        const d = n.stepStats[v];
+        return d.total > 0 && d.resolved === d.total;
       }
-      return n.completedSteps.includes(m);
+      return n.completedSteps.includes(v);
     }
-    function g(m) {
+    function f(v) {
       var $;
-      if (($ = n.stepStats) != null && $[m]) {
-        const u = n.stepStats[m];
-        return u.resolved > 0 && u.resolved < u.total;
+      if (($ = n.stepStats) != null && $[v]) {
+        const d = n.stepStats[v];
+        return d.resolved > 0 && d.resolved < d.total;
       }
       return !1;
     }
-    function h(m) {
-      return p(m) ? "state-complete" : g(m) ? "state-partial" : "state-pending";
+    function h(v) {
+      return p(v) ? "state-complete" : f(v) ? "state-partial" : "state-pending";
     }
-    function v(m) {
+    function m(v) {
       return !1;
     }
-    function i(m) {
-      r("step-change", m);
+    function l(v) {
+      r("step-change", v);
     }
-    return (m, $) => (o(), s("div", fl, [
-      e("div", gl, [
-        (o(!0), s(H, null, se(t.steps, (u, M) => (o(), s("div", {
-          key: u.id,
-          class: ne(["step", {
-            active: t.currentStep === u.id,
-            completed: p(u.id),
-            "in-progress": g(u.id),
-            disabled: v(u.id)
+    return (v, $) => (o(), s("div", vl, [
+      e("div", fl, [
+        (o(!0), s(H, null, oe(t.steps, (d, E) => (o(), s("div", {
+          key: d.id,
+          class: se(["step", {
+            active: t.currentStep === d.id,
+            completed: p(d.id),
+            "in-progress": f(d.id),
+            disabled: m(d.id)
           }]),
-          onClick: (C) => i(u.id)
+          onClick: (C) => l(d.id)
         }, [
           e("div", {
-            class: ne(["step-indicator", h(u.id)])
+            class: se(["step-indicator", h(d.id)])
           }, [
-            p(u.id) ? (o(), s("span", hl, "✓")) : (o(), s("span", yl, a(M + 1), 1))
+            p(d.id) ? (o(), s("span", pl, "✓")) : (o(), s("span", hl, a(E + 1), 1))
           ], 2),
-          e("div", wl, a(u.label), 1),
-          M < t.steps.length - 1 ? (o(), s("div", kl)) : d("", !0)
-        ], 10, pl))), 128))
+          e("div", yl, a(d.label), 1),
+          E < t.steps.length - 1 ? (o(), s("div", wl)) : u("", !0)
+        ], 10, gl))), 128))
       ]),
-      e("div", bl, [
-        ue(m.$slots, "default", {}, void 0, !0)
+      e("div", kl, [
+        ue(v.$slots, "default", {}, void 0, !0)
       ])
     ]));
   }
-}), $l = /* @__PURE__ */ Y(_l, [["__scopeId", "data-v-2a7b3af8"]]), Cl = /* @__PURE__ */ Q({
+}), _l = /* @__PURE__ */ Q(bl, [["__scopeId", "data-v-2a7b3af8"]]), $l = /* @__PURE__ */ J({
   __name: "ConfidenceBadge",
   props: {
     confidence: {},
@@ -3152,26 +3152,26 @@ const fl = { class: "resolution-stepper" }, gl = { class: "stepper-header" }, pl
   },
   setup(t) {
     const c = t, n = B(() => c.confidence >= 0.9 ? "high" : c.confidence >= 0.7 ? "medium" : "low"), r = B(() => `confidence-${n.value}`), p = B(() => c.showPercentage ? `${Math.round(c.confidence * 100)}%` : n.value.charAt(0).toUpperCase() + n.value.slice(1));
-    return (g, h) => (o(), s("span", {
-      class: ne(["confidence-badge", r.value, t.size])
+    return (f, h) => (o(), s("span", {
+      class: se(["confidence-badge", r.value, t.size])
     }, a(p.value), 3));
   }
-}), Ft = /* @__PURE__ */ Y(Cl, [["__scopeId", "data-v-17ec4b80"]]), xl = { class: "node-info" }, Sl = { class: "node-info-text" }, Il = { class: "item-body" }, El = {
+}), At = /* @__PURE__ */ Q($l, [["__scopeId", "data-v-17ec4b80"]]), Cl = { class: "node-info" }, xl = { class: "node-info-text" }, Sl = { class: "item-body" }, Il = {
   key: 0,
   class: "resolved-state"
-}, Ml = {
+}, El = {
   key: 1,
   class: "multiple-options"
-}, zl = { class: "options-list" }, Ll = ["onClick"], Tl = ["name", "value", "checked", "onChange"], Dl = { class: "option-content" }, Rl = { class: "option-header" }, Nl = { class: "option-package-id" }, Ul = {
+}, Ml = { class: "options-list" }, zl = ["onClick"], Ll = ["name", "value", "checked", "onChange"], Tl = { class: "option-content" }, Dl = { class: "option-header" }, Rl = { class: "option-package-id" }, Nl = {
   key: 0,
   class: "option-title"
-}, Ol = { class: "option-meta" }, Bl = {
+}, Ol = { class: "option-meta" }, Ul = {
   key: 0,
   class: "installed-badge"
-}, Pl = { class: "action-buttons" }, Vl = {
+}, Bl = { class: "action-buttons" }, Pl = {
   key: 2,
   class: "unresolved"
-}, Fl = { class: "action-buttons" }, Al = /* @__PURE__ */ Q({
+}, Vl = { class: "action-buttons" }, Al = /* @__PURE__ */ J({
   __name: "NodeResolutionItem",
   props: {
     nodeType: {},
@@ -3195,13 +3195,13 @@ const fl = { class: "resolution-stepper" }, gl = { class: "stepper-header" }, pl
   setup(t, { emit: c }) {
     const n = t, r = c, p = B(() => !!n.choice);
     B(() => {
-      var v;
-      return (v = n.choice) == null ? void 0 : v.action;
+      var m;
+      return (m = n.choice) == null ? void 0 : m.action;
     }), B(() => {
-      var v;
-      return (v = n.choice) == null ? void 0 : v.package_id;
+      var m;
+      return (m = n.choice) == null ? void 0 : m.package_id;
     });
-    const g = B(() => {
+    const f = B(() => {
       switch (n.status) {
         case "not-found":
           return "unresolved";
@@ -3217,128 +3217,128 @@ const fl = { class: "resolution-stepper" }, gl = { class: "stepper-header" }, pl
           return "unresolved";
       }
     });
-    function h(v) {
-      r("option-selected", v);
+    function h(m) {
+      r("option-selected", m);
     }
-    return (v, i) => (o(), s("div", {
-      class: ne(["node-resolution-item", { selected: t.isSelected, ambiguous: t.hasMultipleOptions, resolved: p.value }])
+    return (m, l) => (o(), s("div", {
+      class: se(["node-resolution-item", { selected: t.isSelected, ambiguous: t.hasMultipleOptions, resolved: p.value }])
     }, [
-      e("div", xl, [
-        e("span", Sl, [
-          i[7] || (i[7] = y("Node type: ", -1)),
+      e("div", Cl, [
+        e("span", xl, [
+          l[7] || (l[7] = y("Node type: ", -1)),
           e("code", null, a(t.nodeType), 1)
         ]),
         t.statusLabel ? (o(), s("span", {
           key: 0,
-          class: ne(["status-badge", g.value])
-        }, a(t.statusLabel), 3)) : d("", !0)
+          class: se(["status-badge", f.value])
+        }, a(t.statusLabel), 3)) : u("", !0)
       ]),
-      e("div", Il, [
-        p.value ? (o(), s("div", El, [
-          f(ie, {
+      e("div", Sl, [
+        p.value ? (o(), s("div", Il, [
+          g(ie, {
             variant: "ghost",
             size: "sm",
-            onClick: i[0] || (i[0] = (m) => r("clear-choice"))
+            onClick: l[0] || (l[0] = (v) => r("clear-choice"))
           }, {
-            default: l(() => [...i[8] || (i[8] = [
+            default: i(() => [...l[8] || (l[8] = [
               y(" Change Selection ", -1)
             ])]),
             _: 1
           })
-        ])) : t.hasMultipleOptions && t.options ? (o(), s("div", Ml, [
-          i[12] || (i[12] = e("p", { class: "options-prompt" }, "Select a package to install:", -1)),
-          e("div", zl, [
-            (o(!0), s(H, null, se(t.options, (m, $) => (o(), s("label", {
-              key: m.package_id,
-              class: ne(["option-card", { selected: t.selectedOptionIndex === $ }]),
-              onClick: (u) => h($)
+        ])) : t.hasMultipleOptions && t.options ? (o(), s("div", El, [
+          l[12] || (l[12] = e("p", { class: "options-prompt" }, "Select a package to install:", -1)),
+          e("div", Ml, [
+            (o(!0), s(H, null, oe(t.options, (v, $) => (o(), s("label", {
+              key: v.package_id,
+              class: se(["option-card", { selected: t.selectedOptionIndex === $ }]),
+              onClick: (d) => h($)
             }, [
               e("input", {
                 type: "radio",
                 name: `node-option-${t.nodeType}`,
                 value: $,
                 checked: t.selectedOptionIndex === $,
-                onChange: (u) => h($)
-              }, null, 40, Tl),
-              e("div", Dl, [
-                e("div", Rl, [
-                  e("span", Nl, a(m.package_id), 1),
-                  f(Ft, {
-                    confidence: m.match_confidence,
+                onChange: (d) => h($)
+              }, null, 40, Ll),
+              e("div", Tl, [
+                e("div", Dl, [
+                  e("span", Rl, a(v.package_id), 1),
+                  g(At, {
+                    confidence: v.match_confidence,
                     size: "sm"
                   }, null, 8, ["confidence"])
                 ]),
-                m.title && m.title !== m.package_id ? (o(), s("div", Ul, a(m.title), 1)) : d("", !0),
+                v.title && v.title !== v.package_id ? (o(), s("div", Nl, a(v.title), 1)) : u("", !0),
                 e("div", Ol, [
-                  m.is_installed ? (o(), s("span", Bl, "Already Installed")) : d("", !0)
+                  v.is_installed ? (o(), s("span", Ul, "Already Installed")) : u("", !0)
                 ])
               ])
-            ], 10, Ll))), 128))
+            ], 10, zl))), 128))
           ]),
-          e("div", Pl, [
-            f(ie, {
+          e("div", Bl, [
+            g(ie, {
               variant: "ghost",
               size: "sm",
-              onClick: i[1] || (i[1] = (m) => r("search"))
+              onClick: l[1] || (l[1] = (v) => r("search"))
             }, {
-              default: l(() => [...i[9] || (i[9] = [
+              default: i(() => [...l[9] || (l[9] = [
                 y(" Search Registry ", -1)
               ])]),
               _: 1
             }),
-            f(ie, {
+            g(ie, {
               variant: "ghost",
               size: "sm",
-              onClick: i[2] || (i[2] = (m) => r("manual-entry"))
+              onClick: l[2] || (l[2] = (v) => r("manual-entry"))
             }, {
-              default: l(() => [...i[10] || (i[10] = [
+              default: i(() => [...l[10] || (l[10] = [
                 y(" Enter Manually ", -1)
               ])]),
               _: 1
             }),
-            f(ie, {
+            g(ie, {
               variant: "secondary",
               size: "sm",
-              onClick: i[3] || (i[3] = (m) => r("mark-optional"))
+              onClick: l[3] || (l[3] = (v) => r("mark-optional"))
             }, {
-              default: l(() => [...i[11] || (i[11] = [
+              default: i(() => [...l[11] || (l[11] = [
                 y(" Mark Optional ", -1)
               ])]),
               _: 1
             })
           ])
-        ])) : (o(), s("div", Vl, [
-          i[16] || (i[16] = e("div", { class: "unresolved-message" }, [
+        ])) : (o(), s("div", Pl, [
+          l[16] || (l[16] = e("div", { class: "unresolved-message" }, [
             e("span", { class: "warning-icon" }, "⚠"),
             e("span", null, "No matching package found in registry")
           ], -1)),
-          e("div", Fl, [
-            f(ie, {
+          e("div", Vl, [
+            g(ie, {
               variant: "primary",
               size: "sm",
-              onClick: i[4] || (i[4] = (m) => r("search"))
+              onClick: l[4] || (l[4] = (v) => r("search"))
             }, {
-              default: l(() => [...i[13] || (i[13] = [
+              default: i(() => [...l[13] || (l[13] = [
                 y(" Search Registry ", -1)
               ])]),
               _: 1
             }),
-            f(ie, {
+            g(ie, {
               variant: "secondary",
               size: "sm",
-              onClick: i[5] || (i[5] = (m) => r("manual-entry"))
+              onClick: l[5] || (l[5] = (v) => r("manual-entry"))
             }, {
-              default: l(() => [...i[14] || (i[14] = [
+              default: i(() => [...l[14] || (l[14] = [
                 y(" Enter Manually ", -1)
               ])]),
               _: 1
             }),
-            f(ie, {
+            g(ie, {
               variant: "secondary",
               size: "sm",
-              onClick: i[6] || (i[6] = (m) => r("mark-optional"))
+              onClick: l[6] || (l[6] = (v) => r("mark-optional"))
             }, {
-              default: l(() => [...i[15] || (i[15] = [
+              default: i(() => [...l[15] || (l[15] = [
                 y(" Mark Optional ", -1)
               ])]),
               _: 1
@@ -3348,7 +3348,7 @@ const fl = { class: "resolution-stepper" }, gl = { class: "stepper-header" }, pl
       ])
     ], 2));
   }
-}), Wl = /* @__PURE__ */ Y(Al, [["__scopeId", "data-v-e02629e7"]]), Gl = { class: "item-navigator" }, jl = { class: "nav-item-info" }, Hl = ["title"], ql = { class: "nav-controls" }, Kl = { class: "nav-arrows" }, Jl = ["disabled"], Ql = ["disabled"], Yl = { class: "nav-position" }, Xl = /* @__PURE__ */ Q({
+}), Fl = /* @__PURE__ */ Q(Al, [["__scopeId", "data-v-e02629e7"]]), Wl = { class: "item-navigator" }, Gl = { class: "nav-item-info" }, jl = ["title"], Hl = { class: "nav-controls" }, ql = { class: "nav-arrows" }, Kl = ["disabled"], Jl = ["disabled"], Ql = { class: "nav-position" }, Yl = /* @__PURE__ */ J({
   __name: "ItemNavigator",
   props: {
     itemName: {},
@@ -3358,36 +3358,36 @@ const fl = { class: "resolution-stepper" }, gl = { class: "stepper-header" }, pl
   emits: ["prev", "next"],
   setup(t, { emit: c }) {
     const n = c;
-    return (r, p) => (o(), s("div", Gl, [
-      e("div", jl, [
+    return (r, p) => (o(), s("div", Wl, [
+      e("div", Gl, [
         e("code", {
           class: "item-name",
           title: t.itemName
-        }, a(t.itemName), 9, Hl)
+        }, a(t.itemName), 9, jl)
       ]),
-      e("div", ql, [
-        e("div", Kl, [
+      e("div", Hl, [
+        e("div", ql, [
           e("button", {
             class: "nav-arrow",
             disabled: t.currentIndex === 0,
-            onClick: p[0] || (p[0] = (g) => n("prev")),
+            onClick: p[0] || (p[0] = (f) => n("prev")),
             title: "Previous item"
-          }, " ← ", 8, Jl),
+          }, " ← ", 8, Kl),
           e("button", {
             class: "nav-arrow",
             disabled: t.currentIndex === t.totalItems - 1,
-            onClick: p[1] || (p[1] = (g) => n("next")),
+            onClick: p[1] || (p[1] = (f) => n("next")),
             title: "Next item"
-          }, " → ", 8, Ql)
+          }, " → ", 8, Jl)
         ]),
-        e("span", Yl, a(t.currentIndex + 1) + "/" + a(t.totalItems), 1)
+        e("span", Ql, a(t.currentIndex + 1) + "/" + a(t.totalItems), 1)
       ])
     ]));
   }
-}), oo = /* @__PURE__ */ Y(Xl, [["__scopeId", "data-v-74af7920"]]), Zl = ["type", "value", "placeholder", "disabled"], ei = {
+}), to = /* @__PURE__ */ Q(Yl, [["__scopeId", "data-v-74af7920"]]), Xl = ["type", "value", "placeholder", "disabled"], Zl = {
   key: 0,
   class: "base-input-error"
-}, ti = /* @__PURE__ */ Q({
+}, ei = /* @__PURE__ */ J({
   __name: "BaseInput",
   props: {
     modelValue: {},
@@ -3400,42 +3400,42 @@ const fl = { class: "resolution-stepper" }, gl = { class: "stepper-header" }, pl
   emits: ["update:modelValue", "enter", "escape"],
   setup(t) {
     return (c, n) => (o(), s("div", {
-      class: ne(["base-input-wrapper", { "full-width": t.fullWidth, error: !!t.error }])
+      class: se(["base-input-wrapper", { "full-width": t.fullWidth, error: !!t.error }])
     }, [
       e("input", {
         type: t.type,
         value: t.modelValue,
         placeholder: t.placeholder,
         disabled: t.disabled,
-        class: ne(["base-input", { error: !!t.error }]),
+        class: se(["base-input", { error: !!t.error }]),
         onInput: n[0] || (n[0] = (r) => c.$emit("update:modelValue", r.target.value)),
         onKeyup: [
           n[1] || (n[1] = Je((r) => c.$emit("enter"), ["enter"])),
           n[2] || (n[2] = Je((r) => c.$emit("escape"), ["escape"]))
         ]
-      }, null, 42, Zl),
-      t.error ? (o(), s("span", ei, a(t.error), 1)) : d("", !0)
+      }, null, 42, Xl),
+      t.error ? (o(), s("span", Zl, a(t.error), 1)) : u("", !0)
     ], 2));
   }
-}), Ne = /* @__PURE__ */ Y(ti, [["__scopeId", "data-v-9ba02cdc"]]), oi = { class: "node-resolution-step" }, si = { class: "step-header" }, ni = { class: "stat-badge" }, ai = {
+}), Ne = /* @__PURE__ */ Q(ei, [["__scopeId", "data-v-9ba02cdc"]]), ti = { class: "node-resolution-step" }, oi = { class: "step-header" }, si = { class: "stat-badge" }, ni = {
   key: 1,
   class: "step-body"
-}, li = {
+}, ai = {
   key: 2,
   class: "empty-state"
-}, ii = { class: "node-search-modal" }, ri = { class: "node-modal-body" }, di = {
+}, li = { class: "node-search-modal" }, ii = { class: "node-modal-body" }, ri = {
   key: 0,
   class: "node-search-results"
-}, ci = ["onClick"], ui = { class: "node-result-header" }, mi = { class: "node-result-package-id" }, vi = {
+}, di = ["onClick"], ci = { class: "node-result-header" }, ui = { class: "node-result-package-id" }, mi = {
   key: 0,
   class: "node-result-description"
-}, fi = {
+}, vi = {
   key: 1,
   class: "node-no-results"
-}, gi = {
+}, fi = {
   key: 2,
   class: "node-searching"
-}, pi = { class: "node-manual-entry-modal" }, hi = { class: "node-modal-body" }, yi = { class: "node-modal-actions" }, wi = /* @__PURE__ */ Q({
+}, gi = { class: "node-manual-entry-modal" }, pi = { class: "node-modal-body" }, hi = { class: "node-modal-actions" }, yi = /* @__PURE__ */ J({
   __name: "NodeResolutionStep",
   props: {
     nodes: {},
@@ -3443,12 +3443,12 @@ const fl = { class: "resolution-stepper" }, gl = { class: "stepper-header" }, pl
   },
   emits: ["mark-optional", "skip", "option-selected", "manual-entry", "clear-choice"],
   setup(t, { emit: c }) {
-    const n = t, r = c, p = b(0), g = b(!1), h = b(!1), v = b(""), i = b(""), m = b([]), $ = b(!1), u = B(() => n.nodes[p.value]), M = B(() => n.nodes.filter((V) => n.nodeChoices.has(V.node_type)).length), C = B(() => {
+    const n = t, r = c, p = b(0), f = b(!1), h = b(!1), m = b(""), l = b(""), v = b([]), $ = b(!1), d = B(() => n.nodes[p.value]), E = B(() => n.nodes.filter((F) => n.nodeChoices.has(F.node_type)).length), C = B(() => {
       var W;
-      if (!u.value) return "not-found";
-      const V = n.nodeChoices.get(u.value.node_type);
-      if (V)
-        switch (V.action) {
+      if (!d.value) return "not-found";
+      const F = n.nodeChoices.get(d.value.node_type);
+      if (F)
+        switch (F.action) {
           case "install":
             return "install";
           case "optional":
@@ -3456,103 +3456,103 @@ const fl = { class: "resolution-stepper" }, gl = { class: "stepper-header" }, pl
           case "skip":
             return "skip";
         }
-      return (W = u.value.options) != null && W.length ? "ambiguous" : "not-found";
-    }), L = B(() => {
+      return (W = d.value.options) != null && W.length ? "ambiguous" : "not-found";
+    }), z = B(() => {
       var W;
-      if (!u.value) return;
-      const V = n.nodeChoices.get(u.value.node_type);
-      if (V)
-        switch (V.action) {
+      if (!d.value) return;
+      const F = n.nodeChoices.get(d.value.node_type);
+      if (F)
+        switch (F.action) {
           case "install":
-            return V.package_id ? `→ ${V.package_id}` : "Installing";
+            return F.package_id ? `→ ${F.package_id}` : "Installing";
           case "optional":
             return "Optional";
           case "skip":
             return "Skipped";
         }
-      return (W = u.value.options) != null && W.length ? `${u.value.options.length} matches` : "Not Found";
+      return (W = d.value.options) != null && W.length ? `${d.value.options.length} matches` : "Not Found";
     });
-    function w(V) {
-      V >= 0 && V < n.nodes.length && (p.value = V);
-    }
-    function _() {
-      u.value && r("mark-optional", u.value.node_type);
+    function w(F) {
+      F >= 0 && F < n.nodes.length && (p.value = F);
     }
     function k() {
-      u.value && r("skip", u.value.node_type);
+      d.value && r("mark-optional", d.value.node_type);
     }
-    function R(V) {
-      u.value && r("option-selected", u.value.node_type, V);
+    function _() {
+      d.value && r("skip", d.value.node_type);
     }
-    function A() {
-      u.value && r("clear-choice", u.value.node_type);
+    function T(F) {
+      d.value && r("option-selected", d.value.node_type, F);
+    }
+    function N() {
+      d.value && r("clear-choice", d.value.node_type);
+    }
+    function U() {
+      d.value && (m.value = d.value.node_type, f.value = !0);
     }
     function j() {
-      u.value && (v.value = u.value.node_type, g.value = !0);
-    }
-    function K() {
-      i.value = "", h.value = !0;
+      l.value = "", h.value = !0;
     }
     function P() {
-      g.value = !1, v.value = "", m.value = [];
+      f.value = !1, m.value = "", v.value = [];
     }
-    function T() {
-      h.value = !1, i.value = "";
+    function L() {
+      h.value = !1, l.value = "";
     }
-    function O() {
+    function V() {
       $.value = !0, setTimeout(() => {
         $.value = !1;
       }, 300);
     }
-    function z(V) {
-      u.value && (r("manual-entry", u.value.node_type, V.package_id), P());
+    function M(F) {
+      d.value && (r("manual-entry", d.value.node_type, F.package_id), P());
     }
     function S() {
-      !u.value || !i.value.trim() || (r("manual-entry", u.value.node_type, i.value.trim()), T());
+      !d.value || !l.value.trim() || (r("manual-entry", d.value.node_type, l.value.trim()), L());
     }
-    return (V, W) => {
-      var X, oe;
-      return o(), s("div", oi, [
-        e("div", si, [
+    return (F, W) => {
+      var Y, le;
+      return o(), s("div", ti, [
+        e("div", oi, [
           W[4] || (W[4] = e("div", { class: "step-info" }, [
             e("h3", { class: "step-title" }, "Resolve Missing Nodes"),
             e("p", { class: "step-description" }, " Browse unresolved nodes and choose how to handle each one. Unaddressed items will be skipped. ")
           ], -1)),
-          e("span", ni, a(M.value) + "/" + a(t.nodes.length) + " resolved", 1)
+          e("span", si, a(E.value) + "/" + a(t.nodes.length) + " resolved", 1)
         ]),
-        u.value ? (o(), x(oo, {
+        d.value ? (o(), x(to, {
           key: 0,
-          "item-name": u.value.node_type,
+          "item-name": d.value.node_type,
           "current-index": p.value,
           "total-items": t.nodes.length,
-          onPrev: W[0] || (W[0] = (E) => w(p.value - 1)),
-          onNext: W[1] || (W[1] = (E) => w(p.value + 1))
-        }, null, 8, ["item-name", "current-index", "total-items"])) : d("", !0),
-        u.value ? (o(), s("div", ai, [
-          f(Wl, {
-            "node-type": u.value.node_type,
-            "has-multiple-options": !!((X = u.value.options) != null && X.length),
-            options: u.value.options,
-            choice: (oe = t.nodeChoices) == null ? void 0 : oe.get(u.value.node_type),
+          onPrev: W[0] || (W[0] = (G) => w(p.value - 1)),
+          onNext: W[1] || (W[1] = (G) => w(p.value + 1))
+        }, null, 8, ["item-name", "current-index", "total-items"])) : u("", !0),
+        d.value ? (o(), s("div", ni, [
+          g(Fl, {
+            "node-type": d.value.node_type,
+            "has-multiple-options": !!((Y = d.value.options) != null && Y.length),
+            options: d.value.options,
+            choice: (le = t.nodeChoices) == null ? void 0 : le.get(d.value.node_type),
             status: C.value,
-            "status-label": L.value,
-            onMarkOptional: _,
-            onSkip: k,
-            onManualEntry: K,
-            onSearch: j,
-            onOptionSelected: R,
-            onClearChoice: A
+            "status-label": z.value,
+            onMarkOptional: k,
+            onSkip: _,
+            onManualEntry: j,
+            onSearch: U,
+            onOptionSelected: T,
+            onClearChoice: N
           }, null, 8, ["node-type", "has-multiple-options", "options", "choice", "status", "status-label"])
-        ])) : (o(), s("div", li, [...W[5] || (W[5] = [
+        ])) : (o(), s("div", ai, [...W[5] || (W[5] = [
           e("p", null, "No nodes need resolution.", -1)
         ])])),
-        (o(), x(xe, { to: "body" }, [
-          g.value ? (o(), s("div", {
+        (o(), x(Se, { to: "body" }, [
+          f.value ? (o(), s("div", {
             key: 0,
             class: "node-resolution-modal-overlay",
             onClick: ke(P, ["self"])
           }, [
-            e("div", ii, [
+            e("div", li, [
               e("div", { class: "node-modal-header" }, [
                 W[6] || (W[6] = e("h4", null, "Search Node Packages", -1)),
                 e("button", {
@@ -3560,72 +3560,72 @@ const fl = { class: "resolution-stepper" }, gl = { class: "stepper-header" }, pl
                   onClick: P
                 }, "✕")
               ]),
-              e("div", ri, [
-                f(Ne, {
-                  modelValue: v.value,
-                  "onUpdate:modelValue": W[2] || (W[2] = (E) => v.value = E),
+              e("div", ii, [
+                g(Ne, {
+                  modelValue: m.value,
+                  "onUpdate:modelValue": W[2] || (W[2] = (G) => m.value = G),
                   placeholder: "Search by node type, package name...",
-                  onInput: O
+                  onInput: V
                 }, null, 8, ["modelValue"]),
-                m.value.length > 0 ? (o(), s("div", di, [
-                  (o(!0), s(H, null, se(m.value, (E) => (o(), s("div", {
-                    key: E.package_id,
+                v.value.length > 0 ? (o(), s("div", ri, [
+                  (o(!0), s(H, null, oe(v.value, (G) => (o(), s("div", {
+                    key: G.package_id,
                     class: "node-search-result-item",
-                    onClick: (G) => z(E)
+                    onClick: (te) => M(G)
                   }, [
-                    e("div", ui, [
-                      e("code", mi, a(E.package_id), 1),
-                      E.match_confidence ? (o(), x(Ft, {
+                    e("div", ci, [
+                      e("code", ui, a(G.package_id), 1),
+                      G.match_confidence ? (o(), x(At, {
                         key: 0,
-                        confidence: E.match_confidence,
+                        confidence: G.match_confidence,
                         size: "sm"
-                      }, null, 8, ["confidence"])) : d("", !0)
+                      }, null, 8, ["confidence"])) : u("", !0)
                     ]),
-                    E.description ? (o(), s("div", vi, a(E.description), 1)) : d("", !0)
-                  ], 8, ci))), 128))
-                ])) : v.value && !$.value ? (o(), s("div", fi, ' No packages found matching "' + a(v.value) + '" ', 1)) : d("", !0),
-                $.value ? (o(), s("div", gi, "Searching...")) : d("", !0)
+                    G.description ? (o(), s("div", mi, a(G.description), 1)) : u("", !0)
+                  ], 8, di))), 128))
+                ])) : m.value && !$.value ? (o(), s("div", vi, ' No packages found matching "' + a(m.value) + '" ', 1)) : u("", !0),
+                $.value ? (o(), s("div", fi, "Searching...")) : u("", !0)
               ])
             ])
-          ])) : d("", !0)
+          ])) : u("", !0)
         ])),
-        (o(), x(xe, { to: "body" }, [
+        (o(), x(Se, { to: "body" }, [
           h.value ? (o(), s("div", {
             key: 0,
             class: "node-resolution-modal-overlay",
-            onClick: ke(T, ["self"])
+            onClick: ke(L, ["self"])
           }, [
-            e("div", pi, [
+            e("div", gi, [
               e("div", { class: "node-modal-header" }, [
                 W[7] || (W[7] = e("h4", null, "Enter Package Manually", -1)),
                 e("button", {
                   class: "node-modal-close-btn",
-                  onClick: T
+                  onClick: L
                 }, "✕")
               ]),
-              e("div", hi, [
-                f(Ne, {
-                  modelValue: i.value,
-                  "onUpdate:modelValue": W[3] || (W[3] = (E) => i.value = E),
+              e("div", pi, [
+                g(Ne, {
+                  modelValue: l.value,
+                  "onUpdate:modelValue": W[3] || (W[3] = (G) => l.value = G),
                   label: "Package ID or GitHub URL",
                   placeholder: "e.g., comfyui-my-package"
                 }, null, 8, ["modelValue"]),
-                e("div", yi, [
-                  f(ie, {
+                e("div", hi, [
+                  g(ie, {
                     variant: "secondary",
-                    onClick: T
+                    onClick: L
                   }, {
-                    default: l(() => [...W[8] || (W[8] = [
+                    default: i(() => [...W[8] || (W[8] = [
                       y("Cancel", -1)
                     ])]),
                     _: 1
                   }),
-                  f(ie, {
+                  g(ie, {
                     variant: "primary",
-                    disabled: !i.value.trim(),
+                    disabled: !l.value.trim(),
                     onClick: S
                   }, {
-                    default: l(() => [...W[9] || (W[9] = [
+                    default: i(() => [...W[9] || (W[9] = [
                       y(" Add Package ", -1)
                     ])]),
                     _: 1
@@ -3633,21 +3633,21 @@ const fl = { class: "resolution-stepper" }, gl = { class: "stepper-header" }, pl
                 ])
               ])
             ])
-          ])) : d("", !0)
+          ])) : u("", !0)
         ]))
       ]);
     };
   }
-}), ki = /* @__PURE__ */ Y(wi, [["__scopeId", "data-v-4fb196b1"]]), bi = { class: "node-info" }, _i = { class: "node-info-text" }, $i = { class: "item-body" }, Ci = {
+}), wi = /* @__PURE__ */ Q(yi, [["__scopeId", "data-v-4fb196b1"]]), ki = { class: "node-info" }, bi = { class: "node-info-text" }, _i = { class: "item-body" }, $i = {
   key: 0,
   class: "resolved-state"
-}, xi = {
+}, Ci = {
   key: 1,
   class: "multiple-options"
-}, Si = { class: "options-list" }, Ii = ["onClick"], Ei = ["name", "value", "checked", "onChange"], Mi = { class: "option-content" }, zi = { class: "option-header" }, Li = { class: "option-filename" }, Ti = { class: "option-meta" }, Di = { class: "option-size" }, Ri = { class: "option-category" }, Ni = { class: "option-path" }, Ui = { class: "action-buttons" }, Oi = {
+}, xi = { class: "options-list" }, Si = ["onClick"], Ii = ["name", "value", "checked", "onChange"], Ei = { class: "option-content" }, Mi = { class: "option-header" }, zi = { class: "option-filename" }, Li = { class: "option-meta" }, Ti = { class: "option-size" }, Di = { class: "option-category" }, Ri = { class: "option-path" }, Ni = { class: "action-buttons" }, Oi = {
   key: 2,
   class: "unresolved"
-}, Bi = { class: "action-buttons" }, Pi = /* @__PURE__ */ Q({
+}, Ui = { class: "action-buttons" }, Bi = /* @__PURE__ */ J({
   __name: "ModelResolutionItem",
   props: {
     filename: {},
@@ -3669,13 +3669,13 @@ const fl = { class: "resolution-stepper" }, gl = { class: "stepper-header" }, pl
   setup(t, { emit: c }) {
     const n = t, r = c, p = B(() => !!n.choice);
     B(() => {
-      var i;
-      return (i = n.choice) == null ? void 0 : i.action;
+      var l;
+      return (l = n.choice) == null ? void 0 : l.action;
     }), B(() => {
-      var i, m;
-      return ((m = (i = n.choice) == null ? void 0 : i.selected_model) == null ? void 0 : m.filename) || "selected";
+      var l, v;
+      return ((v = (l = n.choice) == null ? void 0 : l.selected_model) == null ? void 0 : v.filename) || "selected";
     });
-    const g = B(() => {
+    const f = B(() => {
       switch (n.status) {
         case "not-found":
           return "unresolved";
@@ -3692,134 +3692,134 @@ const fl = { class: "resolution-stepper" }, gl = { class: "stepper-header" }, pl
           return "unresolved";
       }
     });
-    function h(i) {
-      r("option-selected", i);
+    function h(l) {
+      r("option-selected", l);
     }
-    function v(i) {
-      if (!i) return "Unknown";
-      const m = i / (1024 * 1024 * 1024);
-      return m >= 1 ? `${m.toFixed(2)} GB` : `${(i / (1024 * 1024)).toFixed(1)} MB`;
+    function m(l) {
+      if (!l) return "Unknown";
+      const v = l / (1024 * 1024 * 1024);
+      return v >= 1 ? `${v.toFixed(2)} GB` : `${(l / (1024 * 1024)).toFixed(1)} MB`;
     }
-    return (i, m) => (o(), s("div", {
-      class: ne(["model-resolution-item", { resolved: p.value, ambiguous: t.hasMultipleOptions }])
+    return (l, v) => (o(), s("div", {
+      class: se(["model-resolution-item", { resolved: p.value, ambiguous: t.hasMultipleOptions }])
     }, [
-      e("div", bi, [
-        e("span", _i, [
-          m[7] || (m[7] = y("Used by: ", -1)),
+      e("div", ki, [
+        e("span", bi, [
+          v[7] || (v[7] = y("Used by: ", -1)),
           e("code", null, a(t.nodeType), 1)
         ]),
         t.statusLabel ? (o(), s("span", {
           key: 0,
-          class: ne(["status-badge", g.value])
-        }, a(t.statusLabel), 3)) : d("", !0)
+          class: se(["status-badge", f.value])
+        }, a(t.statusLabel), 3)) : u("", !0)
       ]),
-      e("div", $i, [
-        p.value ? (o(), s("div", Ci, [
-          f(ie, {
+      e("div", _i, [
+        p.value ? (o(), s("div", $i, [
+          g(ie, {
             variant: "ghost",
             size: "sm",
-            onClick: m[0] || (m[0] = ($) => r("clear-choice"))
+            onClick: v[0] || (v[0] = ($) => r("clear-choice"))
           }, {
-            default: l(() => [...m[8] || (m[8] = [
+            default: i(() => [...v[8] || (v[8] = [
               y(" Change Selection ", -1)
             ])]),
             _: 1
           })
-        ])) : t.hasMultipleOptions && t.options ? (o(), s("div", xi, [
-          m[12] || (m[12] = e("p", { class: "options-prompt" }, "Select a model to use:", -1)),
-          e("div", Si, [
-            (o(!0), s(H, null, se(t.options, ($, u) => (o(), s("label", {
+        ])) : t.hasMultipleOptions && t.options ? (o(), s("div", Ci, [
+          v[12] || (v[12] = e("p", { class: "options-prompt" }, "Select a model to use:", -1)),
+          e("div", xi, [
+            (o(!0), s(H, null, oe(t.options, ($, d) => (o(), s("label", {
               key: $.model.hash,
-              class: ne(["option-card", { selected: t.selectedOptionIndex === u }]),
-              onClick: (M) => h(u)
+              class: se(["option-card", { selected: t.selectedOptionIndex === d }]),
+              onClick: (E) => h(d)
             }, [
               e("input", {
                 type: "radio",
                 name: `model-option-${t.filename}`,
-                value: u,
-                checked: t.selectedOptionIndex === u,
-                onChange: (M) => h(u)
-              }, null, 40, Ei),
-              e("div", Mi, [
-                e("div", zi, [
-                  e("span", Li, a($.model.filename), 1),
-                  f(Ft, {
+                value: d,
+                checked: t.selectedOptionIndex === d,
+                onChange: (E) => h(d)
+              }, null, 40, Ii),
+              e("div", Ei, [
+                e("div", Mi, [
+                  e("span", zi, a($.model.filename), 1),
+                  g(At, {
                     confidence: $.match_confidence,
                     size: "sm"
                   }, null, 8, ["confidence"])
                 ]),
-                e("div", Ti, [
-                  e("span", Di, a(v($.model.size)), 1),
-                  e("span", Ri, a($.model.category), 1)
+                e("div", Li, [
+                  e("span", Ti, a(m($.model.size)), 1),
+                  e("span", Di, a($.model.category), 1)
                 ]),
-                e("div", Ni, a($.model.relative_path), 1)
+                e("div", Ri, a($.model.relative_path), 1)
               ])
-            ], 10, Ii))), 128))
+            ], 10, Si))), 128))
           ]),
-          e("div", Ui, [
-            f(ie, {
+          e("div", Ni, [
+            g(ie, {
               variant: "ghost",
               size: "sm",
-              onClick: m[1] || (m[1] = ($) => r("search"))
+              onClick: v[1] || (v[1] = ($) => r("search"))
             }, {
-              default: l(() => [...m[9] || (m[9] = [
+              default: i(() => [...v[9] || (v[9] = [
                 y(" Search Workspace ", -1)
               ])]),
               _: 1
             }),
-            f(ie, {
+            g(ie, {
               variant: "ghost",
               size: "sm",
-              onClick: m[2] || (m[2] = ($) => r("download-url"))
+              onClick: v[2] || (v[2] = ($) => r("download-url"))
             }, {
-              default: l(() => [...m[10] || (m[10] = [
+              default: i(() => [...v[10] || (v[10] = [
                 y(" Download URL ", -1)
               ])]),
               _: 1
             }),
-            f(ie, {
+            g(ie, {
               variant: "secondary",
               size: "sm",
-              onClick: m[3] || (m[3] = ($) => r("mark-optional"))
+              onClick: v[3] || (v[3] = ($) => r("mark-optional"))
             }, {
-              default: l(() => [...m[11] || (m[11] = [
+              default: i(() => [...v[11] || (v[11] = [
                 y(" Mark Optional ", -1)
               ])]),
               _: 1
             })
           ])
         ])) : (o(), s("div", Oi, [
-          m[16] || (m[16] = e("div", { class: "unresolved-message" }, [
+          v[16] || (v[16] = e("div", { class: "unresolved-message" }, [
             e("span", { class: "warning-icon" }, "⚠"),
             e("span", null, "Model not found in workspace")
           ], -1)),
-          e("div", Bi, [
-            f(ie, {
+          e("div", Ui, [
+            g(ie, {
               variant: "primary",
               size: "sm",
-              onClick: m[4] || (m[4] = ($) => r("search"))
+              onClick: v[4] || (v[4] = ($) => r("search"))
             }, {
-              default: l(() => [...m[13] || (m[13] = [
+              default: i(() => [...v[13] || (v[13] = [
                 y(" Search Workspace ", -1)
               ])]),
               _: 1
             }),
-            f(ie, {
+            g(ie, {
               variant: "secondary",
               size: "sm",
-              onClick: m[5] || (m[5] = ($) => r("download-url"))
+              onClick: v[5] || (v[5] = ($) => r("download-url"))
             }, {
-              default: l(() => [...m[14] || (m[14] = [
+              default: i(() => [...v[14] || (v[14] = [
                 y(" Download URL ", -1)
               ])]),
               _: 1
             }),
-            f(ie, {
+            g(ie, {
               variant: "secondary",
               size: "sm",
-              onClick: m[6] || (m[6] = ($) => r("mark-optional"))
+              onClick: v[6] || (v[6] = ($) => r("mark-optional"))
             }, {
-              default: l(() => [...m[15] || (m[15] = [
+              default: i(() => [...v[15] || (v[15] = [
                 y(" Mark Optional ", -1)
               ])]),
               _: 1
@@ -3829,25 +3829,25 @@ const fl = { class: "resolution-stepper" }, gl = { class: "stepper-header" }, pl
       ])
     ], 2));
   }
-}), Vi = /* @__PURE__ */ Y(Pi, [["__scopeId", "data-v-8a82fefa"]]), Fi = { class: "model-resolution-step" }, Ai = { class: "step-header" }, Wi = { class: "step-info" }, Gi = { class: "step-title" }, ji = { class: "step-description" }, Hi = { class: "stat-badge" }, qi = {
+}), Pi = /* @__PURE__ */ Q(Bi, [["__scopeId", "data-v-8a82fefa"]]), Vi = { class: "model-resolution-step" }, Ai = { class: "step-header" }, Fi = { class: "step-info" }, Wi = { class: "step-title" }, Gi = { class: "step-description" }, ji = { class: "stat-badge" }, Hi = {
   key: 1,
   class: "step-body"
-}, Ki = {
+}, qi = {
   key: 2,
   class: "empty-state"
-}, Ji = { class: "model-search-modal" }, Qi = { class: "model-modal-body" }, Yi = {
+}, Ki = { class: "model-search-modal" }, Ji = { class: "model-modal-body" }, Qi = {
   key: 0,
   class: "model-search-results"
-}, Xi = ["onClick"], Zi = { class: "model-result-header" }, er = { class: "model-result-filename" }, tr = { class: "model-result-meta" }, or = { class: "model-result-category" }, sr = { class: "model-result-size" }, nr = {
+}, Yi = ["onClick"], Xi = { class: "model-result-header" }, Zi = { class: "model-result-filename" }, er = { class: "model-result-meta" }, tr = { class: "model-result-category" }, or = { class: "model-result-size" }, sr = {
   key: 0,
   class: "model-result-path"
-}, ar = {
+}, nr = {
   key: 1,
   class: "model-no-results"
-}, lr = {
+}, ar = {
   key: 2,
   class: "model-searching"
-}, ir = { class: "model-download-url-modal" }, rr = { class: "model-modal-body" }, dr = { class: "model-input-group" }, cr = { class: "model-input-group" }, ur = { class: "model-modal-actions" }, mr = /* @__PURE__ */ Q({
+}, lr = { class: "model-download-url-modal" }, ir = { class: "model-modal-body" }, rr = { class: "model-input-group" }, dr = { class: "model-input-group" }, cr = { class: "model-modal-actions" }, ur = /* @__PURE__ */ J({
   __name: "ModelResolutionStep",
   props: {
     models: {},
@@ -3878,23 +3878,23 @@ const fl = { class: "resolution-stepper" }, gl = { class: "stepper-header" }, pl
       PhotoMakerLoader: ["photomaker"],
       DiffusersLoader: ["diffusers"]
     };
-    function r(N) {
-      var U;
-      return N && ((U = n[N]) == null ? void 0 : U[0]) || null;
+    function r(O) {
+      var R;
+      return O && ((R = n[O]) == null ? void 0 : R[0]) || null;
     }
-    const p = t, g = c, h = b(0), v = b(!1), i = b(!1), m = b(""), $ = b(""), u = b(""), M = b([]), C = b(!1), L = B(() => p.models[h.value]), w = B(() => p.models.some((N) => N.is_download_intent)), _ = B(() => p.models.filter(
-      (N) => p.modelChoices.has(N.filename) || N.is_download_intent
-    ).length), k = B(() => {
-      var U;
-      if (!L.value) return "";
-      const N = r((U = L.value.reference) == null ? void 0 : U.node_type);
-      return N ? `${N}/${L.value.filename}` : "";
-    }), R = B(() => {
-      var U;
-      if (!L.value) return "not-found";
-      const N = p.modelChoices.get(L.value.filename);
-      if (N)
-        switch (N.action) {
+    const p = t, f = c, h = b(0), m = b(!1), l = b(!1), v = b(""), $ = b(""), d = b(""), E = b([]), C = b(!1), z = B(() => p.models[h.value]), w = B(() => p.models.some((O) => O.is_download_intent)), k = B(() => p.models.filter(
+      (O) => p.modelChoices.has(O.filename) || O.is_download_intent
+    ).length), _ = B(() => {
+      var R;
+      if (!z.value) return "";
+      const O = r((R = z.value.reference) == null ? void 0 : R.node_type);
+      return O ? `${O}/${z.value.filename}` : "";
+    }), T = B(() => {
+      var R;
+      if (!z.value) return "not-found";
+      const O = p.modelChoices.get(z.value.filename);
+      if (O)
+        switch (O.action) {
           case "select":
             return "select";
           case "download":
@@ -3906,15 +3906,15 @@ const fl = { class: "resolution-stepper" }, gl = { class: "stepper-header" }, pl
           case "cancel_download":
             return "skip";
         }
-      return L.value.is_download_intent ? "download" : (U = L.value.options) != null && U.length ? "ambiguous" : "not-found";
-    }), A = B(() => {
-      var U, ae;
-      if (!L.value) return;
-      const N = p.modelChoices.get(L.value.filename);
-      if (N)
-        switch (N.action) {
+      return z.value.is_download_intent ? "download" : (R = z.value.options) != null && R.length ? "ambiguous" : "not-found";
+    }), N = B(() => {
+      var R, ne;
+      if (!z.value) return;
+      const O = p.modelChoices.get(z.value.filename);
+      if (O)
+        switch (O.action) {
           case "select":
-            return (U = N.selected_model) != null && U.filename ? `→ ${N.selected_model.filename}` : "Selected";
+            return (R = O.selected_model) != null && R.filename ? `→ ${O.selected_model.filename}` : "Selected";
           case "download":
             return "Download";
           case "optional":
@@ -3924,177 +3924,177 @@ const fl = { class: "resolution-stepper" }, gl = { class: "stepper-header" }, pl
           case "cancel_download":
             return "Cancelled";
         }
-      return L.value.is_download_intent ? "Pending Download" : (ae = L.value.options) != null && ae.length ? `${L.value.options.length} matches` : "Not Found";
+      return z.value.is_download_intent ? "Pending Download" : (ne = z.value.options) != null && ne.length ? `${z.value.options.length} matches` : "Not Found";
     });
-    function j(N) {
-      N >= 0 && N < p.models.length && (h.value = N);
+    function U(O) {
+      O >= 0 && O < p.models.length && (h.value = O);
     }
-    function K() {
-      L.value && g("mark-optional", L.value.filename);
+    function j() {
+      z.value && f("mark-optional", z.value.filename);
     }
     function P() {
-      L.value && g("skip", L.value.filename);
+      z.value && f("skip", z.value.filename);
     }
-    function T(N) {
-      L.value && g("option-selected", L.value.filename, N);
-    }
-    function O() {
-      L.value && g("clear-choice", L.value.filename);
-    }
-    function z() {
-      L.value && (m.value = L.value.filename, v.value = !0);
-    }
-    function S() {
-      L.value && ($.value = L.value.download_source || "", u.value = L.value.target_path || k.value, i.value = !0);
+    function L(O) {
+      z.value && f("option-selected", z.value.filename, O);
     }
     function V() {
-      v.value = !1, m.value = "", M.value = [];
+      z.value && f("clear-choice", z.value.filename);
+    }
+    function M() {
+      z.value && (v.value = z.value.filename, m.value = !0);
+    }
+    function S() {
+      z.value && ($.value = z.value.download_source || "", d.value = z.value.target_path || _.value, l.value = !0);
+    }
+    function F() {
+      m.value = !1, v.value = "", E.value = [];
     }
     function W() {
-      i.value = !1, $.value = "", u.value = "";
+      l.value = !1, $.value = "", d.value = "";
     }
-    function X() {
+    function Y() {
       C.value = !0, setTimeout(() => {
         C.value = !1;
       }, 300);
     }
-    function oe(N) {
-      L.value && V();
+    function le(O) {
+      z.value && F();
     }
-    function E() {
-      !L.value || !$.value.trim() || (g("download-url", L.value.filename, $.value.trim(), u.value.trim() || void 0), W());
+    function G() {
+      !z.value || !$.value.trim() || (f("download-url", z.value.filename, $.value.trim(), d.value.trim() || void 0), W());
     }
-    function G(N) {
-      if (!N) return "Unknown";
-      const U = N / (1024 * 1024 * 1024);
-      return U >= 1 ? `${U.toFixed(2)} GB` : `${(N / (1024 * 1024)).toFixed(1)} MB`;
+    function te(O) {
+      if (!O) return "Unknown";
+      const R = O / (1024 * 1024 * 1024);
+      return R >= 1 ? `${R.toFixed(2)} GB` : `${(O / (1024 * 1024)).toFixed(1)} MB`;
     }
-    return (N, U) => {
-      var ae, ee, $e;
-      return o(), s("div", Fi, [
+    return (O, R) => {
+      var ne, X, $e;
+      return o(), s("div", Vi, [
         e("div", Ai, [
-          e("div", Wi, [
-            e("h3", Gi, a(w.value ? "Review Model Downloads" : "Resolve Missing Models"), 1),
-            e("p", ji, a(w.value ? "Review pending downloads. Mark as optional or skip to cancel." : "Browse unresolved models and choose how to handle each one. Unaddressed items will be skipped."), 1)
+          e("div", Fi, [
+            e("h3", Wi, a(w.value ? "Review Model Downloads" : "Resolve Missing Models"), 1),
+            e("p", Gi, a(w.value ? "Review pending downloads. Mark as optional or skip to cancel." : "Browse unresolved models and choose how to handle each one. Unaddressed items will be skipped."), 1)
           ]),
-          e("span", Hi, a(_.value) + "/" + a(t.models.length) + " resolved", 1)
+          e("span", ji, a(k.value) + "/" + a(t.models.length) + " resolved", 1)
         ]),
-        L.value ? (o(), x(oo, {
+        z.value ? (o(), x(to, {
           key: 0,
-          "item-name": L.value.filename,
+          "item-name": z.value.filename,
           "current-index": h.value,
           "total-items": t.models.length,
-          onPrev: U[0] || (U[0] = (le) => j(h.value - 1)),
-          onNext: U[1] || (U[1] = (le) => j(h.value + 1))
-        }, null, 8, ["item-name", "current-index", "total-items"])) : d("", !0),
-        L.value ? (o(), s("div", qi, [
-          f(Vi, {
-            filename: L.value.filename,
-            "node-type": ((ae = L.value.reference) == null ? void 0 : ae.node_type) || "Unknown",
-            "has-multiple-options": !!((ee = L.value.options) != null && ee.length),
-            options: L.value.options,
-            choice: ($e = t.modelChoices) == null ? void 0 : $e.get(L.value.filename),
-            status: R.value,
-            "status-label": A.value,
-            onMarkOptional: K,
+          onPrev: R[0] || (R[0] = (ae) => U(h.value - 1)),
+          onNext: R[1] || (R[1] = (ae) => U(h.value + 1))
+        }, null, 8, ["item-name", "current-index", "total-items"])) : u("", !0),
+        z.value ? (o(), s("div", Hi, [
+          g(Pi, {
+            filename: z.value.filename,
+            "node-type": ((ne = z.value.reference) == null ? void 0 : ne.node_type) || "Unknown",
+            "has-multiple-options": !!((X = z.value.options) != null && X.length),
+            options: z.value.options,
+            choice: ($e = t.modelChoices) == null ? void 0 : $e.get(z.value.filename),
+            status: T.value,
+            "status-label": N.value,
+            onMarkOptional: j,
             onSkip: P,
             onDownloadUrl: S,
-            onSearch: z,
-            onOptionSelected: T,
-            onClearChoice: O
+            onSearch: M,
+            onOptionSelected: L,
+            onClearChoice: V
           }, null, 8, ["filename", "node-type", "has-multiple-options", "options", "choice", "status", "status-label"])
-        ])) : (o(), s("div", Ki, [...U[5] || (U[5] = [
+        ])) : (o(), s("div", qi, [...R[5] || (R[5] = [
           e("p", null, "No models need resolution.", -1)
         ])])),
-        (o(), x(xe, { to: "body" }, [
-          v.value ? (o(), s("div", {
+        (o(), x(Se, { to: "body" }, [
+          m.value ? (o(), s("div", {
             key: 0,
             class: "model-resolution-modal-overlay",
-            onClick: ke(V, ["self"])
+            onClick: ke(F, ["self"])
           }, [
-            e("div", Ji, [
+            e("div", Ki, [
               e("div", { class: "model-modal-header" }, [
-                U[6] || (U[6] = e("h4", null, "Search Workspace Models", -1)),
+                R[6] || (R[6] = e("h4", null, "Search Workspace Models", -1)),
                 e("button", {
                   class: "model-modal-close-btn",
-                  onClick: V
+                  onClick: F
                 }, "✕")
               ]),
-              e("div", Qi, [
-                f(Ne, {
-                  modelValue: m.value,
-                  "onUpdate:modelValue": U[2] || (U[2] = (le) => m.value = le),
+              e("div", Ji, [
+                g(Ne, {
+                  modelValue: v.value,
+                  "onUpdate:modelValue": R[2] || (R[2] = (ae) => v.value = ae),
                   placeholder: "Search by filename, category...",
-                  onInput: X
+                  onInput: Y
                 }, null, 8, ["modelValue"]),
-                M.value.length > 0 ? (o(), s("div", Yi, [
-                  (o(!0), s(H, null, se(M.value, (le) => (o(), s("div", {
-                    key: le.hash,
+                E.value.length > 0 ? (o(), s("div", Qi, [
+                  (o(!0), s(H, null, oe(E.value, (ae) => (o(), s("div", {
+                    key: ae.hash,
                     class: "model-search-result-item",
-                    onClick: (Ye) => oe()
+                    onClick: (Xe) => le()
                   }, [
-                    e("div", Zi, [
-                      e("code", er, a(le.filename), 1)
+                    e("div", Xi, [
+                      e("code", Zi, a(ae.filename), 1)
                     ]),
-                    e("div", tr, [
-                      e("span", or, a(le.category), 1),
-                      e("span", sr, a(G(le.size)), 1)
+                    e("div", er, [
+                      e("span", tr, a(ae.category), 1),
+                      e("span", or, a(te(ae.size)), 1)
                     ]),
-                    le.relative_path ? (o(), s("div", nr, a(le.relative_path), 1)) : d("", !0)
-                  ], 8, Xi))), 128))
-                ])) : m.value && !C.value ? (o(), s("div", ar, ' No models found matching "' + a(m.value) + '" ', 1)) : d("", !0),
-                C.value ? (o(), s("div", lr, "Searching...")) : d("", !0)
+                    ae.relative_path ? (o(), s("div", sr, a(ae.relative_path), 1)) : u("", !0)
+                  ], 8, Yi))), 128))
+                ])) : v.value && !C.value ? (o(), s("div", nr, ' No models found matching "' + a(v.value) + '" ', 1)) : u("", !0),
+                C.value ? (o(), s("div", ar, "Searching...")) : u("", !0)
               ])
             ])
-          ])) : d("", !0)
+          ])) : u("", !0)
         ])),
-        (o(), x(xe, { to: "body" }, [
-          i.value ? (o(), s("div", {
+        (o(), x(Se, { to: "body" }, [
+          l.value ? (o(), s("div", {
             key: 0,
             class: "model-resolution-modal-overlay",
             onClick: ke(W, ["self"])
           }, [
-            e("div", ir, [
+            e("div", lr, [
               e("div", { class: "model-modal-header" }, [
-                U[7] || (U[7] = e("h4", null, "Enter Download URL", -1)),
+                R[7] || (R[7] = e("h4", null, "Enter Download URL", -1)),
                 e("button", {
                   class: "model-modal-close-btn",
                   onClick: W
                 }, "✕")
               ]),
-              e("div", rr, [
-                e("div", dr, [
-                  U[8] || (U[8] = e("label", { class: "model-input-label" }, "Download URL", -1)),
-                  f(Ne, {
+              e("div", ir, [
+                e("div", rr, [
+                  R[8] || (R[8] = e("label", { class: "model-input-label" }, "Download URL", -1)),
+                  g(Ne, {
                     modelValue: $.value,
-                    "onUpdate:modelValue": U[3] || (U[3] = (le) => $.value = le),
+                    "onUpdate:modelValue": R[3] || (R[3] = (ae) => $.value = ae),
                     placeholder: "https://civitai.com/api/download/..."
                   }, null, 8, ["modelValue"])
                 ]),
-                e("div", cr, [
-                  U[9] || (U[9] = e("label", { class: "model-input-label" }, "Host Path", -1)),
-                  f(Ne, {
-                    modelValue: u.value,
-                    "onUpdate:modelValue": U[4] || (U[4] = (le) => u.value = le),
-                    placeholder: k.value || "e.g. loras/model.safetensors"
+                e("div", dr, [
+                  R[9] || (R[9] = e("label", { class: "model-input-label" }, "Host Path", -1)),
+                  g(Ne, {
+                    modelValue: d.value,
+                    "onUpdate:modelValue": R[4] || (R[4] = (ae) => d.value = ae),
+                    placeholder: _.value || "e.g. loras/model.safetensors"
                   }, null, 8, ["modelValue", "placeholder"])
                 ]),
-                e("div", ur, [
-                  f(ie, {
+                e("div", cr, [
+                  g(ie, {
                     variant: "secondary",
                     onClick: W
                   }, {
-                    default: l(() => [...U[10] || (U[10] = [
+                    default: i(() => [...R[10] || (R[10] = [
                       y("Cancel", -1)
                     ])]),
                     _: 1
                   }),
-                  f(ie, {
+                  g(ie, {
                     variant: "primary",
-                    disabled: !$.value.trim() || !u.value.trim(),
-                    onClick: E
+                    disabled: !$.value.trim() || !d.value.trim(),
+                    onClick: G
                   }, {
-                    default: l(() => [...U[11] || (U[11] = [
+                    default: i(() => [...R[11] || (R[11] = [
                       y(" Queue Download ", -1)
                     ])]),
                     _: 1
@@ -4102,54 +4102,54 @@ const fl = { class: "resolution-stepper" }, gl = { class: "stepper-header" }, pl
                 ])
               ])
             ])
-          ])) : d("", !0)
+          ])) : u("", !0)
         ]))
       ]);
     };
   }
-}), vr = /* @__PURE__ */ Y(mr, [["__scopeId", "data-v-c6acbada"]]), fr = { class: "applying-step" }, gr = {
+}), mr = /* @__PURE__ */ Q(ur, [["__scopeId", "data-v-c6acbada"]]), vr = { class: "applying-step" }, fr = {
   key: 0,
   class: "phase-content"
-}, pr = {
+}, gr = {
   key: 1,
   class: "phase-content"
-}, hr = { class: "phase-description" }, yr = { class: "install-list" }, wr = {
+}, pr = { class: "phase-description" }, hr = { class: "install-list" }, yr = {
   key: 2,
   class: "phase-content"
-}, kr = { class: "completion-summary" }, br = {
+}, wr = { class: "completion-summary" }, kr = {
   key: 0,
   class: "summary-item success"
-}, _r = { class: "summary-text" }, $r = {
+}, br = { class: "summary-text" }, _r = {
   key: 1,
   class: "summary-item error"
-}, Cr = { class: "summary-text" }, xr = {
+}, $r = { class: "summary-text" }, Cr = {
   key: 2,
   class: "restart-prompt"
-}, Sr = {
+}, xr = {
   key: 3,
   class: "phase-content error"
-}, Ir = { class: "error-message" }, Er = /* @__PURE__ */ Q({
+}, Sr = { class: "error-message" }, Ir = /* @__PURE__ */ J({
   __name: "ApplyingStep",
   props: {
     progress: {}
   },
   emits: ["restart"],
   setup(t) {
-    return (c, n) => (o(), s("div", fr, [
-      t.progress.phase === "resolving" ? (o(), s("div", gr, [...n[1] || (n[1] = [
+    return (c, n) => (o(), s("div", vr, [
+      t.progress.phase === "resolving" ? (o(), s("div", fr, [...n[1] || (n[1] = [
         e("div", { class: "phase-header" }, [
           e("div", { class: "loading-spinner" }),
           e("h3", { class: "phase-title" }, "Applying Resolution")
         ], -1),
         e("p", { class: "phase-description" }, "Processing your choices...", -1)
-      ])])) : t.progress.phase === "installing" ? (o(), s("div", pr, [
+      ])])) : t.progress.phase === "installing" ? (o(), s("div", gr, [
         n[3] || (n[3] = e("div", { class: "phase-header" }, [
           e("div", { class: "loading-spinner" }),
           e("h3", { class: "phase-title" }, "Installing Node Packages")
         ], -1)),
-        e("p", hr, "Installing " + a(t.progress.nodesToInstall.length) + " package" + a(t.progress.nodesToInstall.length > 1 ? "s" : "") + "...", 1),
-        e("div", yr, [
-          (o(!0), s(H, null, se(t.progress.nodesToInstall, (r) => (o(), s("div", {
+        e("p", pr, "Installing " + a(t.progress.nodesToInstall.length) + " package" + a(t.progress.nodesToInstall.length > 1 ? "s" : "") + "...", 1),
+        e("div", hr, [
+          (o(!0), s(H, null, oe(t.progress.nodesToInstall, (r) => (o(), s("div", {
             key: r,
             class: "install-item"
           }, [
@@ -4157,26 +4157,26 @@ const fl = { class: "resolution-stepper" }, gl = { class: "stepper-header" }, pl
             e("code", null, a(r), 1)
           ]))), 128))
         ])
-      ])) : t.progress.phase === "complete" ? (o(), s("div", wr, [
+      ])) : t.progress.phase === "complete" ? (o(), s("div", yr, [
         n[9] || (n[9] = e("div", { class: "phase-header" }, [
           e("span", { class: "phase-icon success" }, "✓"),
           e("h3", { class: "phase-title" }, "Resolution Complete")
         ], -1)),
-        e("div", kr, [
-          t.progress.nodesInstalled.length > 0 ? (o(), s("div", br, [
+        e("div", wr, [
+          t.progress.nodesInstalled.length > 0 ? (o(), s("div", kr, [
             n[4] || (n[4] = e("span", { class: "summary-icon" }, "✓", -1)),
-            e("span", _r, a(t.progress.nodesInstalled.length) + " node package" + a(t.progress.nodesInstalled.length > 1 ? "s" : "") + " installed", 1)
-          ])) : d("", !0),
-          t.progress.installError ? (o(), s("div", $r, [
+            e("span", br, a(t.progress.nodesInstalled.length) + " node package" + a(t.progress.nodesInstalled.length > 1 ? "s" : "") + " installed", 1)
+          ])) : u("", !0),
+          t.progress.installError ? (o(), s("div", _r, [
             n[5] || (n[5] = e("span", { class: "summary-icon" }, "✗", -1)),
-            e("span", Cr, "Installation error: " + a(t.progress.installError), 1)
-          ])) : d("", !0),
+            e("span", $r, "Installation error: " + a(t.progress.installError), 1)
+          ])) : u("", !0),
           n[7] || (n[7] = e("div", { class: "summary-item success" }, [
             e("span", { class: "summary-icon" }, "✓"),
             e("span", { class: "summary-text" }, "Workflow dependencies resolved")
           ], -1)),
           n[8] || (n[8] = e("p", { class: "summary-note" }, "Model downloads (if any) will continue in the background.", -1)),
-          t.progress.needsRestart ? (o(), s("div", xr, [
+          t.progress.needsRestart ? (o(), s("div", Cr, [
             n[6] || (n[6] = e("div", { class: "restart-warning" }, [
               e("span", { class: "warning-icon" }, "⚠"),
               e("div", { class: "warning-content" }, [
@@ -4188,141 +4188,141 @@ const fl = { class: "resolution-stepper" }, gl = { class: "stepper-header" }, pl
               class: "restart-button",
               onClick: n[0] || (n[0] = (r) => c.$emit("restart"))
             }, " Restart ComfyUI ")
-          ])) : d("", !0)
+          ])) : u("", !0)
         ])
-      ])) : t.progress.phase === "error" ? (o(), s("div", Sr, [
+      ])) : t.progress.phase === "error" ? (o(), s("div", xr, [
         n[10] || (n[10] = e("div", { class: "phase-header" }, [
           e("span", { class: "phase-icon error" }, "✗"),
           e("h3", { class: "phase-title" }, "Resolution Failed")
         ], -1)),
-        e("p", Ir, a(t.progress.error), 1)
-      ])) : d("", !0)
+        e("p", Sr, a(t.progress.error), 1)
+      ])) : u("", !0)
     ]));
   }
-}), Mr = /* @__PURE__ */ Y(Er, [["__scopeId", "data-v-eb46c564"]]), zr = {
+}), Er = /* @__PURE__ */ Q(Ir, [["__scopeId", "data-v-eb46c564"]]), Mr = {
   key: 0,
   class: "loading-state"
-}, Lr = {
+}, zr = {
   key: 1,
   class: "wizard-content"
-}, Tr = {
+}, Lr = {
   key: 0,
   class: "step-content"
-}, Dr = { class: "analysis-summary" }, Rr = { class: "analysis-header" }, Nr = { class: "summary-description" }, Ur = { class: "stats-grid" }, Or = { class: "stat-card" }, Br = { class: "stat-items" }, Pr = {
+}, Tr = { class: "analysis-summary" }, Dr = { class: "analysis-header" }, Rr = { class: "summary-description" }, Nr = { class: "stats-grid" }, Or = { class: "stat-card" }, Ur = { class: "stat-items" }, Br = {
   key: 0,
   class: "stat-item success"
-}, Vr = { class: "stat-count" }, Fr = {
+}, Pr = { class: "stat-count" }, Vr = {
   key: 1,
   class: "stat-item info"
-}, Ar = { class: "stat-count" }, Wr = {
+}, Ar = { class: "stat-count" }, Fr = {
   key: 2,
   class: "stat-item warning"
-}, Gr = { class: "stat-count" }, jr = {
+}, Wr = { class: "stat-count" }, Gr = {
   key: 3,
   class: "stat-item error"
-}, Hr = { class: "stat-count" }, qr = { class: "stat-card" }, Kr = { class: "stat-items" }, Jr = { class: "stat-item success" }, Qr = { class: "stat-count" }, Yr = {
+}, jr = { class: "stat-count" }, Hr = { class: "stat-card" }, qr = { class: "stat-items" }, Kr = { class: "stat-item success" }, Jr = { class: "stat-count" }, Qr = {
   key: 0,
   class: "stat-item info"
-}, Xr = { class: "stat-count" }, Zr = {
+}, Yr = { class: "stat-count" }, Xr = {
   key: 1,
   class: "stat-item warning"
-}, ed = { class: "stat-count" }, td = {
+}, Zr = { class: "stat-count" }, ed = {
   key: 2,
   class: "stat-item error"
-}, od = { class: "stat-count" }, sd = {
+}, td = { class: "stat-count" }, od = {
   key: 0,
   class: "status-message warning"
-}, nd = { class: "status-text" }, ad = {
+}, sd = { class: "status-text" }, nd = {
   key: 1,
   class: "status-message info"
-}, ld = { class: "status-text" }, id = {
+}, ad = { class: "status-text" }, ld = {
   key: 2,
   class: "status-message info"
-}, rd = { class: "status-text" }, dd = {
+}, id = { class: "status-text" }, rd = {
   key: 3,
   class: "status-message success"
-}, cd = {
+}, dd = {
   key: 3,
   class: "step-content"
-}, ud = { class: "review-summary" }, md = { class: "review-stats" }, vd = { class: "review-stat" }, fd = { class: "stat-value" }, gd = { class: "review-stat" }, pd = { class: "stat-value" }, hd = { class: "review-stat" }, yd = { class: "stat-value" }, wd = { class: "review-stat" }, kd = { class: "stat-value" }, bd = {
+}, cd = { class: "review-summary" }, ud = { class: "review-stats" }, md = { class: "review-stat" }, vd = { class: "stat-value" }, fd = { class: "review-stat" }, gd = { class: "stat-value" }, pd = { class: "review-stat" }, hd = { class: "stat-value" }, yd = { class: "review-stat" }, wd = { class: "stat-value" }, kd = {
   key: 0,
   class: "review-section"
-}, _d = { class: "section-title" }, $d = { class: "review-items" }, Cd = { class: "item-name" }, xd = {
+}, bd = { class: "section-title" }, _d = { class: "review-items" }, $d = { class: "item-name" }, Cd = {
   key: 1,
   class: "review-section"
-}, Sd = { class: "section-title" }, Id = { class: "review-items" }, Ed = { class: "item-name" }, Md = { class: "item-choice" }, zd = {
+}, xd = { class: "section-title" }, Sd = { class: "review-items" }, Id = { class: "item-name" }, Ed = { class: "item-choice" }, Md = {
   key: 0,
   class: "choice-badge install"
-}, Ld = {
+}, zd = {
   key: 1,
   class: "choice-badge optional"
-}, Td = {
+}, Ld = {
   key: 2,
   class: "choice-badge skip"
-}, Dd = {
+}, Td = {
   key: 1,
   class: "choice-badge pending"
-}, Rd = {
+}, Dd = {
   key: 2,
   class: "review-section"
-}, Nd = { class: "section-title" }, Ud = { class: "review-items" }, Od = { class: "item-name" }, Bd = { class: "item-choice" }, Pd = {
+}, Rd = { class: "section-title" }, Nd = { class: "review-items" }, Od = { class: "item-name" }, Ud = { class: "item-choice" }, Bd = {
   key: 0,
   class: "choice-badge install"
-}, Vd = {
+}, Pd = {
   key: 1,
   class: "choice-badge download"
-}, Fd = {
+}, Vd = {
   key: 2,
   class: "choice-badge optional"
 }, Ad = {
   key: 3,
   class: "choice-badge skip"
-}, Wd = {
+}, Fd = {
   key: 4,
   class: "choice-badge skip"
-}, Gd = {
+}, Wd = {
   key: 1,
   class: "choice-badge download"
-}, jd = {
+}, Gd = {
   key: 2,
   class: "choice-badge pending"
-}, Hd = {
+}, jd = {
   key: 3,
   class: "no-choices"
-}, qd = /* @__PURE__ */ Q({
+}, Hd = /* @__PURE__ */ J({
   __name: "WorkflowResolveModal",
   props: {
     workflowName: {}
   },
   emits: ["close", "install", "refresh", "restart"],
   setup(t, { emit: c }) {
-    const n = t, r = c, { analyzeWorkflow: p, applyResolution: g, installNodes: h, queueModelDownloads: v, progress: i, resetProgress: m } = vl(), { loadPendingDownloads: $ } = xt(), u = b(null), M = b(!1), C = b(!1), L = b(null), w = b("analysis"), _ = b([]), k = b(/* @__PURE__ */ new Map()), R = b(/* @__PURE__ */ new Map()), A = B(() => {
-      const F = [
+    const n = t, r = c, { analyzeWorkflow: p, applyResolution: f, installNodes: h, queueModelDownloads: m, progress: l, resetProgress: v } = ml(), { loadPendingDownloads: $ } = Ct(), d = b(null), E = b(!1), C = b(!1), z = b(null), w = b("analysis"), k = b([]), _ = b(/* @__PURE__ */ new Map()), T = b(/* @__PURE__ */ new Map()), N = B(() => {
+      const A = [
         { id: "analysis", label: "Analysis" }
       ];
-      return K.value && F.push({ id: "nodes", label: "Nodes" }), (P.value || T.value) && F.push({ id: "models", label: "Models" }), F.push({ id: "review", label: "Review" }), w.value === "applying" && F.push({ id: "applying", label: "Applying" }), F;
-    }), j = B(() => u.value ? u.value.stats.needs_user_input : !1), K = B(() => u.value ? u.value.nodes.unresolved.length > 0 || u.value.nodes.ambiguous.length > 0 : !1), P = B(() => u.value ? u.value.models.unresolved.length > 0 || u.value.models.ambiguous.length > 0 : !1), T = B(() => u.value ? u.value.stats.download_intents > 0 : !1), O = B(() => u.value ? u.value.stats.nodes_needing_installation > 0 : !1), z = B(() => u.value ? u.value.nodes.resolved.length - u.value.stats.nodes_needing_installation : 0), S = B(() => {
-      if (!u.value) return [];
-      const F = u.value.nodes.resolved.filter((te) => !te.is_installed), D = /* @__PURE__ */ new Set();
-      return F.filter((te) => D.has(te.package.package_id) ? !1 : (D.add(te.package.package_id), !0));
-    }), V = B(() => u.value ? u.value.models.resolved.filter((F) => F.match_type === "download_intent").map((F) => ({
-      filename: F.reference.widget_value,
-      reference: F.reference,
+      return j.value && A.push({ id: "nodes", label: "Nodes" }), (P.value || L.value) && A.push({ id: "models", label: "Models" }), A.push({ id: "review", label: "Review" }), w.value === "applying" && A.push({ id: "applying", label: "Applying" }), A;
+    }), U = B(() => d.value ? d.value.stats.needs_user_input : !1), j = B(() => d.value ? d.value.nodes.unresolved.length > 0 || d.value.nodes.ambiguous.length > 0 : !1), P = B(() => d.value ? d.value.models.unresolved.length > 0 || d.value.models.ambiguous.length > 0 : !1), L = B(() => d.value ? d.value.stats.download_intents > 0 : !1), V = B(() => d.value ? d.value.stats.nodes_needing_installation > 0 : !1), M = B(() => d.value ? d.value.nodes.resolved.length - d.value.stats.nodes_needing_installation : 0), S = B(() => {
+      if (!d.value) return [];
+      const A = d.value.nodes.resolved.filter((ee) => !ee.is_installed), D = /* @__PURE__ */ new Set();
+      return A.filter((ee) => D.has(ee.package.package_id) ? !1 : (D.add(ee.package.package_id), !0));
+    }), F = B(() => d.value ? d.value.models.resolved.filter((A) => A.match_type === "download_intent").map((A) => ({
+      filename: A.reference.widget_value,
+      reference: A.reference,
       is_download_intent: !0,
-      resolved_model: F.model,
-      download_source: F.download_source,
-      target_path: F.target_path
+      resolved_model: A.model,
+      download_source: A.download_source,
+      target_path: A.target_path
     })) : []), W = B(() => {
-      if (!u.value) return [];
-      const F = u.value.nodes.unresolved.map((te) => ({
-        node_type: te.reference.node_type,
-        reason: te.reason,
+      if (!d.value) return [];
+      const A = d.value.nodes.unresolved.map((ee) => ({
+        node_type: ee.reference.node_type,
+        reason: ee.reason,
         is_unresolved: !0,
         options: void 0
-      })), D = u.value.nodes.ambiguous.map((te) => ({
-        node_type: te.reference.node_type,
+      })), D = d.value.nodes.ambiguous.map((ee) => ({
+        node_type: ee.reference.node_type,
         has_multiple_options: !0,
-        options: te.options.map((ge) => ({
+        options: ee.options.map((ge) => ({
           package_id: ge.package.package_id,
           title: ge.package.title,
           match_confidence: ge.match_confidence,
@@ -4330,173 +4330,173 @@ const fl = { class: "resolution-stepper" }, gl = { class: "stepper-header" }, pl
           is_installed: ge.is_installed
         }))
       }));
-      return [...F, ...D];
-    }), X = B(() => {
-      if (!u.value) return [];
-      const F = u.value.models.unresolved.map((te) => ({
-        filename: te.reference.widget_value,
-        reference: te.reference,
-        reason: te.reason,
+      return [...A, ...D];
+    }), Y = B(() => {
+      if (!d.value) return [];
+      const A = d.value.models.unresolved.map((ee) => ({
+        filename: ee.reference.widget_value,
+        reference: ee.reference,
+        reason: ee.reason,
         is_unresolved: !0,
         options: void 0
-      })), D = u.value.models.ambiguous.map((te) => ({
-        filename: te.reference.widget_value,
-        reference: te.reference,
+      })), D = d.value.models.ambiguous.map((ee) => ({
+        filename: ee.reference.widget_value,
+        reference: ee.reference,
         has_multiple_options: !0,
-        options: te.options.map((ge) => ({
+        options: ee.options.map((ge) => ({
           model: ge.model,
           match_confidence: ge.match_confidence,
           match_type: ge.match_type,
           has_download_source: ge.has_download_source
         }))
       }));
-      return [...F, ...D];
-    }), oe = B(() => {
-      const F = X.value, D = V.value.map((te) => ({
-        filename: te.filename,
-        reference: te.reference,
+      return [...A, ...D];
+    }), le = B(() => {
+      const A = Y.value, D = F.value.map((ee) => ({
+        filename: ee.filename,
+        reference: ee.reference,
         is_download_intent: !0,
-        resolved_model: te.resolved_model,
-        download_source: te.download_source,
-        target_path: te.target_path,
+        resolved_model: ee.resolved_model,
+        download_source: ee.download_source,
+        target_path: ee.target_path,
         options: void 0
       }));
-      return [...F, ...D];
-    }), E = B(() => {
-      let F = S.value.length;
-      for (const D of k.value.values())
-        D.action === "install" && F++;
-      for (const D of R.value.values())
-        D.action === "select" && F++;
-      return F;
+      return [...A, ...D];
     }), G = B(() => {
-      let F = 0;
-      for (const D of R.value.values())
-        D.action === "download" && F++;
-      return F;
-    }), N = B(() => {
-      let F = 0;
-      for (const D of k.value.values())
-        D.action === "optional" && F++;
-      for (const D of R.value.values())
-        D.action === "optional" && F++;
-      return F;
-    }), U = B(() => {
-      let F = 0;
-      for (const D of k.value.values())
-        D.action === "skip" && F++;
-      for (const D of R.value.values())
-        D.action === "skip" && F++;
+      let A = S.value.length;
+      for (const D of _.value.values())
+        D.action === "install" && A++;
+      for (const D of T.value.values())
+        D.action === "select" && A++;
+      return A;
+    }), te = B(() => {
+      let A = 0;
+      for (const D of T.value.values())
+        D.action === "download" && A++;
+      return A;
+    }), O = B(() => {
+      let A = 0;
+      for (const D of _.value.values())
+        D.action === "optional" && A++;
+      for (const D of T.value.values())
+        D.action === "optional" && A++;
+      return A;
+    }), R = B(() => {
+      let A = 0;
+      for (const D of _.value.values())
+        D.action === "skip" && A++;
+      for (const D of T.value.values())
+        D.action === "skip" && A++;
       for (const D of W.value)
-        k.value.has(D.node_type) || F++;
-      for (const D of X.value)
-        R.value.has(D.filename) || F++;
-      return F;
-    }), ae = B(() => {
-      const F = {};
-      if (F.analysis = { resolved: 1, total: 1 }, K.value) {
-        const D = W.value.length, te = W.value.filter(
-          (ge) => k.value.has(ge.node_type)
+        _.value.has(D.node_type) || A++;
+      for (const D of Y.value)
+        T.value.has(D.filename) || A++;
+      return A;
+    }), ne = B(() => {
+      const A = {};
+      if (A.analysis = { resolved: 1, total: 1 }, j.value) {
+        const D = W.value.length, ee = W.value.filter(
+          (ge) => _.value.has(ge.node_type)
         ).length;
-        F.nodes = { resolved: te, total: D };
+        A.nodes = { resolved: ee, total: D };
       }
-      if (P.value || T.value) {
-        const D = oe.value.length, te = oe.value.filter(
-          (ge) => R.value.has(ge.filename) || ge.is_download_intent
+      if (P.value || L.value) {
+        const D = le.value.length, ee = le.value.filter(
+          (ge) => T.value.has(ge.filename) || ge.is_download_intent
         ).length;
-        F.models = { resolved: te, total: D };
+        A.models = { resolved: ee, total: D };
       }
-      if (F.review = { resolved: 1, total: 1 }, w.value === "applying") {
-        const D = i.totalFiles || 1, te = i.completedFiles.length;
-        F.applying = { resolved: te, total: D };
+      if (A.review = { resolved: 1, total: 1 }, w.value === "applying") {
+        const D = l.totalFiles || 1, ee = l.completedFiles.length;
+        A.applying = { resolved: ee, total: D };
       }
-      return F;
+      return A;
     });
-    function ee(F) {
-      w.value = F;
+    function X(A) {
+      w.value = A;
     }
     function $e() {
-      const F = A.value.findIndex((D) => D.id === w.value);
-      F > 0 && (w.value = A.value[F - 1].id);
+      const A = N.value.findIndex((D) => D.id === w.value);
+      A > 0 && (w.value = N.value[A - 1].id);
     }
-    function le() {
-      const F = A.value.findIndex((D) => D.id === w.value);
-      F < A.value.length - 1 && (w.value = A.value[F + 1].id);
+    function ae() {
+      const A = N.value.findIndex((D) => D.id === w.value);
+      A < N.value.length - 1 && (w.value = N.value[A + 1].id);
     }
-    async function Ye() {
-      M.value = !0, L.value = null;
+    async function Xe() {
+      E.value = !0, z.value = null;
       try {
-        u.value = await p(n.workflowName);
-      } catch (F) {
-        L.value = F instanceof Error ? F.message : "Failed to analyze workflow";
+        d.value = await p(n.workflowName);
+      } catch (A) {
+        z.value = A instanceof Error ? A.message : "Failed to analyze workflow";
       } finally {
-        M.value = !1;
+        E.value = !1;
       }
     }
     function he() {
-      _.value.includes("analysis") || _.value.push("analysis"), K.value ? w.value = "nodes" : P.value || T.value ? w.value = "models" : w.value = "review";
+      k.value.includes("analysis") || k.value.push("analysis"), j.value ? w.value = "nodes" : P.value || L.value ? w.value = "models" : w.value = "review";
     }
-    function ut(F) {
-      k.value.set(F, { action: "optional" });
+    function mt(A) {
+      _.value.set(A, { action: "optional" });
     }
-    function mt(F) {
-      k.value.set(F, { action: "skip" });
+    function vt(A) {
+      _.value.set(A, { action: "skip" });
     }
-    function vt(F, D) {
+    function ft(A, D) {
       var ge;
-      const te = W.value.find((Le) => Le.node_type === F);
-      (ge = te == null ? void 0 : te.options) != null && ge[D] && k.value.set(F, {
+      const ee = W.value.find((Le) => Le.node_type === A);
+      (ge = ee == null ? void 0 : ee.options) != null && ge[D] && _.value.set(A, {
         action: "install",
-        package_id: te.options[D].package_id
+        package_id: ee.options[D].package_id
       });
     }
-    function we(F, D) {
-      k.value.set(F, {
+    function we(A, D) {
+      _.value.set(A, {
         action: "install",
         package_id: D
       });
     }
-    function Ke(F) {
-      k.value.delete(F);
+    function Ke(A) {
+      _.value.delete(A);
     }
-    function Fe(F) {
-      R.value.set(F, { action: "optional" });
+    function Ae(A) {
+      T.value.set(A, { action: "optional" });
     }
-    function Oe(F) {
-      R.value.set(F, { action: "skip" });
+    function Ue(A) {
+      T.value.set(A, { action: "skip" });
     }
-    function ft(F, D) {
+    function gt(A, D) {
       var ge;
-      const te = X.value.find((Le) => Le.filename === F);
-      (ge = te == null ? void 0 : te.options) != null && ge[D] && R.value.set(F, {
+      const ee = Y.value.find((Le) => Le.filename === A);
+      (ge = ee == null ? void 0 : ee.options) != null && ge[D] && T.value.set(A, {
         action: "select",
-        selected_model: te.options[D].model
+        selected_model: ee.options[D].model
       });
     }
-    function fe(F, D, te) {
-      R.value.set(F, {
+    function fe(A, D, ee) {
+      T.value.set(A, {
         action: "download",
         url: D,
-        target_path: te
+        target_path: ee
       });
     }
-    function Be(F) {
-      R.value.delete(F);
+    function Be(A) {
+      T.value.delete(A);
     }
-    async function J() {
-      C.value = !0, L.value = null, m(), i.phase = "resolving", w.value = "applying";
+    async function K() {
+      C.value = !0, z.value = null, v(), l.phase = "resolving", w.value = "applying";
       try {
-        const F = await g(n.workflowName, k.value, R.value);
-        F.models_to_download && F.models_to_download.length > 0 && v(n.workflowName, F.models_to_download);
+        const A = await f(n.workflowName, _.value, T.value);
+        A.models_to_download && A.models_to_download.length > 0 && m(n.workflowName, A.models_to_download);
         const D = [
-          ...F.nodes_to_install || [],
-          ...S.value.map((te) => te.package.package_id)
+          ...A.nodes_to_install || [],
+          ...S.value.map((ee) => ee.package.package_id)
         ];
-        i.nodesToInstall = [...new Set(D)], i.nodesToInstall.length > 0 && await h(n.workflowName), i.phase = "complete", await $(), i.needsRestart || setTimeout(() => {
+        l.nodesToInstall = [...new Set(D)], l.nodesToInstall.length > 0 && await h(n.workflowName), l.phase = "complete", await $(), l.needsRestart || setTimeout(() => {
           r("refresh"), r("install"), r("close");
         }, 1e3);
-      } catch (F) {
-        L.value = F instanceof Error ? F.message : "Failed to apply resolution", i.error = L.value, i.phase = "error";
+      } catch (A) {
+        z.value = A instanceof Error ? A.message : "Failed to apply resolution", l.error = z.value, l.phase = "error";
       } finally {
         C.value = !1;
       }
@@ -4504,276 +4504,276 @@ const fl = { class: "resolution-stepper" }, gl = { class: "stepper-header" }, pl
     function de() {
       r("refresh"), r("restart"), r("close");
     }
-    return _e(Ye), (F, D) => (o(), x(st, {
+    return _e(Xe), (A, D) => (o(), x(Ye, {
       title: `Resolve Dependencies: ${t.workflowName}`,
       size: "lg",
-      loading: M.value,
-      error: L.value || void 0,
+      loading: E.value,
+      error: z.value || void 0,
       "fixed-height": !0,
-      onClose: D[1] || (D[1] = (te) => r("close"))
+      onClose: D[1] || (D[1] = (ee) => r("close"))
     }, {
-      body: l(() => [
-        M.value && !u.value ? (o(), s("div", zr, [...D[2] || (D[2] = [
+      body: i(() => [
+        E.value && !d.value ? (o(), s("div", Mr, [...D[2] || (D[2] = [
           e("div", { class: "loading-spinner" }, null, -1),
           e("p", null, "Analyzing workflow dependencies...", -1)
-        ])])) : u.value ? (o(), s("div", Lr, [
-          f($l, {
-            steps: A.value,
+        ])])) : d.value ? (o(), s("div", zr, [
+          g(_l, {
+            steps: N.value,
             "current-step": w.value,
-            "completed-steps": _.value,
-            "step-stats": ae.value,
-            onStepChange: ee
+            "completed-steps": k.value,
+            "step-stats": ne.value,
+            onStepChange: X
           }, null, 8, ["steps", "current-step", "completed-steps", "step-stats"]),
-          w.value === "analysis" ? (o(), s("div", Tr, [
-            e("div", Dr, [
-              e("div", Rr, [
+          w.value === "analysis" ? (o(), s("div", Lr, [
+            e("div", Tr, [
+              e("div", Dr, [
                 D[3] || (D[3] = e("h3", { class: "summary-title" }, "Analysis Complete", -1)),
-                e("p", Nr, " Found " + a(u.value.stats.total_nodes) + " nodes and " + a(u.value.stats.total_models) + " models in this workflow. ", 1)
+                e("p", Rr, " Found " + a(d.value.stats.total_nodes) + " nodes and " + a(d.value.stats.total_models) + " models in this workflow. ", 1)
               ]),
-              e("div", Ur, [
+              e("div", Nr, [
                 e("div", Or, [
                   D[12] || (D[12] = e("div", { class: "stat-header" }, "Nodes", -1)),
-                  e("div", Br, [
-                    z.value > 0 ? (o(), s("div", Pr, [
+                  e("div", Ur, [
+                    M.value > 0 ? (o(), s("div", Br, [
                       D[4] || (D[4] = e("span", { class: "stat-icon" }, "✓", -1)),
-                      e("span", Vr, a(z.value), 1),
+                      e("span", Pr, a(M.value), 1),
                       D[5] || (D[5] = e("span", { class: "stat-label" }, "installed", -1))
-                    ])) : d("", !0),
-                    u.value.stats.nodes_needing_installation > 0 ? (o(), s("div", Fr, [
+                    ])) : u("", !0),
+                    d.value.stats.nodes_needing_installation > 0 ? (o(), s("div", Vr, [
                       D[6] || (D[6] = e("span", { class: "stat-icon" }, "⬇", -1)),
-                      e("span", Ar, a(u.value.stats.nodes_needing_installation), 1),
+                      e("span", Ar, a(d.value.stats.nodes_needing_installation), 1),
                       D[7] || (D[7] = e("span", { class: "stat-label" }, "to install", -1))
-                    ])) : d("", !0),
-                    u.value.nodes.ambiguous.length > 0 ? (o(), s("div", Wr, [
+                    ])) : u("", !0),
+                    d.value.nodes.ambiguous.length > 0 ? (o(), s("div", Fr, [
                       D[8] || (D[8] = e("span", { class: "stat-icon" }, "?", -1)),
-                      e("span", Gr, a(u.value.nodes.ambiguous.length), 1),
+                      e("span", Wr, a(d.value.nodes.ambiguous.length), 1),
                       D[9] || (D[9] = e("span", { class: "stat-label" }, "ambiguous", -1))
-                    ])) : d("", !0),
-                    u.value.nodes.unresolved.length > 0 ? (o(), s("div", jr, [
+                    ])) : u("", !0),
+                    d.value.nodes.unresolved.length > 0 ? (o(), s("div", Gr, [
                       D[10] || (D[10] = e("span", { class: "stat-icon" }, "✗", -1)),
-                      e("span", Hr, a(u.value.nodes.unresolved.length), 1),
+                      e("span", jr, a(d.value.nodes.unresolved.length), 1),
                       D[11] || (D[11] = e("span", { class: "stat-label" }, "missing", -1))
-                    ])) : d("", !0)
+                    ])) : u("", !0)
                   ])
                 ]),
-                e("div", qr, [
+                e("div", Hr, [
                   D[21] || (D[21] = e("div", { class: "stat-header" }, "Models", -1)),
-                  e("div", Kr, [
-                    e("div", Jr, [
+                  e("div", qr, [
+                    e("div", Kr, [
                       D[13] || (D[13] = e("span", { class: "stat-icon" }, "✓", -1)),
-                      e("span", Qr, a(u.value.models.resolved.length - u.value.stats.download_intents), 1),
+                      e("span", Jr, a(d.value.models.resolved.length - d.value.stats.download_intents), 1),
                       D[14] || (D[14] = e("span", { class: "stat-label" }, "resolved", -1))
                     ]),
-                    u.value.stats.download_intents > 0 ? (o(), s("div", Yr, [
+                    d.value.stats.download_intents > 0 ? (o(), s("div", Qr, [
                       D[15] || (D[15] = e("span", { class: "stat-icon" }, "⬇", -1)),
-                      e("span", Xr, a(u.value.stats.download_intents), 1),
+                      e("span", Yr, a(d.value.stats.download_intents), 1),
                       D[16] || (D[16] = e("span", { class: "stat-label" }, "pending download", -1))
-                    ])) : d("", !0),
-                    u.value.models.ambiguous.length > 0 ? (o(), s("div", Zr, [
+                    ])) : u("", !0),
+                    d.value.models.ambiguous.length > 0 ? (o(), s("div", Xr, [
                       D[17] || (D[17] = e("span", { class: "stat-icon" }, "?", -1)),
-                      e("span", ed, a(u.value.models.ambiguous.length), 1),
+                      e("span", Zr, a(d.value.models.ambiguous.length), 1),
                       D[18] || (D[18] = e("span", { class: "stat-label" }, "ambiguous", -1))
-                    ])) : d("", !0),
-                    u.value.models.unresolved.length > 0 ? (o(), s("div", td, [
+                    ])) : u("", !0),
+                    d.value.models.unresolved.length > 0 ? (o(), s("div", ed, [
                       D[19] || (D[19] = e("span", { class: "stat-icon" }, "✗", -1)),
-                      e("span", od, a(u.value.models.unresolved.length), 1),
+                      e("span", td, a(d.value.models.unresolved.length), 1),
                       D[20] || (D[20] = e("span", { class: "stat-label" }, "missing", -1))
-                    ])) : d("", !0)
+                    ])) : u("", !0)
                   ])
                 ])
               ]),
-              j.value ? (o(), s("div", sd, [
+              U.value ? (o(), s("div", od, [
                 D[22] || (D[22] = e("span", { class: "status-icon" }, "⚠", -1)),
-                e("span", nd, a(W.value.length + X.value.length) + " items need your input", 1)
-              ])) : O.value ? (o(), s("div", ad, [
+                e("span", sd, a(W.value.length + Y.value.length) + " items need your input", 1)
+              ])) : V.value ? (o(), s("div", nd, [
                 D[23] || (D[23] = e("span", { class: "status-icon" }, "⬇", -1)),
-                e("span", ld, a(u.value.stats.packages_needing_installation) + " package" + a(u.value.stats.packages_needing_installation > 1 ? "s" : "") + " to install (" + a(u.value.stats.nodes_needing_installation) + " node type" + a(u.value.stats.nodes_needing_installation > 1 ? "s" : "") + ")" + a(T.value ? `, ${u.value.stats.download_intents} model${u.value.stats.download_intents > 1 ? "s" : ""} to download` : ""), 1)
-              ])) : T.value ? (o(), s("div", id, [
+                e("span", ad, a(d.value.stats.packages_needing_installation) + " package" + a(d.value.stats.packages_needing_installation > 1 ? "s" : "") + " to install (" + a(d.value.stats.nodes_needing_installation) + " node type" + a(d.value.stats.nodes_needing_installation > 1 ? "s" : "") + ")" + a(L.value ? `, ${d.value.stats.download_intents} model${d.value.stats.download_intents > 1 ? "s" : ""} to download` : ""), 1)
+              ])) : L.value ? (o(), s("div", ld, [
                 D[24] || (D[24] = e("span", { class: "status-icon" }, "⬇", -1)),
-                e("span", rd, a(u.value.stats.download_intents) + " model" + a(u.value.stats.download_intents > 1 ? "s" : "") + " pending download - click Continue to review", 1)
-              ])) : (o(), s("div", dd, [...D[25] || (D[25] = [
+                e("span", id, a(d.value.stats.download_intents) + " model" + a(d.value.stats.download_intents > 1 ? "s" : "") + " pending download - click Continue to review", 1)
+              ])) : (o(), s("div", rd, [...D[25] || (D[25] = [
                 e("span", { class: "status-icon" }, "✓", -1),
                 e("span", { class: "status-text" }, "All dependencies are resolved!", -1)
               ])]))
             ])
-          ])) : d("", !0),
-          w.value === "nodes" ? (o(), x(ki, {
+          ])) : u("", !0),
+          w.value === "nodes" ? (o(), x(wi, {
             key: 1,
             nodes: W.value,
-            "node-choices": k.value,
-            onMarkOptional: ut,
-            onSkip: mt,
-            onOptionSelected: vt,
+            "node-choices": _.value,
+            onMarkOptional: mt,
+            onSkip: vt,
+            onOptionSelected: ft,
             onManualEntry: we,
             onClearChoice: Ke
-          }, null, 8, ["nodes", "node-choices"])) : d("", !0),
-          w.value === "models" ? (o(), x(vr, {
+          }, null, 8, ["nodes", "node-choices"])) : u("", !0),
+          w.value === "models" ? (o(), x(mr, {
             key: 2,
-            models: oe.value,
-            "model-choices": R.value,
-            onMarkOptional: Fe,
-            onSkip: Oe,
-            onOptionSelected: ft,
+            models: le.value,
+            "model-choices": T.value,
+            onMarkOptional: Ae,
+            onSkip: Ue,
+            onOptionSelected: gt,
             onDownloadUrl: fe,
             onClearChoice: Be
-          }, null, 8, ["models", "model-choices"])) : d("", !0),
-          w.value === "review" ? (o(), s("div", cd, [
-            e("div", ud, [
+          }, null, 8, ["models", "model-choices"])) : u("", !0),
+          w.value === "review" ? (o(), s("div", dd, [
+            e("div", cd, [
               D[31] || (D[31] = e("div", { class: "review-header" }, [
                 e("h3", { class: "summary-title" }, "Review Your Choices"),
                 e("p", { class: "summary-description" }, " Confirm the actions to take. Items without explicit choices will be skipped. ")
               ], -1)),
-              e("div", md, [
-                e("div", vd, [
-                  e("span", fd, a(E.value), 1),
+              e("div", ud, [
+                e("div", md, [
+                  e("span", vd, a(G.value), 1),
                   D[26] || (D[26] = e("span", { class: "stat-label" }, "to install", -1))
                 ]),
-                e("div", gd, [
-                  e("span", pd, a(G.value), 1),
+                e("div", fd, [
+                  e("span", gd, a(te.value), 1),
                   D[27] || (D[27] = e("span", { class: "stat-label" }, "to download", -1))
                 ]),
-                e("div", hd, [
-                  e("span", yd, a(N.value), 1),
+                e("div", pd, [
+                  e("span", hd, a(O.value), 1),
                   D[28] || (D[28] = e("span", { class: "stat-label" }, "optional", -1))
                 ]),
-                e("div", wd, [
-                  e("span", kd, a(U.value), 1),
+                e("div", yd, [
+                  e("span", wd, a(R.value), 1),
                   D[29] || (D[29] = e("span", { class: "stat-label" }, "skipped", -1))
                 ])
               ]),
-              S.value.length > 0 ? (o(), s("div", bd, [
-                e("h4", _d, "Node Packages to Install (" + a(S.value.length) + ")", 1),
-                e("div", $d, [
-                  (o(!0), s(H, null, se(S.value, (te) => (o(), s("div", {
-                    key: te.package.package_id,
+              S.value.length > 0 ? (o(), s("div", kd, [
+                e("h4", bd, "Node Packages to Install (" + a(S.value.length) + ")", 1),
+                e("div", _d, [
+                  (o(!0), s(H, null, oe(S.value, (ee) => (o(), s("div", {
+                    key: ee.package.package_id,
                     class: "review-item"
                   }, [
-                    e("code", Cd, a(te.package.package_id), 1),
+                    e("code", $d, a(ee.package.package_id), 1),
                     D[30] || (D[30] = e("div", { class: "item-choice" }, [
                       e("span", { class: "choice-badge install" }, "Will Install")
                     ], -1))
                   ]))), 128))
                 ])
-              ])) : d("", !0),
-              W.value.length > 0 ? (o(), s("div", xd, [
-                e("h4", Sd, "Node Choices (" + a(W.value.length) + ")", 1),
-                e("div", Id, [
-                  (o(!0), s(H, null, se(W.value, (te) => {
-                    var ge, Le, Xe, Ae;
+              ])) : u("", !0),
+              W.value.length > 0 ? (o(), s("div", Cd, [
+                e("h4", xd, "Node Choices (" + a(W.value.length) + ")", 1),
+                e("div", Sd, [
+                  (o(!0), s(H, null, oe(W.value, (ee) => {
+                    var ge, Le, Ze, Fe;
                     return o(), s("div", {
-                      key: te.node_type,
+                      key: ee.node_type,
                       class: "review-item"
                     }, [
-                      e("code", Ed, a(te.node_type), 1),
-                      e("div", Md, [
-                        k.value.has(te.node_type) ? (o(), s(H, { key: 0 }, [
-                          ((ge = k.value.get(te.node_type)) == null ? void 0 : ge.action) === "install" ? (o(), s("span", zd, a((Le = k.value.get(te.node_type)) == null ? void 0 : Le.package_id), 1)) : ((Xe = k.value.get(te.node_type)) == null ? void 0 : Xe.action) === "optional" ? (o(), s("span", Ld, " Optional ")) : ((Ae = k.value.get(te.node_type)) == null ? void 0 : Ae.action) === "skip" ? (o(), s("span", Td, " Skip ")) : d("", !0)
-                        ], 64)) : (o(), s("span", Dd, " No action (skipped) "))
+                      e("code", Id, a(ee.node_type), 1),
+                      e("div", Ed, [
+                        _.value.has(ee.node_type) ? (o(), s(H, { key: 0 }, [
+                          ((ge = _.value.get(ee.node_type)) == null ? void 0 : ge.action) === "install" ? (o(), s("span", Md, a((Le = _.value.get(ee.node_type)) == null ? void 0 : Le.package_id), 1)) : ((Ze = _.value.get(ee.node_type)) == null ? void 0 : Ze.action) === "optional" ? (o(), s("span", zd, " Optional ")) : ((Fe = _.value.get(ee.node_type)) == null ? void 0 : Fe.action) === "skip" ? (o(), s("span", Ld, " Skip ")) : u("", !0)
+                        ], 64)) : (o(), s("span", Td, " No action (skipped) "))
                       ])
                     ]);
                   }), 128))
                 ])
-              ])) : d("", !0),
-              oe.value.length > 0 ? (o(), s("div", Rd, [
-                e("h4", Nd, "Models (" + a(oe.value.length) + ")", 1),
-                e("div", Ud, [
-                  (o(!0), s(H, null, se(oe.value, (te) => {
-                    var ge, Le, Xe, Ae, nt, St, Ze;
+              ])) : u("", !0),
+              le.value.length > 0 ? (o(), s("div", Dd, [
+                e("h4", Rd, "Models (" + a(le.value.length) + ")", 1),
+                e("div", Nd, [
+                  (o(!0), s(H, null, oe(le.value, (ee) => {
+                    var ge, Le, Ze, Fe, nt, xt, et;
                     return o(), s("div", {
-                      key: te.filename,
+                      key: ee.filename,
                       class: "review-item"
                     }, [
-                      e("code", Od, a(te.filename), 1),
-                      e("div", Bd, [
-                        R.value.has(te.filename) ? (o(), s(H, { key: 0 }, [
-                          ((ge = R.value.get(te.filename)) == null ? void 0 : ge.action) === "select" ? (o(), s("span", Pd, a((Xe = (Le = R.value.get(te.filename)) == null ? void 0 : Le.selected_model) == null ? void 0 : Xe.filename), 1)) : ((Ae = R.value.get(te.filename)) == null ? void 0 : Ae.action) === "download" ? (o(), s("span", Vd, " Download ")) : ((nt = R.value.get(te.filename)) == null ? void 0 : nt.action) === "optional" ? (o(), s("span", Fd, " Optional ")) : ((St = R.value.get(te.filename)) == null ? void 0 : St.action) === "skip" ? (o(), s("span", Ad, " Skip ")) : ((Ze = R.value.get(te.filename)) == null ? void 0 : Ze.action) === "cancel_download" ? (o(), s("span", Wd, " Cancel Download ")) : d("", !0)
-                        ], 64)) : te.is_download_intent ? (o(), s("span", Gd, " Pending Download ")) : (o(), s("span", jd, " No action (skipped) "))
+                      e("code", Od, a(ee.filename), 1),
+                      e("div", Ud, [
+                        T.value.has(ee.filename) ? (o(), s(H, { key: 0 }, [
+                          ((ge = T.value.get(ee.filename)) == null ? void 0 : ge.action) === "select" ? (o(), s("span", Bd, a((Ze = (Le = T.value.get(ee.filename)) == null ? void 0 : Le.selected_model) == null ? void 0 : Ze.filename), 1)) : ((Fe = T.value.get(ee.filename)) == null ? void 0 : Fe.action) === "download" ? (o(), s("span", Pd, " Download ")) : ((nt = T.value.get(ee.filename)) == null ? void 0 : nt.action) === "optional" ? (o(), s("span", Vd, " Optional ")) : ((xt = T.value.get(ee.filename)) == null ? void 0 : xt.action) === "skip" ? (o(), s("span", Ad, " Skip ")) : ((et = T.value.get(ee.filename)) == null ? void 0 : et.action) === "cancel_download" ? (o(), s("span", Fd, " Cancel Download ")) : u("", !0)
+                        ], 64)) : ee.is_download_intent ? (o(), s("span", Wd, " Pending Download ")) : (o(), s("span", Gd, " No action (skipped) "))
                       ])
                     ]);
                   }), 128))
                 ])
-              ])) : d("", !0),
-              S.value.length === 0 && W.value.length === 0 && oe.value.length === 0 ? (o(), s("div", Hd, " No dependencies need resolution. ")) : d("", !0)
+              ])) : u("", !0),
+              S.value.length === 0 && W.value.length === 0 && le.value.length === 0 ? (o(), s("div", jd, " No dependencies need resolution. ")) : u("", !0)
             ])
-          ])) : d("", !0),
-          w.value === "applying" ? (o(), x(Mr, {
+          ])) : u("", !0),
+          w.value === "applying" ? (o(), x(Er, {
             key: 4,
-            progress: me(i),
+            progress: me(l),
             onRestart: de
-          }, null, 8, ["progress"])) : d("", !0)
-        ])) : d("", !0)
+          }, null, 8, ["progress"])) : u("", !0)
+        ])) : u("", !0)
       ]),
-      footer: l(() => [
+      footer: i(() => [
         w.value !== "analysis" && w.value !== "applying" ? (o(), x(ie, {
           key: 0,
           variant: "secondary",
           disabled: C.value,
           onClick: $e
         }, {
-          default: l(() => [...D[32] || (D[32] = [
+          default: i(() => [...D[32] || (D[32] = [
             y(" ← Back ", -1)
           ])]),
           _: 1
-        }, 8, ["disabled"])) : d("", !0),
+        }, 8, ["disabled"])) : u("", !0),
         D[35] || (D[35] = e("div", { class: "footer-spacer" }, null, -1)),
-        w.value !== "applying" || me(i).phase === "complete" || me(i).phase === "error" ? (o(), x(ie, {
+        w.value !== "applying" || me(l).phase === "complete" || me(l).phase === "error" ? (o(), x(ie, {
           key: 1,
           variant: "secondary",
-          onClick: D[0] || (D[0] = (te) => r("close"))
+          onClick: D[0] || (D[0] = (ee) => r("close"))
         }, {
-          default: l(() => [
-            y(a(me(i).phase === "complete" ? "Close" : "Cancel"), 1)
+          default: i(() => [
+            y(a(me(l).phase === "complete" ? "Close" : "Cancel"), 1)
           ]),
           _: 1
-        })) : d("", !0),
+        })) : u("", !0),
         w.value === "analysis" ? (o(), x(ie, {
           key: 2,
           variant: "primary",
-          disabled: M.value,
+          disabled: E.value,
           onClick: he
         }, {
-          default: l(() => [
-            y(a(j.value || T.value ? "Continue" : "Apply"), 1)
+          default: i(() => [
+            y(a(U.value || L.value ? "Continue" : "Apply"), 1)
           ]),
           _: 1
-        }, 8, ["disabled"])) : d("", !0),
+        }, 8, ["disabled"])) : u("", !0),
         w.value === "nodes" ? (o(), x(ie, {
           key: 3,
           variant: "primary",
-          onClick: le
+          onClick: ae
         }, {
-          default: l(() => [
-            y(a(P.value || T.value ? "Continue to Models →" : "Continue to Review →"), 1)
+          default: i(() => [
+            y(a(P.value || L.value ? "Continue to Models →" : "Continue to Review →"), 1)
           ]),
           _: 1
-        })) : d("", !0),
+        })) : u("", !0),
         w.value === "models" ? (o(), x(ie, {
           key: 4,
           variant: "primary",
-          onClick: le
+          onClick: ae
         }, {
-          default: l(() => [...D[33] || (D[33] = [
+          default: i(() => [...D[33] || (D[33] = [
             y(" Continue to Review → ", -1)
           ])]),
           _: 1
-        })) : d("", !0),
+        })) : u("", !0),
         w.value === "review" ? (o(), x(ie, {
           key: 5,
           variant: "primary",
           disabled: C.value,
           loading: C.value,
-          onClick: J
+          onClick: K
         }, {
-          default: l(() => [...D[34] || (D[34] = [
+          default: i(() => [...D[34] || (D[34] = [
             y(" Apply Resolution ", -1)
           ])]),
           _: 1
-        }, 8, ["disabled", "loading"])) : d("", !0)
+        }, 8, ["disabled", "loading"])) : u("", !0)
       ]),
       _: 1
     }, 8, ["title", "loading", "error"]));
   }
-}), Kd = /* @__PURE__ */ Y(qd, [["__scopeId", "data-v-85146f4c"]]), Jd = { class: "search-input-wrapper" }, Qd = ["value", "placeholder"], Yd = /* @__PURE__ */ Q({
+}), qd = /* @__PURE__ */ Q(Hd, [["__scopeId", "data-v-85146f4c"]]), Kd = { class: "search-input-wrapper" }, Jd = ["value", "placeholder"], Qd = /* @__PURE__ */ J({
   __name: "SearchInput",
   props: {
     modelValue: {},
@@ -4785,20 +4785,20 @@ const fl = { class: "resolution-stepper" }, gl = { class: "stepper-header" }, pl
   emits: ["update:modelValue", "clear"],
   setup(t, { emit: c }) {
     const n = t, r = c, p = b(null);
-    let g;
-    function h(i) {
-      const m = i.target.value;
-      n.debounce > 0 ? (clearTimeout(g), g = window.setTimeout(() => {
-        r("update:modelValue", m);
-      }, n.debounce)) : r("update:modelValue", m);
+    let f;
+    function h(l) {
+      const v = l.target.value;
+      n.debounce > 0 ? (clearTimeout(f), f = window.setTimeout(() => {
+        r("update:modelValue", v);
+      }, n.debounce)) : r("update:modelValue", v);
     }
-    function v() {
-      var i;
-      r("update:modelValue", ""), r("clear"), (i = p.value) == null || i.focus();
+    function m() {
+      var l;
+      r("update:modelValue", ""), r("clear"), (l = p.value) == null || l.focus();
     }
     return _e(() => {
       n.autoFocus && p.value && p.value.focus();
-    }), (i, m) => (o(), s("div", Jd, [
+    }), (l, v) => (o(), s("div", Kd, [
       e("input", {
         ref_key: "inputRef",
         ref: p,
@@ -4807,17 +4807,17 @@ const fl = { class: "resolution-stepper" }, gl = { class: "stepper-header" }, pl
         placeholder: t.placeholder,
         class: "search-input",
         onInput: h,
-        onKeyup: Je(v, ["escape"])
-      }, null, 40, Qd),
+        onKeyup: Je(m, ["escape"])
+      }, null, 40, Jd),
       t.clearable && t.modelValue ? (o(), s("button", {
         key: 0,
         class: "clear-button",
-        onClick: v,
+        onClick: m,
         title: "Clear search"
-      }, " ✕ ")) : d("", !0)
+      }, " ✕ ")) : u("", !0)
     ]));
   }
-}), Xd = /* @__PURE__ */ Y(Yd, [["__scopeId", "data-v-266f857a"]]), Zd = { class: "search-bar" }, ec = /* @__PURE__ */ Q({
+}), Yd = /* @__PURE__ */ Q(Qd, [["__scopeId", "data-v-266f857a"]]), Xd = { class: "search-bar" }, Zd = /* @__PURE__ */ J({
   __name: "SearchBar",
   props: {
     modelValue: {},
@@ -4827,8 +4827,8 @@ const fl = { class: "resolution-stepper" }, gl = { class: "stepper-header" }, pl
   },
   emits: ["update:modelValue", "clear"],
   setup(t) {
-    return (c, n) => (o(), s("div", Zd, [
-      f(Xd, {
+    return (c, n) => (o(), s("div", Xd, [
+      g(Yd, {
         "model-value": t.modelValue,
         placeholder: t.placeholder,
         debounce: t.debounce,
@@ -4838,10 +4838,10 @@ const fl = { class: "resolution-stepper" }, gl = { class: "stepper-header" }, pl
       }, null, 8, ["model-value", "placeholder", "debounce", "clearable"])
     ]));
   }
-}), dt = /* @__PURE__ */ Y(ec, [["__scopeId", "data-v-3d51bbfd"]]), tc = { class: "section-group" }, oc = {
+}), ct = /* @__PURE__ */ Q(Zd, [["__scopeId", "data-v-3d51bbfd"]]), ec = { class: "section-group" }, tc = {
   key: 0,
   class: "section-content"
-}, sc = /* @__PURE__ */ Q({
+}, oc = /* @__PURE__ */ J({
   __name: "SectionGroup",
   props: {
     title: {},
@@ -4852,42 +4852,42 @@ const fl = { class: "resolution-stepper" }, gl = { class: "stepper-header" }, pl
   emits: ["toggle"],
   setup(t, { emit: c }) {
     const n = t, r = c, p = b(n.initiallyExpanded);
-    function g() {
+    function f() {
       n.collapsible && (p.value = !p.value, r("toggle", p.value));
     }
-    return (h, v) => (o(), s("section", tc, [
-      f(ze, {
+    return (h, m) => (o(), s("section", ec, [
+      g(ze, {
         count: t.count,
         clickable: t.collapsible,
         expanded: p.value,
-        onClick: g
+        onClick: f
       }, {
-        default: l(() => [
+        default: i(() => [
           y(a(t.title), 1)
         ]),
         _: 1
       }, 8, ["count", "clickable", "expanded"]),
-      !t.collapsible || p.value ? (o(), s("div", oc, [
+      !t.collapsible || p.value ? (o(), s("div", tc, [
         ue(h.$slots, "default", {}, void 0, !0)
-      ])) : d("", !0)
+      ])) : u("", !0)
     ]));
   }
-}), be = /* @__PURE__ */ Y(sc, [["__scopeId", "data-v-c48e33ed"]]), nc = { class: "item-header" }, ac = {
+}), be = /* @__PURE__ */ Q(oc, [["__scopeId", "data-v-c48e33ed"]]), sc = { class: "item-header" }, nc = {
   key: 0,
   class: "item-icon"
-}, lc = { class: "item-info" }, ic = {
+}, ac = { class: "item-info" }, lc = {
   key: 0,
   class: "item-title"
-}, rc = {
+}, ic = {
   key: 1,
   class: "item-subtitle"
-}, dc = {
+}, rc = {
   key: 0,
   class: "item-details"
-}, cc = {
+}, dc = {
   key: 1,
   class: "item-actions"
-}, uc = /* @__PURE__ */ Q({
+}, cc = /* @__PURE__ */ J({
   __name: "ItemCard",
   props: {
     status: {},
@@ -4897,43 +4897,43 @@ const fl = { class: "resolution-stepper" }, gl = { class: "stepper-header" }, pl
   emits: ["click"],
   setup(t, { emit: c }) {
     const n = t, r = B(() => n.status ? `status-${n.status}` : "");
-    return (p, g) => (o(), s("div", {
-      class: ne(["item-card", { clickable: t.clickable, compact: t.compact }, r.value]),
-      onClick: g[0] || (g[0] = (h) => t.clickable && p.$emit("click"))
+    return (p, f) => (o(), s("div", {
+      class: se(["item-card", { clickable: t.clickable, compact: t.compact }, r.value]),
+      onClick: f[0] || (f[0] = (h) => t.clickable && p.$emit("click"))
     }, [
-      e("div", nc, [
-        p.$slots.icon ? (o(), s("span", ac, [
+      e("div", sc, [
+        p.$slots.icon ? (o(), s("span", nc, [
           ue(p.$slots, "icon", {}, void 0, !0)
-        ])) : d("", !0),
-        e("div", lc, [
-          p.$slots.title ? (o(), s("div", ic, [
+        ])) : u("", !0),
+        e("div", ac, [
+          p.$slots.title ? (o(), s("div", lc, [
             ue(p.$slots, "title", {}, void 0, !0)
-          ])) : d("", !0),
-          p.$slots.subtitle ? (o(), s("div", rc, [
+          ])) : u("", !0),
+          p.$slots.subtitle ? (o(), s("div", ic, [
             ue(p.$slots, "subtitle", {}, void 0, !0)
-          ])) : d("", !0)
+          ])) : u("", !0)
         ])
       ]),
-      p.$slots.details ? (o(), s("div", dc, [
+      p.$slots.details ? (o(), s("div", rc, [
         ue(p.$slots, "details", {}, void 0, !0)
-      ])) : d("", !0),
-      p.$slots.actions ? (o(), s("div", cc, [
+      ])) : u("", !0),
+      p.$slots.actions ? (o(), s("div", dc, [
         ue(p.$slots, "actions", {}, void 0, !0)
-      ])) : d("", !0)
+      ])) : u("", !0)
     ], 2));
   }
-}), Ce = /* @__PURE__ */ Y(uc, [["__scopeId", "data-v-cc435e0e"]]), mc = { class: "loading-state" }, vc = { class: "loading-message" }, fc = /* @__PURE__ */ Q({
+}), xe = /* @__PURE__ */ Q(cc, [["__scopeId", "data-v-cc435e0e"]]), uc = { class: "loading-state" }, mc = { class: "loading-message" }, vc = /* @__PURE__ */ J({
   __name: "LoadingState",
   props: {
     message: { default: "Loading..." }
   },
   setup(t) {
-    return (c, n) => (o(), s("div", mc, [
+    return (c, n) => (o(), s("div", uc, [
       n[0] || (n[0] = e("div", { class: "spinner" }, null, -1)),
-      e("p", vc, a(t.message), 1)
+      e("p", mc, a(t.message), 1)
     ]));
   }
-}), He = /* @__PURE__ */ Y(fc, [["__scopeId", "data-v-ad8436c9"]]), gc = { class: "error-state" }, pc = { class: "error-message" }, hc = /* @__PURE__ */ Q({
+}), He = /* @__PURE__ */ Q(vc, [["__scopeId", "data-v-ad8436c9"]]), fc = { class: "error-state" }, gc = { class: "error-message" }, pc = /* @__PURE__ */ J({
   __name: "ErrorState",
   props: {
     message: {},
@@ -4941,161 +4941,161 @@ const fl = { class: "resolution-stepper" }, gl = { class: "stepper-header" }, pl
   },
   emits: ["retry"],
   setup(t) {
-    return (c, n) => (o(), s("div", gc, [
+    return (c, n) => (o(), s("div", fc, [
       n[2] || (n[2] = e("span", { class: "error-icon" }, "⚠", -1)),
-      e("p", pc, a(t.message), 1),
+      e("p", gc, a(t.message), 1),
       t.retry ? (o(), x(Z, {
         key: 0,
         variant: "secondary",
         size: "sm",
         onClick: n[0] || (n[0] = (r) => c.$emit("retry"))
       }, {
-        default: l(() => [...n[1] || (n[1] = [
+        default: i(() => [...n[1] || (n[1] = [
           y(" Retry ", -1)
         ])]),
         _: 1
-      })) : d("", !0)
+      })) : u("", !0)
     ]));
   }
-}), qe = /* @__PURE__ */ Y(hc, [["__scopeId", "data-v-5397be48"]]), yc = /* @__PURE__ */ Q({
+}), qe = /* @__PURE__ */ Q(pc, [["__scopeId", "data-v-5397be48"]]), hc = /* @__PURE__ */ J({
   __name: "WorkflowsSection",
   emits: ["refresh"],
   setup(t, { expose: c, emit: n }) {
-    const r = n, { getWorkflows: p } = Se(), g = b([]), h = b(!1), v = b(null), i = b(""), m = b(!0), $ = b(!1), u = b(!1), M = b(!1), C = b(null), L = B(
-      () => g.value.filter((E) => E.status === "broken")
+    const r = n, { getWorkflows: p } = Ce(), f = b([]), h = b(!1), m = b(null), l = b(""), v = b(!0), $ = b(!1), d = b(!1), E = b(!1), C = b(null), z = B(
+      () => f.value.filter((G) => G.status === "broken")
     ), w = B(
-      () => g.value.filter((E) => E.status === "new")
-    ), _ = B(
-      () => g.value.filter((E) => E.status === "modified")
+      () => f.value.filter((G) => G.status === "new")
     ), k = B(
-      () => g.value.filter((E) => E.status === "synced")
-    ), R = B(() => {
-      if (!i.value.trim()) return g.value;
-      const E = i.value.toLowerCase();
-      return g.value.filter((G) => G.name.toLowerCase().includes(E));
-    }), A = B(
-      () => L.value.filter(
-        (E) => !i.value.trim() || E.name.toLowerCase().includes(i.value.toLowerCase())
+      () => f.value.filter((G) => G.status === "modified")
+    ), _ = B(
+      () => f.value.filter((G) => G.status === "synced")
+    ), T = B(() => {
+      if (!l.value.trim()) return f.value;
+      const G = l.value.toLowerCase();
+      return f.value.filter((te) => te.name.toLowerCase().includes(G));
+    }), N = B(
+      () => z.value.filter(
+        (G) => !l.value.trim() || G.name.toLowerCase().includes(l.value.toLowerCase())
+      )
+    ), U = B(
+      () => w.value.filter(
+        (G) => !l.value.trim() || G.name.toLowerCase().includes(l.value.toLowerCase())
       )
     ), j = B(
-      () => w.value.filter(
-        (E) => !i.value.trim() || E.name.toLowerCase().includes(i.value.toLowerCase())
-      )
-    ), K = B(
-      () => _.value.filter(
-        (E) => !i.value.trim() || E.name.toLowerCase().includes(i.value.toLowerCase())
+      () => k.value.filter(
+        (G) => !l.value.trim() || G.name.toLowerCase().includes(l.value.toLowerCase())
       )
     ), P = B(
-      () => k.value.filter(
-        (E) => !i.value.trim() || E.name.toLowerCase().includes(i.value.toLowerCase())
+      () => _.value.filter(
+        (G) => !l.value.trim() || G.name.toLowerCase().includes(l.value.toLowerCase())
       )
-    ), T = B(
+    ), L = B(
       () => $.value ? P.value : P.value.slice(0, 5)
     );
-    async function O(E = !1) {
-      h.value = !0, v.value = null;
+    async function V(G = !1) {
+      h.value = !0, m.value = null;
       try {
-        g.value = await p(E);
-      } catch (G) {
-        v.value = G instanceof Error ? G.message : "Failed to load workflows";
+        f.value = await p(G);
+      } catch (te) {
+        m.value = te instanceof Error ? te.message : "Failed to load workflows";
       } finally {
         h.value = !1;
       }
     }
-    c({ loadWorkflows: O });
-    function z(E) {
-      C.value = E, u.value = !0;
+    c({ loadWorkflows: V });
+    function M(G) {
+      C.value = G, d.value = !0;
     }
-    function S(E) {
-      C.value = E, M.value = !0;
+    function S(G) {
+      C.value = G, E.value = !0;
     }
-    function V() {
+    function F() {
       alert("Bulk resolution not yet implemented");
     }
     function W() {
       r("refresh");
     }
-    function X(E) {
-      const G = [];
-      return E.missing_nodes > 0 && G.push(`${E.missing_nodes} missing node${E.missing_nodes > 1 ? "s" : ""}`), E.missing_models > 0 && G.push(`${E.missing_models} missing model${E.missing_models > 1 ? "s" : ""}`), E.pending_downloads && E.pending_downloads > 0 && G.push(`${E.pending_downloads} pending download${E.pending_downloads > 1 ? "s" : ""}`), G.length > 0 ? G.join(", ") : "Has issues";
+    function Y(G) {
+      const te = [];
+      return G.missing_nodes > 0 && te.push(`${G.missing_nodes} missing node${G.missing_nodes > 1 ? "s" : ""}`), G.missing_models > 0 && te.push(`${G.missing_models} missing model${G.missing_models > 1 ? "s" : ""}`), G.pending_downloads && G.pending_downloads > 0 && te.push(`${G.pending_downloads} pending download${G.pending_downloads > 1 ? "s" : ""}`), te.length > 0 ? te.join(", ") : "Has issues";
     }
-    function oe(E) {
-      const G = E.sync_state === "new" ? "New" : E.sync_state === "modified" ? "Modified" : E.sync_state === "synced" ? "Synced" : E.sync_state;
-      return E.has_path_sync_issues && E.models_needing_path_sync && E.models_needing_path_sync > 0 ? `${E.models_needing_path_sync} model path${E.models_needing_path_sync > 1 ? "s" : ""} need${E.models_needing_path_sync === 1 ? "s" : ""} sync` : G || "Unknown";
+    function le(G) {
+      const te = G.sync_state === "new" ? "New" : G.sync_state === "modified" ? "Modified" : G.sync_state === "synced" ? "Synced" : G.sync_state;
+      return G.has_path_sync_issues && G.models_needing_path_sync && G.models_needing_path_sync > 0 ? `${G.models_needing_path_sync} model path${G.models_needing_path_sync > 1 ? "s" : ""} need${G.models_needing_path_sync === 1 ? "s" : ""} sync` : te || "Unknown";
     }
-    return _e(O), (E, G) => (o(), s(H, null, [
-      f(Ie, null, {
-        header: l(() => [
-          f(Ee, { title: "WORKFLOWS" }, {
-            actions: l(() => [
-              L.value.length > 0 ? (o(), x(Z, {
+    return _e(V), (G, te) => (o(), s(H, null, [
+      g(Ie, null, {
+        header: i(() => [
+          g(Ee, { title: "WORKFLOWS" }, {
+            actions: i(() => [
+              z.value.length > 0 ? (o(), x(Z, {
                 key: 0,
                 variant: "primary",
                 size: "sm",
-                onClick: V
+                onClick: F
               }, {
-                default: l(() => [...G[8] || (G[8] = [
+                default: i(() => [...te[8] || (te[8] = [
                   y(" Resolve All Issues ", -1)
                 ])]),
                 _: 1
-              })) : d("", !0)
+              })) : u("", !0)
             ]),
             _: 1
           })
         ]),
-        search: l(() => [
-          f(dt, {
-            modelValue: i.value,
-            "onUpdate:modelValue": G[0] || (G[0] = (N) => i.value = N),
+        search: i(() => [
+          g(ct, {
+            modelValue: l.value,
+            "onUpdate:modelValue": te[0] || (te[0] = (O) => l.value = O),
             placeholder: "🔍 Search workflows..."
           }, null, 8, ["modelValue"])
         ]),
-        content: l(() => [
+        content: i(() => [
           h.value ? (o(), x(He, {
             key: 0,
             message: "Loading workflows..."
-          })) : v.value ? (o(), x(qe, {
+          })) : m.value ? (o(), x(qe, {
             key: 1,
-            message: v.value,
+            message: m.value,
             retry: !0,
-            onRetry: O
+            onRetry: V
           }, null, 8, ["message"])) : (o(), s(H, { key: 2 }, [
-            A.value.length ? (o(), x(be, {
+            N.value.length ? (o(), x(be, {
               key: 0,
               title: "BROKEN",
-              count: A.value.length
+              count: N.value.length
             }, {
-              default: l(() => [
-                (o(!0), s(H, null, se(A.value, (N) => (o(), x(Ce, {
-                  key: N.name,
+              default: i(() => [
+                (o(!0), s(H, null, oe(N.value, (O) => (o(), x(xe, {
+                  key: O.name,
                   status: "broken"
                 }, {
-                  icon: l(() => [...G[9] || (G[9] = [
+                  icon: i(() => [...te[9] || (te[9] = [
                     y("⚠", -1)
                   ])]),
-                  title: l(() => [
-                    y(a(N.name), 1)
+                  title: i(() => [
+                    y(a(O.name), 1)
                   ]),
-                  subtitle: l(() => [
-                    y(a(X(N)), 1)
+                  subtitle: i(() => [
+                    y(a(Y(O)), 1)
                   ]),
-                  actions: l(() => [
-                    f(Z, {
+                  actions: i(() => [
+                    g(Z, {
                       variant: "primary",
                       size: "sm",
-                      onClick: (U) => S(N.name)
+                      onClick: (R) => S(O.name)
                     }, {
-                      default: l(() => [...G[10] || (G[10] = [
+                      default: i(() => [...te[10] || (te[10] = [
                         y(" Resolve ▸ ", -1)
                       ])]),
                       _: 1
                     }, 8, ["onClick"]),
-                    f(Z, {
+                    g(Z, {
                       variant: "secondary",
                       size: "sm",
-                      onClick: (U) => z(N.name)
+                      onClick: (R) => M(O.name)
                     }, {
-                      default: l(() => [...G[11] || (G[11] = [
+                      default: i(() => [...te[11] || (te[11] = [
                         y(" Details ▸ ", -1)
                       ])]),
                       _: 1
@@ -5105,33 +5105,33 @@ const fl = { class: "resolution-stepper" }, gl = { class: "stepper-header" }, pl
                 }, 1024))), 128))
               ]),
               _: 1
-            }, 8, ["count"])) : d("", !0),
-            j.value.length ? (o(), x(be, {
+            }, 8, ["count"])) : u("", !0),
+            U.value.length ? (o(), x(be, {
               key: 1,
               title: "NEW",
-              count: j.value.length
+              count: U.value.length
             }, {
-              default: l(() => [
-                (o(!0), s(H, null, se(j.value, (N) => (o(), x(Ce, {
-                  key: N.name,
-                  status: N.has_path_sync_issues ? "warning" : "new"
+              default: i(() => [
+                (o(!0), s(H, null, oe(U.value, (O) => (o(), x(xe, {
+                  key: O.name,
+                  status: O.has_path_sync_issues ? "warning" : "new"
                 }, {
-                  icon: l(() => [
-                    y(a(N.has_path_sync_issues ? "⚡" : "●"), 1)
+                  icon: i(() => [
+                    y(a(O.has_path_sync_issues ? "⚡" : "●"), 1)
                   ]),
-                  title: l(() => [
-                    y(a(N.name), 1)
+                  title: i(() => [
+                    y(a(O.name), 1)
                   ]),
-                  subtitle: l(() => [
-                    y(a(oe(N)), 1)
+                  subtitle: i(() => [
+                    y(a(le(O)), 1)
                   ]),
-                  actions: l(() => [
-                    f(Z, {
+                  actions: i(() => [
+                    g(Z, {
                       variant: "secondary",
                       size: "sm",
-                      onClick: (U) => z(N.name)
+                      onClick: (R) => M(O.name)
                     }, {
-                      default: l(() => [...G[12] || (G[12] = [
+                      default: i(() => [...te[12] || (te[12] = [
                         y(" Details ", -1)
                       ])]),
                       _: 1
@@ -5141,33 +5141,33 @@ const fl = { class: "resolution-stepper" }, gl = { class: "stepper-header" }, pl
                 }, 1032, ["status"]))), 128))
               ]),
               _: 1
-            }, 8, ["count"])) : d("", !0),
-            K.value.length ? (o(), x(be, {
+            }, 8, ["count"])) : u("", !0),
+            j.value.length ? (o(), x(be, {
               key: 2,
               title: "MODIFIED",
-              count: K.value.length
+              count: j.value.length
             }, {
-              default: l(() => [
-                (o(!0), s(H, null, se(K.value, (N) => (o(), x(Ce, {
-                  key: N.name,
-                  status: N.has_path_sync_issues ? "warning" : "modified"
+              default: i(() => [
+                (o(!0), s(H, null, oe(j.value, (O) => (o(), x(xe, {
+                  key: O.name,
+                  status: O.has_path_sync_issues ? "warning" : "modified"
                 }, {
-                  icon: l(() => [...G[13] || (G[13] = [
+                  icon: i(() => [...te[13] || (te[13] = [
                     y("⚡", -1)
                   ])]),
-                  title: l(() => [
-                    y(a(N.name), 1)
+                  title: i(() => [
+                    y(a(O.name), 1)
                   ]),
-                  subtitle: l(() => [
-                    y(a(oe(N)), 1)
+                  subtitle: i(() => [
+                    y(a(le(O)), 1)
                   ]),
-                  actions: l(() => [
-                    f(Z, {
+                  actions: i(() => [
+                    g(Z, {
                       variant: "secondary",
                       size: "sm",
-                      onClick: (U) => z(N.name)
+                      onClick: (R) => M(O.name)
                     }, {
-                      default: l(() => [...G[14] || (G[14] = [
+                      default: i(() => [...te[14] || (te[14] = [
                         y(" Details ", -1)
                       ])]),
                       _: 1
@@ -5177,36 +5177,36 @@ const fl = { class: "resolution-stepper" }, gl = { class: "stepper-header" }, pl
                 }, 1032, ["status"]))), 128))
               ]),
               _: 1
-            }, 8, ["count"])) : d("", !0),
+            }, 8, ["count"])) : u("", !0),
             P.value.length ? (o(), x(be, {
               key: 3,
               title: "SYNCED",
               count: P.value.length,
               collapsible: !0,
-              "initially-expanded": m.value,
-              onToggle: G[2] || (G[2] = (N) => m.value = N)
+              "initially-expanded": v.value,
+              onToggle: te[2] || (te[2] = (O) => v.value = O)
             }, {
-              default: l(() => [
-                (o(!0), s(H, null, se(T.value, (N) => (o(), x(Ce, {
-                  key: N.name,
-                  status: N.has_path_sync_issues ? "warning" : "synced"
+              default: i(() => [
+                (o(!0), s(H, null, oe(L.value, (O) => (o(), x(xe, {
+                  key: O.name,
+                  status: O.has_path_sync_issues ? "warning" : "synced"
                 }, {
-                  icon: l(() => [
-                    y(a(N.has_path_sync_issues ? "⚡" : "✓"), 1)
+                  icon: i(() => [
+                    y(a(O.has_path_sync_issues ? "⚡" : "✓"), 1)
                   ]),
-                  title: l(() => [
-                    y(a(N.name), 1)
+                  title: i(() => [
+                    y(a(O.name), 1)
                   ]),
-                  subtitle: l(() => [
-                    y(a(oe(N)), 1)
+                  subtitle: i(() => [
+                    y(a(le(O)), 1)
                   ]),
-                  actions: l(() => [
-                    f(Z, {
+                  actions: i(() => [
+                    g(Z, {
                       variant: "secondary",
                       size: "sm",
-                      onClick: (U) => z(N.name)
+                      onClick: (R) => M(O.name)
                     }, {
-                      default: l(() => [...G[15] || (G[15] = [
+                      default: i(() => [...te[15] || (te[15] = [
                         y(" Details ", -1)
                       ])]),
                       _: 1
@@ -5218,402 +5218,402 @@ const fl = { class: "resolution-stepper" }, gl = { class: "stepper-header" }, pl
                   key: 0,
                   variant: "ghost",
                   size: "sm",
-                  onClick: G[1] || (G[1] = (N) => $.value = !0),
+                  onClick: te[1] || (te[1] = (O) => $.value = !0),
                   style: { width: "100%", "margin-top": "var(--cg-space-2)" }
                 }, {
-                  default: l(() => [
+                  default: i(() => [
                     y(" View all " + a(P.value.length) + " → ", 1)
                   ]),
                   _: 1
-                })) : d("", !0)
+                })) : u("", !0)
               ]),
               _: 1
-            }, 8, ["count", "initially-expanded"])) : d("", !0),
-            R.value.length ? d("", !0) : (o(), x(Ue, {
+            }, 8, ["count", "initially-expanded"])) : u("", !0),
+            T.value.length ? u("", !0) : (o(), x(Oe, {
               key: 4,
               icon: "📭",
-              message: i.value ? `No workflows match '${i.value}'` : "No workflows found in this environment."
+              message: l.value ? `No workflows match '${l.value}'` : "No workflows found in this environment."
             }, null, 8, ["message"]))
           ], 64))
         ]),
         _: 1
       }),
-      u.value && C.value ? (o(), x(cl, {
+      d.value && C.value ? (o(), x(dl, {
         key: 0,
         "workflow-name": C.value,
-        onClose: G[3] || (G[3] = (N) => u.value = !1),
-        onResolve: G[4] || (G[4] = (N) => S(C.value)),
-        onRefresh: G[5] || (G[5] = (N) => r("refresh"))
-      }, null, 8, ["workflow-name"])) : d("", !0),
-      M.value && C.value ? (o(), x(Kd, {
+        onClose: te[3] || (te[3] = (O) => d.value = !1),
+        onResolve: te[4] || (te[4] = (O) => S(C.value)),
+        onRefresh: te[5] || (te[5] = (O) => r("refresh"))
+      }, null, 8, ["workflow-name"])) : u("", !0),
+      E.value && C.value ? (o(), x(qd, {
         key: 1,
         "workflow-name": C.value,
-        onClose: G[6] || (G[6] = (N) => M.value = !1),
+        onClose: te[6] || (te[6] = (O) => E.value = !1),
         onInstall: W,
-        onRefresh: G[7] || (G[7] = (N) => r("refresh"))
-      }, null, 8, ["workflow-name"])) : d("", !0)
+        onRefresh: te[7] || (te[7] = (O) => r("refresh"))
+      }, null, 8, ["workflow-name"])) : u("", !0)
     ], 64));
   }
-}), wc = /* @__PURE__ */ Y(yc, [["__scopeId", "data-v-080576c0"]]), kc = /* @__PURE__ */ Q({
+}), yc = /* @__PURE__ */ Q(hc, [["__scopeId", "data-v-080576c0"]]), wc = /* @__PURE__ */ J({
   __name: "SummaryBar",
   props: {
     variant: { default: "default" }
   },
   setup(t) {
     return (c, n) => (o(), s("div", {
-      class: ne(["summary-bar", t.variant])
+      class: se(["summary-bar", t.variant])
     }, [
       ue(c.$slots, "default", {}, void 0, !0)
     ], 2));
   }
-}), ct = /* @__PURE__ */ Y(kc, [["__scopeId", "data-v-ccb7816e"]]), bc = {
+}), ut = /* @__PURE__ */ Q(wc, [["__scopeId", "data-v-ccb7816e"]]), kc = {
   key: 0,
   class: "model-details"
-}, _c = { class: "detail-section" }, $c = { class: "detail-row" }, Cc = { class: "detail-value mono" }, xc = { class: "detail-row" }, Sc = { class: "detail-value mono" }, Ic = { class: "detail-row" }, Ec = { class: "detail-value mono" }, Mc = { class: "detail-row" }, zc = { class: "detail-value" }, Lc = { class: "detail-row" }, Tc = { class: "detail-value" }, Dc = { class: "detail-row" }, Rc = { class: "detail-value" }, Nc = { class: "detail-section" }, Uc = { class: "section-header" }, Oc = {
+}, bc = { class: "detail-section" }, _c = { class: "detail-row" }, $c = { class: "detail-value mono" }, Cc = { class: "detail-row" }, xc = { class: "detail-value mono" }, Sc = { class: "detail-row" }, Ic = { class: "detail-value mono" }, Ec = { class: "detail-row" }, Mc = { class: "detail-value" }, zc = { class: "detail-row" }, Lc = { class: "detail-value" }, Tc = { class: "detail-row" }, Dc = { class: "detail-value" }, Rc = { class: "detail-section" }, Nc = { class: "section-header" }, Oc = {
   key: 0,
   class: "locations-list"
-}, Bc = { class: "location-path mono" }, Pc = {
+}, Uc = { class: "location-path mono" }, Bc = {
   key: 0,
   class: "location-modified"
-}, Vc = ["onClick"], Fc = {
+}, Pc = ["onClick"], Vc = {
   key: 1,
   class: "empty-state"
-}, Ac = { class: "detail-section" }, Wc = { class: "section-header" }, Gc = {
+}, Ac = { class: "detail-section" }, Fc = { class: "section-header" }, Wc = {
   key: 0,
   class: "sources-list"
-}, jc = { class: "source-type" }, Hc = ["href"], qc = ["disabled", "onClick"], Kc = {
+}, Gc = { class: "source-type" }, jc = ["href"], Hc = ["disabled", "onClick"], qc = {
   key: 1,
   class: "empty-state"
-}, Jc = { class: "add-source-form" }, Qc = ["disabled"], Yc = {
+}, Kc = { class: "add-source-form" }, Jc = ["disabled"], Qc = {
   key: 2,
   class: "source-error"
-}, Xc = {
+}, Yc = {
   key: 3,
   class: "source-success"
-}, Zc = /* @__PURE__ */ Q({
+}, Xc = /* @__PURE__ */ J({
   __name: "ModelDetailModal",
   props: {
     identifier: {}
   },
   emits: ["close"],
   setup(t, { emit: c }) {
-    const n = t, { getModelDetails: r, addModelSource: p, removeModelSource: g, openFileLocation: h } = Se(), v = b(null), i = b(!0), m = b(null), $ = b(""), u = b(!1), M = b(null), C = b(null), L = b(null), w = b(null);
-    let _ = null;
-    function k(O, z = "success", S = 2e3) {
-      _ && clearTimeout(_), w.value = { message: O, type: z }, _ = setTimeout(() => {
+    const n = t, { getModelDetails: r, addModelSource: p, removeModelSource: f, openFileLocation: h } = Ce(), m = b(null), l = b(!0), v = b(null), $ = b(""), d = b(!1), E = b(null), C = b(null), z = b(null), w = b(null);
+    let k = null;
+    function _(V, M = "success", S = 2e3) {
+      k && clearTimeout(k), w.value = { message: V, type: M }, k = setTimeout(() => {
         w.value = null;
       }, S);
     }
-    function R(O) {
-      if (!O) return "Unknown";
-      const z = 1024 * 1024 * 1024, S = 1024 * 1024;
-      return O >= z ? `${(O / z).toFixed(1)} GB` : O >= S ? `${(O / S).toFixed(0)} MB` : `${(O / 1024).toFixed(0)} KB`;
+    function T(V) {
+      if (!V) return "Unknown";
+      const M = 1024 * 1024 * 1024, S = 1024 * 1024;
+      return V >= M ? `${(V / M).toFixed(1)} GB` : V >= S ? `${(V / S).toFixed(0)} MB` : `${(V / 1024).toFixed(0)} KB`;
     }
-    function A(O) {
-      navigator.clipboard.writeText(O), k("Copied to clipboard!");
+    function N(V) {
+      navigator.clipboard.writeText(V), _("Copied to clipboard!");
     }
-    async function j(O) {
+    async function U(V) {
       try {
-        await h(O), k("Opening file location...");
+        await h(V), _("Opening file location...");
       } catch {
-        k("Failed to open location", "error");
+        _("Failed to open location", "error");
       }
     }
-    async function K() {
-      if (!(!$.value.trim() || !v.value)) {
-        u.value = !0, C.value = null, L.value = null;
+    async function j() {
+      if (!(!$.value.trim() || !m.value)) {
+        d.value = !0, C.value = null, z.value = null;
         try {
-          await p(v.value.hash, $.value.trim()), L.value = "Source added successfully!", $.value = "", await T();
-        } catch (O) {
-          C.value = O instanceof Error ? O.message : "Failed to add source";
+          await p(m.value.hash, $.value.trim()), z.value = "Source added successfully!", $.value = "", await L();
+        } catch (V) {
+          C.value = V instanceof Error ? V.message : "Failed to add source";
         } finally {
-          u.value = !1;
+          d.value = !1;
         }
       }
     }
-    async function P(O) {
-      if (v.value) {
-        M.value = O, C.value = null, L.value = null;
+    async function P(V) {
+      if (m.value) {
+        E.value = V, C.value = null, z.value = null;
         try {
-          await g(v.value.hash, O), k("Source removed"), await T();
-        } catch (z) {
-          C.value = z instanceof Error ? z.message : "Failed to remove source";
+          await f(m.value.hash, V), _("Source removed"), await L();
+        } catch (M) {
+          C.value = M instanceof Error ? M.message : "Failed to remove source";
         } finally {
-          M.value = null;
+          E.value = null;
         }
       }
     }
-    async function T() {
-      i.value = !0, m.value = null;
+    async function L() {
+      l.value = !0, v.value = null;
       try {
-        v.value = await r(n.identifier);
-      } catch (O) {
-        m.value = O instanceof Error ? O.message : "Failed to load model details";
+        m.value = await r(n.identifier);
+      } catch (V) {
+        v.value = V instanceof Error ? V.message : "Failed to load model details";
       } finally {
-        i.value = !1;
+        l.value = !1;
       }
     }
-    return _e(T), (O, z) => {
+    return _e(L), (V, M) => {
       var S;
       return o(), s(H, null, [
-        f(st, {
-          title: `Model Details: ${((S = v.value) == null ? void 0 : S.filename) || "Loading..."}`,
+        g(Ye, {
+          title: `Model Details: ${((S = m.value) == null ? void 0 : S.filename) || "Loading..."}`,
           size: "lg",
-          loading: i.value,
-          error: m.value,
-          onClose: z[5] || (z[5] = (V) => O.$emit("close"))
+          loading: l.value,
+          error: v.value,
+          onClose: M[5] || (M[5] = (F) => V.$emit("close"))
         }, {
-          body: l(() => {
-            var V, W, X, oe;
+          body: i(() => {
+            var F, W, Y, le;
             return [
-              v.value ? (o(), s("div", bc, [
-                e("section", _c, [
-                  e("div", $c, [
-                    z[6] || (z[6] = e("span", { class: "detail-label" }, "Hash:", -1)),
-                    e("span", Cc, a(v.value.hash || "Not computed"), 1),
-                    v.value.hash ? (o(), s("button", {
+              m.value ? (o(), s("div", kc, [
+                e("section", bc, [
+                  e("div", _c, [
+                    M[6] || (M[6] = e("span", { class: "detail-label" }, "Hash:", -1)),
+                    e("span", $c, a(m.value.hash || "Not computed"), 1),
+                    m.value.hash ? (o(), s("button", {
                       key: 0,
                       class: "copy-btn",
-                      onClick: z[0] || (z[0] = (E) => A(v.value.hash))
-                    }, "Copy")) : d("", !0)
+                      onClick: M[0] || (M[0] = (G) => N(m.value.hash))
+                    }, "Copy")) : u("", !0)
                   ]),
-                  e("div", xc, [
-                    z[7] || (z[7] = e("span", { class: "detail-label" }, "Blake3:", -1)),
-                    e("span", Sc, a(v.value.blake3 || "Not computed"), 1),
-                    v.value.blake3 ? (o(), s("button", {
+                  e("div", Cc, [
+                    M[7] || (M[7] = e("span", { class: "detail-label" }, "Blake3:", -1)),
+                    e("span", xc, a(m.value.blake3 || "Not computed"), 1),
+                    m.value.blake3 ? (o(), s("button", {
                       key: 0,
                       class: "copy-btn",
-                      onClick: z[1] || (z[1] = (E) => A(v.value.blake3))
-                    }, "Copy")) : d("", !0)
+                      onClick: M[1] || (M[1] = (G) => N(m.value.blake3))
+                    }, "Copy")) : u("", !0)
                   ]),
-                  e("div", Ic, [
-                    z[8] || (z[8] = e("span", { class: "detail-label" }, "SHA256:", -1)),
-                    e("span", Ec, a(v.value.sha256 || "Not computed"), 1),
-                    v.value.sha256 ? (o(), s("button", {
+                  e("div", Sc, [
+                    M[8] || (M[8] = e("span", { class: "detail-label" }, "SHA256:", -1)),
+                    e("span", Ic, a(m.value.sha256 || "Not computed"), 1),
+                    m.value.sha256 ? (o(), s("button", {
                       key: 0,
                       class: "copy-btn",
-                      onClick: z[2] || (z[2] = (E) => A(v.value.sha256))
-                    }, "Copy")) : d("", !0)
+                      onClick: M[2] || (M[2] = (G) => N(m.value.sha256))
+                    }, "Copy")) : u("", !0)
                   ]),
-                  e("div", Mc, [
-                    z[9] || (z[9] = e("span", { class: "detail-label" }, "Size:", -1)),
-                    e("span", zc, a(R(v.value.size)), 1)
+                  e("div", Ec, [
+                    M[9] || (M[9] = e("span", { class: "detail-label" }, "Size:", -1)),
+                    e("span", Mc, a(T(m.value.size)), 1)
                   ]),
-                  e("div", Lc, [
-                    z[10] || (z[10] = e("span", { class: "detail-label" }, "Category:", -1)),
-                    e("span", Tc, a(v.value.category), 1)
+                  e("div", zc, [
+                    M[10] || (M[10] = e("span", { class: "detail-label" }, "Category:", -1)),
+                    e("span", Lc, a(m.value.category), 1)
                   ]),
-                  e("div", Dc, [
-                    z[11] || (z[11] = e("span", { class: "detail-label" }, "Last Seen:", -1)),
-                    e("span", Rc, a(v.value.last_seen || "Unknown"), 1)
+                  e("div", Tc, [
+                    M[11] || (M[11] = e("span", { class: "detail-label" }, "Last Seen:", -1)),
+                    e("span", Dc, a(m.value.last_seen || "Unknown"), 1)
                   ])
                 ]),
-                e("section", Nc, [
-                  e("h4", Uc, "Locations (" + a(((V = v.value.locations) == null ? void 0 : V.length) || 0) + ")", 1),
-                  (W = v.value.locations) != null && W.length ? (o(), s("div", Oc, [
-                    (o(!0), s(H, null, se(v.value.locations, (E, G) => (o(), s("div", {
-                      key: G,
+                e("section", Rc, [
+                  e("h4", Nc, "Locations (" + a(((F = m.value.locations) == null ? void 0 : F.length) || 0) + ")", 1),
+                  (W = m.value.locations) != null && W.length ? (o(), s("div", Oc, [
+                    (o(!0), s(H, null, oe(m.value.locations, (G, te) => (o(), s("div", {
+                      key: te,
                       class: "location-item"
                     }, [
-                      e("span", Bc, a(E.path), 1),
-                      E.modified ? (o(), s("span", Pc, "Modified: " + a(E.modified), 1)) : d("", !0),
-                      E.path ? (o(), s("button", {
+                      e("span", Uc, a(G.path), 1),
+                      G.modified ? (o(), s("span", Bc, "Modified: " + a(G.modified), 1)) : u("", !0),
+                      G.path ? (o(), s("button", {
                         key: 1,
                         class: "open-location-btn",
-                        onClick: (N) => j(E.path)
-                      }, " Open File Location ", 8, Vc)) : d("", !0)
+                        onClick: (O) => U(G.path)
+                      }, " Open File Location ", 8, Pc)) : u("", !0)
                     ]))), 128))
-                  ])) : (o(), s("div", Fc, "No locations found"))
+                  ])) : (o(), s("div", Vc, "No locations found"))
                 ]),
                 e("section", Ac, [
-                  e("h4", Wc, "Download Sources (" + a(((X = v.value.sources) == null ? void 0 : X.length) || 0) + ")", 1),
-                  (oe = v.value.sources) != null && oe.length ? (o(), s("div", Gc, [
-                    (o(!0), s(H, null, se(v.value.sources, (E, G) => (o(), s("div", {
-                      key: G,
+                  e("h4", Fc, "Download Sources (" + a(((Y = m.value.sources) == null ? void 0 : Y.length) || 0) + ")", 1),
+                  (le = m.value.sources) != null && le.length ? (o(), s("div", Wc, [
+                    (o(!0), s(H, null, oe(m.value.sources, (G, te) => (o(), s("div", {
+                      key: te,
                       class: "source-item"
                     }, [
-                      e("span", jc, a(E.type) + ":", 1),
+                      e("span", Gc, a(G.type) + ":", 1),
                       e("a", {
-                        href: E.url,
+                        href: G.url,
                         target: "_blank",
                         class: "source-url"
-                      }, a(E.url), 9, Hc),
+                      }, a(G.url), 9, jc),
                       e("button", {
                         class: "remove-source-btn",
-                        disabled: M.value === E.url,
-                        onClick: (N) => P(E.url)
-                      }, a(M.value === E.url ? "..." : "×"), 9, qc)
+                        disabled: E.value === G.url,
+                        onClick: (O) => P(G.url)
+                      }, a(E.value === G.url ? "..." : "×"), 9, Hc)
                     ]))), 128))
-                  ])) : (o(), s("div", Kc, " No download sources configured ")),
-                  e("div", Jc, [
-                    kt(e("input", {
-                      "onUpdate:modelValue": z[3] || (z[3] = (E) => $.value = E),
+                  ])) : (o(), s("div", qc, " No download sources configured ")),
+                  e("div", Kc, [
+                    at(e("input", {
+                      "onUpdate:modelValue": M[3] || (M[3] = (G) => $.value = G),
                       type: "text",
                       placeholder: "Enter download URL (CivitAI, HuggingFace, etc.)",
                       class: "source-input"
                     }, null, 512), [
-                      [bo, $.value]
+                      [Yt, $.value]
                     ]),
                     e("button", {
                       class: "add-source-btn",
-                      disabled: !$.value.trim() || u.value,
-                      onClick: K
-                    }, a(u.value ? "Adding..." : "Add Source"), 9, Qc)
+                      disabled: !$.value.trim() || d.value,
+                      onClick: j
+                    }, a(d.value ? "Adding..." : "Add Source"), 9, Jc)
                   ]),
-                  C.value ? (o(), s("p", Yc, a(C.value), 1)) : d("", !0),
-                  L.value ? (o(), s("p", Xc, a(L.value), 1)) : d("", !0)
+                  C.value ? (o(), s("p", Qc, a(C.value), 1)) : u("", !0),
+                  z.value ? (o(), s("p", Yc, a(z.value), 1)) : u("", !0)
                 ])
-              ])) : d("", !0)
+              ])) : u("", !0)
             ];
           }),
-          footer: l(() => [
+          footer: i(() => [
             e("button", {
               class: "btn-secondary",
-              onClick: z[4] || (z[4] = (V) => O.$emit("close"))
+              onClick: M[4] || (M[4] = (F) => V.$emit("close"))
             }, "Close")
           ]),
           _: 1
         }, 8, ["title", "loading", "error"]),
-        (o(), x(xe, { to: "body" }, [
+        (o(), x(Se, { to: "body" }, [
           w.value ? (o(), s("div", {
             key: 0,
-            class: ne(["toast", w.value.type])
-          }, a(w.value.message), 3)) : d("", !0)
+            class: se(["toast", w.value.type])
+          }, a(w.value.message), 3)) : u("", !0)
         ]))
       ], 64);
     };
   }
-}), so = /* @__PURE__ */ Y(Zc, [["__scopeId", "data-v-f15cbb56"]]), eu = /* @__PURE__ */ Q({
+}), oo = /* @__PURE__ */ Q(Xc, [["__scopeId", "data-v-f15cbb56"]]), Zc = /* @__PURE__ */ J({
   __name: "ModelsEnvSection",
   emits: ["navigate"],
   setup(t, { emit: c }) {
-    const n = c, { getEnvironmentModels: r, getStatus: p } = Se(), g = b([]), h = b([]), v = b("production"), i = b(!1), m = b(null), $ = b(""), u = b(!1), M = b(null);
+    const n = c, { getEnvironmentModels: r, getStatus: p } = Ce(), f = b([]), h = b([]), m = b("production"), l = b(!1), v = b(null), $ = b(""), d = b(!1), E = b(null);
     function C() {
-      u.value = !1, n("navigate", "model-index");
+      d.value = !1, n("navigate", "model-index");
     }
-    const L = B(
-      () => g.value.reduce((T, O) => T + (O.size || 0), 0)
+    const z = B(
+      () => f.value.reduce((L, V) => L + (V.size || 0), 0)
     ), w = B(() => {
-      if (!$.value.trim()) return g.value;
-      const T = $.value.toLowerCase();
-      return g.value.filter((O) => O.filename.toLowerCase().includes(T));
-    }), _ = B(() => {
-      if (!$.value.trim()) return h.value;
-      const T = $.value.toLowerCase();
-      return h.value.filter((O) => O.filename.toLowerCase().includes(T));
+      if (!$.value.trim()) return f.value;
+      const L = $.value.toLowerCase();
+      return f.value.filter((V) => V.filename.toLowerCase().includes(L));
     }), k = B(() => {
-      const T = {};
-      for (const z of w.value) {
-        const S = z.type || "other";
-        T[S] || (T[S] = []), T[S].push(z);
+      if (!$.value.trim()) return h.value;
+      const L = $.value.toLowerCase();
+      return h.value.filter((V) => V.filename.toLowerCase().includes(L));
+    }), _ = B(() => {
+      const L = {};
+      for (const M of w.value) {
+        const S = M.type || "other";
+        L[S] || (L[S] = []), L[S].push(M);
       }
-      const O = ["checkpoints", "loras", "vae", "controlnet", "upscale_models", "clip", "embeddings", "clip_vision", "diffusion_models", "text_encoders", "unet", "configs", "diffusers"];
-      return Object.entries(T).sort(([z], [S]) => {
-        const V = O.indexOf(z), W = O.indexOf(S);
-        return V >= 0 && W >= 0 ? V - W : V >= 0 ? -1 : W >= 0 ? 1 : z.localeCompare(S);
-      }).map(([z, S]) => ({ type: z, models: S }));
+      const V = ["checkpoints", "loras", "vae", "controlnet", "upscale_models", "clip", "embeddings", "clip_vision", "diffusion_models", "text_encoders", "unet", "configs", "diffusers"];
+      return Object.entries(L).sort(([M], [S]) => {
+        const F = V.indexOf(M), W = V.indexOf(S);
+        return F >= 0 && W >= 0 ? F - W : F >= 0 ? -1 : W >= 0 ? 1 : M.localeCompare(S);
+      }).map(([M, S]) => ({ type: M, models: S }));
     });
-    function R(T) {
-      if (!T) return "Unknown";
-      const O = T / (1024 * 1024);
-      return O >= 1024 ? `${(O / 1024).toFixed(1)} GB` : `${O.toFixed(0)} MB`;
+    function T(L) {
+      if (!L) return "Unknown";
+      const V = L / (1024 * 1024);
+      return V >= 1024 ? `${(V / 1024).toFixed(1)} GB` : `${V.toFixed(0)} MB`;
     }
-    function A(T) {
-      M.value = T.hash || T.filename;
+    function N(L) {
+      E.value = L.hash || L.filename;
     }
-    function j(T) {
+    function U(L) {
       n("navigate", "model-index");
     }
-    function K(T) {
-      alert(`Download functionality not yet implemented for ${T}`);
+    function j(L) {
+      alert(`Download functionality not yet implemented for ${L}`);
     }
     async function P() {
-      i.value = !0, m.value = null;
+      l.value = !0, v.value = null;
       try {
-        const T = await r();
-        g.value = T, h.value = [];
-        const O = await p();
-        v.value = O.environment || "production";
-      } catch (T) {
-        m.value = T instanceof Error ? T.message : "Failed to load models";
+        const L = await r();
+        f.value = L, h.value = [];
+        const V = await p();
+        m.value = V.environment || "production";
+      } catch (L) {
+        v.value = L instanceof Error ? L.message : "Failed to load models";
       } finally {
-        i.value = !1;
+        l.value = !1;
       }
     }
-    return _e(P), (T, O) => (o(), s(H, null, [
-      f(Ie, null, {
-        header: l(() => [
-          f(Ee, {
+    return _e(P), (L, V) => (o(), s(H, null, [
+      g(Ie, null, {
+        header: i(() => [
+          g(Ee, {
             title: "MODELS IN THIS ENVIRONMENT",
             "show-info": !0,
-            onInfoClick: O[0] || (O[0] = (z) => u.value = !0)
+            onInfoClick: V[0] || (V[0] = (M) => d.value = !0)
           })
         ]),
-        search: l(() => [
-          f(dt, {
+        search: i(() => [
+          g(ct, {
             modelValue: $.value,
-            "onUpdate:modelValue": O[1] || (O[1] = (z) => $.value = z),
+            "onUpdate:modelValue": V[1] || (V[1] = (M) => $.value = M),
             placeholder: "🔍 Search models used in this environment..."
           }, null, 8, ["modelValue"])
         ]),
-        content: l(() => [
-          i.value ? (o(), x(He, {
+        content: i(() => [
+          l.value ? (o(), x(He, {
             key: 0,
             message: "Loading environment models..."
-          })) : m.value ? (o(), x(qe, {
+          })) : v.value ? (o(), x(qe, {
             key: 1,
-            message: m.value,
+            message: v.value,
             retry: !0,
             onRetry: P
           }, null, 8, ["message"])) : (o(), s(H, { key: 2 }, [
-            g.value.length ? (o(), x(ct, {
+            f.value.length ? (o(), x(ut, {
               key: 0,
               variant: "compact"
             }, {
-              default: l(() => [
-                y(" Total: " + a(g.value.length) + " models • " + a(R(L.value)) + " (symlinked from workspace) ", 1)
+              default: i(() => [
+                y(" Total: " + a(f.value.length) + " models • " + a(T(z.value)) + " (symlinked from workspace) ", 1)
               ]),
               _: 1
-            })) : d("", !0),
-            (o(!0), s(H, null, se(k.value, (z) => (o(), x(be, {
-              key: z.type,
-              title: z.type.toUpperCase(),
-              count: z.models.length,
+            })) : u("", !0),
+            (o(!0), s(H, null, oe(_.value, (M) => (o(), x(be, {
+              key: M.type,
+              title: M.type.toUpperCase(),
+              count: M.models.length,
               collapsible: !0,
               "initially-expanded": !0
             }, {
-              default: l(() => [
-                (o(!0), s(H, null, se(z.models, (S) => (o(), x(Ce, {
+              default: i(() => [
+                (o(!0), s(H, null, oe(M.models, (S) => (o(), x(xe, {
                   key: S.hash || S.filename,
                   status: "synced"
                 }, {
-                  icon: l(() => [...O[4] || (O[4] = [
+                  icon: i(() => [...V[4] || (V[4] = [
                     y("📦", -1)
                   ])]),
-                  title: l(() => [
+                  title: i(() => [
                     y(a(S.filename), 1)
                   ]),
-                  subtitle: l(() => [
-                    y(a(R(S.size)), 1)
+                  subtitle: i(() => [
+                    y(a(T(S.size)), 1)
                   ]),
-                  details: l(() => [
-                    f(pe, {
+                  details: i(() => [
+                    g(pe, {
                       label: "Used by:",
                       value: (S.used_in_workflows || []).join(", ") || "Not used"
                     }, null, 8, ["value"]),
-                    f(pe, {
+                    g(pe, {
                       label: "Path:",
                       value: S.relative_path || "Unknown",
                       mono: !0
                     }, null, 8, ["value"])
                   ]),
-                  actions: l(() => [
-                    f(Z, {
+                  actions: i(() => [
+                    g(Z, {
                       variant: "secondary",
                       size: "xs",
-                      onClick: (V) => A(S)
+                      onClick: (F) => N(S)
                     }, {
-                      default: l(() => [...O[5] || (O[5] = [
+                      default: i(() => [...V[5] || (V[5] = [
                         y(" View Details ", -1)
                       ])]),
                       _: 1
@@ -5624,51 +5624,51 @@ const fl = { class: "resolution-stepper" }, gl = { class: "stepper-header" }, pl
               ]),
               _: 2
             }, 1032, ["title", "count"]))), 128)),
-            _.value.length ? (o(), x(be, {
+            k.value.length ? (o(), x(be, {
               key: 1,
               title: "MISSING",
-              count: _.value.length
+              count: k.value.length
             }, {
-              default: l(() => [
-                (o(!0), s(H, null, se(_.value, (z) => (o(), x(Ce, {
-                  key: z.filename,
+              default: i(() => [
+                (o(!0), s(H, null, oe(k.value, (M) => (o(), x(xe, {
+                  key: M.filename,
                   status: "broken"
                 }, {
-                  icon: l(() => [...O[6] || (O[6] = [
+                  icon: i(() => [...V[6] || (V[6] = [
                     y("⚠", -1)
                   ])]),
-                  title: l(() => [
-                    y(a(z.filename), 1)
+                  title: i(() => [
+                    y(a(M.filename), 1)
                   ]),
-                  subtitle: l(() => [...O[7] || (O[7] = [
+                  subtitle: i(() => [...V[7] || (V[7] = [
                     e("span", { style: { color: "var(--cg-color-error)" } }, "Not found in workspace index", -1)
                   ])]),
-                  details: l(() => {
+                  details: i(() => {
                     var S;
                     return [
-                      f(pe, {
+                      g(pe, {
                         label: "Required by:",
-                        value: ((S = z.workflow_names) == null ? void 0 : S.join(", ")) || "Unknown"
+                        value: ((S = M.workflow_names) == null ? void 0 : S.join(", ")) || "Unknown"
                       }, null, 8, ["value"])
                     ];
                   }),
-                  actions: l(() => [
-                    f(Z, {
+                  actions: i(() => [
+                    g(Z, {
                       variant: "primary",
                       size: "sm",
-                      onClick: (S) => K(z.filename)
+                      onClick: (S) => j(M.filename)
                     }, {
-                      default: l(() => [...O[8] || (O[8] = [
+                      default: i(() => [...V[8] || (V[8] = [
                         y(" Download ", -1)
                       ])]),
                       _: 1
                     }, 8, ["onClick"]),
-                    f(Z, {
+                    g(Z, {
                       variant: "secondary",
                       size: "sm",
-                      onClick: (S) => j(z.filename)
+                      onClick: (S) => U(M.filename)
                     }, {
-                      default: l(() => [...O[9] || (O[9] = [
+                      default: i(() => [...V[9] || (V[9] = [
                         y(" Search Workspace Index ", -1)
                       ])]),
                       _: 1
@@ -5678,34 +5678,34 @@ const fl = { class: "resolution-stepper" }, gl = { class: "stepper-header" }, pl
                 }, 1024))), 128))
               ]),
               _: 1
-            }, 8, ["count"])) : d("", !0),
-            !w.value.length && !_.value.length ? (o(), x(Ue, {
+            }, 8, ["count"])) : u("", !0),
+            !w.value.length && !k.value.length ? (o(), x(Oe, {
               key: 2,
               icon: "📭",
               message: $.value ? `No models match '${$.value}'` : "No models in this environment."
-            }, null, 8, ["message"])) : d("", !0)
+            }, null, 8, ["message"])) : u("", !0)
           ], 64))
         ]),
         _: 1
       }),
-      f(je, {
-        show: u.value,
+      g(je, {
+        show: d.value,
         title: "About Environment Models",
-        onClose: O[2] || (O[2] = (z) => u.value = !1)
+        onClose: V[2] || (V[2] = (M) => d.value = !1)
       }, {
-        content: l(() => [
+        content: i(() => [
           e("p", null, [
-            O[10] || (O[10] = y(" These are models currently used by workflows in ", -1)),
-            e("strong", null, '"' + a(v.value) + '"', 1),
-            O[11] || (O[11] = y(". All models are symlinked from the workspace model index. ", -1))
+            V[10] || (V[10] = y(" These are models currently used by workflows in ", -1)),
+            e("strong", null, '"' + a(m.value) + '"', 1),
+            V[11] || (V[11] = y(". All models are symlinked from the workspace model index. ", -1))
           ])
         ]),
-        actions: l(() => [
-          f(Z, {
+        actions: i(() => [
+          g(Z, {
             variant: "primary",
             onClick: C
           }, {
-            default: l(() => [...O[12] || (O[12] = [
+            default: i(() => [...V[12] || (V[12] = [
               y(" View Workspace Model Index → ", -1)
             ])]),
             _: 1
@@ -5713,17 +5713,17 @@ const fl = { class: "resolution-stepper" }, gl = { class: "stepper-header" }, pl
         ]),
         _: 1
       }, 8, ["show"]),
-      M.value ? (o(), x(so, {
+      E.value ? (o(), x(oo, {
         key: 0,
-        identifier: M.value,
-        onClose: O[3] || (O[3] = (z) => M.value = null)
-      }, null, 8, ["identifier"])) : d("", !0)
+        identifier: E.value,
+        onClose: V[3] || (V[3] = (M) => E.value = null)
+      }, null, 8, ["identifier"])) : u("", !0)
     ], 64));
   }
-}), tu = /* @__PURE__ */ Y(eu, [["__scopeId", "data-v-cb4f12b3"]]), ou = {
+}), eu = /* @__PURE__ */ Q(Zc, [["__scopeId", "data-v-cb4f12b3"]]), tu = {
   key: 0,
   class: "indexing-progress"
-}, su = { class: "progress-info" }, nu = { class: "progress-label" }, au = { class: "progress-count" }, lu = { class: "progress-bar" }, iu = { class: "modal-content" }, ru = { class: "modal-header" }, du = { class: "modal-body" }, cu = { class: "input-group" }, uu = { class: "current-path" }, mu = { class: "input-group" }, vu = { class: "modal-footer" }, fu = { class: "modal-content" }, gu = { class: "modal-header" }, pu = { class: "modal-body" }, hu = { class: "input-group" }, yu = { class: "input-group" }, wu = { class: "modal-footer" }, ku = /* @__PURE__ */ Q({
+}, ou = { class: "progress-info" }, su = { class: "progress-label" }, nu = { class: "progress-count" }, au = { class: "progress-bar" }, lu = { class: "modal-content" }, iu = { class: "modal-header" }, ru = { class: "modal-body" }, du = { class: "input-group" }, cu = { class: "current-path" }, uu = { class: "input-group" }, mu = { class: "modal-footer" }, vu = { class: "modal-content" }, fu = { class: "modal-header" }, gu = { class: "modal-body" }, pu = { class: "input-group" }, hu = { class: "input-group" }, yu = { class: "modal-footer" }, wu = /* @__PURE__ */ J({
   __name: "ModelIndexSection",
   emits: ["refresh"],
   setup(t, { emit: c }) {
@@ -5731,126 +5731,126 @@ const fl = { class: "resolution-stepper" }, gl = { class: "stepper-header" }, pl
       getWorkspaceModels: n,
       scanWorkspaceModels: r,
       getModelsDirectory: p,
-      setModelsDirectory: g
-    } = Se(), { addToQueue: h } = xt(), v = c, i = b([]), m = b(!1), $ = b(!1), u = b(null), M = b(""), C = b(!1), L = b(null), w = b(!1), _ = b(null), k = b(""), R = b(!1), A = b(!1), j = b(""), K = b(""), P = b(null), T = B(
-      () => i.value.reduce((N, U) => N + (U.size || 0), 0)
-    ), O = B(() => {
-      if (!M.value.trim()) return i.value;
-      const N = M.value.toLowerCase();
-      return i.value.filter((U) => {
-        const ae = U, ee = U.sha256 || ae.sha256_hash || "";
-        return U.filename.toLowerCase().includes(N) || ee.toLowerCase().includes(N);
+      setModelsDirectory: f
+    } = Ce(), { addToQueue: h } = Ct(), m = c, l = b([]), v = b(!1), $ = b(!1), d = b(null), E = b(""), C = b(!1), z = b(null), w = b(!1), k = b(null), _ = b(""), T = b(!1), N = b(!1), U = b(""), j = b(""), P = b(null), L = B(
+      () => l.value.reduce((O, R) => O + (R.size || 0), 0)
+    ), V = B(() => {
+      if (!E.value.trim()) return l.value;
+      const O = E.value.toLowerCase();
+      return l.value.filter((R) => {
+        const ne = R, X = R.sha256 || ne.sha256_hash || "";
+        return R.filename.toLowerCase().includes(O) || X.toLowerCase().includes(O);
       });
-    }), z = B(() => {
-      const N = {};
-      for (const ae of O.value) {
-        const ee = ae.type || "other";
-        N[ee] || (N[ee] = []), N[ee].push(ae);
+    }), M = B(() => {
+      const O = {};
+      for (const ne of V.value) {
+        const X = ne.type || "other";
+        O[X] || (O[X] = []), O[X].push(ne);
       }
-      const U = ["checkpoints", "loras", "vae", "controlnet", "upscale_models", "clip", "embeddings", "clip_vision", "diffusion_models", "text_encoders", "unet", "configs", "diffusers"];
-      return Object.entries(N).sort(([ae], [ee]) => {
-        const $e = U.indexOf(ae), le = U.indexOf(ee);
-        return $e >= 0 && le >= 0 ? $e - le : $e >= 0 ? -1 : le >= 0 ? 1 : ae.localeCompare(ee);
-      }).map(([ae, ee]) => ({ type: ae, models: ee }));
+      const R = ["checkpoints", "loras", "vae", "controlnet", "upscale_models", "clip", "embeddings", "clip_vision", "diffusion_models", "text_encoders", "unet", "configs", "diffusers"];
+      return Object.entries(O).sort(([ne], [X]) => {
+        const $e = R.indexOf(ne), ae = R.indexOf(X);
+        return $e >= 0 && ae >= 0 ? $e - ae : $e >= 0 ? -1 : ae >= 0 ? 1 : ne.localeCompare(X);
+      }).map(([ne, X]) => ({ type: ne, models: X }));
     });
-    function S(N) {
-      if (!N) return "Unknown";
-      const U = 1024 * 1024 * 1024, ae = 1024 * 1024;
-      return N >= U ? `${(N / U).toFixed(1)} GB` : N >= ae ? `${(N / ae).toFixed(0)} MB` : `${(N / 1024).toFixed(0)} KB`;
+    function S(O) {
+      if (!O) return "Unknown";
+      const R = 1024 * 1024 * 1024, ne = 1024 * 1024;
+      return O >= R ? `${(O / R).toFixed(1)} GB` : O >= ne ? `${(O / ne).toFixed(0)} MB` : `${(O / 1024).toFixed(0)} KB`;
     }
-    function V(N) {
-      L.value = N.hash || N.filename;
+    function F(O) {
+      z.value = O.hash || O.filename;
     }
     async function W() {
-      $.value = !0, u.value = null;
+      $.value = !0, d.value = null;
       try {
-        const N = await r();
-        await E(), N.changes > 0 && console.log(`Scan complete: ${N.changes} changes detected`);
-      } catch (N) {
-        u.value = N instanceof Error ? N.message : "Failed to scan models";
+        const O = await r();
+        await G(), O.changes > 0 && console.log(`Scan complete: ${O.changes} changes detected`);
+      } catch (O) {
+        d.value = O instanceof Error ? O.message : "Failed to scan models";
       } finally {
         $.value = !1;
       }
     }
-    async function X() {
-      if (k.value.trim()) {
-        R.value = !0, u.value = null;
+    async function Y() {
+      if (_.value.trim()) {
+        T.value = !0, d.value = null;
         try {
-          const N = await g(k.value.trim());
-          _.value = N.path, w.value = !1, k.value = "", await E(), console.log(`Directory changed: ${N.models_indexed} models indexed`), v("refresh");
-        } catch (N) {
-          u.value = N instanceof Error ? N.message : "Failed to change directory";
+          const O = await f(_.value.trim());
+          k.value = O.path, w.value = !1, _.value = "", await G(), console.log(`Directory changed: ${O.models_indexed} models indexed`), m("refresh");
+        } catch (O) {
+          d.value = O instanceof Error ? O.message : "Failed to change directory";
         } finally {
-          R.value = !1;
+          T.value = !1;
         }
       }
     }
-    function oe() {
-      if (!j.value.trim() || !K.value.trim()) return;
-      const N = K.value.split("/").pop() || "model.safetensors";
+    function le() {
+      if (!U.value.trim() || !j.value.trim()) return;
+      const O = j.value.split("/").pop() || "model.safetensors";
       h([{
         workflow: "__manual__",
-        filename: N,
-        url: j.value.trim(),
-        targetPath: K.value.trim()
-      }]), j.value = "", K.value = "", A.value = !1;
-    }
-    async function E() {
-      m.value = !0, u.value = null;
-      try {
-        i.value = await n();
-      } catch (N) {
-        u.value = N instanceof Error ? N.message : "Failed to load workspace models";
-      } finally {
-        m.value = !1;
-      }
+        filename: O,
+        url: U.value.trim(),
+        targetPath: j.value.trim()
+      }]), U.value = "", j.value = "", N.value = !1;
     }
     async function G() {
+      v.value = !0, d.value = null;
       try {
-        const N = await p();
-        _.value = N.path;
+        l.value = await n();
+      } catch (O) {
+        d.value = O instanceof Error ? O.message : "Failed to load workspace models";
+      } finally {
+        v.value = !1;
+      }
+    }
+    async function te() {
+      try {
+        const O = await p();
+        k.value = O.path;
       } catch {
       }
     }
     return _e(() => {
-      E(), G();
-    }), (N, U) => (o(), s(H, null, [
-      f(Ie, null, {
-        header: l(() => [
-          f(Ee, {
+      G(), te();
+    }), (O, R) => (o(), s(H, null, [
+      g(Ie, null, {
+        header: i(() => [
+          g(Ee, {
             title: "WORKSPACE MODEL INDEX",
             "show-info": !0,
             stacked: !0,
-            onInfoClick: U[2] || (U[2] = (ae) => C.value = !0)
+            onInfoClick: R[2] || (R[2] = (ne) => C.value = !0)
           }, {
-            actions: l(() => [
-              f(Z, {
+            actions: i(() => [
+              g(Z, {
                 variant: "primary",
                 size: "sm",
                 disabled: $.value,
                 onClick: W
               }, {
-                default: l(() => [
+                default: i(() => [
                   y(a($.value ? "Scanning..." : "Scan for Models"), 1)
                 ]),
                 _: 1
               }, 8, ["disabled"]),
-              f(Z, {
+              g(Z, {
                 variant: "primary",
                 size: "sm",
-                onClick: U[0] || (U[0] = (ae) => w.value = !0)
+                onClick: R[0] || (R[0] = (ne) => w.value = !0)
               }, {
-                default: l(() => [...U[15] || (U[15] = [
+                default: i(() => [...R[15] || (R[15] = [
                   y(" Change Directory ", -1)
                 ])]),
                 _: 1
               }),
-              f(Z, {
+              g(Z, {
                 variant: "primary",
                 size: "sm",
-                onClick: U[1] || (U[1] = (ae) => A.value = !0)
+                onClick: R[1] || (R[1] = (ne) => N.value = !0)
               }, {
-                default: l(() => [...U[16] || (U[16] = [
+                default: i(() => [...R[16] || (R[16] = [
                   e("svg", {
                     width: "14",
                     height: "14",
@@ -5868,81 +5868,81 @@ const fl = { class: "resolution-stepper" }, gl = { class: "stepper-header" }, pl
             _: 1
           })
         ]),
-        search: l(() => [
-          P.value ? (o(), s("div", ou, [
-            e("div", su, [
-              e("span", nu, a(P.value.message), 1),
-              e("span", au, a(P.value.current) + "/" + a(P.value.total), 1)
+        search: i(() => [
+          P.value ? (o(), s("div", tu, [
+            e("div", ou, [
+              e("span", su, a(P.value.message), 1),
+              e("span", nu, a(P.value.current) + "/" + a(P.value.total), 1)
             ]),
-            e("div", lu, [
+            e("div", au, [
               e("div", {
                 class: "progress-fill",
                 style: Qe({ width: `${P.value.current / P.value.total * 100}%` })
               }, null, 4)
             ])
-          ])) : d("", !0),
-          f(dt, {
-            modelValue: M.value,
-            "onUpdate:modelValue": U[3] || (U[3] = (ae) => M.value = ae),
+          ])) : u("", !0),
+          g(ct, {
+            modelValue: E.value,
+            "onUpdate:modelValue": R[3] || (R[3] = (ne) => E.value = ne),
             placeholder: "🔍 Search all indexed models..."
           }, null, 8, ["modelValue"])
         ]),
-        content: l(() => [
-          m.value || P.value ? (o(), x(He, {
+        content: i(() => [
+          v.value || P.value ? (o(), x(He, {
             key: 0,
             message: P.value ? "Indexing models..." : "Loading workspace models..."
-          }, null, 8, ["message"])) : u.value ? (o(), x(qe, {
+          }, null, 8, ["message"])) : d.value ? (o(), x(qe, {
             key: 1,
-            message: u.value,
+            message: d.value,
             retry: !0,
-            onRetry: E
+            onRetry: G
           }, null, 8, ["message"])) : (o(), s(H, { key: 2 }, [
-            i.value.length ? (o(), x(ct, {
+            l.value.length ? (o(), x(ut, {
               key: 0,
               variant: "compact"
             }, {
-              default: l(() => [
-                y(" Total: " + a(i.value.length) + " models • " + a(S(T.value)), 1)
+              default: i(() => [
+                y(" Total: " + a(l.value.length) + " models • " + a(S(L.value)), 1)
               ]),
               _: 1
-            })) : d("", !0),
-            (o(!0), s(H, null, se(z.value, (ae) => (o(), x(be, {
-              key: ae.type,
-              title: ae.type.toUpperCase(),
-              count: ae.models.length,
+            })) : u("", !0),
+            (o(!0), s(H, null, oe(M.value, (ne) => (o(), x(be, {
+              key: ne.type,
+              title: ne.type.toUpperCase(),
+              count: ne.models.length,
               collapsible: !0,
               "initially-expanded": !1
             }, {
-              default: l(() => [
-                (o(!0), s(H, null, se(ae.models, (ee) => (o(), x(Ce, {
-                  key: ee.sha256 || ee.filename,
+              default: i(() => [
+                (o(!0), s(H, null, oe(ne.models, (X) => (o(), x(xe, {
+                  key: X.sha256 || X.filename,
                   status: "synced"
                 }, {
-                  icon: l(() => [...U[17] || (U[17] = [
+                  icon: i(() => [...R[17] || (R[17] = [
                     y("📦", -1)
                   ])]),
-                  title: l(() => [
-                    y(a(ee.filename), 1)
+                  title: i(() => [
+                    y(a(X.filename), 1)
                   ]),
-                  subtitle: l(() => [
-                    y(a(S(ee.size)), 1)
+                  subtitle: i(() => [
+                    y(a(S(X.size)), 1)
                   ]),
-                  details: l(() => [
-                    f(pe, {
+                  details: i(() => [
+                    g(pe, {
                       label: "Hash:",
-                      value: ee.hash ? ee.hash.substring(0, 16) : "N/A",
+                      value: X.hash ? X.hash.substring(0, 16) : "N/A",
                       mono: !0,
                       "value-variant": "hash",
                       "label-min-width": "auto"
                     }, null, 8, ["value"])
                   ]),
-                  actions: l(() => [
-                    f(Z, {
+                  actions: i(() => [
+                    g(Z, {
                       variant: "secondary",
                       size: "xs",
-                      onClick: ($e) => V(ee)
+                      onClick: ($e) => F(X)
                     }, {
-                      default: l(() => [...U[18] || (U[18] = [
+                      default: i(() => [...R[18] || (R[18] = [
                         y(" View Details ", -1)
                       ])]),
                       _: 1
@@ -5953,21 +5953,21 @@ const fl = { class: "resolution-stepper" }, gl = { class: "stepper-header" }, pl
               ]),
               _: 2
             }, 1032, ["title", "count"]))), 128)),
-            O.value.length ? d("", !0) : (o(), x(Ue, {
+            V.value.length ? u("", !0) : (o(), x(Oe, {
               key: 1,
               icon: "📭",
-              message: M.value ? `No models match '${M.value}'` : "No models in workspace index"
+              message: E.value ? `No models match '${E.value}'` : "No models in workspace index"
             }, null, 8, ["message"]))
           ], 64))
         ]),
         _: 1
       }),
-      f(je, {
+      g(je, {
         show: C.value,
         title: "About Workspace Model Index",
-        onClose: U[4] || (U[4] = (ae) => C.value = !1)
+        onClose: R[4] || (R[4] = (ne) => C.value = !1)
       }, {
-        content: l(() => [...U[19] || (U[19] = [
+        content: i(() => [...R[19] || (R[19] = [
           e("p", null, [
             y(" Content-addressable model storage shared across "),
             e("strong", null, "all environments"),
@@ -5976,183 +5976,183 @@ const fl = { class: "resolution-stepper" }, gl = { class: "stepper-header" }, pl
         ])]),
         _: 1
       }, 8, ["show"]),
-      L.value ? (o(), x(so, {
+      z.value ? (o(), x(oo, {
         key: 0,
-        identifier: L.value,
-        onClose: U[5] || (U[5] = (ae) => L.value = null)
-      }, null, 8, ["identifier"])) : d("", !0),
-      (o(), x(xe, { to: "body" }, [
+        identifier: z.value,
+        onClose: R[5] || (R[5] = (ne) => z.value = null)
+      }, null, 8, ["identifier"])) : u("", !0),
+      (o(), x(Se, { to: "body" }, [
         w.value ? (o(), s("div", {
           key: 0,
           class: "modal-overlay",
-          onClick: U[9] || (U[9] = ke((ae) => w.value = !1, ["self"]))
+          onClick: R[9] || (R[9] = ke((ne) => w.value = !1, ["self"]))
         }, [
-          e("div", iu, [
-            e("div", ru, [
-              U[20] || (U[20] = e("h3", null, "Change Models Directory", -1)),
+          e("div", lu, [
+            e("div", iu, [
+              R[20] || (R[20] = e("h3", null, "Change Models Directory", -1)),
               e("button", {
                 class: "modal-close",
-                onClick: U[6] || (U[6] = (ae) => w.value = !1)
+                onClick: R[6] || (R[6] = (ne) => w.value = !1)
               }, "✕")
             ]),
-            e("div", du, [
-              e("div", cu, [
-                U[21] || (U[21] = e("label", null, "Current Directory", -1)),
-                e("code", uu, a(_.value || "Not set"), 1)
+            e("div", ru, [
+              e("div", du, [
+                R[21] || (R[21] = e("label", null, "Current Directory", -1)),
+                e("code", cu, a(k.value || "Not set"), 1)
               ]),
-              e("div", mu, [
-                U[22] || (U[22] = e("label", null, "New Directory Path", -1)),
-                f(Ne, {
-                  modelValue: k.value,
-                  "onUpdate:modelValue": U[7] || (U[7] = (ae) => k.value = ae),
+              e("div", uu, [
+                R[22] || (R[22] = e("label", null, "New Directory Path", -1)),
+                g(Ne, {
+                  modelValue: _.value,
+                  "onUpdate:modelValue": R[7] || (R[7] = (ne) => _.value = ne),
                   placeholder: "/path/to/models"
                 }, null, 8, ["modelValue"])
               ]),
-              U[23] || (U[23] = e("p", { class: "modal-note" }, " Note: Changing the directory will scan and index all models in the new location. This may take a few minutes for large collections. ", -1))
+              R[23] || (R[23] = e("p", { class: "modal-note" }, " Note: Changing the directory will scan and index all models in the new location. This may take a few minutes for large collections. ", -1))
             ]),
-            e("div", vu, [
-              f(ie, {
+            e("div", mu, [
+              g(ie, {
                 variant: "secondary",
-                onClick: U[8] || (U[8] = (ae) => w.value = !1)
+                onClick: R[8] || (R[8] = (ne) => w.value = !1)
               }, {
-                default: l(() => [...U[24] || (U[24] = [
+                default: i(() => [...R[24] || (R[24] = [
                   y(" Cancel ", -1)
                 ])]),
                 _: 1
               }),
-              f(ie, {
+              g(ie, {
                 variant: "primary",
-                disabled: !k.value.trim() || R.value,
-                loading: R.value,
-                onClick: X
+                disabled: !_.value.trim() || T.value,
+                loading: T.value,
+                onClick: Y
               }, {
-                default: l(() => [
-                  y(a(R.value ? "Indexing..." : "Change Directory"), 1)
+                default: i(() => [
+                  y(a(T.value ? "Indexing..." : "Change Directory"), 1)
                 ]),
                 _: 1
               }, 8, ["disabled", "loading"])
             ])
           ])
-        ])) : d("", !0)
+        ])) : u("", !0)
       ])),
-      (o(), x(xe, { to: "body" }, [
-        A.value ? (o(), s("div", {
+      (o(), x(Se, { to: "body" }, [
+        N.value ? (o(), s("div", {
           key: 0,
           class: "modal-overlay",
-          onClick: U[14] || (U[14] = ke((ae) => A.value = !1, ["self"]))
+          onClick: R[14] || (R[14] = ke((ne) => N.value = !1, ["self"]))
         }, [
-          e("div", fu, [
-            e("div", gu, [
-              U[25] || (U[25] = e("h3", null, "Download New Model", -1)),
+          e("div", vu, [
+            e("div", fu, [
+              R[25] || (R[25] = e("h3", null, "Download New Model", -1)),
               e("button", {
                 class: "modal-close",
-                onClick: U[10] || (U[10] = (ae) => A.value = !1)
+                onClick: R[10] || (R[10] = (ne) => N.value = !1)
               }, "✕")
             ]),
-            e("div", pu, [
-              e("div", hu, [
-                U[26] || (U[26] = e("label", null, "Download URL", -1)),
-                f(Ne, {
-                  modelValue: j.value,
-                  "onUpdate:modelValue": U[11] || (U[11] = (ae) => j.value = ae),
+            e("div", gu, [
+              e("div", pu, [
+                R[26] || (R[26] = e("label", null, "Download URL", -1)),
+                g(Ne, {
+                  modelValue: U.value,
+                  "onUpdate:modelValue": R[11] || (R[11] = (ne) => U.value = ne),
                   placeholder: "https://civitai.com/api/download/models/..."
                 }, null, 8, ["modelValue"])
               ]),
-              e("div", yu, [
-                U[27] || (U[27] = e("label", null, "Target Path (relative to models directory)", -1)),
-                f(Ne, {
-                  modelValue: K.value,
-                  "onUpdate:modelValue": U[12] || (U[12] = (ae) => K.value = ae),
+              e("div", hu, [
+                R[27] || (R[27] = e("label", null, "Target Path (relative to models directory)", -1)),
+                g(Ne, {
+                  modelValue: j.value,
+                  "onUpdate:modelValue": R[12] || (R[12] = (ne) => j.value = ne),
                   placeholder: "e.g. checkpoints/model.safetensors"
                 }, null, 8, ["modelValue"])
               ]),
-              U[28] || (U[28] = e("p", { class: "modal-note" }, " The model will be queued for download in the background. You can monitor progress in the download queue. ", -1))
+              R[28] || (R[28] = e("p", { class: "modal-note" }, " The model will be queued for download in the background. You can monitor progress in the download queue. ", -1))
             ]),
-            e("div", wu, [
-              f(ie, {
+            e("div", yu, [
+              g(ie, {
                 variant: "secondary",
-                onClick: U[13] || (U[13] = (ae) => A.value = !1)
+                onClick: R[13] || (R[13] = (ne) => N.value = !1)
               }, {
-                default: l(() => [...U[29] || (U[29] = [
+                default: i(() => [...R[29] || (R[29] = [
                   y(" Cancel ", -1)
                 ])]),
                 _: 1
               }),
-              f(ie, {
+              g(ie, {
                 variant: "primary",
-                disabled: !j.value.trim() || !K.value.trim(),
-                onClick: oe
+                disabled: !U.value.trim() || !j.value.trim(),
+                onClick: le
               }, {
-                default: l(() => [...U[30] || (U[30] = [
+                default: i(() => [...R[30] || (R[30] = [
                   y(" Queue Download ", -1)
                 ])]),
                 _: 1
               }, 8, ["disabled"])
             ])
           ])
-        ])) : d("", !0)
+        ])) : u("", !0)
       ]))
     ], 64));
   }
-}), bu = /* @__PURE__ */ Y(ku, [["__scopeId", "data-v-73b78d84"]]), _u = { class: "node-details" }, $u = { class: "status-row" }, Cu = {
+}), ku = /* @__PURE__ */ Q(wu, [["__scopeId", "data-v-73b78d84"]]), bu = { class: "node-details" }, _u = { class: "status-row" }, $u = {
   key: 0,
   class: "detail-row"
-}, xu = { class: "value" }, Su = { class: "detail-row" }, Iu = { class: "value" }, Eu = {
+}, Cu = { class: "value" }, xu = { class: "detail-row" }, Su = { class: "value" }, Iu = {
   key: 1,
   class: "detail-row"
-}, Mu = { class: "value mono" }, zu = {
+}, Eu = { class: "value mono" }, Mu = {
   key: 2,
   class: "detail-row"
-}, Lu = ["href"], Tu = {
+}, zu = ["href"], Lu = {
   key: 3,
   class: "detail-row"
-}, Du = { class: "value mono small" }, Ru = { class: "detail-row" }, Nu = {
+}, Tu = { class: "value mono small" }, Du = { class: "detail-row" }, Ru = {
   key: 0,
   class: "value"
-}, Uu = {
+}, Nu = {
   key: 1,
   class: "workflow-list"
-}, Ou = /* @__PURE__ */ Q({
+}, Ou = /* @__PURE__ */ J({
   __name: "NodeDetailsModal",
   props: {
     node: {}
   },
   emits: ["close"],
   setup(t, { emit: c }) {
-    const n = t, r = c, p = B(() => n.node.installed ? n.node.tracked ? n.node.source === "development" ? "dev" : "installed" : "warning" : "missing"), g = B(() => n.node.installed ? n.node.tracked ? n.node.source === "development" ? "Development" : "Installed" : "Untracked" : "Missing"), h = B(() => ({
+    const n = t, r = c, p = B(() => n.node.installed ? n.node.tracked ? n.node.source === "development" ? "dev" : "installed" : "warning" : "missing"), f = B(() => n.node.installed ? n.node.tracked ? n.node.source === "development" ? "Development" : "Installed" : "Untracked" : "Missing"), h = B(() => ({
       registry: "ComfyUI Registry",
       git: "Git Repository",
       development: "Local Development",
       unknown: "Unknown",
       untracked: "Untracked"
     })[n.node.source] || n.node.source);
-    return (v, i) => (o(), x(st, {
+    return (m, l) => (o(), x(Ye, {
       title: `NODE DETAILS: ${t.node.name}`,
       size: "md",
-      onClose: i[1] || (i[1] = (m) => r("close"))
+      onClose: l[1] || (l[1] = (v) => r("close"))
     }, {
-      body: l(() => [
-        e("div", _u, [
-          e("div", $u, [
-            i[2] || (i[2] = e("span", { class: "label" }, "Status:", -1)),
+      body: i(() => [
+        e("div", bu, [
+          e("div", _u, [
+            l[2] || (l[2] = e("span", { class: "label" }, "Status:", -1)),
             e("span", {
-              class: ne(["status-badge", p.value])
-            }, a(g.value), 3)
+              class: se(["status-badge", p.value])
+            }, a(f.value), 3)
           ]),
-          t.node.version ? (o(), s("div", Cu, [
-            i[3] || (i[3] = e("span", { class: "label" }, "Version:", -1)),
-            e("span", xu, a(t.node.source === "development" ? "" : "v") + a(t.node.version), 1)
-          ])) : d("", !0),
-          e("div", Su, [
-            i[4] || (i[4] = e("span", { class: "label" }, "Source:", -1)),
-            e("span", Iu, a(h.value), 1)
+          t.node.version ? (o(), s("div", $u, [
+            l[3] || (l[3] = e("span", { class: "label" }, "Version:", -1)),
+            e("span", Cu, a(t.node.source === "development" ? "" : "v") + a(t.node.version), 1)
+          ])) : u("", !0),
+          e("div", xu, [
+            l[4] || (l[4] = e("span", { class: "label" }, "Source:", -1)),
+            e("span", Su, a(h.value), 1)
           ]),
-          t.node.registry_id ? (o(), s("div", Eu, [
-            i[5] || (i[5] = e("span", { class: "label" }, "Registry ID:", -1)),
-            e("span", Mu, a(t.node.registry_id), 1)
-          ])) : d("", !0),
-          t.node.repository ? (o(), s("div", zu, [
-            i[7] || (i[7] = e("span", { class: "label" }, "Repository:", -1)),
+          t.node.registry_id ? (o(), s("div", Iu, [
+            l[5] || (l[5] = e("span", { class: "label" }, "Registry ID:", -1)),
+            e("span", Eu, a(t.node.registry_id), 1)
+          ])) : u("", !0),
+          t.node.repository ? (o(), s("div", Mu, [
+            l[7] || (l[7] = e("span", { class: "label" }, "Repository:", -1)),
             e("a", {
               href: t.node.repository,
               target: "_blank",
@@ -6160,7 +6160,7 @@ const fl = { class: "resolution-stepper" }, gl = { class: "stepper-header" }, pl
               class: "repo-link"
             }, [
               y(a(t.node.repository) + " ", 1),
-              i[6] || (i[6] = e("svg", {
+              l[6] || (l[6] = e("svg", {
                 class: "external-icon",
                 width: "12",
                 height: "12",
@@ -6170,30 +6170,30 @@ const fl = { class: "resolution-stepper" }, gl = { class: "stepper-header" }, pl
                 e("path", { d: "M3.75 2A1.75 1.75 0 0 0 2 3.75v8.5c0 .966.784 1.75 1.75 1.75h8.5A1.75 1.75 0 0 0 14 12.25v-3.5a.75.75 0 0 0-1.5 0v3.5a.25.25 0 0 1-.25.25h-8.5a.25.25 0 0 1-.25-.25v-8.5a.25.25 0 0 1 .25-.25h3.5a.75.75 0 0 0 0-1.5h-3.5z" }),
                 e("path", { d: "M10 1a.75.75 0 0 0 0 1.5h2.44L7.22 7.72a.75.75 0 1 0 1.06 1.06l5.22-5.22V6a.75.75 0 0 0 1.5 0V1.75a.75.75 0 0 0-.75-.75H10z" })
               ], -1))
-            ], 8, Lu)
-          ])) : d("", !0),
-          t.node.download_url ? (o(), s("div", Tu, [
-            i[8] || (i[8] = e("span", { class: "label" }, "Download URL:", -1)),
-            e("span", Du, a(t.node.download_url), 1)
-          ])) : d("", !0),
-          i[10] || (i[10] = e("div", { class: "section-divider" }, null, -1)),
-          e("div", Ru, [
-            i[9] || (i[9] = e("span", { class: "label" }, "Used by:", -1)),
-            !t.node.used_in_workflows || t.node.used_in_workflows.length === 0 ? (o(), s("span", Nu, " Not used in any workflows ")) : (o(), s("div", Uu, [
-              (o(!0), s(H, null, se(t.node.used_in_workflows, (m) => (o(), s("span", {
-                key: m,
+            ], 8, zu)
+          ])) : u("", !0),
+          t.node.download_url ? (o(), s("div", Lu, [
+            l[8] || (l[8] = e("span", { class: "label" }, "Download URL:", -1)),
+            e("span", Tu, a(t.node.download_url), 1)
+          ])) : u("", !0),
+          l[10] || (l[10] = e("div", { class: "section-divider" }, null, -1)),
+          e("div", Du, [
+            l[9] || (l[9] = e("span", { class: "label" }, "Used by:", -1)),
+            !t.node.used_in_workflows || t.node.used_in_workflows.length === 0 ? (o(), s("span", Ru, " Not used in any workflows ")) : (o(), s("div", Nu, [
+              (o(!0), s(H, null, oe(t.node.used_in_workflows, (v) => (o(), s("span", {
+                key: v,
                 class: "workflow-tag"
-              }, a(m), 1))), 128))
+              }, a(v), 1))), 128))
             ]))
           ])
         ])
       ]),
-      footer: l(() => [
-        f(ie, {
+      footer: i(() => [
+        g(ie, {
           variant: "secondary",
-          onClick: i[0] || (i[0] = (m) => r("close"))
+          onClick: l[0] || (l[0] = (v) => r("close"))
         }, {
-          default: l(() => [...i[11] || (i[11] = [
+          default: i(() => [...l[11] || (l[11] = [
             y(" Close ", -1)
           ])]),
           _: 1
@@ -6202,120 +6202,120 @@ const fl = { class: "resolution-stepper" }, gl = { class: "stepper-header" }, pl
       _: 1
     }, 8, ["title"]));
   }
-}), Bu = /* @__PURE__ */ Y(Ou, [["__scopeId", "data-v-b342f626"]]), Pu = { key: 0 }, Vu = {
+}), Uu = /* @__PURE__ */ Q(Ou, [["__scopeId", "data-v-b342f626"]]), Bu = { key: 0 }, Pu = {
   key: 1,
   style: { color: "var(--cg-color-text-muted)" }
-}, Fu = { style: { color: "var(--cg-color-text-muted)", "margin-left": "8px" } }, Au = /* @__PURE__ */ Q({
+}, Vu = { style: { color: "var(--cg-color-text-muted)", "margin-left": "8px" } }, Au = /* @__PURE__ */ J({
   __name: "NodesSection",
   emits: ["open-node-manager"],
   setup(t, { emit: c }) {
-    const n = c, { getNodes: r, trackNodeAsDev: p, installNode: g, uninstallNode: h } = Se(), v = b({
+    const n = c, { getNodes: r, trackNodeAsDev: p, installNode: f, uninstallNode: h } = Ce(), m = b({
       nodes: [],
       total_count: 0,
       installed_count: 0,
       missing_count: 0,
       untracked_count: 0
-    }), i = b(!1), m = b(null), $ = b(""), u = b(!1), M = b(null), C = B(() => {
-      if (!$.value.trim()) return v.value.nodes;
-      const z = $.value.toLowerCase();
-      return v.value.nodes.filter(
+    }), l = b(!1), v = b(null), $ = b(""), d = b(!1), E = b(null), C = B(() => {
+      if (!$.value.trim()) return m.value.nodes;
+      const M = $.value.toLowerCase();
+      return m.value.nodes.filter(
         (S) => {
-          var V, W;
-          return S.name.toLowerCase().includes(z) || ((V = S.description) == null ? void 0 : V.toLowerCase().includes(z)) || ((W = S.repository) == null ? void 0 : W.toLowerCase().includes(z));
+          var F, W;
+          return S.name.toLowerCase().includes(M) || ((F = S.description) == null ? void 0 : F.toLowerCase().includes(M)) || ((W = S.repository) == null ? void 0 : W.toLowerCase().includes(M));
         }
       );
-    }), L = B(
-      () => C.value.filter((z) => z.installed && z.tracked)
+    }), z = B(
+      () => C.value.filter((M) => M.installed && M.tracked)
     ), w = B(
-      () => C.value.filter((z) => !z.installed && z.tracked)
-    ), _ = B(
-      () => C.value.filter((z) => z.installed && !z.tracked)
+      () => C.value.filter((M) => !M.installed && M.tracked)
+    ), k = B(
+      () => C.value.filter((M) => M.installed && !M.tracked)
     );
-    function k(z) {
+    function _(M) {
       return {
         registry: "Registry",
         git: "Git",
         development: "Dev",
         unknown: "Unknown",
         untracked: "Untracked"
-      }[z] || z;
+      }[M] || M;
     }
-    function R(z) {
-      return !z.used_in_workflows || z.used_in_workflows.length === 0 ? "Not used in any workflows" : z.used_in_workflows.length === 1 ? z.used_in_workflows[0] : `${z.used_in_workflows.length} workflows`;
+    function T(M) {
+      return !M.used_in_workflows || M.used_in_workflows.length === 0 ? "Not used in any workflows" : M.used_in_workflows.length === 1 ? M.used_in_workflows[0] : `${M.used_in_workflows.length} workflows`;
     }
-    function A(z) {
-      M.value = z;
+    function N(M) {
+      E.value = M;
     }
-    function j() {
+    function U() {
       n("open-node-manager");
     }
-    async function K(z) {
-      if (confirm(`Track "${z}" as a development node?
+    async function j(M) {
+      if (confirm(`Track "${M}" as a development node?
 
 This will add it to your environment manifest with source='development'. It won't be version-controlled but will be recognized as intentional.`))
         try {
-          i.value = !0;
-          const S = await p(z);
-          S.status === "success" ? (alert(`Node "${z}" is now tracked as development!`), await O()) : alert(`Failed to track node: ${S.message || "Unknown error"}`);
+          l.value = !0;
+          const S = await p(M);
+          S.status === "success" ? (alert(`Node "${M}" is now tracked as development!`), await V()) : alert(`Failed to track node: ${S.message || "Unknown error"}`);
         } catch (S) {
           alert(`Error tracking node: ${S instanceof Error ? S.message : "Unknown error"}`);
         } finally {
-          i.value = !1;
+          l.value = !1;
         }
     }
-    async function P(z) {
-      if (confirm(`Remove untracked node "${z}"?
+    async function P(M) {
+      if (confirm(`Remove untracked node "${M}"?
 
 This will delete the node directory from custom_nodes/.`))
         try {
-          i.value = !0;
-          const S = await h(z);
-          S.status === "success" ? (alert(`Node "${z}" removed!`), await O()) : alert(`Failed to remove node: ${S.message || "Unknown error"}`);
+          l.value = !0;
+          const S = await h(M);
+          S.status === "success" ? (alert(`Node "${M}" removed!`), await V()) : alert(`Failed to remove node: ${S.message || "Unknown error"}`);
         } catch (S) {
           alert(`Error removing node: ${S instanceof Error ? S.message : "Unknown error"}`);
         } finally {
-          i.value = !1;
+          l.value = !1;
         }
     }
-    async function T(z) {
-      if (confirm(`Install node "${z}"?
+    async function L(M) {
+      if (confirm(`Install node "${M}"?
 
 This will download and install the node.`))
         try {
-          i.value = !0;
-          const S = await g(z);
-          S.status === "success" ? (alert(`Node "${z}" installed successfully!`), await O()) : alert(`Failed to install node: ${S.message || "Unknown error"}`);
+          l.value = !0;
+          const S = await f(M);
+          S.status === "success" ? (alert(`Node "${M}" installed successfully!`), await V()) : alert(`Failed to install node: ${S.message || "Unknown error"}`);
         } catch (S) {
           alert(`Error installing node: ${S instanceof Error ? S.message : "Unknown error"}`);
         } finally {
-          i.value = !1;
+          l.value = !1;
         }
     }
-    async function O() {
-      i.value = !0, m.value = null;
+    async function V() {
+      l.value = !0, v.value = null;
       try {
-        v.value = await r();
-      } catch (z) {
-        m.value = z instanceof Error ? z.message : "Failed to load nodes";
+        m.value = await r();
+      } catch (M) {
+        v.value = M instanceof Error ? M.message : "Failed to load nodes";
       } finally {
-        i.value = !1;
+        l.value = !1;
       }
     }
-    return _e(O), (z, S) => (o(), s(H, null, [
-      f(Ie, null, {
-        header: l(() => [
-          f(Ee, {
+    return _e(V), (M, S) => (o(), s(H, null, [
+      g(Ie, null, {
+        header: i(() => [
+          g(Ee, {
             title: "CUSTOM NODES",
             "show-info": !0,
-            onInfoClick: S[0] || (S[0] = (V) => u.value = !0)
+            onInfoClick: S[0] || (S[0] = (F) => d.value = !0)
           }, {
-            actions: l(() => [
-              f(Z, {
+            actions: i(() => [
+              g(Z, {
                 variant: "primary",
                 size: "sm",
-                onClick: j
+                onClick: U
               }, {
-                default: l(() => [...S[5] || (S[5] = [
+                default: i(() => [...S[5] || (S[5] = [
                   y(" Browse Nodes ", -1)
                 ])]),
                 _: 1
@@ -6324,92 +6324,92 @@ This will download and install the node.`))
             _: 1
           })
         ]),
-        search: l(() => [
-          f(dt, {
+        search: i(() => [
+          g(ct, {
             modelValue: $.value,
-            "onUpdate:modelValue": S[1] || (S[1] = (V) => $.value = V),
+            "onUpdate:modelValue": S[1] || (S[1] = (F) => $.value = F),
             placeholder: "Search custom nodes..."
           }, null, 8, ["modelValue"])
         ]),
-        content: l(() => [
-          i.value ? (o(), x(He, {
+        content: i(() => [
+          l.value ? (o(), x(He, {
             key: 0,
             message: "Loading nodes..."
-          })) : m.value ? (o(), x(qe, {
+          })) : v.value ? (o(), x(qe, {
             key: 1,
-            message: m.value,
+            message: v.value,
             retry: !0,
-            onRetry: O
+            onRetry: V
           }, null, 8, ["message"])) : (o(), s(H, { key: 2 }, [
-            v.value.total_count ? (o(), x(ct, {
+            m.value.total_count ? (o(), x(ut, {
               key: 0,
               variant: "compact"
             }, {
-              default: l(() => [
-                y(a(v.value.installed_count) + " installed ", 1),
-                v.value.missing_count ? (o(), s(H, { key: 0 }, [
-                  y(" • " + a(v.value.missing_count) + " missing", 1)
-                ], 64)) : d("", !0),
-                v.value.untracked_count ? (o(), s(H, { key: 1 }, [
-                  y(" • " + a(v.value.untracked_count) + " untracked", 1)
-                ], 64)) : d("", !0)
+              default: i(() => [
+                y(a(m.value.installed_count) + " installed ", 1),
+                m.value.missing_count ? (o(), s(H, { key: 0 }, [
+                  y(" • " + a(m.value.missing_count) + " missing", 1)
+                ], 64)) : u("", !0),
+                m.value.untracked_count ? (o(), s(H, { key: 1 }, [
+                  y(" • " + a(m.value.untracked_count) + " untracked", 1)
+                ], 64)) : u("", !0)
               ]),
               _: 1
-            })) : d("", !0),
-            _.value.length ? (o(), x(be, {
+            })) : u("", !0),
+            k.value.length ? (o(), x(be, {
               key: 1,
               title: "UNTRACKED",
-              count: _.value.length,
+              count: k.value.length,
               collapsible: "",
               "initially-expanded": !0
             }, {
-              default: l(() => [
-                (o(!0), s(H, null, se(_.value, (V) => (o(), x(Ce, {
-                  key: V.name,
+              default: i(() => [
+                (o(!0), s(H, null, oe(k.value, (F) => (o(), x(xe, {
+                  key: F.name,
                   status: "warning"
                 }, {
-                  icon: l(() => [...S[6] || (S[6] = [
+                  icon: i(() => [...S[6] || (S[6] = [
                     y("?", -1)
                   ])]),
-                  title: l(() => [
-                    y(a(V.name), 1)
+                  title: i(() => [
+                    y(a(F.name), 1)
                   ]),
-                  subtitle: l(() => [...S[7] || (S[7] = [
+                  subtitle: i(() => [...S[7] || (S[7] = [
                     e("span", { style: { color: "var(--cg-color-warning)" } }, "On filesystem but not tracked", -1)
                   ])]),
-                  details: l(() => [
-                    f(pe, {
+                  details: i(() => [
+                    g(pe, {
                       label: "Used by:",
-                      value: R(V)
+                      value: T(F)
                     }, null, 8, ["value"])
                   ]),
-                  actions: l(() => [
-                    f(Z, {
+                  actions: i(() => [
+                    g(Z, {
                       variant: "secondary",
                       size: "xs",
-                      onClick: (W) => A(V)
+                      onClick: (W) => N(F)
                     }, {
-                      default: l(() => [...S[8] || (S[8] = [
+                      default: i(() => [...S[8] || (S[8] = [
                         y(" View Details ", -1)
                       ])]),
                       _: 1
                     }, 8, ["onClick"]),
-                    f(Z, {
+                    g(Z, {
                       variant: "primary",
                       size: "sm",
-                      onClick: (W) => K(V.name)
+                      onClick: (W) => j(F.name)
                     }, {
-                      default: l(() => [...S[9] || (S[9] = [
+                      default: i(() => [...S[9] || (S[9] = [
                         y(" Track as Dev ", -1)
                       ])]),
                       _: 1
                     }, 8, ["onClick"]),
-                    f(Z, {
+                    g(Z, {
                       variant: "destructive",
                       size: "sm",
-                      onClick: (W) => P(V.name)
+                      onClick: (W) => P(F.name)
                     }, {
-                      default: l(() => [...S[10] || (S[10] = [
+                      default: i(() => [...S[10] || (S[10] = [
                         y(" Remove ", -1)
                       ])]),
                       _: 1
@@ -6419,52 +6419,52 @@ This will download and install the node.`))
                 }, 1024))), 128))
               ]),
               _: 1
-            }, 8, ["count"])) : d("", !0),
-            L.value.length ? (o(), x(be, {
+            }, 8, ["count"])) : u("", !0),
+            z.value.length ? (o(), x(be, {
               key: 2,
               title: "INSTALLED",
-              count: L.value.length,
+              count: z.value.length,
               collapsible: "",
               "initially-expanded": !0
             }, {
-              default: l(() => [
-                (o(!0), s(H, null, se(L.value, (V) => (o(), x(Ce, {
-                  key: V.name,
+              default: i(() => [
+                (o(!0), s(H, null, oe(z.value, (F) => (o(), x(xe, {
+                  key: F.name,
                   status: "synced"
                 }, {
-                  icon: l(() => [
-                    y(a(V.source === "development" ? "🔧" : "📦"), 1)
+                  icon: i(() => [
+                    y(a(F.source === "development" ? "🔧" : "📦"), 1)
                   ]),
-                  title: l(() => [
-                    y(a(V.name), 1)
+                  title: i(() => [
+                    y(a(F.name), 1)
                   ]),
-                  subtitle: l(() => [
-                    V.version ? (o(), s("span", Pu, a(V.source === "development" ? "" : "v") + a(V.version), 1)) : (o(), s("span", Vu, "version unknown")),
-                    e("span", Fu, " • " + a(k(V.source)), 1)
+                  subtitle: i(() => [
+                    F.version ? (o(), s("span", Bu, a(F.source === "development" ? "" : "v") + a(F.version), 1)) : (o(), s("span", Pu, "version unknown")),
+                    e("span", Vu, " • " + a(_(F.source)), 1)
                   ]),
-                  details: l(() => [
-                    f(pe, {
+                  details: i(() => [
+                    g(pe, {
                       label: "Used by:",
-                      value: R(V)
+                      value: T(F)
                     }, null, 8, ["value"])
                   ]),
-                  actions: l(() => [
-                    f(Z, {
+                  actions: i(() => [
+                    g(Z, {
                       variant: "secondary",
                       size: "xs",
-                      onClick: (W) => A(V)
+                      onClick: (W) => N(F)
                     }, {
-                      default: l(() => [...S[11] || (S[11] = [
+                      default: i(() => [...S[11] || (S[11] = [
                         y(" View Details ", -1)
                       ])]),
                       _: 1
                     }, 8, ["onClick"]),
-                    f(Z, {
+                    g(Z, {
                       variant: "secondary",
                       size: "xs",
-                      onClick: j
+                      onClick: U
                     }, {
-                      default: l(() => [...S[12] || (S[12] = [
+                      default: i(() => [...S[12] || (S[12] = [
                         y(" Manage ", -1)
                       ])]),
                       _: 1
@@ -6474,7 +6474,7 @@ This will download and install the node.`))
                 }, 1024))), 128))
               ]),
               _: 1
-            }, 8, ["count"])) : d("", !0),
+            }, 8, ["count"])) : u("", !0),
             w.value.length ? (o(), x(be, {
               key: 3,
               title: "MISSING",
@@ -6482,43 +6482,43 @@ This will download and install the node.`))
               collapsible: "",
               "initially-expanded": !0
             }, {
-              default: l(() => [
-                (o(!0), s(H, null, se(w.value, (V) => (o(), x(Ce, {
-                  key: V.name,
+              default: i(() => [
+                (o(!0), s(H, null, oe(w.value, (F) => (o(), x(xe, {
+                  key: F.name,
                   status: "missing"
                 }, {
-                  icon: l(() => [...S[13] || (S[13] = [
+                  icon: i(() => [...S[13] || (S[13] = [
                     y("!", -1)
                   ])]),
-                  title: l(() => [
-                    y(a(V.name), 1)
+                  title: i(() => [
+                    y(a(F.name), 1)
                   ]),
-                  subtitle: l(() => [...S[14] || (S[14] = [
+                  subtitle: i(() => [...S[14] || (S[14] = [
                     e("span", { style: { color: "var(--cg-color-error)" } }, "Tracked but not installed", -1)
                   ])]),
-                  details: l(() => [
-                    f(pe, {
+                  details: i(() => [
+                    g(pe, {
                       label: "Required by:",
-                      value: R(V)
+                      value: T(F)
                     }, null, 8, ["value"])
                   ]),
-                  actions: l(() => [
-                    f(Z, {
+                  actions: i(() => [
+                    g(Z, {
                       variant: "secondary",
                       size: "xs",
-                      onClick: (W) => A(V)
+                      onClick: (W) => N(F)
                     }, {
-                      default: l(() => [...S[15] || (S[15] = [
+                      default: i(() => [...S[15] || (S[15] = [
                         y(" View Details ", -1)
                       ])]),
                       _: 1
                     }, 8, ["onClick"]),
-                    f(Z, {
+                    g(Z, {
                       variant: "primary",
                       size: "sm",
-                      onClick: (W) => T(V.name)
+                      onClick: (W) => L(F.name)
                     }, {
-                      default: l(() => [...S[16] || (S[16] = [
+                      default: i(() => [...S[16] || (S[16] = [
                         y(" Install ", -1)
                       ])]),
                       _: 1
@@ -6528,22 +6528,22 @@ This will download and install the node.`))
                 }, 1024))), 128))
               ]),
               _: 1
-            }, 8, ["count"])) : d("", !0),
-            !L.value.length && !w.value.length && !_.value.length ? (o(), x(Ue, {
+            }, 8, ["count"])) : u("", !0),
+            !z.value.length && !w.value.length && !k.value.length ? (o(), x(Oe, {
               key: 4,
               icon: "📭",
               message: $.value ? `No nodes match '${$.value}'` : "No custom nodes found."
-            }, null, 8, ["message"])) : d("", !0)
+            }, null, 8, ["message"])) : u("", !0)
           ], 64))
         ]),
         _: 1
       }),
-      f(je, {
-        show: u.value,
+      g(je, {
+        show: d.value,
         title: "About Custom Nodes",
-        onClose: S[3] || (S[3] = (V) => u.value = !1)
+        onClose: S[3] || (S[3] = (F) => d.value = !1)
       }, {
-        content: l(() => [...S[17] || (S[17] = [
+        content: i(() => [...S[17] || (S[17] = [
           e("p", null, " Custom nodes extend ComfyUI's capabilities. ComfyGit tracks nodes in your environment manifest for reproducibility. ", -1),
           e("p", { style: { "margin-top": "var(--cg-space-2)" } }, [
             e("strong", null, "Installed:"),
@@ -6557,12 +6557,12 @@ This will download and install the node.`))
           ], -1),
           e("p", { style: { "margin-top": "var(--cg-space-2)", color: "var(--cg-color-text-muted)" } }, ` Use "Track as Dev" for local development nodes you don't want to version. `, -1)
         ])]),
-        actions: l(() => [
-          f(Z, {
+        actions: i(() => [
+          g(Z, {
             variant: "primary",
-            onClick: S[2] || (S[2] = (V) => u.value = !1)
+            onClick: S[2] || (S[2] = (F) => d.value = !1)
           }, {
-            default: l(() => [...S[18] || (S[18] = [
+            default: i(() => [...S[18] || (S[18] = [
               y(" Got it ", -1)
             ])]),
             _: 1
@@ -6570,26 +6570,26 @@ This will download and install the node.`))
         ]),
         _: 1
       }, 8, ["show"]),
-      M.value ? (o(), x(Bu, {
+      E.value ? (o(), x(Uu, {
         key: 0,
-        node: M.value,
-        onClose: S[4] || (S[4] = (V) => M.value = null)
-      }, null, 8, ["node"])) : d("", !0)
+        node: E.value,
+        onClose: S[4] || (S[4] = (F) => E.value = null)
+      }, null, 8, ["node"])) : u("", !0)
     ], 64));
   }
-}), Wu = /* @__PURE__ */ Y(Au, [["__scopeId", "data-v-4ac1465a"]]), Gu = { class: "remote-url-display" }, ju = ["title"], Hu = ["title"], qu = {
+}), Fu = /* @__PURE__ */ Q(Au, [["__scopeId", "data-v-4ac1465a"]]), Wu = { class: "remote-url-display" }, Gu = ["title"], ju = ["title"], Hu = {
   key: 0,
   width: "14",
   height: "14",
   viewBox: "0 0 16 16",
   fill: "currentColor"
-}, Ku = {
+}, qu = {
   key: 1,
   width: "14",
   height: "14",
   viewBox: "0 0 16 16",
   fill: "currentColor"
-}, Ju = /* @__PURE__ */ Q({
+}, Ku = /* @__PURE__ */ J({
   __name: "RemoteUrlDisplay",
   props: {
     url: {},
@@ -6599,53 +6599,53 @@ This will download and install the node.`))
     const c = t, n = b(!1), r = B(() => {
       if (c.url.length <= c.maxLength)
         return c.url;
-      const g = c.url.slice(0, Math.floor(c.maxLength * 0.6)), h = c.url.slice(-Math.floor(c.maxLength * 0.3));
-      return `${g}...${h}`;
+      const f = c.url.slice(0, Math.floor(c.maxLength * 0.6)), h = c.url.slice(-Math.floor(c.maxLength * 0.3));
+      return `${f}...${h}`;
     });
     async function p() {
       try {
         await navigator.clipboard.writeText(c.url), n.value = !0, setTimeout(() => {
           n.value = !1;
         }, 2e3);
-      } catch (g) {
-        console.error("Failed to copy URL:", g);
+      } catch (f) {
+        console.error("Failed to copy URL:", f);
       }
     }
-    return (g, h) => (o(), s("div", Gu, [
+    return (f, h) => (o(), s("div", Wu, [
       e("span", {
         class: "url-text",
         title: t.url
-      }, a(r.value), 9, ju),
+      }, a(r.value), 9, Gu),
       e("button", {
-        class: ne(["copy-btn", { copied: n.value }]),
+        class: se(["copy-btn", { copied: n.value }]),
         onClick: p,
         title: n.value ? "Copied!" : "Copy URL"
       }, [
-        n.value ? (o(), s("svg", Ku, [...h[1] || (h[1] = [
+        n.value ? (o(), s("svg", qu, [...h[1] || (h[1] = [
           e("path", { d: "M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 0 1 1.06-1.06L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0z" }, null, -1)
-        ])])) : (o(), s("svg", qu, [...h[0] || (h[0] = [
+        ])])) : (o(), s("svg", Hu, [...h[0] || (h[0] = [
           e("path", { d: "M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25v-7.5z" }, null, -1),
           e("path", { d: "M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25v-7.5zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25h-7.5z" }, null, -1)
         ])]))
-      ], 10, Hu)
+      ], 10, ju)
     ]));
   }
-}), Ht = /* @__PURE__ */ Y(Ju, [["__scopeId", "data-v-7768a58d"]]), Qu = { class: "remote-title" }, Yu = {
+}), Ht = /* @__PURE__ */ Q(Ku, [["__scopeId", "data-v-7768a58d"]]), Ju = { class: "remote-title" }, Qu = {
   key: 0,
   class: "default-badge"
-}, Xu = {
+}, Yu = {
   key: 1,
   class: "sync-badge"
-}, Zu = {
+}, Xu = {
   key: 0,
   class: "ahead"
-}, em = {
+}, Zu = {
   key: 1,
   class: "behind"
-}, tm = {
+}, em = {
   key: 0,
   class: "tracking-info"
-}, om = /* @__PURE__ */ Q({
+}, tm = /* @__PURE__ */ J({
   __name: "RemoteCard",
   props: {
     remote: {},
@@ -6655,41 +6655,41 @@ This will download and install the node.`))
   },
   emits: ["fetch", "edit", "remove"],
   setup(t, { emit: c }) {
-    const n = t, r = B(() => n.fetchingRemote === n.remote.name), p = B(() => n.remote.is_default), g = B(() => !!n.trackingBranch);
-    function h(v) {
-      const i = new Date(v), $ = (/* @__PURE__ */ new Date()).getTime() - i.getTime(), u = Math.floor($ / 6e4);
-      if (u < 1) return "Just now";
-      if (u < 60) return `${u}m ago`;
-      const M = Math.floor(u / 60);
-      if (M < 24) return `${M}h ago`;
-      const C = Math.floor(M / 24);
-      return C < 7 ? `${C}d ago` : i.toLocaleDateString();
+    const n = t, r = B(() => n.fetchingRemote === n.remote.name), p = B(() => n.remote.is_default), f = B(() => !!n.trackingBranch);
+    function h(m) {
+      const l = new Date(m), $ = (/* @__PURE__ */ new Date()).getTime() - l.getTime(), d = Math.floor($ / 6e4);
+      if (d < 1) return "Just now";
+      if (d < 60) return `${d}m ago`;
+      const E = Math.floor(d / 60);
+      if (E < 24) return `${E}h ago`;
+      const C = Math.floor(E / 24);
+      return C < 7 ? `${C}d ago` : l.toLocaleDateString();
     }
-    return (v, i) => (o(), x(Ce, {
+    return (m, l) => (o(), x(xe, {
       status: p.value ? "synced" : void 0
     }, {
-      icon: l(() => [
+      icon: i(() => [
         y(a(p.value ? "🔗" : "🌐"), 1)
       ]),
-      title: l(() => [
-        e("div", Qu, [
+      title: i(() => [
+        e("div", Ju, [
           e("span", null, a(t.remote.name), 1),
-          p.value ? (o(), s("span", Yu, "DEFAULT")) : d("", !0),
-          t.syncStatus ? (o(), s("span", Xu, [
-            t.syncStatus.ahead > 0 ? (o(), s("span", Zu, "↑" + a(t.syncStatus.ahead), 1)) : d("", !0),
-            t.syncStatus.behind > 0 ? (o(), s("span", em, "↓" + a(t.syncStatus.behind), 1)) : d("", !0)
-          ])) : d("", !0)
+          p.value ? (o(), s("span", Qu, "DEFAULT")) : u("", !0),
+          t.syncStatus ? (o(), s("span", Yu, [
+            t.syncStatus.ahead > 0 ? (o(), s("span", Xu, "↑" + a(t.syncStatus.ahead), 1)) : u("", !0),
+            t.syncStatus.behind > 0 ? (o(), s("span", Zu, "↓" + a(t.syncStatus.behind), 1)) : u("", !0)
+          ])) : u("", !0)
         ])
       ]),
-      subtitle: l(() => [
-        g.value ? (o(), s("span", tm, " Tracking: " + a(t.trackingBranch), 1)) : d("", !0)
+      subtitle: i(() => [
+        f.value ? (o(), s("span", em, " Tracking: " + a(t.trackingBranch), 1)) : u("", !0)
       ]),
-      details: l(() => {
-        var m;
+      details: i(() => {
+        var v;
         return [
-          f(pe, { label: "Fetch:" }, {
-            default: l(() => [
-              f(Ht, {
+          g(pe, { label: "Fetch:" }, {
+            default: i(() => [
+              g(Ht, {
                 url: t.remote.fetch_url
               }, null, 8, ["url"])
             ]),
@@ -6699,53 +6699,53 @@ This will download and install the node.`))
             key: 0,
             label: "Push:"
           }, {
-            default: l(() => [
-              f(Ht, {
+            default: i(() => [
+              g(Ht, {
                 url: t.remote.push_url
               }, null, 8, ["url"])
             ]),
             _: 1
-          })) : d("", !0),
-          (m = t.syncStatus) != null && m.last_fetch ? (o(), x(pe, {
+          })) : u("", !0),
+          (v = t.syncStatus) != null && v.last_fetch ? (o(), x(pe, {
             key: 1,
             label: "Last Fetch:"
           }, {
-            default: l(() => [
+            default: i(() => [
               e("span", null, a(h(t.syncStatus.last_fetch)), 1)
             ]),
             _: 1
-          })) : d("", !0)
+          })) : u("", !0)
         ];
       }),
-      actions: l(() => [
-        f(Z, {
+      actions: i(() => [
+        g(Z, {
           variant: "primary",
           size: "xs",
           loading: r.value,
-          onClick: i[0] || (i[0] = (m) => v.$emit("fetch", t.remote.name))
+          onClick: l[0] || (l[0] = (v) => m.$emit("fetch", t.remote.name))
         }, {
-          default: l(() => [...i[3] || (i[3] = [
+          default: i(() => [...l[3] || (l[3] = [
             y(" Fetch ", -1)
           ])]),
           _: 1
         }, 8, ["loading"]),
-        f(Z, {
+        g(Z, {
           variant: "secondary",
           size: "xs",
-          onClick: i[1] || (i[1] = (m) => v.$emit("edit", t.remote.name))
+          onClick: l[1] || (l[1] = (v) => m.$emit("edit", t.remote.name))
         }, {
-          default: l(() => [...i[4] || (i[4] = [
+          default: i(() => [...l[4] || (l[4] = [
             y(" Edit URL ", -1)
           ])]),
           _: 1
         }),
-        p.value ? d("", !0) : (o(), x(Z, {
+        p.value ? u("", !0) : (o(), x(Z, {
           key: 0,
           variant: "destructive",
           size: "xs",
-          onClick: i[2] || (i[2] = (m) => v.$emit("remove", t.remote.name))
+          onClick: l[2] || (l[2] = (v) => m.$emit("remove", t.remote.name))
         }, {
-          default: l(() => [...i[5] || (i[5] = [
+          default: i(() => [...l[5] || (l[5] = [
             y(" Remove ", -1)
           ])]),
           _: 1
@@ -6754,16 +6754,16 @@ This will download and install the node.`))
       _: 1
     }, 8, ["status"]));
   }
-}), sm = /* @__PURE__ */ Y(om, [["__scopeId", "data-v-17362e45"]]), nm = ["for"], am = {
+}), om = /* @__PURE__ */ Q(tm, [["__scopeId", "data-v-17362e45"]]), sm = ["for"], nm = {
   key: 0,
   class: "base-form-field-required"
-}, lm = { class: "base-form-field-input" }, im = {
+}, am = { class: "base-form-field-input" }, lm = {
   key: 1,
   class: "base-form-field-error"
-}, rm = {
+}, im = {
   key: 2,
   class: "base-form-field-hint"
-}, dm = /* @__PURE__ */ Q({
+}, rm = /* @__PURE__ */ J({
   __name: "BaseFormField",
   props: {
     label: {},
@@ -6776,7 +6776,7 @@ This will download and install the node.`))
   setup(t) {
     const c = t, n = B(() => c.id || `field-${Math.random().toString(36).substr(2, 9)}`);
     return (r, p) => (o(), s("div", {
-      class: ne(["base-form-field", { "full-width": t.fullWidth }])
+      class: se(["base-form-field", { "full-width": t.fullWidth }])
     }, [
       t.label ? (o(), s("label", {
         key: 0,
@@ -6784,18 +6784,18 @@ This will download and install the node.`))
         class: "base-form-field-label"
       }, [
         y(a(t.label) + " ", 1),
-        t.required ? (o(), s("span", am, "*")) : d("", !0)
-      ], 8, nm)) : d("", !0),
-      e("div", lm, [
+        t.required ? (o(), s("span", nm, "*")) : u("", !0)
+      ], 8, sm)) : u("", !0),
+      e("div", am, [
         ue(r.$slots, "default", {}, void 0, !0)
       ]),
-      t.error ? (o(), s("span", im, a(t.error), 1)) : t.hint ? (o(), s("span", rm, a(t.hint), 1)) : d("", !0)
+      t.error ? (o(), s("span", lm, a(t.error), 1)) : t.hint ? (o(), s("span", im, a(t.hint), 1)) : u("", !0)
     ], 2));
   }
-}), Dt = /* @__PURE__ */ Y(dm, [["__scopeId", "data-v-9a1cf296"]]), cm = { class: "remote-form" }, um = { class: "form-header" }, mm = { class: "form-body" }, vm = {
+}), Dt = /* @__PURE__ */ Q(rm, [["__scopeId", "data-v-9a1cf296"]]), dm = { class: "remote-form" }, cm = { class: "form-header" }, um = { class: "form-body" }, mm = {
   key: 0,
   class: "form-error"
-}, fm = { class: "form-actions" }, gm = /* @__PURE__ */ Q({
+}, vm = { class: "form-actions" }, fm = /* @__PURE__ */ J({
   __name: "RemoteForm",
   props: {
     mode: { default: "add" },
@@ -6809,7 +6809,7 @@ This will download and install the node.`))
       name: n.remoteName,
       fetchUrl: n.fetchUrl,
       pushUrl: n.pushUrl
-    }), g = b(!1), h = b(null);
+    }), f = b(!1), h = b(null);
     Bt(() => [n.remoteName, n.fetchUrl, n.pushUrl], () => {
       p.value = {
         name: n.remoteName,
@@ -6817,87 +6817,87 @@ This will download and install the node.`))
         pushUrl: n.pushUrl
       };
     });
-    const v = B(() => p.value.name.trim() !== "" && p.value.fetchUrl.trim() !== "");
-    async function i() {
-      if (!(!v.value || g.value)) {
-        h.value = null, g.value = !0;
+    const m = B(() => p.value.name.trim() !== "" && p.value.fetchUrl.trim() !== "");
+    async function l() {
+      if (!(!m.value || f.value)) {
+        h.value = null, f.value = !0;
         try {
           r("submit", p.value);
-        } catch (m) {
-          h.value = m instanceof Error ? m.message : "Failed to submit form";
+        } catch (v) {
+          h.value = v instanceof Error ? v.message : "Failed to submit form";
         } finally {
-          g.value = !1;
+          f.value = !1;
         }
       }
     }
-    return (m, $) => (o(), s("div", cm, [
-      e("div", um, [
-        f(ze, null, {
-          default: l(() => [
+    return (v, $) => (o(), s("div", dm, [
+      e("div", cm, [
+        g(ze, null, {
+          default: i(() => [
             y(a(t.mode === "add" ? "ADD NEW REMOTE" : "EDIT REMOTE"), 1)
           ]),
           _: 1
         })
       ]),
-      e("div", mm, [
-        f(Dt, {
+      e("div", um, [
+        g(Dt, {
           label: "Remote Name",
           required: ""
         }, {
-          default: l(() => [
-            f(Ne, {
+          default: i(() => [
+            g(Ne, {
               modelValue: p.value.name,
-              "onUpdate:modelValue": $[0] || ($[0] = (u) => p.value.name = u),
+              "onUpdate:modelValue": $[0] || ($[0] = (d) => p.value.name = d),
               disabled: t.mode === "edit",
               placeholder: "e.g., origin, upstream"
             }, null, 8, ["modelValue", "disabled"])
           ]),
           _: 1
         }),
-        f(Dt, {
+        g(Dt, {
           label: "Fetch URL",
           required: ""
         }, {
-          default: l(() => [
-            f(Ne, {
+          default: i(() => [
+            g(Ne, {
               modelValue: p.value.fetchUrl,
-              "onUpdate:modelValue": $[1] || ($[1] = (u) => p.value.fetchUrl = u),
+              "onUpdate:modelValue": $[1] || ($[1] = (d) => p.value.fetchUrl = d),
               placeholder: "https://github.com/user/repo.git"
             }, null, 8, ["modelValue"])
           ]),
           _: 1
         }),
-        f(Dt, { label: "Push URL (optional)" }, {
-          default: l(() => [
-            f(Ne, {
+        g(Dt, { label: "Push URL (optional)" }, {
+          default: i(() => [
+            g(Ne, {
               modelValue: p.value.pushUrl,
-              "onUpdate:modelValue": $[2] || ($[2] = (u) => p.value.pushUrl = u),
+              "onUpdate:modelValue": $[2] || ($[2] = (d) => p.value.pushUrl = d),
               placeholder: "Leave empty to use fetch URL"
             }, null, 8, ["modelValue"])
           ]),
           _: 1
         }),
-        h.value ? (o(), s("div", vm, a(h.value), 1)) : d("", !0)
+        h.value ? (o(), s("div", mm, a(h.value), 1)) : u("", !0)
       ]),
-      e("div", fm, [
-        f(Z, {
+      e("div", vm, [
+        g(Z, {
           variant: "primary",
           size: "md",
-          disabled: !v.value,
-          loading: g.value,
-          onClick: i
+          disabled: !m.value,
+          loading: f.value,
+          onClick: l
         }, {
-          default: l(() => [
+          default: i(() => [
             y(a(t.mode === "add" ? "Add Remote" : "Update URL"), 1)
           ]),
           _: 1
         }, 8, ["disabled", "loading"]),
-        f(Z, {
+        g(Z, {
           variant: "ghost",
           size: "md",
-          onClick: $[3] || ($[3] = (u) => m.$emit("cancel"))
+          onClick: $[3] || ($[3] = (d) => v.$emit("cancel"))
         }, {
-          default: l(() => [...$[4] || ($[4] = [
+          default: i(() => [...$[4] || ($[4] = [
             y(" Cancel ", -1)
           ])]),
           _: 1
@@ -6905,7 +6905,7 @@ This will download and install the node.`))
       ])
     ]));
   }
-}), pm = /* @__PURE__ */ Y(gm, [["__scopeId", "data-v-56021b18"]]), hm = { key: 0 }, ym = /* @__PURE__ */ Q({
+}), gm = /* @__PURE__ */ Q(fm, [["__scopeId", "data-v-56021b18"]]), pm = { key: 0 }, hm = /* @__PURE__ */ J({
   __name: "RemotesSection",
   setup(t) {
     const {
@@ -6913,99 +6913,99 @@ This will download and install the node.`))
       addRemote: n,
       removeRemote: r,
       updateRemoteUrl: p,
-      fetchRemote: g,
+      fetchRemote: f,
       getRemoteSyncStatus: h
-    } = Se(), v = b([]), i = b(null), m = b({}), $ = b(!1), u = b(null), M = b(""), C = b(!1), L = b(null), w = b(!1), _ = b("add"), k = b({
+    } = Ce(), m = b([]), l = b(null), v = b({}), $ = b(!1), d = b(null), E = b(""), C = b(!1), z = b(null), w = b(!1), k = b("add"), _ = b({
       name: "",
       fetchUrl: "",
       pushUrl: ""
-    }), R = B(() => {
-      if (!M.value.trim()) return v.value;
-      const W = M.value.toLowerCase();
-      return v.value.filter(
-        (X) => X.name.toLowerCase().includes(W) || X.fetch_url.toLowerCase().includes(W) || X.push_url.toLowerCase().includes(W)
+    }), T = B(() => {
+      if (!E.value.trim()) return m.value;
+      const W = E.value.toLowerCase();
+      return m.value.filter(
+        (Y) => Y.name.toLowerCase().includes(W) || Y.fetch_url.toLowerCase().includes(W) || Y.push_url.toLowerCase().includes(W)
       );
     });
-    function A(W) {
-      var X;
-      return ((X = i.value) == null ? void 0 : X.remote) === W;
+    function N(W) {
+      var Y;
+      return ((Y = l.value) == null ? void 0 : Y.remote) === W;
     }
-    async function j() {
-      $.value = !0, u.value = null;
+    async function U() {
+      $.value = !0, d.value = null;
       try {
         const W = await c();
-        v.value = W.remotes, i.value = W.current_branch_tracking || null, await Promise.all(
-          W.remotes.map(async (X) => {
-            const oe = await h(X.name);
-            oe && (m.value[X.name] = oe);
+        m.value = W.remotes, l.value = W.current_branch_tracking || null, await Promise.all(
+          W.remotes.map(async (Y) => {
+            const le = await h(Y.name);
+            le && (v.value[Y.name] = le);
           })
         );
       } catch (W) {
-        u.value = W instanceof Error ? W.message : "Failed to load remotes";
+        d.value = W instanceof Error ? W.message : "Failed to load remotes";
       } finally {
         $.value = !1;
       }
     }
-    function K() {
-      _.value = "add", k.value = { name: "", fetchUrl: "", pushUrl: "" }, w.value = !0;
+    function j() {
+      k.value = "add", _.value = { name: "", fetchUrl: "", pushUrl: "" }, w.value = !0;
     }
     function P(W) {
-      const X = v.value.find((oe) => oe.name === W);
-      X && (_.value = "edit", k.value = {
-        name: X.name,
-        fetchUrl: X.fetch_url,
-        pushUrl: X.push_url
+      const Y = m.value.find((le) => le.name === W);
+      Y && (k.value = "edit", _.value = {
+        name: Y.name,
+        fetchUrl: Y.fetch_url,
+        pushUrl: Y.push_url
       }, w.value = !0);
     }
-    async function T(W) {
+    async function L(W) {
       try {
-        _.value === "add" ? await n(W.name, W.fetchUrl) : await p(W.name, W.fetchUrl, W.pushUrl || void 0), w.value = !1, await j();
-      } catch (X) {
-        u.value = X instanceof Error ? X.message : "Operation failed";
+        k.value === "add" ? await n(W.name, W.fetchUrl) : await p(W.name, W.fetchUrl, W.pushUrl || void 0), w.value = !1, await U();
+      } catch (Y) {
+        d.value = Y instanceof Error ? Y.message : "Operation failed";
       }
     }
-    function O() {
-      w.value = !1, k.value = { name: "", fetchUrl: "", pushUrl: "" };
+    function V() {
+      w.value = !1, _.value = { name: "", fetchUrl: "", pushUrl: "" };
     }
-    async function z(W) {
-      L.value = W;
+    async function M(W) {
+      z.value = W;
       try {
-        await g(W);
-        const X = await h(W);
-        X && (m.value[W] = X);
-      } catch (X) {
-        u.value = X instanceof Error ? X.message : "Fetch failed";
+        await f(W);
+        const Y = await h(W);
+        Y && (v.value[W] = Y);
+      } catch (Y) {
+        d.value = Y instanceof Error ? Y.message : "Fetch failed";
       } finally {
-        L.value = null;
+        z.value = null;
       }
     }
     async function S(W) {
       if (confirm(`Remove remote "${W}"?`))
         try {
-          await r(W), await j();
-        } catch (X) {
-          u.value = X instanceof Error ? X.message : "Failed to remove remote";
+          await r(W), await U();
+        } catch (Y) {
+          d.value = Y instanceof Error ? Y.message : "Failed to remove remote";
         }
     }
-    function V() {
+    function F() {
       window.open("https://git-scm.com/book/en/v2/Git-Basics-Working-with-Remotes", "_blank");
     }
-    return _e(j), (W, X) => (o(), s(H, null, [
-      f(Ie, null, {
-        header: l(() => [
-          f(Ee, {
+    return _e(U), (W, Y) => (o(), s(H, null, [
+      g(Ie, null, {
+        header: i(() => [
+          g(Ee, {
             title: "GIT REMOTES",
             "show-info": !0,
-            onInfoClick: X[0] || (X[0] = (oe) => C.value = !0)
+            onInfoClick: Y[0] || (Y[0] = (le) => C.value = !0)
           }, {
-            actions: l(() => [
-              w.value ? d("", !0) : (o(), x(Z, {
+            actions: i(() => [
+              w.value ? u("", !0) : (o(), x(Z, {
                 key: 0,
                 variant: "primary",
                 size: "sm",
-                onClick: K
+                onClick: j
               }, {
-                default: l(() => [...X[3] || (X[3] = [
+                default: i(() => [...Y[3] || (Y[3] = [
                   y(" + Add Remote ", -1)
                 ])]),
                 _: 1
@@ -7014,93 +7014,93 @@ This will download and install the node.`))
             _: 1
           })
         ]),
-        search: l(() => [
-          w.value ? d("", !0) : (o(), x(dt, {
+        search: i(() => [
+          w.value ? u("", !0) : (o(), x(ct, {
             key: 0,
-            modelValue: M.value,
-            "onUpdate:modelValue": X[1] || (X[1] = (oe) => M.value = oe),
+            modelValue: E.value,
+            "onUpdate:modelValue": Y[1] || (Y[1] = (le) => E.value = le),
             placeholder: "🔍 Search remotes..."
           }, null, 8, ["modelValue"]))
         ]),
-        content: l(() => [
+        content: i(() => [
           $.value ? (o(), x(He, {
             key: 0,
             message: "Loading remotes..."
-          })) : u.value ? (o(), x(qe, {
+          })) : d.value ? (o(), x(qe, {
             key: 1,
-            message: u.value,
+            message: d.value,
             retry: !0,
-            onRetry: j
+            onRetry: U
           }, null, 8, ["message"])) : (o(), s(H, { key: 2 }, [
-            w.value ? (o(), x(pm, {
+            w.value ? (o(), x(gm, {
               key: 0,
-              mode: _.value,
-              "remote-name": k.value.name,
-              "fetch-url": k.value.fetchUrl,
-              "push-url": k.value.pushUrl,
-              onSubmit: T,
-              onCancel: O
-            }, null, 8, ["mode", "remote-name", "fetch-url", "push-url"])) : d("", !0),
-            v.value.length && !w.value ? (o(), x(ct, {
+              mode: k.value,
+              "remote-name": _.value.name,
+              "fetch-url": _.value.fetchUrl,
+              "push-url": _.value.pushUrl,
+              onSubmit: L,
+              onCancel: V
+            }, null, 8, ["mode", "remote-name", "fetch-url", "push-url"])) : u("", !0),
+            m.value.length && !w.value ? (o(), x(ut, {
               key: 1,
               variant: "compact"
             }, {
-              default: l(() => [
-                y(" Total: " + a(v.value.length) + " remote" + a(v.value.length !== 1 ? "s" : "") + " ", 1),
-                i.value ? (o(), s("span", hm, " • Tracking: " + a(i.value.remote) + "/" + a(i.value.branch), 1)) : d("", !0)
+              default: i(() => [
+                y(" Total: " + a(m.value.length) + " remote" + a(m.value.length !== 1 ? "s" : "") + " ", 1),
+                l.value ? (o(), s("span", pm, " • Tracking: " + a(l.value.remote) + "/" + a(l.value.branch), 1)) : u("", !0)
               ]),
               _: 1
-            })) : d("", !0),
-            R.value.length && !w.value ? (o(), x(be, {
+            })) : u("", !0),
+            T.value.length && !w.value ? (o(), x(be, {
               key: 2,
               title: "REMOTES",
-              count: R.value.length
+              count: T.value.length
             }, {
-              default: l(() => [
-                (o(!0), s(H, null, se(R.value, (oe) => {
-                  var E;
-                  return o(), x(sm, {
-                    key: oe.name,
-                    remote: oe,
-                    "sync-status": m.value[oe.name],
-                    "tracking-branch": A(oe.name) ? (E = i.value) == null ? void 0 : E.branch : void 0,
-                    "fetching-remote": L.value,
-                    onFetch: z,
+              default: i(() => [
+                (o(!0), s(H, null, oe(T.value, (le) => {
+                  var G;
+                  return o(), x(om, {
+                    key: le.name,
+                    remote: le,
+                    "sync-status": v.value[le.name],
+                    "tracking-branch": N(le.name) ? (G = l.value) == null ? void 0 : G.branch : void 0,
+                    "fetching-remote": z.value,
+                    onFetch: M,
                     onEdit: P,
                     onRemove: S
                   }, null, 8, ["remote", "sync-status", "tracking-branch", "fetching-remote"]);
                 }), 128))
               ]),
               _: 1
-            }, 8, ["count"])) : d("", !0),
-            !R.value.length && !w.value ? (o(), x(Ue, {
+            }, 8, ["count"])) : u("", !0),
+            !T.value.length && !w.value ? (o(), x(Oe, {
               key: 3,
               icon: "🌐",
-              message: M.value ? `No remotes match '${M.value}'` : "No remotes configured."
+              message: E.value ? `No remotes match '${E.value}'` : "No remotes configured."
             }, {
-              actions: l(() => [
-                f(Z, {
+              actions: i(() => [
+                g(Z, {
                   variant: "primary",
-                  onClick: K
+                  onClick: j
                 }, {
-                  default: l(() => [...X[4] || (X[4] = [
+                  default: i(() => [...Y[4] || (Y[4] = [
                     y(" Add Your First Remote ", -1)
                   ])]),
                   _: 1
                 })
               ]),
               _: 1
-            }, 8, ["message"])) : d("", !0)
+            }, 8, ["message"])) : u("", !0)
           ], 64))
         ]),
         _: 1
       }),
-      f(je, {
+      g(je, {
         show: C.value,
         title: "About Git Remotes",
-        onClose: X[2] || (X[2] = (oe) => C.value = !1)
+        onClose: Y[2] || (Y[2] = (le) => C.value = !1)
       }, {
-        content: l(() => [...X[5] || (X[5] = [
+        content: i(() => [...Y[5] || (Y[5] = [
           e("p", null, " Git remotes are named references to repositories on other servers. They allow you to fetch changes from and push changes to remote repositories. ", -1),
           e("p", null, [
             y(" The "),
@@ -7108,12 +7108,12 @@ This will download and install the node.`))
             y(" remote is typically the main repository you cloned from. You can configure multiple remotes for collaboration workflows. ")
           ], -1)
         ])]),
-        actions: l(() => [
-          f(Z, {
+        actions: i(() => [
+          g(Z, {
             variant: "link",
-            onClick: V
+            onClick: F
           }, {
-            default: l(() => [...X[6] || (X[6] = [
+            default: i(() => [...Y[6] || (Y[6] = [
               y(" Learn more about Git remotes → ", -1)
             ])]),
             _: 1
@@ -7123,13 +7123,13 @@ This will download and install the node.`))
       }, 8, ["show"])
     ], 64));
   }
-}), wm = /* @__PURE__ */ Y(ym, [["__scopeId", "data-v-a75719bb"]]), km = { class: "setting-info" }, bm = { class: "setting-label" }, _m = {
+}), ym = /* @__PURE__ */ Q(hm, [["__scopeId", "data-v-a75719bb"]]), wm = { class: "setting-info" }, km = { class: "setting-label" }, bm = {
   key: 0,
   class: "required-marker"
-}, $m = {
+}, _m = {
   key: 0,
   class: "setting-description"
-}, Cm = { class: "setting-control" }, xm = /* @__PURE__ */ Q({
+}, $m = { class: "setting-control" }, Cm = /* @__PURE__ */ J({
   __name: "SettingRow",
   props: {
     label: {},
@@ -7139,21 +7139,21 @@ This will download and install the node.`))
   },
   setup(t) {
     return (c, n) => (o(), s("div", {
-      class: ne(["setting-row", { disabled: t.disabled }])
+      class: se(["setting-row", { disabled: t.disabled }])
     }, [
-      e("div", km, [
-        e("div", bm, [
+      e("div", wm, [
+        e("div", km, [
           y(a(t.label) + " ", 1),
-          t.required ? (o(), s("span", _m, "*")) : d("", !0)
+          t.required ? (o(), s("span", bm, "*")) : u("", !0)
         ]),
-        t.description ? (o(), s("div", $m, a(t.description), 1)) : d("", !0)
+        t.description ? (o(), s("div", _m, a(t.description), 1)) : u("", !0)
       ]),
-      e("div", Cm, [
+      e("div", $m, [
         ue(c.$slots, "default", {}, void 0, !0)
       ])
     ], 2));
   }
-}), Ge = /* @__PURE__ */ Y(xm, [["__scopeId", "data-v-cb5d236c"]]), Sm = { class: "toggle" }, Im = ["checked", "disabled"], Em = /* @__PURE__ */ Q({
+}), Ge = /* @__PURE__ */ Q(Cm, [["__scopeId", "data-v-cb5d236c"]]), xm = { class: "toggle" }, Sm = ["checked", "disabled"], Im = /* @__PURE__ */ J({
   __name: "Toggle",
   props: {
     modelValue: { type: Boolean },
@@ -7161,65 +7161,65 @@ This will download and install the node.`))
   },
   emits: ["update:modelValue"],
   setup(t) {
-    return (c, n) => (o(), s("label", Sm, [
+    return (c, n) => (o(), s("label", xm, [
       e("input", {
         type: "checkbox",
         checked: t.modelValue,
         disabled: t.disabled,
         onChange: n[0] || (n[0] = (r) => c.$emit("update:modelValue", r.target.checked)),
         class: "toggle-input"
-      }, null, 40, Im),
+      }, null, 40, Sm),
       n[1] || (n[1] = e("span", { class: "toggle-slider" }, null, -1))
     ]));
   }
-}), ot = /* @__PURE__ */ Y(Em, [["__scopeId", "data-v-71c0f550"]]), Mm = { class: "settings-section" }, zm = { class: "path-setting" }, Lm = { class: "path-value" }, Tm = { class: "path-setting" }, Dm = { class: "path-value" }, Rm = { class: "settings-section" }, Nm = { class: "settings-section" }, Um = { class: "settings-section" }, Om = /* @__PURE__ */ Q({
+}), st = /* @__PURE__ */ Q(Im, [["__scopeId", "data-v-71c0f550"]]), Em = { class: "settings-section" }, Mm = { class: "path-setting" }, zm = { class: "path-value" }, Lm = { class: "path-setting" }, Tm = { class: "path-value" }, Dm = { class: "settings-section" }, Rm = { class: "settings-section" }, Nm = { class: "settings-section" }, Om = /* @__PURE__ */ J({
   __name: "WorkspaceSettingsSection",
   setup(t) {
-    const { getConfig: c, updateConfig: n } = Se(), r = b(!1), p = b(null), g = b(null), h = b(null), v = b(null), i = b(""), m = b(""), $ = b(!0), u = b(!0), M = b(!1), C = B(() => v.value ? i.value !== (v.value.civitai_api_key || "") : !1);
-    async function L() {
+    const { getConfig: c, updateConfig: n } = Ce(), r = b(!1), p = b(null), f = b(null), h = b(null), m = b(null), l = b(""), v = b(""), $ = b(!0), d = b(!0), E = b(!1), C = B(() => m.value ? l.value !== (m.value.civitai_api_key || "") : !1);
+    async function z() {
       r.value = !0, p.value = null;
       try {
-        h.value = await c(), v.value = { ...h.value }, i.value = h.value.civitai_api_key || "", m.value = h.value.huggingface_token || "", $.value = h.value.auto_sync_models, u.value = h.value.confirm_destructive;
-        const R = localStorage.getItem("ComfyGit.Settings.AutoRefresh");
-        M.value = R === "true";
-      } catch (R) {
-        p.value = R instanceof Error ? R.message : "Failed to load settings";
+        h.value = await c(), m.value = { ...h.value }, l.value = h.value.civitai_api_key || "", v.value = h.value.huggingface_token || "", $.value = h.value.auto_sync_models, d.value = h.value.confirm_destructive;
+        const T = localStorage.getItem("ComfyGit.Settings.AutoRefresh");
+        E.value = T === "true";
+      } catch (T) {
+        p.value = T instanceof Error ? T.message : "Failed to load settings";
       } finally {
         r.value = !1;
       }
     }
     async function w() {
-      var R;
-      g.value = null;
+      var T;
+      f.value = null;
       try {
-        const A = {};
-        i.value !== (((R = v.value) == null ? void 0 : R.civitai_api_key) || "") && (A.civitai_api_key = i.value || null), await n(A), await L(), g.value = { type: "success", message: "Settings saved successfully" }, setTimeout(() => {
-          g.value = null;
+        const N = {};
+        l.value !== (((T = m.value) == null ? void 0 : T.civitai_api_key) || "") && (N.civitai_api_key = l.value || null), await n(N), await z(), f.value = { type: "success", message: "Settings saved successfully" }, setTimeout(() => {
+          f.value = null;
         }, 3e3);
-      } catch (A) {
-        g.value = {
+      } catch (N) {
+        f.value = {
           type: "error",
-          message: A instanceof Error ? A.message : "Failed to save settings"
+          message: N instanceof Error ? N.message : "Failed to save settings"
         };
       }
     }
-    function _() {
-      v.value && (i.value = v.value.civitai_api_key || "", m.value = v.value.huggingface_token || "", $.value = v.value.auto_sync_models, u.value = v.value.confirm_destructive, g.value = null);
+    function k() {
+      m.value && (l.value = m.value.civitai_api_key || "", v.value = m.value.huggingface_token || "", $.value = m.value.auto_sync_models, d.value = m.value.confirm_destructive, f.value = null);
     }
-    function k(R) {
-      localStorage.setItem("ComfyGit.Settings.AutoRefresh", String(R)), console.log("[ComfyGit] Auto-refresh setting saved:", R);
+    function _(T) {
+      localStorage.setItem("ComfyGit.Settings.AutoRefresh", String(T)), console.log("[ComfyGit] Auto-refresh setting saved:", T);
     }
-    return _e(L), (R, A) => (o(), x(Ie, null, {
-      header: l(() => [
-        f(Ee, { title: "WORKSPACE SETTINGS" }, {
-          actions: l(() => [
-            f(Z, {
+    return _e(z), (T, N) => (o(), x(Ie, null, {
+      header: i(() => [
+        g(Ee, { title: "WORKSPACE SETTINGS" }, {
+          actions: i(() => [
+            g(Z, {
               variant: "primary",
               size: "sm",
               disabled: !C.value,
               onClick: w
             }, {
-              default: l(() => [...A[5] || (A[5] = [
+              default: i(() => [...N[5] || (N[5] = [
                 y(" Save Changes ", -1)
               ])]),
               _: 1
@@ -7228,18 +7228,18 @@ This will download and install the node.`))
               key: 0,
               variant: "ghost",
               size: "sm",
-              onClick: _
+              onClick: k
             }, {
-              default: l(() => [...A[6] || (A[6] = [
+              default: i(() => [...N[6] || (N[6] = [
                 y(" Reset ", -1)
               ])]),
               _: 1
-            })) : d("", !0)
+            })) : u("", !0)
           ]),
           _: 1
         })
       ]),
-      content: l(() => [
+      content: i(() => [
         r.value ? (o(), x(He, {
           key: 0,
           message: "Loading workspace settings..."
@@ -7247,39 +7247,39 @@ This will download and install the node.`))
           key: 1,
           message: p.value,
           retry: !0,
-          onRetry: L
+          onRetry: z
         }, null, 8, ["message"])) : (o(), s(H, { key: 2 }, [
-          f(be, { title: "WORKSPACE PATHS" }, {
-            default: l(() => {
-              var j, K;
+          g(be, { title: "WORKSPACE PATHS" }, {
+            default: i(() => {
+              var U, j;
               return [
-                e("div", Mm, [
-                  e("div", zm, [
-                    A[7] || (A[7] = e("div", { class: "path-label" }, "Workspace Root", -1)),
-                    A[8] || (A[8] = e("div", { class: "path-description" }, "Root directory of this workspace (read-only)", -1)),
-                    e("div", Lm, a(((j = h.value) == null ? void 0 : j.workspace_path) || "Loading..."), 1)
+                e("div", Em, [
+                  e("div", Mm, [
+                    N[7] || (N[7] = e("div", { class: "path-label" }, "Workspace Root", -1)),
+                    N[8] || (N[8] = e("div", { class: "path-description" }, "Root directory of this workspace (read-only)", -1)),
+                    e("div", zm, a(((U = h.value) == null ? void 0 : U.workspace_path) || "Loading..."), 1)
                   ]),
-                  e("div", Tm, [
-                    A[9] || (A[9] = e("div", { class: "path-label" }, "Models Directory", -1)),
-                    A[10] || (A[10] = e("div", { class: "path-description" }, "Where model files are indexed and stored", -1)),
-                    e("div", Dm, a(((K = h.value) == null ? void 0 : K.models_path) || "Not configured"), 1)
+                  e("div", Lm, [
+                    N[9] || (N[9] = e("div", { class: "path-label" }, "Models Directory", -1)),
+                    N[10] || (N[10] = e("div", { class: "path-description" }, "Where model files are indexed and stored", -1)),
+                    e("div", Tm, a(((j = h.value) == null ? void 0 : j.models_path) || "Not configured"), 1)
                   ])
                 ])
               ];
             }),
             _: 1
           }),
-          f(be, { title: "API CREDENTIALS" }, {
-            default: l(() => [
-              e("div", Rm, [
-                f(Ge, {
+          g(be, { title: "API CREDENTIALS" }, {
+            default: i(() => [
+              e("div", Dm, [
+                g(Ge, {
                   label: "CivitAI API Key",
                   description: "API key for downloading models from CivitAI"
                 }, {
-                  default: l(() => [
-                    f(Ct, {
-                      modelValue: i.value,
-                      "onUpdate:modelValue": A[0] || (A[0] = (j) => i.value = j),
+                  default: i(() => [
+                    g(Et, {
+                      modelValue: l.value,
+                      "onUpdate:modelValue": N[0] || (N[0] = (U) => l.value = U),
                       type: "password",
                       placeholder: "Enter CivitAI API key...",
                       style: { minWidth: "300px" }
@@ -7287,15 +7287,15 @@ This will download and install the node.`))
                   ]),
                   _: 1
                 }),
-                f(Ge, {
+                g(Ge, {
                   label: "HuggingFace Token",
                   description: "Token for accessing HuggingFace models (not yet supported)",
                   disabled: !0
                 }, {
-                  default: l(() => [
-                    f(Ct, {
-                      modelValue: m.value,
-                      "onUpdate:modelValue": A[1] || (A[1] = (j) => m.value = j),
+                  default: i(() => [
+                    g(Et, {
+                      modelValue: v.value,
+                      "onUpdate:modelValue": N[1] || (N[1] = (U) => v.value = U),
                       type: "password",
                       placeholder: "Not yet supported",
                       disabled: "",
@@ -7308,19 +7308,19 @@ This will download and install the node.`))
             ]),
             _: 1
           }),
-          f(be, { title: "UI SETTINGS" }, {
-            default: l(() => [
-              e("div", Nm, [
-                f(Ge, {
+          g(be, { title: "UI SETTINGS" }, {
+            default: i(() => [
+              e("div", Rm, [
+                g(Ge, {
                   label: "Auto-Refresh After Git Operations",
                   description: "Automatically refresh the page after branch switches and checkouts. If disabled, shows a notification with a refresh button."
                 }, {
-                  default: l(() => [
-                    f(ot, {
-                      modelValue: M.value,
+                  default: i(() => [
+                    g(st, {
+                      modelValue: E.value,
                       "onUpdate:modelValue": [
-                        A[2] || (A[2] = (j) => M.value = j),
-                        k
+                        N[2] || (N[2] = (U) => E.value = U),
+                        _
                       ]
                     }, null, 8, ["modelValue"])
                   ]),
@@ -7330,32 +7330,32 @@ This will download and install the node.`))
             ]),
             _: 1
           }),
-          f(be, { title: "ADDITIONAL SETTINGS (Coming Soon)" }, {
-            default: l(() => [
-              e("div", Um, [
-                f(Ge, {
+          g(be, { title: "ADDITIONAL SETTINGS (Coming Soon)" }, {
+            default: i(() => [
+              e("div", Nm, [
+                g(Ge, {
                   label: "Auto-Sync Models",
                   description: "Automatically sync models when switching environments (not yet supported)",
                   disabled: !0
                 }, {
-                  default: l(() => [
-                    f(ot, {
+                  default: i(() => [
+                    g(st, {
                       modelValue: $.value,
-                      "onUpdate:modelValue": A[3] || (A[3] = (j) => $.value = j),
+                      "onUpdate:modelValue": N[3] || (N[3] = (U) => $.value = U),
                       disabled: ""
                     }, null, 8, ["modelValue"])
                   ]),
                   _: 1
                 }),
-                f(Ge, {
+                g(Ge, {
                   label: "Confirm Destructive Actions",
                   description: "Show confirmation dialogs for destructive operations (not yet supported)",
                   disabled: !0
                 }, {
-                  default: l(() => [
-                    f(ot, {
-                      modelValue: u.value,
-                      "onUpdate:modelValue": A[4] || (A[4] = (j) => u.value = j),
+                  default: i(() => [
+                    g(st, {
+                      modelValue: d.value,
+                      "onUpdate:modelValue": N[4] || (N[4] = (U) => d.value = U),
                       disabled: ""
                     }, null, 8, ["modelValue"])
                   ]),
@@ -7365,58 +7365,58 @@ This will download and install the node.`))
             ]),
             _: 1
           }),
-          g.value ? (o(), x(ct, {
+          f.value ? (o(), x(ut, {
             key: 0,
-            variant: (g.value.type === "success", "compact")
+            variant: (f.value.type === "success", "compact")
           }, {
-            default: l(() => [
+            default: i(() => [
               e("span", {
-                style: Qe({ color: g.value.type === "success" ? "var(--cg-color-success)" : "var(--cg-color-error)" })
-              }, a(g.value.message), 5)
+                style: Qe({ color: f.value.type === "success" ? "var(--cg-color-success)" : "var(--cg-color-error)" })
+              }, a(f.value.message), 5)
             ]),
             _: 1
-          }, 8, ["variant"])) : d("", !0)
+          }, 8, ["variant"])) : u("", !0)
         ], 64))
       ]),
       _: 1
     }));
   }
-}), Bm = /* @__PURE__ */ Y(Om, [["__scopeId", "data-v-7861bd35"]]), Pm = /* @__PURE__ */ Q({
+}), Um = /* @__PURE__ */ Q(Om, [["__scopeId", "data-v-7861bd35"]]), Bm = /* @__PURE__ */ J({
   __name: "WorkspaceDebugSection",
   setup(t) {
-    const { getWorkspaceLogs: c } = Se(), n = b([]), r = b(!1), p = b(null), g = b(!1), h = b(null), v = B(() => n.value.length === 0 ? [] : n.value.map((m) => ({
-      text: `${m.timestamp} - ${m.name} - ${m.level} - ${m.func}:${m.line} - ${m.message}`,
-      level: m.level
+    const { getWorkspaceLogs: c } = Ce(), n = b([]), r = b(!1), p = b(null), f = b(!1), h = b(null), m = B(() => n.value.length === 0 ? [] : n.value.map((v) => ({
+      text: `${v.timestamp} - ${v.name} - ${v.level} - ${v.func}:${v.line} - ${v.message}`,
+      level: v.level
     })));
-    async function i() {
+    async function l() {
       r.value = !0, p.value = null;
       try {
         n.value = await c(void 0, 500);
-      } catch (m) {
-        p.value = m instanceof Error ? m.message : "Failed to load workspace logs";
+      } catch (v) {
+        p.value = v instanceof Error ? v.message : "Failed to load workspace logs";
       } finally {
         r.value = !1, setTimeout(() => {
-          var m;
-          (m = h.value) != null && m.parentElement && (h.value.parentElement.scrollTop = h.value.parentElement.scrollHeight);
+          var v;
+          (v = h.value) != null && v.parentElement && (h.value.parentElement.scrollTop = h.value.parentElement.scrollHeight);
         }, 0);
       }
     }
-    return _e(i), (m, $) => (o(), s(H, null, [
-      f(Ie, null, {
-        header: l(() => [
-          f(Ee, {
+    return _e(l), (v, $) => (o(), s(H, null, [
+      g(Ie, null, {
+        header: i(() => [
+          g(Ee, {
             title: "DEBUG (WORKSPACE LOGS)",
             "show-info": !0,
-            onInfoClick: $[0] || ($[0] = (u) => g.value = !0)
+            onInfoClick: $[0] || ($[0] = (d) => f.value = !0)
           }, {
-            actions: l(() => [
-              f(Z, {
+            actions: i(() => [
+              g(Z, {
                 variant: "secondary",
                 size: "sm",
-                onClick: i,
+                onClick: l,
                 disabled: r.value
               }, {
-                default: l(() => [
+                default: i(() => [
                   y(a(r.value ? "Loading..." : "Refresh"), 1)
                 ]),
                 _: 1
@@ -7425,7 +7425,7 @@ This will download and install the node.`))
             _: 1
           })
         ]),
-        content: l(() => [
+        content: i(() => [
           r.value ? (o(), x(He, {
             key: 0,
             message: "Loading workspace logs..."
@@ -7433,9 +7433,9 @@ This will download and install the node.`))
             key: 1,
             message: p.value,
             retry: !0,
-            onRetry: i
+            onRetry: l
           }, null, 8, ["message"])) : (o(), s(H, { key: 2 }, [
-            n.value.length === 0 ? (o(), x(Ue, {
+            n.value.length === 0 ? (o(), x(Oe, {
               key: 0,
               icon: "📝",
               message: "No workspace logs available"
@@ -7445,21 +7445,21 @@ This will download and install the node.`))
               ref: h,
               class: "log-output"
             }, [
-              (o(!0), s(H, null, se(v.value, (u, M) => (o(), s("div", {
-                key: M,
-                class: ne(`log-line log-level-${u.level.toLowerCase()}`)
-              }, a(u.text), 3))), 128))
+              (o(!0), s(H, null, oe(m.value, (d, E) => (o(), s("div", {
+                key: E,
+                class: se(`log-line log-level-${d.level.toLowerCase()}`)
+              }, a(d.text), 3))), 128))
             ], 512))
           ], 64))
         ]),
         _: 1
       }),
-      f(je, {
-        show: g.value,
+      g(je, {
+        show: f.value,
         title: "About Workspace Logs",
-        onClose: $[2] || ($[2] = (u) => g.value = !1)
+        onClose: $[2] || ($[2] = (d) => f.value = !1)
       }, {
-        content: l(() => [...$[3] || ($[3] = [
+        content: i(() => [...$[3] || ($[3] = [
           e("p", null, " Workspace logs show system-level events and operations for the entire ComfyGit workspace, including operations that affect multiple environments. ", -1),
           e("p", { style: { "margin-top": "var(--cg-space-2)" } }, [
             e("strong", null, "Log Levels:"),
@@ -7478,12 +7478,12 @@ This will download and install the node.`))
           ], -1),
           e("p", { style: { "margin-top": "var(--cg-space-2)" } }, " Use the filter bar to show/hide specific log levels. ", -1)
         ])]),
-        actions: l(() => [
-          f(Z, {
+        actions: i(() => [
+          g(Z, {
             variant: "primary",
-            onClick: $[1] || ($[1] = (u) => g.value = !1)
+            onClick: $[1] || ($[1] = (d) => f.value = !1)
           }, {
-            default: l(() => [...$[4] || ($[4] = [
+            default: i(() => [...$[4] || ($[4] = [
               y(" Got it ", -1)
             ])]),
             _: 1
@@ -7493,47 +7493,47 @@ This will download and install the node.`))
       }, 8, ["show"])
     ], 64));
   }
-}), Vm = /* @__PURE__ */ Y(Pm, [["__scopeId", "data-v-39f6a756"]]), Fm = /* @__PURE__ */ Q({
+}), Pm = /* @__PURE__ */ Q(Bm, [["__scopeId", "data-v-39f6a756"]]), Vm = /* @__PURE__ */ J({
   __name: "DebugEnvSection",
   setup(t) {
-    const { getEnvironmentLogs: c, getStatus: n } = Se(), r = b([]), p = b(!1), g = b(null), h = b(!1), v = b("production"), i = b(null), m = B(() => r.value.length === 0 ? [] : r.value.map((u) => ({
-      text: `${u.timestamp} - ${u.name} - ${u.level} - ${u.func}:${u.line} - ${u.message}`,
-      level: u.level
+    const { getEnvironmentLogs: c, getStatus: n } = Ce(), r = b([]), p = b(!1), f = b(null), h = b(!1), m = b("production"), l = b(null), v = B(() => r.value.length === 0 ? [] : r.value.map((d) => ({
+      text: `${d.timestamp} - ${d.name} - ${d.level} - ${d.func}:${d.line} - ${d.message}`,
+      level: d.level
     })));
     async function $() {
-      p.value = !0, g.value = null;
+      p.value = !0, f.value = null;
       try {
         r.value = await c(void 0, 500);
         try {
-          const u = await n();
-          v.value = u.environment || "production";
+          const d = await n();
+          m.value = d.environment || "production";
         } catch {
         }
-      } catch (u) {
-        g.value = u instanceof Error ? u.message : "Failed to load environment logs";
+      } catch (d) {
+        f.value = d instanceof Error ? d.message : "Failed to load environment logs";
       } finally {
         p.value = !1, setTimeout(() => {
-          var u;
-          (u = i.value) != null && u.parentElement && (i.value.parentElement.scrollTop = i.value.parentElement.scrollHeight);
+          var d;
+          (d = l.value) != null && d.parentElement && (l.value.parentElement.scrollTop = l.value.parentElement.scrollHeight);
         }, 0);
       }
     }
-    return _e($), (u, M) => (o(), s(H, null, [
-      f(Ie, null, {
-        header: l(() => [
-          f(Ee, {
+    return _e($), (d, E) => (o(), s(H, null, [
+      g(Ie, null, {
+        header: i(() => [
+          g(Ee, {
             title: "DEBUG (ENVIRONMENT LOGS)",
             "show-info": !0,
-            onInfoClick: M[0] || (M[0] = (C) => h.value = !0)
+            onInfoClick: E[0] || (E[0] = (C) => h.value = !0)
           }, {
-            actions: l(() => [
-              f(Z, {
+            actions: i(() => [
+              g(Z, {
                 variant: "secondary",
                 size: "sm",
                 onClick: $,
                 disabled: p.value
               }, {
-                default: l(() => [
+                default: i(() => [
                   y(a(p.value ? "Loading..." : "Refresh"), 1)
                 ]),
                 _: 1
@@ -7542,47 +7542,47 @@ This will download and install the node.`))
             _: 1
           })
         ]),
-        content: l(() => [
+        content: i(() => [
           p.value ? (o(), x(He, {
             key: 0,
             message: "Loading environment logs..."
-          })) : g.value ? (o(), x(qe, {
+          })) : f.value ? (o(), x(qe, {
             key: 1,
-            message: g.value,
+            message: f.value,
             retry: !0,
             onRetry: $
           }, null, 8, ["message"])) : (o(), s(H, { key: 2 }, [
-            r.value.length === 0 ? (o(), x(Ue, {
+            r.value.length === 0 ? (o(), x(Oe, {
               key: 0,
               icon: "📝",
               message: "No environment logs available"
             })) : (o(), s("div", {
               key: 1,
               ref_key: "logOutputElement",
-              ref: i,
+              ref: l,
               class: "log-output"
             }, [
-              (o(!0), s(H, null, se(m.value, (C, L) => (o(), s("div", {
-                key: L,
-                class: ne(`log-line log-level-${C.level.toLowerCase()}`)
+              (o(!0), s(H, null, oe(v.value, (C, z) => (o(), s("div", {
+                key: z,
+                class: se(`log-line log-level-${C.level.toLowerCase()}`)
               }, a(C.text), 3))), 128))
             ], 512))
           ], 64))
         ]),
         _: 1
       }),
-      f(je, {
+      g(je, {
         show: h.value,
         title: "About Environment Logs",
-        onClose: M[2] || (M[2] = (C) => h.value = !1)
+        onClose: E[2] || (E[2] = (C) => h.value = !1)
       }, {
-        content: l(() => [
+        content: i(() => [
           e("p", null, [
-            M[3] || (M[3] = y(" Environment logs show operations, warnings, and errors for the current environment. These logs are specific to ", -1)),
-            e("strong", null, a(v.value), 1),
-            M[4] || (M[4] = y(" and help debug workflow execution, model loading, and node installation issues. ", -1))
+            E[3] || (E[3] = y(" Environment logs show operations, warnings, and errors for the current environment. These logs are specific to ", -1)),
+            e("strong", null, a(m.value), 1),
+            E[4] || (E[4] = y(" and help debug workflow execution, model loading, and node installation issues. ", -1))
           ]),
-          M[5] || (M[5] = e("p", { style: { "margin-top": "var(--cg-space-2)" } }, [
+          E[5] || (E[5] = e("p", { style: { "margin-top": "var(--cg-space-2)" } }, [
             e("strong", null, "Log Levels:"),
             e("br"),
             e("strong", null, "ERROR:"),
@@ -7597,14 +7597,14 @@ This will download and install the node.`))
             e("strong", null, "DEBUG:"),
             y(" Detailed debugging information ")
           ], -1)),
-          M[6] || (M[6] = e("p", { style: { "margin-top": "var(--cg-space-2)" } }, " Use the filter bar to show/hide specific log levels. ", -1))
+          E[6] || (E[6] = e("p", { style: { "margin-top": "var(--cg-space-2)" } }, " Use the filter bar to show/hide specific log levels. ", -1))
         ]),
-        actions: l(() => [
-          f(Z, {
+        actions: i(() => [
+          g(Z, {
             variant: "primary",
-            onClick: M[1] || (M[1] = (C) => h.value = !1)
+            onClick: E[1] || (E[1] = (C) => h.value = !1)
           }, {
-            default: l(() => [...M[7] || (M[7] = [
+            default: i(() => [...E[7] || (E[7] = [
               y(" Got it ", -1)
             ])]),
             _: 1
@@ -7614,12 +7614,188 @@ This will download and install the node.`))
       }, 8, ["show"])
     ], 64));
   }
-}), Am = /* @__PURE__ */ Y(Fm, [["__scopeId", "data-v-4f1e6f72"]]), Wm = [
+}), Am = /* @__PURE__ */ Q(Vm, [["__scopeId", "data-v-4f1e6f72"]]), Fm = { class: "env-title" }, Wm = {
+  key: 0,
+  class: "current-badge"
+}, Gm = {
+  key: 0,
+  class: "branch-info"
+}, jm = /* @__PURE__ */ J({
+  __name: "EnvironmentListItem",
+  props: {
+    environmentName: {},
+    isCurrent: { type: Boolean, default: !1 },
+    currentBranch: { default: null },
+    workflowCount: { default: 0 },
+    nodeCount: { default: 0 },
+    modelCount: { default: 0 },
+    lastUsed: { default: void 0 },
+    showCurrentLabel: { type: Boolean, default: !0 },
+    showLastUsed: { type: Boolean, default: !0 },
+    showDetails: { type: Boolean, default: !1 }
+  },
+  setup(t) {
+    return (c, n) => (o(), x(xe, {
+      status: t.isCurrent ? "synced" : void 0
+    }, Mt({
+      icon: i(() => [
+        y(a(t.isCurrent ? "🌍" : "○"), 1)
+      ]),
+      title: i(() => [
+        e("div", Fm, [
+          e("span", null, a(t.environmentName), 1),
+          t.isCurrent && t.showCurrentLabel ? (o(), s("span", Wm, "CURRENT")) : u("", !0)
+        ])
+      ]),
+      subtitle: i(() => [
+        t.currentBranch ? (o(), s("span", Gm, [
+          n[0] || (n[0] = e("span", { class: "branch-icon" }, "⎇", -1)),
+          y(" " + a(t.currentBranch), 1)
+        ])) : u("", !0)
+      ]),
+      actions: i(() => [
+        ue(c.$slots, "actions", {}, void 0, !0)
+      ]),
+      _: 2
+    }, [
+      t.showDetails ? {
+        name: "details",
+        fn: i(() => [
+          g(pe, {
+            label: "Workflows:",
+            value: String(t.workflowCount)
+          }, null, 8, ["value"]),
+          g(pe, {
+            label: "Nodes:",
+            value: String(t.nodeCount)
+          }, null, 8, ["value"]),
+          g(pe, {
+            label: "Models:",
+            value: String(t.modelCount)
+          }, null, 8, ["value"]),
+          t.lastUsed && t.showLastUsed ? (o(), x(pe, {
+            key: 0,
+            label: "Last used:",
+            value: t.lastUsed
+          }, null, 8, ["value"])) : u("", !0)
+        ]),
+        key: "0"
+      } : void 0
+    ]), 1032, ["status"]));
+  }
+}), Hm = /* @__PURE__ */ Q(jm, [["__scopeId", "data-v-9231917a"]]), qm = { class: "env-details" }, Km = { class: "status-row" }, Jm = {
+  key: 0,
+  class: "detail-row"
+}, Qm = { class: "value mono" }, Ym = {
+  key: 1,
+  class: "detail-row"
+}, Xm = { class: "value mono small" }, Zm = { class: "detail-row" }, ev = { class: "value" }, tv = { class: "detail-row" }, ov = { class: "value" }, sv = { class: "detail-row" }, nv = { class: "value" }, av = {
+  key: 2,
+  class: "section-divider"
+}, lv = {
+  key: 3,
+  class: "detail-row"
+}, iv = { class: "value" }, rv = {
+  key: 4,
+  class: "detail-row"
+}, dv = { class: "value" }, cv = { class: "footer-actions" }, uv = /* @__PURE__ */ J({
+  __name: "EnvironmentDetailsModal",
+  props: {
+    environment: {},
+    canDelete: { type: Boolean }
+  },
+  emits: ["close", "delete"],
+  setup(t, { emit: c }) {
+    const n = c;
+    function r(p) {
+      if (!p) return "Unknown";
+      try {
+        const f = new Date(p), m = (/* @__PURE__ */ new Date()).getTime() - f.getTime(), l = Math.floor(m / 6e4), v = Math.floor(m / 36e5), $ = Math.floor(m / 864e5);
+        return l < 1 ? "just now" : l < 60 ? `${l} ${l === 1 ? "minute" : "minutes"} ago` : v < 24 ? `${v} ${v === 1 ? "hour" : "hours"} ago` : $ < 30 ? `${$} ${$ === 1 ? "day" : "days"} ago` : f.toLocaleDateString();
+      } catch {
+        return p;
+      }
+    }
+    return (p, f) => (o(), x(Ye, {
+      title: `ENVIRONMENT DETAILS: ${t.environment.name.toUpperCase()}`,
+      size: "md",
+      onClose: f[2] || (f[2] = (h) => n("close"))
+    }, {
+      body: i(() => [
+        e("div", qm, [
+          e("div", Km, [
+            f[3] || (f[3] = e("span", { class: "label" }, "Status:", -1)),
+            e("span", {
+              class: se(["status-badge", t.environment.is_current ? "current" : "inactive"])
+            }, a(t.environment.is_current ? "Current" : "Inactive"), 3)
+          ]),
+          t.environment.current_branch ? (o(), s("div", Jm, [
+            f[4] || (f[4] = e("span", { class: "label" }, "Branch:", -1)),
+            e("span", Qm, a(t.environment.current_branch), 1)
+          ])) : u("", !0),
+          t.environment.path ? (o(), s("div", Ym, [
+            f[5] || (f[5] = e("span", { class: "label" }, "Path:", -1)),
+            e("span", Xm, a(t.environment.path), 1)
+          ])) : u("", !0),
+          f[11] || (f[11] = e("div", { class: "section-divider" }, null, -1)),
+          e("div", Zm, [
+            f[6] || (f[6] = e("span", { class: "label" }, "Workflows:", -1)),
+            e("span", ev, a(t.environment.workflow_count), 1)
+          ]),
+          e("div", tv, [
+            f[7] || (f[7] = e("span", { class: "label" }, "Nodes:", -1)),
+            e("span", ov, a(t.environment.node_count), 1)
+          ]),
+          e("div", sv, [
+            f[8] || (f[8] = e("span", { class: "label" }, "Models:", -1)),
+            e("span", nv, a(t.environment.model_count), 1)
+          ]),
+          t.environment.created_at || t.environment.last_used ? (o(), s("div", av)) : u("", !0),
+          t.environment.created_at ? (o(), s("div", lv, [
+            f[9] || (f[9] = e("span", { class: "label" }, "Created:", -1)),
+            e("span", iv, a(r(t.environment.created_at)), 1)
+          ])) : u("", !0),
+          t.environment.last_used ? (o(), s("div", rv, [
+            f[10] || (f[10] = e("span", { class: "label" }, "Last Used:", -1)),
+            e("span", dv, a(r(t.environment.last_used)), 1)
+          ])) : u("", !0)
+        ])
+      ]),
+      footer: i(() => [
+        e("div", cv, [
+          t.canDelete ? (o(), x(ie, {
+            key: 0,
+            variant: "danger",
+            size: "sm",
+            onClick: f[0] || (f[0] = (h) => n("delete", t.environment.name))
+          }, {
+            default: i(() => [...f[12] || (f[12] = [
+              y(" Delete ", -1)
+            ])]),
+            _: 1
+          })) : u("", !0),
+          f[14] || (f[14] = e("div", { class: "footer-spacer" }, null, -1)),
+          g(ie, {
+            variant: "secondary",
+            size: "sm",
+            onClick: f[1] || (f[1] = (h) => n("close"))
+          }, {
+            default: i(() => [...f[13] || (f[13] = [
+              y(" Close ", -1)
+            ])]),
+            _: 1
+          })
+        ])
+      ]),
+      _: 1
+    }, 8, ["title"]));
+  }
+}), mv = /* @__PURE__ */ Q(uv, [["__scopeId", "data-v-59855453"]]), vv = [
   "3.12",
   "3.11",
   "3.10",
   "3.13"
-], qt = "3.12", Gm = [
+], fv = "3.12", gv = [
   // Auto-detect
   "auto",
   // CPU only
@@ -7669,271 +7845,202 @@ This will download and install the node.`))
   "rocm4.0.1",
   // Intel
   "xpu"
-], Kt = "auto", jm = { class: "env-title" }, Hm = {
-  key: 0,
-  class: "current-badge"
-}, qm = {
-  key: 0,
-  class: "branch-info"
-}, Km = /* @__PURE__ */ Q({
-  __name: "EnvironmentListItem",
-  props: {
-    environmentName: {},
-    isCurrent: { type: Boolean, default: !1 },
-    currentBranch: { default: null },
-    workflowCount: { default: 0 },
-    nodeCount: { default: 0 },
-    modelCount: { default: 0 },
-    lastUsed: { default: void 0 },
-    showCurrentLabel: { type: Boolean, default: !0 },
-    showLastUsed: { type: Boolean, default: !0 },
-    showDetails: { type: Boolean, default: !1 }
-  },
-  setup(t) {
-    return (c, n) => (o(), x(Ce, {
-      status: t.isCurrent ? "synced" : void 0
-    }, Mt({
-      icon: l(() => [
-        y(a(t.isCurrent ? "🌍" : "○"), 1)
-      ]),
-      title: l(() => [
-        e("div", jm, [
-          e("span", null, a(t.environmentName), 1),
-          t.isCurrent && t.showCurrentLabel ? (o(), s("span", Hm, "CURRENT")) : d("", !0)
-        ])
-      ]),
-      subtitle: l(() => [
-        t.currentBranch ? (o(), s("span", qm, [
-          n[0] || (n[0] = e("span", { class: "branch-icon" }, "⎇", -1)),
-          y(" " + a(t.currentBranch), 1)
-        ])) : d("", !0)
-      ]),
-      actions: l(() => [
-        ue(c.$slots, "actions", {}, void 0, !0)
-      ]),
-      _: 2
-    }, [
-      t.showDetails ? {
-        name: "details",
-        fn: l(() => [
-          f(pe, {
-            label: "Workflows:",
-            value: String(t.workflowCount)
-          }, null, 8, ["value"]),
-          f(pe, {
-            label: "Nodes:",
-            value: String(t.nodeCount)
-          }, null, 8, ["value"]),
-          f(pe, {
-            label: "Models:",
-            value: String(t.modelCount)
-          }, null, 8, ["value"]),
-          t.lastUsed && t.showLastUsed ? (o(), x(pe, {
-            key: 0,
-            label: "Last used:",
-            value: t.lastUsed
-          }, null, 8, ["value"])) : d("", !0)
-        ]),
-        key: "0"
-      } : void 0
-    ]), 1032, ["status"]));
-  }
-}), Jm = /* @__PURE__ */ Y(Km, [["__scopeId", "data-v-79a079cc"]]), Qm = { class: "env-details" }, Ym = { class: "status-row" }, Xm = {
-  key: 0,
-  class: "detail-row"
-}, Zm = { class: "value mono" }, ev = {
-  key: 1,
-  class: "detail-row"
-}, tv = { class: "value mono small" }, ov = { class: "detail-row" }, sv = { class: "value" }, nv = { class: "detail-row" }, av = { class: "value" }, lv = { class: "detail-row" }, iv = { class: "value" }, rv = {
-  key: 2,
-  class: "section-divider"
-}, dv = {
-  key: 3,
-  class: "detail-row"
-}, cv = { class: "value" }, uv = {
-  key: 4,
-  class: "detail-row"
-}, mv = { class: "value" }, vv = /* @__PURE__ */ Q({
-  __name: "EnvironmentDetailsModal",
-  props: {
-    environment: {}
-  },
-  emits: ["close", "switch"],
+], pv = "auto", hv = { class: "create-env-form" }, yv = { class: "form-field" }, wv = { class: "form-field" }, kv = ["value"], bv = { class: "form-field" }, _v = ["disabled"], $v = ["value"], Cv = { class: "form-field" }, xv = ["value"], Sv = { class: "form-field form-field--checkbox" }, Iv = { class: "form-checkbox" }, Ev = /* @__PURE__ */ J({
+  __name: "CreateEnvironmentModal",
+  emits: ["close", "create"],
   setup(t, { emit: c }) {
-    const n = c;
-    function r(p) {
-      if (!p) return "Unknown";
+    const n = c, { getComfyUIReleases: r } = Ce(), p = b(""), f = b(fv), h = b("latest"), m = b(pv), l = b(!1), v = b([{ tag_name: "latest", name: "Latest", published_at: "" }]), $ = b(!1), d = b(null);
+    function E() {
+      const z = p.value.trim();
+      if (!z) return;
+      const w = {
+        name: z,
+        python_version: f.value,
+        comfyui_version: h.value,
+        torch_backend: m.value,
+        switch_after: l.value
+      };
+      n("create", w);
+    }
+    async function C() {
+      $.value = !0;
       try {
-        const g = new Date(p), v = (/* @__PURE__ */ new Date()).getTime() - g.getTime(), i = Math.floor(v / 6e4), m = Math.floor(v / 36e5), $ = Math.floor(v / 864e5);
-        return i < 1 ? "just now" : i < 60 ? `${i} ${i === 1 ? "minute" : "minutes"} ago` : m < 24 ? `${m} ${m === 1 ? "hour" : "hours"} ago` : $ < 30 ? `${$} ${$ === 1 ? "day" : "days"} ago` : g.toLocaleDateString();
-      } catch {
-        return p;
+        v.value = await r();
+      } catch (z) {
+        console.error("Failed to load ComfyUI releases:", z);
+      } finally {
+        $.value = !1;
       }
     }
-    return (p, g) => (o(), x(st, {
-      title: `ENVIRONMENT DETAILS: ${t.environment.name.toUpperCase()}`,
-      size: "md",
-      onClose: g[2] || (g[2] = (h) => n("close"))
+    return _e(async () => {
+      var z;
+      await ko(), (z = d.value) == null || z.focus(), C();
+    }), (z, w) => (o(), x(Ye, {
+      title: "CREATE NEW ENVIRONMENT",
+      size: "sm",
+      onClose: w[6] || (w[6] = (k) => n("close"))
     }, {
-      body: l(() => [
-        e("div", Qm, [
-          e("div", Ym, [
-            g[3] || (g[3] = e("span", { class: "label" }, "Status:", -1)),
-            e("span", {
-              class: ne(["status-badge", t.environment.is_current ? "current" : "inactive"])
-            }, a(t.environment.is_current ? "Current" : "Inactive"), 3)
+      body: i(() => [
+        e("div", hv, [
+          e("div", yv, [
+            w[7] || (w[7] = e("label", { class: "form-label" }, "Name", -1)),
+            at(e("input", {
+              ref_key: "nameInput",
+              ref: d,
+              "onUpdate:modelValue": w[0] || (w[0] = (k) => p.value = k),
+              type: "text",
+              class: "form-input",
+              placeholder: "my-environment",
+              onKeyup: Je(E, ["enter"])
+            }, null, 544), [
+              [Yt, p.value]
+            ])
           ]),
-          t.environment.current_branch ? (o(), s("div", Xm, [
-            g[4] || (g[4] = e("span", { class: "label" }, "Branch:", -1)),
-            e("span", Zm, a(t.environment.current_branch), 1)
-          ])) : d("", !0),
-          t.environment.path ? (o(), s("div", ev, [
-            g[5] || (g[5] = e("span", { class: "label" }, "Path:", -1)),
-            e("span", tv, a(t.environment.path), 1)
-          ])) : d("", !0),
-          g[11] || (g[11] = e("div", { class: "section-divider" }, null, -1)),
-          e("div", ov, [
-            g[6] || (g[6] = e("span", { class: "label" }, "Workflows:", -1)),
-            e("span", sv, a(t.environment.workflow_count), 1)
+          e("div", wv, [
+            w[8] || (w[8] = e("label", { class: "form-label" }, "Python Version", -1)),
+            at(e("select", {
+              "onUpdate:modelValue": w[1] || (w[1] = (k) => f.value = k),
+              class: "form-select"
+            }, [
+              (o(!0), s(H, null, oe(me(vv), (k) => (o(), s("option", {
+                key: k,
+                value: k
+              }, a(k), 9, kv))), 128))
+            ], 512), [
+              [Lt, f.value]
+            ])
           ]),
-          e("div", nv, [
-            g[7] || (g[7] = e("span", { class: "label" }, "Nodes:", -1)),
-            e("span", av, a(t.environment.node_count), 1)
+          e("div", bv, [
+            w[9] || (w[9] = e("label", { class: "form-label" }, "ComfyUI Version", -1)),
+            at(e("select", {
+              "onUpdate:modelValue": w[2] || (w[2] = (k) => h.value = k),
+              class: "form-select",
+              disabled: $.value
+            }, [
+              (o(!0), s(H, null, oe(v.value, (k) => (o(), s("option", {
+                key: k.tag_name,
+                value: k.tag_name
+              }, a(k.name), 9, $v))), 128))
+            ], 8, _v), [
+              [Lt, h.value]
+            ])
           ]),
-          e("div", lv, [
-            g[8] || (g[8] = e("span", { class: "label" }, "Models:", -1)),
-            e("span", iv, a(t.environment.model_count), 1)
+          e("div", Cv, [
+            w[10] || (w[10] = e("label", { class: "form-label" }, "PyTorch Backend", -1)),
+            at(e("select", {
+              "onUpdate:modelValue": w[3] || (w[3] = (k) => m.value = k),
+              class: "form-select"
+            }, [
+              (o(!0), s(H, null, oe(me(gv), (k) => (o(), s("option", {
+                key: k,
+                value: k
+              }, a(k) + a(k === "auto" ? " (detect GPU)" : ""), 9, xv))), 128))
+            ], 512), [
+              [Lt, m.value]
+            ])
           ]),
-          t.environment.created_at || t.environment.last_used ? (o(), s("div", rv)) : d("", !0),
-          t.environment.created_at ? (o(), s("div", dv, [
-            g[9] || (g[9] = e("span", { class: "label" }, "Created:", -1)),
-            e("span", cv, a(r(t.environment.created_at)), 1)
-          ])) : d("", !0),
-          t.environment.last_used ? (o(), s("div", uv, [
-            g[10] || (g[10] = e("span", { class: "label" }, "Last Used:", -1)),
-            e("span", mv, a(r(t.environment.last_used)), 1)
-          ])) : d("", !0)
+          e("div", Sv, [
+            e("label", Iv, [
+              at(e("input", {
+                type: "checkbox",
+                "onUpdate:modelValue": w[4] || (w[4] = (k) => l.value = k)
+              }, null, 512), [
+                [bo, l.value]
+              ]),
+              w[11] || (w[11] = e("span", null, "Switch to this environment after creation", -1))
+            ])
+          ])
         ])
       ]),
-      footer: l(() => [
-        t.environment.is_current ? d("", !0) : (o(), x(ie, {
-          key: 0,
+      footer: i(() => [
+        g(ie, {
           variant: "primary",
-          onClick: g[0] || (g[0] = (h) => n("switch", t.environment.name))
+          disabled: !p.value.trim(),
+          onClick: E
         }, {
-          default: l(() => [...g[12] || (g[12] = [
-            y(" Switch to Environment ", -1)
+          default: i(() => [...w[12] || (w[12] = [
+            y(" Create ", -1)
           ])]),
           _: 1
-        })),
-        f(ie, {
+        }, 8, ["disabled"]),
+        g(ie, {
           variant: "secondary",
-          onClick: g[1] || (g[1] = (h) => n("close"))
+          onClick: w[5] || (w[5] = (k) => n("close"))
         }, {
-          default: l(() => [...g[13] || (g[13] = [
-            y(" Close ", -1)
+          default: i(() => [...w[13] || (w[13] = [
+            y(" Cancel ", -1)
           ])]),
           _: 1
         })
       ]),
       _: 1
-    }, 8, ["title"]));
+    }));
   }
-}), fv = /* @__PURE__ */ Y(vv, [["__scopeId", "data-v-8c6965c4"]]), gv = {
-  key: 0,
-  class: "create-form"
-}, pv = { class: "create-form__header" }, hv = { class: "create-form__body" }, yv = { class: "form-field" }, wv = { class: "form-field" }, kv = ["value"], bv = { class: "form-field" }, _v = ["disabled"], $v = ["value"], Cv = { class: "form-field" }, xv = ["value"], Sv = { class: "form-field form-field--checkbox" }, Iv = { class: "form-checkbox" }, Ev = { class: "create-form__actions" }, Mv = /* @__PURE__ */ Q({
+}), Mv = /* @__PURE__ */ Q(Ev, [["__scopeId", "data-v-a2f13447"]]), zv = /* @__PURE__ */ J({
   __name: "EnvironmentsSection",
   emits: ["switch", "create", "delete"],
   setup(t, { expose: c, emit: n }) {
-    const r = n, { getEnvironments: p, getComfyUIReleases: g } = Se(), h = b([]), v = b(!1), i = b(null), m = b(""), $ = b(!1), u = b(!1), M = b(null), C = b(""), L = b(qt), w = b("latest"), _ = b(Kt), k = b(!1), R = b([{ tag_name: "latest", name: "Latest", published_at: "" }]), A = b(!1), j = B(
-      () => h.value.find((oe) => oe.is_current)
-    ), K = B(() => {
-      if (!m.value.trim()) return h.value;
-      const oe = m.value.toLowerCase();
-      return h.value.filter(
-        (E) => {
-          var G;
-          return E.name.toLowerCase().includes(oe) || ((G = E.current_branch) == null ? void 0 : G.toLowerCase().includes(oe));
+    const r = n, { getEnvironments: p } = Ce(), f = b([]), h = b(!1), m = b(null), l = b(""), v = b(!1), $ = b(!1), d = b(null), E = B(
+      () => f.value.find((N) => N.is_current)
+    ), C = B(() => {
+      if (!l.value.trim()) return f.value;
+      const N = l.value.toLowerCase();
+      return f.value.filter(
+        (U) => {
+          var j;
+          return U.name.toLowerCase().includes(N) || ((j = U.current_branch) == null ? void 0 : j.toLowerCase().includes(N));
         }
       );
     });
-    function P() {
-      const oe = C.value.trim();
-      if (!oe) return;
-      const E = {
-        name: oe,
-        python_version: L.value,
-        comfyui_version: w.value,
-        torch_backend: _.value,
-        switch_after: k.value
-      };
-      r("create", E), O();
+    function z(N) {
+      r("create", N), $.value = !1;
     }
-    function T() {
-      O();
+    function w() {
+      $.value = !0;
     }
-    function O() {
-      C.value = "", L.value = qt, w.value = "latest", _.value = Kt, k.value = !1, u.value = !1;
+    function k(N) {
+      d.value = N;
     }
-    async function z() {
-      if (u.value = !0, R.value.length <= 1) {
-        A.value = !0;
-        try {
-          R.value = await g();
-        } catch (oe) {
-          console.error("Failed to load ComfyUI releases:", oe);
-        } finally {
-          A.value = !1;
-        }
-      }
+    function _(N) {
+      d.value = null, r("delete", N);
     }
-    function S(oe) {
-      M.value = oe;
-    }
-    function V(oe) {
-      M.value = null, r("switch", oe);
-    }
-    function W(oe) {
-      r("delete", oe);
-    }
-    async function X() {
-      v.value = !0, i.value = null;
+    async function T() {
+      h.value = !0, m.value = null;
       try {
-        h.value = await p();
-      } catch (oe) {
-        i.value = oe instanceof Error ? oe.message : "Failed to load environments";
+        f.value = await p();
+      } catch (N) {
+        m.value = N instanceof Error ? N.message : "Failed to load environments";
       } finally {
-        v.value = !1;
+        h.value = !1;
       }
     }
-    return _e(X), c({
-      loadEnvironments: X
-    }), (oe, E) => (o(), s(H, null, [
-      f(Ie, null, {
-        header: l(() => [
-          f(Ee, {
+    return _e(T), c({
+      loadEnvironments: T
+    }), (N, U) => (o(), s(H, null, [
+      g(Ie, null, {
+        header: i(() => [
+          g(Ee, {
             title: "ENVIRONMENTS",
             "show-info": !0,
-            onInfoClick: E[0] || (E[0] = (G) => $.value = !0)
+            onInfoClick: U[0] || (U[0] = (j) => v.value = !0)
           }, {
-            actions: l(() => [
-              f(Z, {
+            actions: i(() => [
+              g(Z, {
                 variant: "primary",
                 size: "sm",
-                onClick: z
+                onClick: w
               }, {
-                default: l(() => [...E[10] || (E[10] = [
+                default: i(() => [...U[6] || (U[6] = [
                   y(" Create ", -1)
                 ])]),
                 _: 1
               }),
-              f(Z, {
+              g(Z, {
                 variant: "secondary",
                 size: "sm",
-                onClick: X
+                onClick: T
               }, {
-                default: l(() => [...E[11] || (E[11] = [
+                default: i(() => [...U[7] || (U[7] = [
                   y(" Refresh ", -1)
                 ])]),
                 _: 1
@@ -7942,204 +8049,90 @@ This will download and install the node.`))
             _: 1
           })
         ]),
-        search: l(() => [
-          f(dt, {
-            modelValue: m.value,
-            "onUpdate:modelValue": E[1] || (E[1] = (G) => m.value = G),
+        search: i(() => [
+          g(ct, {
+            modelValue: l.value,
+            "onUpdate:modelValue": U[1] || (U[1] = (j) => l.value = j),
             placeholder: "🔍 Search environments..."
           }, null, 8, ["modelValue"])
         ]),
-        content: l(() => [
-          v.value ? (o(), x(He, {
+        content: i(() => [
+          h.value ? (o(), x(He, {
             key: 0,
             message: "Loading environments..."
-          })) : i.value ? (o(), x(qe, {
+          })) : m.value ? (o(), x(qe, {
             key: 1,
-            message: i.value,
+            message: m.value,
             retry: !0,
-            onRetry: X
+            onRetry: T
           }, null, 8, ["message"])) : (o(), s(H, { key: 2 }, [
-            u.value ? (o(), s("div", gv, [
-              e("div", pv, [
-                E[13] || (E[13] = e("span", { class: "create-form__title" }, "Create New Environment", -1)),
-                f(Z, {
-                  variant: "ghost",
-                  size: "xs",
-                  onClick: T
-                }, {
-                  default: l(() => [...E[12] || (E[12] = [
-                    y(" ✕ ", -1)
-                  ])]),
-                  _: 1
-                })
-              ]),
-              e("div", hv, [
-                e("div", yv, [
-                  E[14] || (E[14] = e("label", { class: "form-label" }, "Name", -1)),
-                  f(Ct, {
-                    modelValue: C.value,
-                    "onUpdate:modelValue": E[2] || (E[2] = (G) => C.value = G),
-                    placeholder: "my-environment",
-                    onKeyup: Je(T, ["esc"])
-                  }, null, 8, ["modelValue"])
-                ]),
-                e("div", wv, [
-                  E[15] || (E[15] = e("label", { class: "form-label" }, "Python Version", -1)),
-                  kt(e("select", {
-                    "onUpdate:modelValue": E[3] || (E[3] = (G) => L.value = G),
-                    class: "form-select"
-                  }, [
-                    (o(!0), s(H, null, se(me(Wm), (G) => (o(), s("option", {
-                      key: G,
-                      value: G
-                    }, a(G), 9, kv))), 128))
-                  ], 512), [
-                    [Lt, L.value]
-                  ])
-                ]),
-                e("div", bv, [
-                  E[16] || (E[16] = e("label", { class: "form-label" }, "ComfyUI Version", -1)),
-                  kt(e("select", {
-                    "onUpdate:modelValue": E[4] || (E[4] = (G) => w.value = G),
-                    class: "form-select",
-                    disabled: A.value
-                  }, [
-                    (o(!0), s(H, null, se(R.value, (G) => (o(), s("option", {
-                      key: G.tag_name,
-                      value: G.tag_name
-                    }, a(G.name), 9, $v))), 128))
-                  ], 8, _v), [
-                    [Lt, w.value]
-                  ])
-                ]),
-                e("div", Cv, [
-                  E[17] || (E[17] = e("label", { class: "form-label" }, "PyTorch Backend", -1)),
-                  kt(e("select", {
-                    "onUpdate:modelValue": E[5] || (E[5] = (G) => _.value = G),
-                    class: "form-select"
-                  }, [
-                    (o(!0), s(H, null, se(me(Gm), (G) => (o(), s("option", {
-                      key: G,
-                      value: G
-                    }, a(G) + a(G === "auto" ? " (detect GPU)" : ""), 9, xv))), 128))
-                  ], 512), [
-                    [Lt, _.value]
-                  ])
-                ]),
-                e("div", Sv, [
-                  e("label", Iv, [
-                    kt(e("input", {
-                      type: "checkbox",
-                      "onUpdate:modelValue": E[6] || (E[6] = (G) => k.value = G)
-                    }, null, 512), [
-                      [_o, k.value]
-                    ]),
-                    E[18] || (E[18] = e("span", null, "Switch to this environment after creation", -1))
-                  ])
-                ]),
-                e("div", Ev, [
-                  f(Z, {
-                    variant: "primary",
-                    size: "sm",
-                    onClick: P,
-                    disabled: !C.value.trim()
-                  }, {
-                    default: l(() => [...E[19] || (E[19] = [
-                      y(" Create ", -1)
-                    ])]),
-                    _: 1
-                  }, 8, ["disabled"]),
-                  f(Z, {
-                    variant: "secondary",
-                    size: "sm",
-                    onClick: T
-                  }, {
-                    default: l(() => [...E[20] || (E[20] = [
-                      y(" Cancel ", -1)
-                    ])]),
-                    _: 1
-                  })
-                ])
-              ])
-            ])) : d("", !0),
-            h.value.length ? (o(), x(ct, {
-              key: 1,
+            f.value.length ? (o(), x(ut, {
+              key: 0,
               variant: "compact"
             }, {
-              default: l(() => [
-                y(" Total: " + a(h.value.length) + " " + a(h.value.length === 1 ? "environment" : "environments") + " ", 1),
-                j.value ? (o(), s(H, { key: 0 }, [
-                  E[21] || (E[21] = y(" • Current: ", -1)),
-                  e("strong", null, a(j.value.name), 1)
-                ], 64)) : d("", !0)
+              default: i(() => [
+                y(" Total: " + a(f.value.length) + " " + a(f.value.length === 1 ? "environment" : "environments") + " ", 1),
+                E.value ? (o(), s(H, { key: 0 }, [
+                  U[8] || (U[8] = y(" • Current: ", -1)),
+                  e("strong", null, a(E.value.name), 1)
+                ], 64)) : u("", !0)
               ]),
               _: 1
-            })) : d("", !0),
-            K.value.length ? (o(), x(be, {
-              key: 2,
+            })) : u("", !0),
+            C.value.length ? (o(), x(be, {
+              key: 1,
               title: "ENVIRONMENTS",
-              count: K.value.length
+              count: C.value.length
             }, {
-              default: l(() => [
-                (o(!0), s(H, null, se(K.value, (G) => (o(), x(Jm, {
-                  key: G.name,
-                  "environment-name": G.name,
-                  "is-current": G.is_current,
-                  "current-branch": G.current_branch,
+              default: i(() => [
+                (o(!0), s(H, null, oe(C.value, (j) => (o(), x(Hm, {
+                  key: j.name,
+                  "environment-name": j.name,
+                  "is-current": j.is_current,
+                  "current-branch": j.current_branch,
                   "show-last-used": !1
                 }, {
-                  actions: l(() => [
-                    G.is_current ? d("", !0) : (o(), x(Z, {
+                  actions: i(() => [
+                    j.is_current ? u("", !0) : (o(), x(Z, {
                       key: 0,
-                      variant: "secondary",
+                      variant: "primary",
                       size: "sm",
-                      onClick: (N) => oe.$emit("switch", G.name)
+                      onClick: (P) => N.$emit("switch", j.name)
                     }, {
-                      default: l(() => [...E[22] || (E[22] = [
+                      default: i(() => [...U[9] || (U[9] = [
                         y(" Switch ", -1)
                       ])]),
                       _: 1
                     }, 8, ["onClick"])),
-                    f(Z, {
+                    g(Z, {
                       variant: "secondary",
-                      size: "xs",
-                      onClick: (N) => S(G)
-                    }, {
-                      default: l(() => [...E[23] || (E[23] = [
-                        y(" View Details ", -1)
-                      ])]),
-                      _: 1
-                    }, 8, ["onClick"]),
-                    !G.is_current && h.value.length > 1 ? (o(), x(Z, {
-                      key: 1,
-                      variant: "destructive",
                       size: "sm",
-                      onClick: (N) => W(G.name)
+                      onClick: (P) => k(j)
                     }, {
-                      default: l(() => [...E[24] || (E[24] = [
-                        y(" Delete ", -1)
+                      default: i(() => [...U[10] || (U[10] = [
+                        y(" Details ", -1)
                       ])]),
                       _: 1
-                    }, 8, ["onClick"])) : d("", !0)
+                    }, 8, ["onClick"])
                   ]),
                   _: 2
                 }, 1032, ["environment-name", "is-current", "current-branch"]))), 128))
               ]),
               _: 1
-            }, 8, ["count"])) : d("", !0),
-            K.value.length ? d("", !0) : (o(), x(Ue, {
-              key: 3,
+            }, 8, ["count"])) : u("", !0),
+            C.value.length ? u("", !0) : (o(), x(Oe, {
+              key: 2,
               icon: "🌍",
-              message: m.value ? `No environments match '${m.value}'` : "No environments found. Create one to get started!"
+              message: l.value ? `No environments match '${l.value}'` : "No environments found. Create one to get started!"
             }, Mt({ _: 2 }, [
-              m.value ? void 0 : {
+              l.value ? void 0 : {
                 name: "actions",
-                fn: l(() => [
-                  f(Z, {
+                fn: i(() => [
+                  g(Z, {
                     variant: "primary",
-                    onClick: z
+                    onClick: w
                   }, {
-                    default: l(() => [...E[25] || (E[25] = [
+                    default: i(() => [...U[11] || (U[11] = [
                       y(" Create Environment ", -1)
                     ])]),
                     _: 1
@@ -8152,12 +8145,12 @@ This will download and install the node.`))
         ]),
         _: 1
       }),
-      f(je, {
-        show: $.value,
+      g(je, {
+        show: v.value,
         title: "About Environments",
-        onClose: E[8] || (E[8] = (G) => $.value = !1)
+        onClose: U[3] || (U[3] = (j) => v.value = !1)
       }, {
-        content: l(() => [...E[26] || (E[26] = [
+        content: i(() => [...U[12] || (U[12] = [
           e("p", null, [
             e("strong", null, "Environments"),
             y(" are isolated workspaces that contain their own workflows, nodes, and models. Each environment can track different branches and maintain separate state. ")
@@ -8172,12 +8165,12 @@ This will download and install the node.`))
             e("li", null, "Maintain multiple project versions")
           ], -1)
         ])]),
-        actions: l(() => [
-          f(Z, {
+        actions: i(() => [
+          g(Z, {
             variant: "secondary",
-            onClick: E[7] || (E[7] = (G) => $.value = !1)
+            onClick: U[2] || (U[2] = (j) => v.value = !1)
           }, {
-            default: l(() => [...E[27] || (E[27] = [
+            default: i(() => [...U[13] || (U[13] = [
               y(" Got it ", -1)
             ])]),
             _: 1
@@ -8185,15 +8178,21 @@ This will download and install the node.`))
         ]),
         _: 1
       }, 8, ["show"]),
-      M.value ? (o(), x(fv, {
+      d.value ? (o(), x(mv, {
         key: 0,
-        environment: M.value,
-        onClose: E[9] || (E[9] = (G) => M.value = null),
-        onSwitch: V
-      }, null, 8, ["environment"])) : d("", !0)
+        environment: d.value,
+        "can-delete": f.value.length > 1,
+        onClose: U[4] || (U[4] = (j) => d.value = null),
+        onDelete: _
+      }, null, 8, ["environment", "can-delete"])) : u("", !0),
+      $.value ? (o(), x(Mv, {
+        key: 1,
+        onClose: U[5] || (U[5] = (j) => $.value = !1),
+        onCreate: z
+      })) : u("", !0)
     ], 64));
   }
-}), zv = /* @__PURE__ */ Y(Mv, [["__scopeId", "data-v-96fd2395"]]), Lv = { class: "file-path" }, Tv = { class: "file-path-text" }, Dv = ["title"], Rv = /* @__PURE__ */ Q({
+}), Lv = /* @__PURE__ */ Q(zv, [["__scopeId", "data-v-307d9926"]]), Tv = { class: "file-path" }, Dv = { class: "file-path-text" }, Rv = ["title"], Nv = /* @__PURE__ */ J({
   __name: "FilePath",
   props: {
     path: {},
@@ -8210,59 +8209,59 @@ This will download and install the node.`))
         console.error("Failed to copy:", p);
       }
     }
-    return (p, g) => (o(), s("div", Lv, [
-      g[0] || (g[0] = e("span", { class: "file-path-icon" }, "📄", -1)),
-      e("code", Tv, a(t.path), 1),
+    return (p, f) => (o(), s("div", Tv, [
+      f[0] || (f[0] = e("span", { class: "file-path-icon" }, "📄", -1)),
+      e("code", Dv, a(t.path), 1),
       t.copyable ? (o(), s("button", {
         key: 0,
         class: "copy-btn",
         title: n.value ? "Copied!" : "Copy path",
         onClick: r
-      }, a(n.value ? "✓" : "📋"), 9, Dv)) : d("", !0)
+      }, a(n.value ? "✓" : "📋"), 9, Rv)) : u("", !0)
     ]));
   }
-}), Nv = /* @__PURE__ */ Y(Rv, [["__scopeId", "data-v-f0982173"]]), Uv = { class: "output-path-input" }, Ov = { class: "export-actions" }, Bv = {
+}), Ov = /* @__PURE__ */ Q(Nv, [["__scopeId", "data-v-f0982173"]]), Uv = { class: "output-path-input" }, Bv = { class: "export-actions" }, Pv = {
   key: 1,
   class: "export-warning"
-}, Pv = /* @__PURE__ */ Q({
+}, Vv = /* @__PURE__ */ J({
   __name: "ExportSection",
   setup(t) {
-    const { exportEnv: c } = Se(), n = b(""), r = b(!1), p = b(null), g = b(!1);
+    const { exportEnv: c } = Ce(), n = b(""), r = b(!1), p = b(null), f = b(!1);
     async function h() {
       r.value = !0, p.value = null;
       try {
-        const i = await c(n.value || void 0);
-        p.value = i;
-      } catch (i) {
+        const l = await c(n.value || void 0);
+        p.value = l;
+      } catch (l) {
         p.value = {
           status: "error",
-          message: i instanceof Error ? i.message : "Unknown error occurred"
+          message: l instanceof Error ? l.message : "Unknown error occurred"
         };
       } finally {
         r.value = !1;
       }
     }
-    async function v() {
-      var i;
-      if ((i = p.value) != null && i.path)
+    async function m() {
+      var l;
+      if ((l = p.value) != null && l.path)
         try {
           await navigator.clipboard.writeText(p.value.path);
-        } catch (m) {
-          console.error("Failed to copy path:", m);
+        } catch (v) {
+          console.error("Failed to copy path:", v);
         }
     }
-    return (i, m) => (o(), s(H, null, [
-      f(Ie, null, {
-        header: l(() => [
-          f(Ee, { title: "EXPORT ENVIRONMENT" }, {
-            actions: l(() => [
-              f(Z, {
+    return (l, v) => (o(), s(H, null, [
+      g(Ie, null, {
+        header: i(() => [
+          g(Ee, { title: "EXPORT ENVIRONMENT" }, {
+            actions: i(() => [
+              g(Z, {
                 variant: "ghost",
                 size: "sm",
-                onClick: m[0] || (m[0] = ($) => g.value = !0),
+                onClick: v[0] || (v[0] = ($) => f.value = !0),
                 title: "About exporting"
               }, {
-                default: l(() => [...m[5] || (m[5] = [
+                default: i(() => [...v[5] || (v[5] = [
                   e("svg", {
                     width: "14",
                     height: "14",
@@ -8279,33 +8278,33 @@ This will download and install the node.`))
             _: 1
           })
         ]),
-        content: l(() => [
-          f(be, { title: "WHAT WILL BE EXPORTED" }, {
-            default: l(() => [
-              f(Ce, { status: "synced" }, {
-                icon: l(() => [...m[6] || (m[6] = [
+        content: i(() => [
+          g(be, { title: "WHAT WILL BE EXPORTED" }, {
+            default: i(() => [
+              g(xe, { status: "synced" }, {
+                icon: i(() => [...v[6] || (v[6] = [
                   y("📦", -1)
                 ])]),
-                title: l(() => [...m[7] || (m[7] = [
+                title: i(() => [...v[7] || (v[7] = [
                   y("Environment Snapshot", -1)
                 ])]),
-                subtitle: l(() => [...m[8] || (m[8] = [
+                subtitle: i(() => [...v[8] || (v[8] = [
                   y(" Creates a complete snapshot of your current environment including workflows, custom nodes, and model references. ", -1)
                 ])]),
-                details: l(() => [
-                  f(pe, {
+                details: i(() => [
+                  g(pe, {
                     label: "Workflows",
                     value: "All workflows in this environment"
                   }),
-                  f(pe, {
+                  g(pe, {
                     label: "Custom Nodes",
                     value: "Node definitions and dependencies"
                   }),
-                  f(pe, {
+                  g(pe, {
                     label: "Models",
                     value: "Model references (not files)"
                   }),
-                  f(pe, {
+                  g(pe, {
                     label: "Configuration",
                     value: "Environment settings and metadata"
                   })
@@ -8315,23 +8314,23 @@ This will download and install the node.`))
             ]),
             _: 1
           }),
-          f(be, { title: "EXPORT OPTIONS" }, {
-            default: l(() => [
-              f(Ce, { status: "synced" }, {
-                icon: l(() => [...m[9] || (m[9] = [
+          g(be, { title: "EXPORT OPTIONS" }, {
+            default: i(() => [
+              g(xe, { status: "synced" }, {
+                icon: i(() => [...v[9] || (v[9] = [
                   y("📁", -1)
                 ])]),
-                title: l(() => [...m[10] || (m[10] = [
+                title: i(() => [...v[10] || (v[10] = [
                   y("Output Destination", -1)
                 ])]),
-                subtitle: l(() => [...m[11] || (m[11] = [
+                subtitle: i(() => [...v[11] || (v[11] = [
                   y(" Specify where the export bundle should be saved, or leave empty for default location. ", -1)
                 ])]),
-                details: l(() => [
+                details: i(() => [
                   e("div", Uv, [
-                    f(Ct, {
+                    g(Et, {
                       modelValue: n.value,
-                      "onUpdate:modelValue": m[1] || (m[1] = ($) => n.value = $),
+                      "onUpdate:modelValue": v[1] || (v[1] = ($) => n.value = $),
                       placeholder: "/path/to/export/bundle.tar.gz"
                     }, null, 8, ["modelValue"])
                   ])
@@ -8341,18 +8340,18 @@ This will download and install the node.`))
             ]),
             _: 1
           }),
-          f(be, { title: "EXPORT" }, {
-            default: l(() => [
-              e("div", Ov, [
-                f(Z, {
+          g(be, { title: "EXPORT" }, {
+            default: i(() => [
+              e("div", Bv, [
+                g(Z, {
                   variant: "primary",
                   size: "md",
                   loading: r.value,
                   disabled: r.value,
                   onClick: h
                 }, {
-                  default: l(() => [
-                    m[12] || (m[12] = e("svg", {
+                  default: i(() => [
+                    v[12] || (v[12] = e("svg", {
                       width: "16",
                       height: "16",
                       viewBox: "0 0 16 16",
@@ -8370,13 +8369,13 @@ This will download and install the node.`))
                   variant: "secondary",
                   size: "md",
                   disabled: r.value,
-                  onClick: m[2] || (m[2] = ($) => n.value = "")
+                  onClick: v[2] || (v[2] = ($) => n.value = "")
                 }, {
-                  default: l(() => [...m[13] || (m[13] = [
+                  default: i(() => [...v[13] || (v[13] = [
                     y(" Clear Path ", -1)
                   ])]),
                   _: 1
-                }, 8, ["disabled"])) : d("", !0)
+                }, 8, ["disabled"])) : u("", !0)
               ])
             ]),
             _: 1
@@ -8385,27 +8384,27 @@ This will download and install the node.`))
             key: 0,
             title: "LAST EXPORT"
           }, {
-            default: l(() => [
-              f(Ce, {
+            default: i(() => [
+              g(xe, {
                 status: p.value.status === "success" ? "synced" : "broken"
               }, Mt({
-                icon: l(() => [
+                icon: i(() => [
                   y(a(p.value.status === "success" ? "✓" : "✕"), 1)
                 ]),
-                title: l(() => [
+                title: i(() => [
                   y(a(p.value.status === "success" ? "Export Completed Successfully" : "Export Failed"), 1)
                 ]),
-                subtitle: l(() => [
+                subtitle: i(() => [
                   y(a(p.value.status === "success" ? "Your environment has been exported" : p.value.message), 1)
                 ]),
                 _: 2
               }, [
                 p.value.status === "success" ? {
                   name: "details",
-                  fn: l(() => [
-                    f(pe, { label: "Saved to:" }, {
-                      default: l(() => [
-                        f(Nv, {
+                  fn: i(() => [
+                    g(pe, { label: "Saved to:" }, {
+                      default: i(() => [
+                        g(Ov, {
                           path: p.value.path || "Unknown location"
                         }, null, 8, ["path"])
                       ]),
@@ -8415,33 +8414,33 @@ This will download and install the node.`))
                       key: 0,
                       label: "Models without sources:",
                       value: p.value.models_without_sources.toString()
-                    }, null, 8, ["value"])) : d("", !0),
-                    p.value.models_without_sources && p.value.models_without_sources > 0 ? (o(), s("div", Bv, [...m[14] || (m[14] = [
+                    }, null, 8, ["value"])) : u("", !0),
+                    p.value.models_without_sources && p.value.models_without_sources > 0 ? (o(), s("div", Pv, [...v[14] || (v[14] = [
                       e("span", { class: "warning-icon" }, "!", -1),
                       e("span", { class: "warning-text" }, " Some models don't have source information. They may need to be downloaded manually when importing this environment elsewhere. ", -1)
-                    ])])) : d("", !0)
+                    ])])) : u("", !0)
                   ]),
                   key: "0"
                 } : void 0,
                 p.value.status === "success" ? {
                   name: "actions",
-                  fn: l(() => [
-                    f(Z, {
+                  fn: i(() => [
+                    g(Z, {
                       variant: "secondary",
                       size: "sm",
-                      onClick: v
+                      onClick: m
                     }, {
-                      default: l(() => [...m[15] || (m[15] = [
+                      default: i(() => [...v[15] || (v[15] = [
                         y(" Copy Path ", -1)
                       ])]),
                       _: 1
                     }),
-                    f(Z, {
+                    g(Z, {
                       variant: "ghost",
                       size: "sm",
-                      onClick: m[3] || (m[3] = ($) => p.value = null)
+                      onClick: v[3] || (v[3] = ($) => p.value = null)
                     }, {
-                      default: l(() => [...m[16] || (m[16] = [
+                      default: i(() => [...v[16] || (v[16] = [
                         y(" Dismiss ", -1)
                       ])]),
                       _: 1
@@ -8452,16 +8451,16 @@ This will download and install the node.`))
               ]), 1032, ["status"])
             ]),
             _: 1
-          })) : d("", !0)
+          })) : u("", !0)
         ]),
         _: 1
       }),
-      f(je, {
-        show: g.value,
+      g(je, {
+        show: f.value,
         title: "About Environment Export",
-        onClose: m[4] || (m[4] = ($) => g.value = !1)
+        onClose: v[4] || (v[4] = ($) => f.value = !1)
       }, {
-        content: l(() => [...m[17] || (m[17] = [
+        content: i(() => [...v[17] || (v[17] = [
           e("p", null, " Exporting creates a portable bundle of your environment that can be: ", -1),
           e("ul", null, [
             e("li", null, "Shared with collaborators"),
@@ -8478,7 +8477,7 @@ This will download and install the node.`))
       }, 8, ["show"])
     ], 64));
   }
-}), Vv = /* @__PURE__ */ Y(Pv, [["__scopeId", "data-v-1777a9d5"]]), Fv = { class: "file-input-wrapper" }, Av = ["accept", "multiple", "disabled"], Wv = /* @__PURE__ */ Q({
+}), Av = /* @__PURE__ */ Q(Vv, [["__scopeId", "data-v-1777a9d5"]]), Fv = { class: "file-input-wrapper" }, Wv = ["accept", "multiple", "disabled"], Gv = /* @__PURE__ */ J({
   __name: "FileInput",
   props: {
     accept: { default: "*/*" },
@@ -8491,17 +8490,17 @@ This will download and install the node.`))
   emits: ["change"],
   setup(t, { expose: c, emit: n }) {
     const r = n, p = b(null);
-    function g() {
-      var v;
-      (v = p.value) == null || v.click();
+    function f() {
+      var m;
+      (m = p.value) == null || m.click();
     }
-    function h(v) {
-      const i = v.target;
-      i.files && i.files.length > 0 && (r("change", i.files), i.value = "");
+    function h(m) {
+      const l = m.target;
+      l.files && l.files.length > 0 && (r("change", l.files), l.value = "");
     }
     return c({
-      triggerInput: g
-    }), (v, i) => (o(), s("div", Fv, [
+      triggerInput: f
+    }), (m, l) => (o(), s("div", Fv, [
       e("input", {
         ref_key: "fileInputRef",
         ref: p,
@@ -8511,16 +8510,16 @@ This will download and install the node.`))
         disabled: t.disabled,
         class: "file-input-hidden",
         onChange: h
-      }, null, 40, Av),
-      f(Z, {
+      }, null, 40, Wv),
+      g(Z, {
         variant: t.variant,
         size: t.size,
         disabled: t.disabled,
-        onClick: g
+        onClick: f
       }, {
-        default: l(() => [
-          ue(v.$slots, "default", {}, () => [
-            i[0] || (i[0] = e("svg", {
+        default: i(() => [
+          ue(m.$slots, "default", {}, () => [
+            l[0] || (l[0] = e("svg", {
               width: "14",
               height: "14",
               viewBox: "0 0 16 16",
@@ -8536,13 +8535,13 @@ This will download and install the node.`))
       }, 8, ["variant", "size", "disabled"])
     ]));
   }
-}), Gv = /* @__PURE__ */ Y(Wv, [["__scopeId", "data-v-cd192091"]]), jv = {
+}), jv = /* @__PURE__ */ Q(Gv, [["__scopeId", "data-v-cd192091"]]), Hv = {
   key: 0,
   class: "drop-zone-empty"
-}, Hv = { class: "drop-zone-text" }, qv = { class: "drop-zone-primary" }, Kv = { class: "drop-zone-secondary" }, Jv = { class: "drop-zone-actions" }, Qv = {
+}, qv = { class: "drop-zone-text" }, Kv = { class: "drop-zone-primary" }, Jv = { class: "drop-zone-secondary" }, Qv = { class: "drop-zone-actions" }, Yv = {
   key: 1,
   class: "drop-zone-file"
-}, Yv = { class: "file-info" }, Xv = { class: "file-details" }, Zv = { class: "file-name" }, ef = { class: "file-size" }, tf = /* @__PURE__ */ Q({
+}, Xv = { class: "file-info" }, Zv = { class: "file-details" }, ef = { class: "file-name" }, tf = { class: "file-size" }, of = /* @__PURE__ */ J({
   __name: "FileDropZone",
   props: {
     accept: { default: "*/*" },
@@ -8553,61 +8552,61 @@ This will download and install the node.`))
   },
   emits: ["fileSelected", "clear"],
   setup(t, { emit: c }) {
-    const n = c, r = b(!1), p = b(null), g = b(0), h = B(() => p.value !== null), v = B(() => {
-      var _;
-      return ((_ = p.value) == null ? void 0 : _.name) || "";
-    }), i = B(() => {
-      if (!p.value) return "";
-      const _ = p.value.size;
-      return _ < 1024 ? `${_} B` : _ < 1024 * 1024 ? `${(_ / 1024).toFixed(1)} KB` : _ < 1024 * 1024 * 1024 ? `${(_ / (1024 * 1024)).toFixed(1)} MB` : `${(_ / (1024 * 1024 * 1024)).toFixed(1)} GB`;
-    });
-    function m(_) {
+    const n = c, r = b(!1), p = b(null), f = b(0), h = B(() => p.value !== null), m = B(() => {
       var k;
-      g.value++, (k = _.dataTransfer) != null && k.types.includes("Files") && (r.value = !0);
+      return ((k = p.value) == null ? void 0 : k.name) || "";
+    }), l = B(() => {
+      if (!p.value) return "";
+      const k = p.value.size;
+      return k < 1024 ? `${k} B` : k < 1024 * 1024 ? `${(k / 1024).toFixed(1)} KB` : k < 1024 * 1024 * 1024 ? `${(k / (1024 * 1024)).toFixed(1)} MB` : `${(k / (1024 * 1024 * 1024)).toFixed(1)} GB`;
+    });
+    function v(k) {
+      var _;
+      f.value++, (_ = k.dataTransfer) != null && _.types.includes("Files") && (r.value = !0);
     }
-    function $(_) {
-      _.dataTransfer && (_.dataTransfer.dropEffect = "copy");
+    function $(k) {
+      k.dataTransfer && (k.dataTransfer.dropEffect = "copy");
     }
-    function u() {
-      g.value--, g.value === 0 && (r.value = !1);
+    function d() {
+      f.value--, f.value === 0 && (r.value = !1);
     }
-    function M(_) {
-      var R;
-      g.value = 0, r.value = !1;
-      const k = (R = _.dataTransfer) == null ? void 0 : R.files;
-      k && k.length > 0 && L(k[0]);
+    function E(k) {
+      var T;
+      f.value = 0, r.value = !1;
+      const _ = (T = k.dataTransfer) == null ? void 0 : T.files;
+      _ && _.length > 0 && z(_[0]);
     }
-    function C(_) {
-      _.length > 0 && L(_[0]);
+    function C(k) {
+      k.length > 0 && z(k[0]);
     }
-    function L(_) {
-      p.value = _, n("fileSelected", _);
+    function z(k) {
+      p.value = k, n("fileSelected", k);
     }
     function w() {
       p.value = null, n("clear");
     }
-    return (_, k) => (o(), s("div", {
-      class: ne(["file-drop-zone", { "drop-active": r.value, "has-file": h.value }]),
-      onDragenter: ke(m, ["prevent"]),
+    return (k, _) => (o(), s("div", {
+      class: se(["file-drop-zone", { "drop-active": r.value, "has-file": h.value }]),
+      onDragenter: ke(v, ["prevent"]),
       onDragover: ke($, ["prevent"]),
-      onDragleave: ke(u, ["prevent"]),
-      onDrop: ke(M, ["prevent"])
+      onDragleave: ke(d, ["prevent"]),
+      onDrop: ke(E, ["prevent"])
     }, [
-      h.value ? (o(), s("div", Qv, [
-        e("div", Yv, [
-          k[1] || (k[1] = e("div", { class: "file-icon" }, "📦", -1)),
-          e("div", Xv, [
-            e("div", Zv, a(v.value), 1),
-            e("div", ef, a(i.value), 1)
+      h.value ? (o(), s("div", Yv, [
+        e("div", Xv, [
+          _[1] || (_[1] = e("div", { class: "file-icon" }, "📦", -1)),
+          e("div", Zv, [
+            e("div", ef, a(m.value), 1),
+            e("div", tf, a(l.value), 1)
           ])
         ]),
-        f(Z, {
+        g(Z, {
           variant: "ghost",
           size: "xs",
           onClick: w,
           title: "Remove file"
         }, {
-          default: l(() => [...k[2] || (k[2] = [
+          default: i(() => [..._[2] || (_[2] = [
             e("svg", {
               width: "14",
               height: "14",
@@ -8619,8 +8618,8 @@ This will download and install the node.`))
           ])]),
           _: 1
         })
-      ])) : (o(), s("div", jv, [
-        k[0] || (k[0] = e("div", { class: "drop-zone-icon" }, [
+      ])) : (o(), s("div", Hv, [
+        _[0] || (_[0] = e("div", { class: "drop-zone-icon" }, [
           e("svg", {
             width: "48",
             height: "48",
@@ -8631,19 +8630,19 @@ This will download and install the node.`))
             e("path", { d: "M2 14h12v-2H2v2z" })
           ])
         ], -1)),
-        e("div", Hv, [
-          e("p", qv, a(t.primaryText), 1),
-          e("p", Kv, a(t.secondaryText), 1)
+        e("div", qv, [
+          e("p", Kv, a(t.primaryText), 1),
+          e("p", Jv, a(t.secondaryText), 1)
         ]),
-        e("div", Jv, [
-          f(Gv, {
+        e("div", Qv, [
+          g(jv, {
             accept: t.accept,
             multiple: t.multiple,
             variant: "primary",
             size: "md",
             onChange: C
           }, {
-            default: l(() => [
+            default: i(() => [
               y(a(t.buttonText), 1)
             ]),
             _: 1
@@ -8652,31 +8651,31 @@ This will download and install the node.`))
       ]))
     ], 34));
   }
-}), of = /* @__PURE__ */ Y(tf, [["__scopeId", "data-v-e00abbca"]]), sf = { class: "import-preview" }, nf = { class: "preview-header" }, af = {
+}), sf = /* @__PURE__ */ Q(of, [["__scopeId", "data-v-e00abbca"]]), nf = { class: "import-preview" }, af = { class: "preview-header" }, lf = {
   key: 0,
   class: "source-env"
-}, lf = { class: "preview-content" }, rf = { class: "preview-section" }, df = { class: "section-header" }, cf = { class: "section-info" }, uf = { class: "section-count" }, mf = {
+}, rf = { class: "preview-content" }, df = { class: "preview-section" }, cf = { class: "section-header" }, uf = { class: "section-info" }, mf = { class: "section-count" }, vf = {
   key: 0,
   class: "item-list"
-}, vf = { class: "item-name" }, ff = {
+}, ff = { class: "item-name" }, gf = {
   key: 0,
   class: "item-more"
-}, gf = { class: "preview-section" }, pf = { class: "section-header" }, hf = { class: "section-info" }, yf = { class: "section-count" }, wf = {
+}, pf = { class: "preview-section" }, hf = { class: "section-header" }, yf = { class: "section-info" }, wf = { class: "section-count" }, kf = {
   key: 0,
   class: "item-list"
-}, kf = { class: "item-details" }, bf = { class: "item-name" }, _f = { class: "item-meta" }, $f = {
+}, bf = { class: "item-details" }, _f = { class: "item-name" }, $f = { class: "item-meta" }, Cf = {
   key: 0,
   class: "item-more"
-}, Cf = { class: "preview-section" }, xf = { class: "section-header" }, Sf = { class: "section-info" }, If = { class: "section-count" }, Ef = {
+}, xf = { class: "preview-section" }, Sf = { class: "section-header" }, If = { class: "section-info" }, Ef = { class: "section-count" }, Mf = {
   key: 0,
   class: "item-list"
-}, Mf = { class: "item-name" }, zf = {
+}, zf = { class: "item-name" }, Lf = {
   key: 0,
   class: "item-more"
-}, Lf = {
+}, Tf = {
   key: 0,
   class: "preview-section"
-}, Tf = { class: "git-info" }, Df = /* @__PURE__ */ Q({
+}, Df = { class: "git-info" }, Rf = /* @__PURE__ */ J({
   __name: "ImportPreview",
   props: {
     sourceEnvironment: {},
@@ -8689,125 +8688,125 @@ This will download and install the node.`))
   },
   setup(t) {
     const c = t, n = B(() => c.workflows.length), r = B(() => c.models.length), p = B(() => c.nodes.length);
-    function g(h) {
+    function f(h) {
       return h < 1024 ? `${h} B` : h < 1024 * 1024 ? `${(h / 1024).toFixed(1)} KB` : h < 1024 * 1024 * 1024 ? `${(h / (1024 * 1024)).toFixed(1)} MB` : `${(h / (1024 * 1024 * 1024)).toFixed(2)} GB`;
     }
-    return (h, v) => (o(), s("div", sf, [
-      e("div", nf, [
-        f(ze, null, {
-          default: l(() => [...v[0] || (v[0] = [
+    return (h, m) => (o(), s("div", nf, [
+      e("div", af, [
+        g(ze, null, {
+          default: i(() => [...m[0] || (m[0] = [
             y("Import Preview", -1)
           ])]),
           _: 1
         }),
-        t.sourceEnvironment ? (o(), s("span", af, [
-          v[1] || (v[1] = y(" From: ", -1)),
-          f(Ut, null, {
-            default: l(() => [
+        t.sourceEnvironment ? (o(), s("span", lf, [
+          m[1] || (m[1] = y(" From: ", -1)),
+          g(Ot, null, {
+            default: i(() => [
               y(a(t.sourceEnvironment), 1)
             ]),
             _: 1
           })
-        ])) : d("", !0)
+        ])) : u("", !0)
       ]),
-      e("div", lf, [
-        e("div", rf, [
-          e("div", df, [
-            v[3] || (v[3] = e("div", { class: "section-icon" }, "📄", -1)),
-            e("div", cf, [
-              v[2] || (v[2] = e("div", { class: "section-title" }, "Workflows", -1)),
-              e("div", uf, a(n.value) + " file" + a(n.value !== 1 ? "s" : ""), 1)
+      e("div", rf, [
+        e("div", df, [
+          e("div", cf, [
+            m[3] || (m[3] = e("div", { class: "section-icon" }, "📄", -1)),
+            e("div", uf, [
+              m[2] || (m[2] = e("div", { class: "section-title" }, "Workflows", -1)),
+              e("div", mf, a(n.value) + " file" + a(n.value !== 1 ? "s" : ""), 1)
             ])
           ]),
-          t.workflows.length > 0 ? (o(), s("div", mf, [
-            (o(!0), s(H, null, se(t.workflows.slice(0, t.maxPreviewItems), (i) => (o(), s("div", {
-              key: i,
+          t.workflows.length > 0 ? (o(), s("div", vf, [
+            (o(!0), s(H, null, oe(t.workflows.slice(0, t.maxPreviewItems), (l) => (o(), s("div", {
+              key: l,
               class: "preview-item"
             }, [
-              v[4] || (v[4] = e("span", { class: "item-bullet" }, "•", -1)),
-              e("span", vf, a(i), 1)
+              m[4] || (m[4] = e("span", { class: "item-bullet" }, "•", -1)),
+              e("span", ff, a(l), 1)
             ]))), 128)),
-            t.workflows.length > t.maxPreviewItems ? (o(), s("div", ff, " +" + a(t.workflows.length - t.maxPreviewItems) + " more ", 1)) : d("", !0)
-          ])) : d("", !0)
+            t.workflows.length > t.maxPreviewItems ? (o(), s("div", gf, " +" + a(t.workflows.length - t.maxPreviewItems) + " more ", 1)) : u("", !0)
+          ])) : u("", !0)
         ]),
-        e("div", gf, [
-          e("div", pf, [
-            v[6] || (v[6] = e("div", { class: "section-icon" }, "🎨", -1)),
-            e("div", hf, [
-              v[5] || (v[5] = e("div", { class: "section-title" }, "Models", -1)),
-              e("div", yf, a(r.value) + " file" + a(r.value !== 1 ? "s" : ""), 1)
+        e("div", pf, [
+          e("div", hf, [
+            m[6] || (m[6] = e("div", { class: "section-icon" }, "🎨", -1)),
+            e("div", yf, [
+              m[5] || (m[5] = e("div", { class: "section-title" }, "Models", -1)),
+              e("div", wf, a(r.value) + " file" + a(r.value !== 1 ? "s" : ""), 1)
             ])
           ]),
-          t.models.length > 0 ? (o(), s("div", wf, [
-            (o(!0), s(H, null, se(t.models.slice(0, t.maxPreviewItems), (i) => (o(), s("div", {
-              key: i.filename,
+          t.models.length > 0 ? (o(), s("div", kf, [
+            (o(!0), s(H, null, oe(t.models.slice(0, t.maxPreviewItems), (l) => (o(), s("div", {
+              key: l.filename,
               class: "preview-item"
             }, [
-              v[7] || (v[7] = e("span", { class: "item-bullet" }, "•", -1)),
-              e("div", kf, [
-                e("span", bf, a(i.filename), 1),
-                e("span", _f, a(g(i.size)) + " • " + a(i.type), 1)
+              m[7] || (m[7] = e("span", { class: "item-bullet" }, "•", -1)),
+              e("div", bf, [
+                e("span", _f, a(l.filename), 1),
+                e("span", $f, a(f(l.size)) + " • " + a(l.type), 1)
               ])
             ]))), 128)),
-            t.models.length > t.maxPreviewItems ? (o(), s("div", $f, " +" + a(t.models.length - t.maxPreviewItems) + " more ", 1)) : d("", !0)
-          ])) : d("", !0)
+            t.models.length > t.maxPreviewItems ? (o(), s("div", Cf, " +" + a(t.models.length - t.maxPreviewItems) + " more ", 1)) : u("", !0)
+          ])) : u("", !0)
         ]),
-        e("div", Cf, [
-          e("div", xf, [
-            v[9] || (v[9] = e("div", { class: "section-icon" }, "🔌", -1)),
-            e("div", Sf, [
-              v[8] || (v[8] = e("div", { class: "section-title" }, "Custom Nodes", -1)),
-              e("div", If, a(p.value) + " node" + a(p.value !== 1 ? "s" : ""), 1)
+        e("div", xf, [
+          e("div", Sf, [
+            m[9] || (m[9] = e("div", { class: "section-icon" }, "🔌", -1)),
+            e("div", If, [
+              m[8] || (m[8] = e("div", { class: "section-title" }, "Custom Nodes", -1)),
+              e("div", Ef, a(p.value) + " node" + a(p.value !== 1 ? "s" : ""), 1)
             ])
           ]),
-          t.nodes.length > 0 ? (o(), s("div", Ef, [
-            (o(!0), s(H, null, se(t.nodes.slice(0, t.maxPreviewItems), (i) => (o(), s("div", {
-              key: i,
+          t.nodes.length > 0 ? (o(), s("div", Mf, [
+            (o(!0), s(H, null, oe(t.nodes.slice(0, t.maxPreviewItems), (l) => (o(), s("div", {
+              key: l,
               class: "preview-item"
             }, [
-              v[10] || (v[10] = e("span", { class: "item-bullet" }, "•", -1)),
-              e("span", Mf, a(i), 1)
+              m[10] || (m[10] = e("span", { class: "item-bullet" }, "•", -1)),
+              e("span", zf, a(l), 1)
             ]))), 128)),
-            t.nodes.length > t.maxPreviewItems ? (o(), s("div", zf, " +" + a(t.nodes.length - t.maxPreviewItems) + " more ", 1)) : d("", !0)
-          ])) : d("", !0)
+            t.nodes.length > t.maxPreviewItems ? (o(), s("div", Lf, " +" + a(t.nodes.length - t.maxPreviewItems) + " more ", 1)) : u("", !0)
+          ])) : u("", !0)
         ]),
-        t.gitBranch || t.gitCommit ? (o(), s("div", Lf, [
-          v[11] || (v[11] = e("div", { class: "section-header" }, [
+        t.gitBranch || t.gitCommit ? (o(), s("div", Tf, [
+          m[11] || (m[11] = e("div", { class: "section-header" }, [
             e("div", { class: "section-icon" }, "🌿"),
             e("div", { class: "section-info" }, [
               e("div", { class: "section-title" }, "Git Information")
             ])
           ], -1)),
-          e("div", Tf, [
+          e("div", Df, [
             t.gitBranch ? (o(), x(pe, {
               key: 0,
               label: "Branch"
             }, {
-              default: l(() => [
-                f(Ut, null, {
-                  default: l(() => [
+              default: i(() => [
+                g(Ot, null, {
+                  default: i(() => [
                     y(a(t.gitBranch), 1)
                   ]),
                   _: 1
                 })
               ]),
               _: 1
-            })) : d("", !0),
+            })) : u("", !0),
             t.gitCommit ? (o(), x(pe, {
               key: 1,
               label: "Commit"
             }, {
-              default: l(() => [
-                f(eo, { hash: t.gitCommit }, null, 8, ["hash"])
+              default: i(() => [
+                g(Zt, { hash: t.gitCommit }, null, 8, ["hash"])
               ]),
               _: 1
-            })) : d("", !0)
+            })) : u("", !0)
           ])
-        ])) : d("", !0)
+        ])) : u("", !0)
       ])
     ]));
   }
-}), Rf = /* @__PURE__ */ Y(Df, [["__scopeId", "data-v-182fe113"]]), Nf = { class: "import-options" }, Uf = { class: "options-container" }, Of = { class: "option-section" }, Bf = { class: "conflict-options" }, Pf = ["value", "checked", "onChange"], Vf = { class: "conflict-content" }, Ff = { class: "conflict-label" }, Af = { class: "conflict-description" }, Wf = { class: "option-section" }, Gf = { class: "component-toggles" }, jf = /* @__PURE__ */ Q({
+}), Nf = /* @__PURE__ */ Q(Rf, [["__scopeId", "data-v-182fe113"]]), Of = { class: "import-options" }, Uf = { class: "options-container" }, Bf = { class: "option-section" }, Pf = { class: "conflict-options" }, Vf = ["value", "checked", "onChange"], Af = { class: "conflict-content" }, Ff = { class: "conflict-label" }, Wf = { class: "conflict-description" }, Gf = { class: "option-section" }, jf = { class: "component-toggles" }, Hf = /* @__PURE__ */ J({
   __name: "ImportOptions",
   props: {
     conflictMode: {},
@@ -8835,92 +8834,92 @@ This will download and install the node.`))
         description: "Add suffix to imported files"
       }
     ];
-    return (p, g) => (o(), s("div", Nf, [
-      f(ze, null, {
-        default: l(() => [...g[4] || (g[4] = [
+    return (p, f) => (o(), s("div", Of, [
+      g(ze, null, {
+        default: i(() => [...f[4] || (f[4] = [
           y("Import Options", -1)
         ])]),
         _: 1
       }),
       e("div", Uf, [
-        e("div", Of, [
-          f(Nt, null, {
-            default: l(() => [...g[5] || (g[5] = [
+        e("div", Bf, [
+          g(Nt, null, {
+            default: i(() => [...f[5] || (f[5] = [
               y("Conflict Resolution", -1)
             ])]),
             _: 1
           }),
-          e("div", Bf, [
-            (o(), s(H, null, se(r, (h) => e("label", {
+          e("div", Pf, [
+            (o(), s(H, null, oe(r, (h) => e("label", {
               key: h.value,
-              class: ne(["conflict-option", { active: t.conflictMode === h.value }])
+              class: se(["conflict-option", { active: t.conflictMode === h.value }])
             }, [
               e("input", {
                 type: "radio",
                 name: "conflict-mode",
                 value: h.value,
                 checked: t.conflictMode === h.value,
-                onChange: (v) => n("update:conflictMode", h.value)
-              }, null, 40, Pf),
-              e("div", Vf, [
+                onChange: (m) => n("update:conflictMode", h.value)
+              }, null, 40, Vf),
+              e("div", Af, [
                 e("span", Ff, a(h.label), 1),
-                e("span", Af, a(h.description), 1)
+                e("span", Wf, a(h.description), 1)
               ])
             ], 2)), 64))
           ])
         ]),
-        e("div", Wf, [
-          f(Nt, null, {
-            default: l(() => [...g[6] || (g[6] = [
+        e("div", Gf, [
+          g(Nt, null, {
+            default: i(() => [...f[6] || (f[6] = [
               y("Components to Import", -1)
             ])]),
             _: 1
           }),
-          e("div", Gf, [
-            f(Ge, {
+          e("div", jf, [
+            g(Ge, {
               label: "Workflows",
               description: "Import workflow JSON files"
             }, {
-              default: l(() => [
-                f(ot, {
+              default: i(() => [
+                g(st, {
                   "model-value": t.includeWorkflows,
-                  "onUpdate:modelValue": g[0] || (g[0] = (h) => n("update:includeWorkflows", h))
+                  "onUpdate:modelValue": f[0] || (f[0] = (h) => n("update:includeWorkflows", h))
                 }, null, 8, ["model-value"])
               ]),
               _: 1
             }),
-            f(Ge, {
+            g(Ge, {
               label: "Models",
               description: "Import model files (may be large)"
             }, {
-              default: l(() => [
-                f(ot, {
+              default: i(() => [
+                g(st, {
                   "model-value": t.includeModels,
-                  "onUpdate:modelValue": g[1] || (g[1] = (h) => n("update:includeModels", h))
+                  "onUpdate:modelValue": f[1] || (f[1] = (h) => n("update:includeModels", h))
                 }, null, 8, ["model-value"])
               ]),
               _: 1
             }),
-            f(Ge, {
+            g(Ge, {
               label: "Custom Nodes",
               description: "Install custom node dependencies"
             }, {
-              default: l(() => [
-                f(ot, {
+              default: i(() => [
+                g(st, {
                   "model-value": t.includeNodes,
-                  "onUpdate:modelValue": g[2] || (g[2] = (h) => n("update:includeNodes", h))
+                  "onUpdate:modelValue": f[2] || (f[2] = (h) => n("update:includeNodes", h))
                 }, null, 8, ["model-value"])
               ]),
               _: 1
             }),
-            f(Ge, {
+            g(Ge, {
               label: "Git History",
               description: "Import git commits and branches"
             }, {
-              default: l(() => [
-                f(ot, {
+              default: i(() => [
+                g(st, {
                   "model-value": t.includeGitHistory,
-                  "onUpdate:modelValue": g[3] || (g[3] = (h) => n("update:includeGitHistory", h))
+                  "onUpdate:modelValue": f[3] || (f[3] = (h) => n("update:includeGitHistory", h))
                 }, null, 8, ["model-value"])
               ]),
               _: 1
@@ -8930,32 +8929,32 @@ This will download and install the node.`))
       ])
     ]));
   }
-}), Hf = /* @__PURE__ */ Y(jf, [["__scopeId", "data-v-0ec212b0"]]), qf = {
+}), qf = /* @__PURE__ */ Q(Hf, [["__scopeId", "data-v-0ec212b0"]]), Kf = {
   key: 0,
   class: "import-empty"
-}, Kf = { class: "import-help" }, Jf = {
+}, Jf = { class: "import-help" }, Qf = {
   key: 1,
   class: "import-configure"
-}, Qf = { class: "selected-file-bar" }, Yf = { class: "file-bar-content" }, Xf = { class: "file-bar-info" }, Zf = { class: "file-bar-name" }, eg = { class: "file-bar-size" }, tg = { class: "import-actions" }, og = {
+}, Yf = { class: "selected-file-bar" }, Xf = { class: "file-bar-content" }, Zf = { class: "file-bar-info" }, eg = { class: "file-bar-name" }, tg = { class: "file-bar-size" }, og = { class: "import-actions" }, sg = {
   key: 2,
   class: "import-progress"
-}, sg = { class: "progress-content" }, ng = { class: "progress-info" }, ag = { class: "progress-title" }, lg = { class: "progress-detail" }, ig = { class: "progress-bar" }, rg = { class: "progress-status" }, dg = {
+}, ng = { class: "progress-content" }, ag = { class: "progress-info" }, lg = { class: "progress-title" }, ig = { class: "progress-detail" }, rg = { class: "progress-bar" }, dg = { class: "progress-status" }, cg = {
   key: 3,
   class: "import-complete"
-}, cg = { class: "complete-message" }, ug = { class: "complete-title" }, mg = { class: "complete-details" }, vg = { class: "complete-actions" }, fg = /* @__PURE__ */ Q({
+}, ug = { class: "complete-message" }, mg = { class: "complete-title" }, vg = { class: "complete-details" }, fg = { class: "complete-actions" }, gg = /* @__PURE__ */ J({
   __name: "ImportSection",
   setup(t) {
-    const c = b(null), n = b(!1), r = b(!1), p = b(!1), g = b(""), h = b({
+    const c = b(null), n = b(!1), r = b(!1), p = b(!1), f = b(""), h = b({
       conflictMode: "overwrite",
       includeWorkflows: !0,
       includeModels: !0,
       includeNodes: !0,
       includeGitHistory: !0
-    }), v = b({
+    }), m = b({
       message: "Preparing import...",
       detail: "",
       percent: 0
-    }), i = b({
+    }), l = b({
       sourceEnvironment: "production-env",
       workflows: [
         "workflow-1.json",
@@ -8974,15 +8973,15 @@ This will download and install the node.`))
       ],
       gitBranch: "main",
       gitCommit: "a1b2c3d"
-    }), m = B(() => h.value.includeWorkflows || h.value.includeModels || h.value.includeNodes || h.value.includeGitHistory);
+    }), v = B(() => h.value.includeWorkflows || h.value.includeModels || h.value.includeNodes || h.value.includeGitHistory);
     function $(w) {
       c.value = w;
     }
-    function u() {
-      c.value = null, r.value = !1, p.value = !1, g.value = "";
+    function d() {
+      c.value = null, r.value = !1, p.value = !1, f.value = "";
     }
-    function M() {
-      u(), n.value = !1, v.value = {
+    function E() {
+      d(), n.value = !1, m.value = {
         message: "Preparing import...",
         detail: "",
         percent: 0
@@ -8995,45 +8994,45 @@ This will download and install the node.`))
           const w = [
             { message: "Extracting archive...", detail: "Unpacking export file", percent: 10 },
             { message: "Validating contents...", detail: "Checking file integrity", percent: 25 },
-            { message: "Importing workflows...", detail: `Processing ${i.value.workflows.length} workflows`, percent: 40 },
-            { message: "Importing models...", detail: `Copying ${i.value.models.length} model files`, percent: 60 },
-            { message: "Installing nodes...", detail: `Setting up ${i.value.nodes.length} custom nodes`, percent: 80 },
+            { message: "Importing workflows...", detail: `Processing ${l.value.workflows.length} workflows`, percent: 40 },
+            { message: "Importing models...", detail: `Copying ${l.value.models.length} model files`, percent: 60 },
+            { message: "Installing nodes...", detail: `Setting up ${l.value.nodes.length} custom nodes`, percent: 80 },
             { message: "Finalizing...", detail: "Applying git history and configuration", percent: 95 }
           ];
-          for (const _ of w)
-            v.value = _, await new Promise((k) => setTimeout(k, 800));
-          v.value = { message: "Complete!", detail: "", percent: 100 }, await new Promise((_) => setTimeout(_, 500)), p.value = !0, g.value = `Successfully imported ${i.value.workflows.length} workflows, ${i.value.models.length} models, and ${i.value.nodes.length} custom nodes.`;
+          for (const k of w)
+            m.value = k, await new Promise((_) => setTimeout(_, 800));
+          m.value = { message: "Complete!", detail: "", percent: 100 }, await new Promise((k) => setTimeout(k, 500)), p.value = !0, f.value = `Successfully imported ${l.value.workflows.length} workflows, ${l.value.models.length} models, and ${l.value.nodes.length} custom nodes.`;
         } catch (w) {
-          p.value = !1, g.value = w instanceof Error ? w.message : "Unknown error occurred during import";
+          p.value = !1, f.value = w instanceof Error ? w.message : "Unknown error occurred during import";
         } finally {
           n.value = !1, r.value = !0;
         }
       }
     }
-    function L(w) {
+    function z(w) {
       return w < 1024 ? `${w} B` : w < 1024 * 1024 ? `${(w / 1024).toFixed(1)} KB` : w < 1024 * 1024 * 1024 ? `${(w / (1024 * 1024)).toFixed(1)} MB` : `${(w / (1024 * 1024 * 1024)).toFixed(2)} GB`;
     }
-    return (w, _) => (o(), x(Ie, null, {
-      header: l(() => [
-        f(Ee, { title: "IMPORT ENVIRONMENT" })
+    return (w, k) => (o(), x(Ie, null, {
+      header: i(() => [
+        g(Ee, { title: "IMPORT ENVIRONMENT" })
       ]),
-      content: l(() => [
-        !c.value && !n.value ? (o(), s("div", qf, [
-          f(of, {
+      content: i(() => [
+        !c.value && !n.value ? (o(), s("div", Kf, [
+          g(sf, {
             accept: ".tar.gz,.tgz,.zip",
             "primary-text": "Drag & drop environment export here",
             "secondary-text": "Supports .tar.gz, .tgz, or .zip files",
             "button-text": "Select Export File",
             onFileSelected: $
           }),
-          e("div", Kf, [
-            f(ze, null, {
-              default: l(() => [..._[5] || (_[5] = [
+          e("div", Jf, [
+            g(ze, null, {
+              default: i(() => [...k[5] || (k[5] = [
                 y("How to Import", -1)
               ])]),
               _: 1
             }),
-            _[6] || (_[6] = e("div", { class: "help-content" }, [
+            k[6] || (k[6] = e("div", { class: "help-content" }, [
               e("div", { class: "help-item" }, [
                 e("span", { class: "help-number" }, "1"),
                 e("div", { class: "help-text" }, [
@@ -9064,64 +9063,64 @@ This will download and install the node.`))
               ])
             ], -1))
           ])
-        ])) : c.value && !n.value && !r.value ? (o(), s("div", Jf, [
-          e("div", Qf, [
-            e("div", Yf, [
-              _[7] || (_[7] = e("div", { class: "file-bar-icon" }, "📦", -1)),
-              e("div", Xf, [
-                e("div", Zf, a(c.value.name), 1),
-                e("div", eg, a(L(c.value.size)), 1)
+        ])) : c.value && !n.value && !r.value ? (o(), s("div", Qf, [
+          e("div", Yf, [
+            e("div", Xf, [
+              k[7] || (k[7] = e("div", { class: "file-bar-icon" }, "📦", -1)),
+              e("div", Zf, [
+                e("div", eg, a(c.value.name), 1),
+                e("div", tg, a(z(c.value.size)), 1)
               ])
             ]),
-            f(Z, {
+            g(Z, {
               variant: "ghost",
               size: "sm",
-              onClick: u
+              onClick: d
             }, {
-              default: l(() => [..._[8] || (_[8] = [
+              default: i(() => [...k[8] || (k[8] = [
                 y(" Change File ", -1)
               ])]),
               _: 1
             })
           ]),
-          f(Rf, {
-            "source-environment": i.value.sourceEnvironment,
-            workflows: i.value.workflows,
-            models: i.value.models,
-            nodes: i.value.nodes,
-            "git-branch": i.value.gitBranch,
-            "git-commit": i.value.gitCommit
+          g(Nf, {
+            "source-environment": l.value.sourceEnvironment,
+            workflows: l.value.workflows,
+            models: l.value.models,
+            nodes: l.value.nodes,
+            "git-branch": l.value.gitBranch,
+            "git-commit": l.value.gitCommit
           }, null, 8, ["source-environment", "workflows", "models", "nodes", "git-branch", "git-commit"]),
-          f(Hf, {
+          g(qf, {
             "conflict-mode": h.value.conflictMode,
-            "onUpdate:conflictMode": _[0] || (_[0] = (k) => h.value.conflictMode = k),
+            "onUpdate:conflictMode": k[0] || (k[0] = (_) => h.value.conflictMode = _),
             "include-workflows": h.value.includeWorkflows,
-            "onUpdate:includeWorkflows": _[1] || (_[1] = (k) => h.value.includeWorkflows = k),
+            "onUpdate:includeWorkflows": k[1] || (k[1] = (_) => h.value.includeWorkflows = _),
             "include-models": h.value.includeModels,
-            "onUpdate:includeModels": _[2] || (_[2] = (k) => h.value.includeModels = k),
+            "onUpdate:includeModels": k[2] || (k[2] = (_) => h.value.includeModels = _),
             "include-nodes": h.value.includeNodes,
-            "onUpdate:includeNodes": _[3] || (_[3] = (k) => h.value.includeNodes = k),
+            "onUpdate:includeNodes": k[3] || (k[3] = (_) => h.value.includeNodes = _),
             "include-git-history": h.value.includeGitHistory,
-            "onUpdate:includeGitHistory": _[4] || (_[4] = (k) => h.value.includeGitHistory = k)
+            "onUpdate:includeGitHistory": k[4] || (k[4] = (_) => h.value.includeGitHistory = _)
           }, null, 8, ["conflict-mode", "include-workflows", "include-models", "include-nodes", "include-git-history"]),
-          !h.value.includeModels && i.value.models.length > 0 ? (o(), x(at, {
+          !h.value.includeModels && l.value.models.length > 0 ? (o(), x(lt, {
             key: 0,
             type: "warning",
             title: "Models Will Not Be Imported",
             details: [
-              `${i.value.models.length} model file(s) will be skipped`,
+              `${l.value.models.length} model file(s) will be skipped`,
               "Workflows may not function without required models",
               "You can download models manually from the MODEL INDEX"
             ]
-          }, null, 8, ["details"])) : d("", !0),
-          e("div", tg, [
-            f(Z, {
+          }, null, 8, ["details"])) : u("", !0),
+          e("div", og, [
+            g(Z, {
               variant: "primary",
               size: "md",
-              disabled: !m.value,
+              disabled: !v.value,
               onClick: C
             }, {
-              default: l(() => [..._[9] || (_[9] = [
+              default: i(() => [...k[9] || (k[9] = [
                 e("svg", {
                   width: "14",
                   height: "14",
@@ -9135,95 +9134,95 @@ This will download and install the node.`))
               ])]),
               _: 1
             }, 8, ["disabled"]),
-            f(Z, {
+            g(Z, {
               variant: "secondary",
               size: "md",
-              onClick: u
+              onClick: d
             }, {
-              default: l(() => [..._[10] || (_[10] = [
+              default: i(() => [...k[10] || (k[10] = [
                 y(" Cancel ", -1)
               ])]),
               _: 1
             })
           ])
-        ])) : n.value ? (o(), s("div", og, [
-          e("div", sg, [
-            _[11] || (_[11] = e("div", { class: "progress-icon" }, [
+        ])) : n.value ? (o(), s("div", sg, [
+          e("div", ng, [
+            k[11] || (k[11] = e("div", { class: "progress-icon" }, [
               e("div", { class: "spinner" })
             ], -1)),
-            e("div", ng, [
-              e("div", ag, a(v.value.message), 1),
-              e("div", lg, a(v.value.detail), 1)
+            e("div", ag, [
+              e("div", lg, a(m.value.message), 1),
+              e("div", ig, a(m.value.detail), 1)
             ])
           ]),
-          e("div", ig, [
+          e("div", rg, [
             e("div", {
               class: "progress-bar-fill",
-              style: Qe({ width: `${v.value.percent}%` })
+              style: Qe({ width: `${m.value.percent}%` })
             }, null, 4)
           ]),
-          e("div", rg, a(v.value.percent) + "% complete ", 1)
-        ])) : r.value ? (o(), s("div", dg, [
+          e("div", dg, a(m.value.percent) + "% complete ", 1)
+        ])) : r.value ? (o(), s("div", cg, [
           e("div", {
-            class: ne(["complete-icon", p.value ? "success" : "error"])
+            class: se(["complete-icon", p.value ? "success" : "error"])
           }, a(p.value ? "✓" : "✕"), 3),
-          e("div", cg, [
-            e("div", ug, a(p.value ? "Import Successful" : "Import Failed"), 1),
-            e("div", mg, a(g.value), 1)
+          e("div", ug, [
+            e("div", mg, a(p.value ? "Import Successful" : "Import Failed"), 1),
+            e("div", vg, a(f.value), 1)
           ]),
-          e("div", vg, [
-            f(Z, {
+          e("div", fg, [
+            g(Z, {
               variant: "primary",
               size: "md",
-              onClick: M
+              onClick: E
             }, {
-              default: l(() => [..._[12] || (_[12] = [
+              default: i(() => [...k[12] || (k[12] = [
                 y(" Import Another ", -1)
               ])]),
               _: 1
             })
           ])
-        ])) : d("", !0)
+        ])) : u("", !0)
       ]),
       _: 1
     }));
   }
-}), gg = /* @__PURE__ */ Y(fg, [["__scopeId", "data-v-18e18eb5"]]), pg = { class: "header-info" }, hg = { class: "commit-hash" }, yg = {
+}), pg = /* @__PURE__ */ Q(gg, [["__scopeId", "data-v-18e18eb5"]]), hg = { class: "header-info" }, yg = { class: "commit-hash" }, wg = {
   key: 0,
   class: "commit-refs"
-}, wg = { class: "commit-message" }, kg = { class: "commit-date" }, bg = {
+}, kg = { class: "commit-message" }, bg = { class: "commit-date" }, _g = {
   key: 0,
   class: "loading"
-}, _g = {
+}, $g = {
   key: 1,
   class: "changes-section"
-}, $g = { class: "stats-row" }, Cg = { class: "stat" }, xg = { class: "stat insertions" }, Sg = { class: "stat deletions" }, Ig = {
+}, Cg = { class: "stats-row" }, xg = { class: "stat" }, Sg = { class: "stat insertions" }, Ig = { class: "stat deletions" }, Eg = {
   key: 0,
-  class: "change-group"
-}, Eg = {
-  key: 1,
   class: "change-group"
 }, Mg = {
+  key: 1,
+  class: "change-group"
+}, zg = {
   key: 0,
   class: "version"
-}, zg = {
+}, Lg = {
   key: 2,
   class: "change-group"
-}, Lg = { class: "change-item" }, Tg = /* @__PURE__ */ Q({
+}, Tg = { class: "change-item" }, Dg = /* @__PURE__ */ J({
   __name: "CommitDetailModal",
   props: {
     commit: {}
   },
   emits: ["close", "checkout", "createBranch"],
   setup(t) {
-    const c = t, { getCommitDetail: n } = Se(), r = b(null), p = b(!0), g = B(() => {
+    const c = t, { getCommitDetail: n } = Ce(), r = b(null), p = b(!0), f = B(() => {
       if (!r.value) return !1;
-      const v = r.value.changes.workflows;
-      return v.added.length > 0 || v.modified.length > 0 || v.deleted.length > 0;
+      const m = r.value.changes.workflows;
+      return m.added.length > 0 || m.modified.length > 0 || m.deleted.length > 0;
     }), h = B(() => {
       if (!r.value) return !1;
-      const v = r.value.changes.nodes;
-      return v.added.length > 0 || v.removed.length > 0;
+      const m = r.value.changes.nodes;
+      return m.added.length > 0 || m.removed.length > 0;
     });
     return _e(async () => {
       try {
@@ -9231,30 +9230,30 @@ This will download and install the node.`))
       } finally {
         p.value = !1;
       }
-    }), (v, i) => (o(), x(st, {
+    }), (m, l) => (o(), x(Ye, {
       size: "md",
       "show-close-button": !1,
-      onClose: i[3] || (i[3] = (m) => v.$emit("close"))
+      onClose: l[3] || (l[3] = (v) => m.$emit("close"))
     }, {
-      header: l(() => {
-        var m, $, u, M;
+      header: i(() => {
+        var v, $, d, E;
         return [
-          e("div", pg, [
-            i[4] || (i[4] = e("h3", { class: "header-title" }, "COMMIT DETAILS", -1)),
-            e("span", hg, a(((m = r.value) == null ? void 0 : m.short_hash) || t.commit.short_hash || (($ = t.commit.hash) == null ? void 0 : $.slice(0, 7))), 1),
-            (M = (u = r.value) == null ? void 0 : u.refs) != null && M.length ? (o(), s("span", yg, [
-              (o(!0), s(H, null, se(r.value.refs, (C) => (o(), s("span", {
+          e("div", hg, [
+            l[4] || (l[4] = e("h3", { class: "header-title" }, "COMMIT DETAILS", -1)),
+            e("span", yg, a(((v = r.value) == null ? void 0 : v.short_hash) || t.commit.short_hash || (($ = t.commit.hash) == null ? void 0 : $.slice(0, 7))), 1),
+            (E = (d = r.value) == null ? void 0 : d.refs) != null && E.length ? (o(), s("span", wg, [
+              (o(!0), s(H, null, oe(r.value.refs, (C) => (o(), s("span", {
                 key: C,
                 class: "ref-badge"
               }, a(C), 1))), 128))
-            ])) : d("", !0)
+            ])) : u("", !0)
           ]),
-          f(ie, {
+          g(ie, {
             variant: "ghost",
             size: "sm",
-            onClick: i[0] || (i[0] = (C) => v.$emit("close"))
+            onClick: l[0] || (l[0] = (C) => m.$emit("close"))
           }, {
-            default: l(() => [...i[5] || (i[5] = [
+            default: i(() => [...l[5] || (l[5] = [
               e("svg", {
                 width: "16",
                 height: "16",
@@ -9268,99 +9267,99 @@ This will download and install the node.`))
           })
         ];
       }),
-      body: l(() => {
-        var m, $;
+      body: i(() => {
+        var v, $;
         return [
-          e("div", wg, a(((m = r.value) == null ? void 0 : m.message) || t.commit.message), 1),
-          e("div", kg, a((($ = r.value) == null ? void 0 : $.date_relative) || t.commit.date_relative || t.commit.relative_date), 1),
-          p.value ? (o(), s("div", bg, "Loading details...")) : r.value ? (o(), s("div", _g, [
-            e("div", $g, [
-              e("span", Cg, a(r.value.stats.files_changed) + " files", 1),
-              e("span", xg, "+" + a(r.value.stats.insertions), 1),
-              e("span", Sg, "-" + a(r.value.stats.deletions), 1)
+          e("div", kg, a(((v = r.value) == null ? void 0 : v.message) || t.commit.message), 1),
+          e("div", bg, a((($ = r.value) == null ? void 0 : $.date_relative) || t.commit.date_relative || t.commit.relative_date), 1),
+          p.value ? (o(), s("div", _g, "Loading details...")) : r.value ? (o(), s("div", $g, [
+            e("div", Cg, [
+              e("span", xg, a(r.value.stats.files_changed) + " files", 1),
+              e("span", Sg, "+" + a(r.value.stats.insertions), 1),
+              e("span", Ig, "-" + a(r.value.stats.deletions), 1)
             ]),
-            g.value ? (o(), s("div", Ig, [
-              f(bt, { variant: "section" }, {
-                default: l(() => [...i[6] || (i[6] = [
+            f.value ? (o(), s("div", Eg, [
+              g(bt, { variant: "section" }, {
+                default: i(() => [...l[6] || (l[6] = [
                   y("WORKFLOWS", -1)
                 ])]),
                 _: 1
               }),
-              (o(!0), s(H, null, se(r.value.changes.workflows.added, (u) => (o(), s("div", {
-                key: "add-" + u,
+              (o(!0), s(H, null, oe(r.value.changes.workflows.added, (d) => (o(), s("div", {
+                key: "add-" + d,
                 class: "change-item added"
               }, [
-                i[7] || (i[7] = e("span", { class: "change-icon" }, "+", -1)),
-                e("span", null, a(u), 1)
+                l[7] || (l[7] = e("span", { class: "change-icon" }, "+", -1)),
+                e("span", null, a(d), 1)
               ]))), 128)),
-              (o(!0), s(H, null, se(r.value.changes.workflows.modified, (u) => (o(), s("div", {
-                key: "mod-" + u,
+              (o(!0), s(H, null, oe(r.value.changes.workflows.modified, (d) => (o(), s("div", {
+                key: "mod-" + d,
                 class: "change-item modified"
               }, [
-                i[8] || (i[8] = e("span", { class: "change-icon" }, "~", -1)),
-                e("span", null, a(u), 1)
+                l[8] || (l[8] = e("span", { class: "change-icon" }, "~", -1)),
+                e("span", null, a(d), 1)
               ]))), 128)),
-              (o(!0), s(H, null, se(r.value.changes.workflows.deleted, (u) => (o(), s("div", {
-                key: "del-" + u,
+              (o(!0), s(H, null, oe(r.value.changes.workflows.deleted, (d) => (o(), s("div", {
+                key: "del-" + d,
                 class: "change-item deleted"
               }, [
-                i[9] || (i[9] = e("span", { class: "change-icon" }, "-", -1)),
-                e("span", null, a(u), 1)
+                l[9] || (l[9] = e("span", { class: "change-icon" }, "-", -1)),
+                e("span", null, a(d), 1)
               ]))), 128))
-            ])) : d("", !0),
-            h.value ? (o(), s("div", Eg, [
-              f(bt, { variant: "section" }, {
-                default: l(() => [...i[10] || (i[10] = [
+            ])) : u("", !0),
+            h.value ? (o(), s("div", Mg, [
+              g(bt, { variant: "section" }, {
+                default: i(() => [...l[10] || (l[10] = [
                   y("NODES", -1)
                 ])]),
                 _: 1
               }),
-              (o(!0), s(H, null, se(r.value.changes.nodes.added, (u) => (o(), s("div", {
-                key: "add-" + u.name,
+              (o(!0), s(H, null, oe(r.value.changes.nodes.added, (d) => (o(), s("div", {
+                key: "add-" + d.name,
                 class: "change-item added"
               }, [
-                i[11] || (i[11] = e("span", { class: "change-icon" }, "+", -1)),
-                e("span", null, a(u.name), 1),
-                u.version ? (o(), s("span", Mg, "(" + a(u.version) + ")", 1)) : d("", !0)
+                l[11] || (l[11] = e("span", { class: "change-icon" }, "+", -1)),
+                e("span", null, a(d.name), 1),
+                d.version ? (o(), s("span", zg, "(" + a(d.version) + ")", 1)) : u("", !0)
               ]))), 128)),
-              (o(!0), s(H, null, se(r.value.changes.nodes.removed, (u) => (o(), s("div", {
-                key: "rem-" + u.name,
+              (o(!0), s(H, null, oe(r.value.changes.nodes.removed, (d) => (o(), s("div", {
+                key: "rem-" + d.name,
                 class: "change-item deleted"
               }, [
-                i[12] || (i[12] = e("span", { class: "change-icon" }, "-", -1)),
-                e("span", null, a(u.name), 1)
+                l[12] || (l[12] = e("span", { class: "change-icon" }, "-", -1)),
+                e("span", null, a(d.name), 1)
               ]))), 128))
-            ])) : d("", !0),
-            r.value.changes.models.resolved > 0 ? (o(), s("div", zg, [
-              f(bt, { variant: "section" }, {
-                default: l(() => [...i[13] || (i[13] = [
+            ])) : u("", !0),
+            r.value.changes.models.resolved > 0 ? (o(), s("div", Lg, [
+              g(bt, { variant: "section" }, {
+                default: i(() => [...l[13] || (l[13] = [
                   y("MODELS", -1)
                 ])]),
                 _: 1
               }),
-              e("div", Lg, [
-                i[14] || (i[14] = e("span", { class: "change-icon" }, "●", -1)),
+              e("div", Tg, [
+                l[14] || (l[14] = e("span", { class: "change-icon" }, "●", -1)),
                 e("span", null, a(r.value.changes.models.resolved) + " model(s) resolved", 1)
               ])
-            ])) : d("", !0)
-          ])) : d("", !0)
+            ])) : u("", !0)
+          ])) : u("", !0)
         ];
       }),
-      footer: l(() => [
-        f(ie, {
+      footer: i(() => [
+        g(ie, {
           variant: "secondary",
-          onClick: i[1] || (i[1] = (m) => v.$emit("createBranch", t.commit))
+          onClick: l[1] || (l[1] = (v) => m.$emit("createBranch", t.commit))
         }, {
-          default: l(() => [...i[15] || (i[15] = [
+          default: i(() => [...l[15] || (l[15] = [
             y(" Create Branch From Here ", -1)
           ])]),
           _: 1
         }),
-        f(ie, {
+        g(ie, {
           variant: "primary",
-          onClick: i[2] || (i[2] = (m) => v.$emit("checkout", t.commit))
+          onClick: l[2] || (l[2] = (v) => m.$emit("checkout", t.commit))
         }, {
-          default: l(() => [...i[16] || (i[16] = [
+          default: i(() => [...l[16] || (l[16] = [
             y(" Checkout ", -1)
           ])]),
           _: 1
@@ -9369,13 +9368,13 @@ This will download and install the node.`))
       _: 1
     }));
   }
-}), Dg = /* @__PURE__ */ Y(Tg, [["__scopeId", "data-v-d256ff6d"]]), Rg = { class: "dialog-message" }, Ng = {
+}), Rg = /* @__PURE__ */ Q(Dg, [["__scopeId", "data-v-d256ff6d"]]), Ng = { class: "dialog-message" }, Og = {
   key: 0,
   class: "dialog-details"
 }, Ug = {
   key: 1,
   class: "dialog-warning"
-}, Og = /* @__PURE__ */ Q({
+}, Bg = /* @__PURE__ */ J({
   __name: "ConfirmDialog",
   props: {
     title: {},
@@ -9390,30 +9389,30 @@ This will download and install the node.`))
   },
   emits: ["confirm", "cancel", "secondary"],
   setup(t) {
-    return (c, n) => (o(), x(st, {
+    return (c, n) => (o(), x(Ye, {
       title: t.title,
       size: "sm",
       onClose: n[3] || (n[3] = (r) => c.$emit("cancel"))
     }, {
-      body: l(() => [
-        e("p", Rg, a(t.message), 1),
-        t.details && t.details.length ? (o(), s("div", Ng, [
-          (o(!0), s(H, null, se(t.details, (r, p) => (o(), s("div", {
+      body: i(() => [
+        e("p", Ng, a(t.message), 1),
+        t.details && t.details.length ? (o(), s("div", Og, [
+          (o(!0), s(H, null, oe(t.details, (r, p) => (o(), s("div", {
             key: p,
             class: "detail-item"
           }, " • " + a(r), 1))), 128))
-        ])) : d("", !0),
+        ])) : u("", !0),
         t.warning ? (o(), s("p", Ug, [
           n[4] || (n[4] = e("span", { class: "warning-icon" }, "⚠", -1)),
           y(" " + a(t.warning), 1)
-        ])) : d("", !0)
+        ])) : u("", !0)
       ]),
-      footer: l(() => [
-        f(ie, {
+      footer: i(() => [
+        g(ie, {
           variant: "secondary",
           onClick: n[0] || (n[0] = (r) => c.$emit("cancel"))
         }, {
-          default: l(() => [
+          default: i(() => [
             y(a(t.cancelLabel), 1)
           ]),
           _: 1
@@ -9423,16 +9422,16 @@ This will download and install the node.`))
           variant: "secondary",
           onClick: n[1] || (n[1] = (r) => c.$emit("secondary"))
         }, {
-          default: l(() => [
+          default: i(() => [
             y(a(t.secondaryLabel), 1)
           ]),
           _: 1
-        })) : d("", !0),
-        f(ie, {
+        })) : u("", !0),
+        g(ie, {
           variant: t.destructive ? "danger" : "primary",
           onClick: n[2] || (n[2] = (r) => c.$emit("confirm"))
         }, {
-          default: l(() => [
+          default: i(() => [
             y(a(t.confirmLabel), 1)
           ]),
           _: 1
@@ -9441,10 +9440,10 @@ This will download and install the node.`))
       _: 1
     }, 8, ["title"]));
   }
-}), Bg = /* @__PURE__ */ Y(Og, [["__scopeId", "data-v-3670b9f5"]]), Pg = { class: "base-textarea-wrapper" }, Vg = ["value", "rows", "placeholder", "disabled", "maxlength"], Fg = {
+}), Pg = /* @__PURE__ */ Q(Bg, [["__scopeId", "data-v-3670b9f5"]]), Vg = { class: "base-textarea-wrapper" }, Ag = ["value", "rows", "placeholder", "disabled", "maxlength"], Fg = {
   key: 0,
   class: "base-textarea-count"
-}, Ag = /* @__PURE__ */ Q({
+}, Wg = /* @__PURE__ */ J({
   __name: "BaseTextarea",
   props: {
     modelValue: {},
@@ -9456,7 +9455,7 @@ This will download and install the node.`))
   },
   emits: ["update:modelValue", "ctrlEnter"],
   setup(t) {
-    return (c, n) => (o(), s("div", Pg, [
+    return (c, n) => (o(), s("div", Vg, [
       e("textarea", {
         value: t.modelValue,
         rows: t.rows,
@@ -9469,20 +9468,20 @@ This will download and install the node.`))
           n[1] || (n[1] = Je(ke((r) => c.$emit("ctrlEnter"), ["ctrl"]), ["enter"])),
           n[2] || (n[2] = Je(ke((r) => c.$emit("ctrlEnter"), ["meta"]), ["enter"]))
         ]
-      }, null, 40, Vg),
-      t.showCharCount && t.maxLength ? (o(), s("div", Fg, a(t.modelValue.length) + " / " + a(t.maxLength), 1)) : d("", !0)
+      }, null, 40, Ag),
+      t.showCharCount && t.maxLength ? (o(), s("div", Fg, a(t.modelValue.length) + " / " + a(t.maxLength), 1)) : u("", !0)
     ]));
   }
-}), Jt = /* @__PURE__ */ Y(Ag, [["__scopeId", "data-v-5516e6fc"]]), Wg = ["checked", "disabled"], Gg = { class: "base-checkbox-box" }, jg = {
+}), qt = /* @__PURE__ */ Q(Wg, [["__scopeId", "data-v-5516e6fc"]]), Gg = ["checked", "disabled"], jg = { class: "base-checkbox-box" }, Hg = {
   key: 0,
   width: "12",
   height: "12",
   viewBox: "0 0 12 12",
   fill: "none"
-}, Hg = {
+}, qg = {
   key: 0,
   class: "base-checkbox-label"
-}, qg = /* @__PURE__ */ Q({
+}, Kg = /* @__PURE__ */ J({
   __name: "BaseCheckbox",
   props: {
     modelValue: { type: Boolean },
@@ -9491,7 +9490,7 @@ This will download and install the node.`))
   emits: ["update:modelValue"],
   setup(t) {
     return (c, n) => (o(), s("label", {
-      class: ne(["base-checkbox", { disabled: t.disabled }])
+      class: se(["base-checkbox", { disabled: t.disabled }])
     }, [
       e("input", {
         type: "checkbox",
@@ -9499,9 +9498,9 @@ This will download and install the node.`))
         disabled: t.disabled,
         class: "base-checkbox-input",
         onChange: n[0] || (n[0] = (r) => c.$emit("update:modelValue", r.target.checked))
-      }, null, 40, Wg),
-      e("span", Gg, [
-        t.modelValue ? (o(), s("svg", jg, [...n[1] || (n[1] = [
+      }, null, 40, Gg),
+      e("span", jg, [
+        t.modelValue ? (o(), s("svg", Hg, [...n[1] || (n[1] = [
           e("path", {
             d: "M2 6L5 9L10 3",
             stroke: "currentColor",
@@ -9509,71 +9508,71 @@ This will download and install the node.`))
             "stroke-linecap": "round",
             "stroke-linejoin": "round"
           }, null, -1)
-        ])])) : d("", !0)
+        ])])) : u("", !0)
       ]),
-      c.$slots.default ? (o(), s("span", Hg, [
+      c.$slots.default ? (o(), s("span", qg, [
         ue(c.$slots, "default", {}, void 0, !0)
-      ])) : d("", !0)
+      ])) : u("", !0)
     ], 2));
   }
-}), Qt = /* @__PURE__ */ Y(qg, [["__scopeId", "data-v-bf17c831"]]), Kg = { class: "popover-header" }, Jg = { class: "popover-body" }, Qg = {
+}), Kt = /* @__PURE__ */ Q(Kg, [["__scopeId", "data-v-bf17c831"]]), Jg = { class: "popover-header" }, Qg = { class: "popover-body" }, Yg = {
   key: 0,
   class: "changes-summary"
-}, Yg = {
-  key: 0,
-  class: "change-item"
 }, Xg = {
-  key: 1,
+  key: 0,
   class: "change-item"
 }, Zg = {
-  key: 2,
+  key: 1,
   class: "change-item"
 }, ep = {
-  key: 3,
+  key: 2,
   class: "change-item"
 }, tp = {
-  key: 4,
+  key: 3,
   class: "change-item"
 }, op = {
-  key: 1,
-  class: "no-changes"
-}, sp = {
-  key: 2,
-  class: "loading"
-}, np = {
-  key: 3,
-  class: "issues-error"
-}, ap = { class: "error-header" }, lp = { class: "error-title" }, ip = { class: "issues-list" }, rp = { class: "message-section" }, dp = { class: "popover-footer" }, cp = {
-  key: 1,
-  class: "commit-popover"
-}, up = { class: "popover-header" }, mp = { class: "popover-body" }, vp = {
-  key: 0,
-  class: "changes-summary"
-}, fp = {
-  key: 0,
-  class: "change-item"
-}, gp = {
-  key: 1,
-  class: "change-item"
-}, pp = {
-  key: 2,
-  class: "change-item"
-}, hp = {
-  key: 3,
-  class: "change-item"
-}, yp = {
   key: 4,
   class: "change-item"
-}, wp = {
+}, sp = {
   key: 1,
   class: "no-changes"
-}, kp = {
+}, np = {
   key: 2,
   class: "loading"
-}, bp = {
+}, ap = {
   key: 3,
   class: "issues-error"
-}, _p = { class: "error-header" }, $p = { class: "error-title" }, Cp = { class: "issues-list" }, xp = { class: "message-section" }, Sp = { class: "popover-footer" }, Ip = /* @__PURE__ */ Q({
+}, lp = { class: "error-header" }, ip = { class: "error-title" }, rp = { class: "issues-list" }, dp = { class: "message-section" }, cp = { class: "popover-footer" }, up = {
+  key: 1,
+  class: "commit-popover"
+}, mp = { class: "popover-header" }, vp = { class: "popover-body" }, fp = {
+  key: 0,
+  class: "changes-summary"
+}, gp = {
+  key: 0,
+  class: "change-item"
+}, pp = {
+  key: 1,
+  class: "change-item"
+}, hp = {
+  key: 2,
+  class: "change-item"
+}, yp = {
+  key: 3,
+  class: "change-item"
+}, wp = {
+  key: 4,
+  class: "change-item"
+}, kp = {
+  key: 1,
+  class: "no-changes"
+}, bp = {
+  key: 2,
+  class: "loading"
+}, _p = {
+  key: 3,
+  class: "issues-error"
+}, $p = { class: "error-header" }, Cp = { class: "error-title" }, xp = { class: "issues-list" }, Sp = { class: "message-section" }, Ip = { class: "popover-footer" }, Ep = /* @__PURE__ */ J({
   __name: "CommitPopover",
   props: {
     status: {},
@@ -9581,54 +9580,54 @@ This will download and install the node.`))
   },
   emits: ["close", "committed"],
   setup(t, { emit: c }) {
-    const n = t, r = c, { commit: p } = Se(), g = b(""), h = b(!1), v = b(!1), i = b(null), m = B(() => {
+    const n = t, r = c, { commit: p } = Ce(), f = b(""), h = b(!1), m = b(!1), l = b(null), v = B(() => {
       if (!n.status) return !1;
-      const L = n.status.workflows;
-      return L.new.length > 0 || L.modified.length > 0 || L.deleted.length > 0 || n.status.has_changes;
+      const z = n.status.workflows;
+      return z.new.length > 0 || z.modified.length > 0 || z.deleted.length > 0 || n.status.has_changes;
     }), $ = B(() => {
-      var L;
-      return (L = n.status) != null && L.workflows.analyzed ? n.status.workflows.analyzed.filter(
+      var z;
+      return (z = n.status) != null && z.workflows.analyzed ? n.status.workflows.analyzed.filter(
         (w) => w.has_issues && (w.sync_state === "new" || w.sync_state === "modified")
       ) : [];
-    }), u = B(() => $.value.length > 0), M = B(() => u.value && !v.value);
+    }), d = B(() => $.value.length > 0), E = B(() => d.value && !m.value);
     async function C() {
-      var L, w, _;
-      if (!(u.value && !v.value) && !(!m.value || !g.value.trim() || h.value)) {
-        h.value = !0, i.value = null;
+      var z, w, k;
+      if (!(d.value && !m.value) && !(!v.value || !f.value.trim() || h.value)) {
+        h.value = !0, l.value = null;
         try {
-          const k = await p(g.value.trim(), v.value);
-          k.status === "success" ? (i.value = {
+          const _ = await p(f.value.trim(), m.value);
+          _.status === "success" ? (l.value = {
             type: "success",
-            message: `Committed: ${((L = k.summary) == null ? void 0 : L.new) || 0} new, ${((w = k.summary) == null ? void 0 : w.modified) || 0} modified, ${((_ = k.summary) == null ? void 0 : _.deleted) || 0} deleted`
-          }, g.value = "", v.value = !1, setTimeout(() => r("committed"), 1e3)) : k.status === "no_changes" ? i.value = { type: "error", message: "No changes to commit" } : k.status === "blocked" ? i.value = {
+            message: `Committed: ${((z = _.summary) == null ? void 0 : z.new) || 0} new, ${((w = _.summary) == null ? void 0 : w.modified) || 0} modified, ${((k = _.summary) == null ? void 0 : k.deleted) || 0} deleted`
+          }, f.value = "", m.value = !1, setTimeout(() => r("committed"), 1e3)) : _.status === "no_changes" ? l.value = { type: "error", message: "No changes to commit" } : _.status === "blocked" ? l.value = {
             type: "error",
             message: 'Commit blocked - enable "Allow issues" to force commit'
-          } : i.value = { type: "error", message: k.message || "Commit failed" };
-        } catch (k) {
-          i.value = { type: "error", message: k instanceof Error ? k.message : "Commit failed" };
+          } : l.value = { type: "error", message: _.message || "Commit failed" };
+        } catch (_) {
+          l.value = { type: "error", message: _ instanceof Error ? _.message : "Commit failed" };
         } finally {
           h.value = !1;
         }
       }
     }
-    return (L, w) => t.asModal ? (o(), x(xe, {
+    return (z, w) => t.asModal ? (o(), x(Se, {
       key: 0,
       to: "body"
     }, [
       e("div", {
         class: "modal-overlay",
-        onClick: w[5] || (w[5] = (_) => r("close"))
+        onClick: w[5] || (w[5] = (k) => r("close"))
       }, [
         e("div", {
           class: "commit-popover modal",
           onClick: w[4] || (w[4] = ke(() => {
           }, ["stop"]))
         }, [
-          e("div", Kg, [
+          e("div", Jg, [
             w[11] || (w[11] = e("h3", { class: "popover-title" }, "COMMIT CHANGES", -1)),
             e("button", {
               class: "close-btn",
-              onClick: w[0] || (w[0] = (_) => r("close"))
+              onClick: w[0] || (w[0] = (k) => r("close"))
             }, [...w[10] || (w[10] = [
               e("svg", {
                 width: "16",
@@ -9640,99 +9639,99 @@ This will download and install the node.`))
               ], -1)
             ])])
           ]),
-          e("div", Jg, [
-            t.status && m.value ? (o(), s("div", Qg, [
-              t.status.workflows.new.length ? (o(), s("div", Yg, [
+          e("div", Qg, [
+            t.status && v.value ? (o(), s("div", Yg, [
+              t.status.workflows.new.length ? (o(), s("div", Xg, [
                 w[12] || (w[12] = e("span", { class: "change-icon new" }, "+", -1)),
                 e("span", null, a(t.status.workflows.new.length) + " new workflow(s)", 1)
-              ])) : d("", !0),
-              t.status.workflows.modified.length ? (o(), s("div", Xg, [
+              ])) : u("", !0),
+              t.status.workflows.modified.length ? (o(), s("div", Zg, [
                 w[13] || (w[13] = e("span", { class: "change-icon modified" }, "~", -1)),
                 e("span", null, a(t.status.workflows.modified.length) + " modified", 1)
-              ])) : d("", !0),
-              t.status.workflows.deleted.length ? (o(), s("div", Zg, [
+              ])) : u("", !0),
+              t.status.workflows.deleted.length ? (o(), s("div", ep, [
                 w[14] || (w[14] = e("span", { class: "change-icon deleted" }, "-", -1)),
                 e("span", null, a(t.status.workflows.deleted.length) + " deleted", 1)
-              ])) : d("", !0),
-              t.status.git_changes.nodes_added.length ? (o(), s("div", ep, [
+              ])) : u("", !0),
+              t.status.git_changes.nodes_added.length ? (o(), s("div", tp, [
                 w[15] || (w[15] = e("span", { class: "change-icon new" }, "+", -1)),
                 e("span", null, a(t.status.git_changes.nodes_added.length) + " node(s) added", 1)
-              ])) : d("", !0),
-              t.status.git_changes.nodes_removed.length ? (o(), s("div", tp, [
+              ])) : u("", !0),
+              t.status.git_changes.nodes_removed.length ? (o(), s("div", op, [
                 w[16] || (w[16] = e("span", { class: "change-icon deleted" }, "-", -1)),
                 e("span", null, a(t.status.git_changes.nodes_removed.length) + " node(s) removed", 1)
-              ])) : d("", !0)
-            ])) : t.status ? (o(), s("div", op, " No changes to commit ")) : (o(), s("div", sp, " Loading... ")),
-            u.value ? (o(), s("div", np, [
-              e("div", ap, [
+              ])) : u("", !0)
+            ])) : t.status ? (o(), s("div", sp, " No changes to commit ")) : (o(), s("div", np, " Loading... ")),
+            d.value ? (o(), s("div", ap, [
+              e("div", lp, [
                 w[17] || (w[17] = e("span", { class: "error-icon" }, "⚠", -1)),
-                e("span", lp, a($.value.length) + " workflow(s) can't run", 1)
+                e("span", ip, a($.value.length) + " workflow(s) can't run", 1)
               ]),
-              e("div", ip, [
-                (o(!0), s(H, null, se($.value, (_) => (o(), s("div", {
-                  key: _.name,
+              e("div", rp, [
+                (o(!0), s(H, null, oe($.value, (k) => (o(), s("div", {
+                  key: k.name,
                   class: "issue-item"
                 }, [
-                  e("strong", null, a(_.name), 1),
-                  y(": " + a(_.issue_summary), 1)
+                  e("strong", null, a(k.name), 1),
+                  y(": " + a(k.issue_summary), 1)
                 ]))), 128))
               ]),
-              f(Qt, {
-                modelValue: v.value,
-                "onUpdate:modelValue": w[1] || (w[1] = (_) => v.value = _),
+              g(Kt, {
+                modelValue: m.value,
+                "onUpdate:modelValue": w[1] || (w[1] = (k) => m.value = k),
                 class: "allow-issues-toggle"
               }, {
-                default: l(() => [...w[18] || (w[18] = [
+                default: i(() => [...w[18] || (w[18] = [
                   y(" Commit anyway (ignore issues) ", -1)
                 ])]),
                 _: 1
               }, 8, ["modelValue"])
-            ])) : d("", !0),
-            e("div", rp, [
-              f(Jt, {
-                modelValue: g.value,
-                "onUpdate:modelValue": w[2] || (w[2] = (_) => g.value = _),
-                placeholder: M.value ? "Enable 'Allow issues' to commit" : m.value ? "Describe your changes..." : "No changes",
-                disabled: !m.value || h.value || M.value,
+            ])) : u("", !0),
+            e("div", dp, [
+              g(qt, {
+                modelValue: f.value,
+                "onUpdate:modelValue": w[2] || (w[2] = (k) => f.value = k),
+                placeholder: E.value ? "Enable 'Allow issues' to commit" : v.value ? "Describe your changes..." : "No changes",
+                disabled: !v.value || h.value || E.value,
                 rows: 3,
                 onCtrlEnter: C
               }, null, 8, ["modelValue", "placeholder", "disabled"])
             ]),
-            i.value ? (o(), s("div", {
+            l.value ? (o(), s("div", {
               key: 4,
-              class: ne(["result", i.value.type])
-            }, a(i.value.message), 3)) : d("", !0)
+              class: se(["result", l.value.type])
+            }, a(l.value.message), 3)) : u("", !0)
           ]),
-          e("div", dp, [
-            f(ie, {
+          e("div", cp, [
+            g(ie, {
               variant: "secondary",
-              onClick: w[3] || (w[3] = (_) => r("close"))
+              onClick: w[3] || (w[3] = (k) => r("close"))
             }, {
-              default: l(() => [...w[19] || (w[19] = [
+              default: i(() => [...w[19] || (w[19] = [
                 y(" Cancel ", -1)
               ])]),
               _: 1
             }),
-            f(ie, {
-              variant: v.value ? "danger" : "primary",
-              disabled: !m.value || !g.value.trim() || h.value || M.value,
+            g(ie, {
+              variant: m.value ? "danger" : "primary",
+              disabled: !v.value || !f.value.trim() || h.value || E.value,
               loading: h.value,
               onClick: C
             }, {
-              default: l(() => [
-                y(a(h.value ? "Committing..." : v.value ? "⚠️ Force Commit" : "Commit"), 1)
+              default: i(() => [
+                y(a(h.value ? "Committing..." : m.value ? "⚠️ Force Commit" : "Commit"), 1)
               ]),
               _: 1
             }, 8, ["variant", "disabled", "loading"])
           ])
         ])
       ])
-    ])) : (o(), s("div", cp, [
-      e("div", up, [
+    ])) : (o(), s("div", up, [
+      e("div", mp, [
         w[21] || (w[21] = e("h3", { class: "popover-title" }, "COMMIT CHANGES", -1)),
         e("button", {
           class: "close-btn",
-          onClick: w[6] || (w[6] = (_) => r("close"))
+          onClick: w[6] || (w[6] = (k) => r("close"))
         }, [...w[20] || (w[20] = [
           e("svg", {
             width: "16",
@@ -9744,94 +9743,94 @@ This will download and install the node.`))
           ], -1)
         ])])
       ]),
-      e("div", mp, [
-        t.status && m.value ? (o(), s("div", vp, [
-          t.status.workflows.new.length ? (o(), s("div", fp, [
+      e("div", vp, [
+        t.status && v.value ? (o(), s("div", fp, [
+          t.status.workflows.new.length ? (o(), s("div", gp, [
             w[22] || (w[22] = e("span", { class: "change-icon new" }, "+", -1)),
             e("span", null, a(t.status.workflows.new.length) + " new workflow(s)", 1)
-          ])) : d("", !0),
-          t.status.workflows.modified.length ? (o(), s("div", gp, [
+          ])) : u("", !0),
+          t.status.workflows.modified.length ? (o(), s("div", pp, [
             w[23] || (w[23] = e("span", { class: "change-icon modified" }, "~", -1)),
             e("span", null, a(t.status.workflows.modified.length) + " modified", 1)
-          ])) : d("", !0),
-          t.status.workflows.deleted.length ? (o(), s("div", pp, [
+          ])) : u("", !0),
+          t.status.workflows.deleted.length ? (o(), s("div", hp, [
             w[24] || (w[24] = e("span", { class: "change-icon deleted" }, "-", -1)),
             e("span", null, a(t.status.workflows.deleted.length) + " deleted", 1)
-          ])) : d("", !0),
-          t.status.git_changes.nodes_added.length ? (o(), s("div", hp, [
+          ])) : u("", !0),
+          t.status.git_changes.nodes_added.length ? (o(), s("div", yp, [
             w[25] || (w[25] = e("span", { class: "change-icon new" }, "+", -1)),
             e("span", null, a(t.status.git_changes.nodes_added.length) + " node(s) added", 1)
-          ])) : d("", !0),
-          t.status.git_changes.nodes_removed.length ? (o(), s("div", yp, [
+          ])) : u("", !0),
+          t.status.git_changes.nodes_removed.length ? (o(), s("div", wp, [
             w[26] || (w[26] = e("span", { class: "change-icon deleted" }, "-", -1)),
             e("span", null, a(t.status.git_changes.nodes_removed.length) + " node(s) removed", 1)
-          ])) : d("", !0)
-        ])) : t.status ? (o(), s("div", wp, " No changes to commit ")) : (o(), s("div", kp, " Loading... ")),
-        u.value ? (o(), s("div", bp, [
-          e("div", _p, [
+          ])) : u("", !0)
+        ])) : t.status ? (o(), s("div", kp, " No changes to commit ")) : (o(), s("div", bp, " Loading... ")),
+        d.value ? (o(), s("div", _p, [
+          e("div", $p, [
             w[27] || (w[27] = e("span", { class: "error-icon" }, "⚠", -1)),
-            e("span", $p, a($.value.length) + " workflow(s) can't run", 1)
+            e("span", Cp, a($.value.length) + " workflow(s) can't run", 1)
           ]),
-          e("div", Cp, [
-            (o(!0), s(H, null, se($.value, (_) => (o(), s("div", {
-              key: _.name,
+          e("div", xp, [
+            (o(!0), s(H, null, oe($.value, (k) => (o(), s("div", {
+              key: k.name,
               class: "issue-item"
             }, [
-              e("strong", null, a(_.name), 1),
-              y(": " + a(_.issue_summary), 1)
+              e("strong", null, a(k.name), 1),
+              y(": " + a(k.issue_summary), 1)
             ]))), 128))
           ]),
-          f(Qt, {
-            modelValue: v.value,
-            "onUpdate:modelValue": w[7] || (w[7] = (_) => v.value = _),
+          g(Kt, {
+            modelValue: m.value,
+            "onUpdate:modelValue": w[7] || (w[7] = (k) => m.value = k),
             class: "allow-issues-toggle"
           }, {
-            default: l(() => [...w[28] || (w[28] = [
+            default: i(() => [...w[28] || (w[28] = [
               y(" Commit anyway (ignore issues) ", -1)
             ])]),
             _: 1
           }, 8, ["modelValue"])
-        ])) : d("", !0),
-        e("div", xp, [
-          f(Jt, {
-            modelValue: g.value,
-            "onUpdate:modelValue": w[8] || (w[8] = (_) => g.value = _),
-            placeholder: M.value ? "Enable 'Allow issues' to commit" : m.value ? "Describe your changes..." : "No changes",
-            disabled: !m.value || h.value || M.value,
+        ])) : u("", !0),
+        e("div", Sp, [
+          g(qt, {
+            modelValue: f.value,
+            "onUpdate:modelValue": w[8] || (w[8] = (k) => f.value = k),
+            placeholder: E.value ? "Enable 'Allow issues' to commit" : v.value ? "Describe your changes..." : "No changes",
+            disabled: !v.value || h.value || E.value,
             rows: 3,
             onCtrlEnter: C
           }, null, 8, ["modelValue", "placeholder", "disabled"])
         ]),
-        i.value ? (o(), s("div", {
+        l.value ? (o(), s("div", {
           key: 4,
-          class: ne(["result", i.value.type])
-        }, a(i.value.message), 3)) : d("", !0)
+          class: se(["result", l.value.type])
+        }, a(l.value.message), 3)) : u("", !0)
       ]),
-      e("div", Sp, [
-        f(ie, {
+      e("div", Ip, [
+        g(ie, {
           variant: "secondary",
-          onClick: w[9] || (w[9] = (_) => r("close"))
+          onClick: w[9] || (w[9] = (k) => r("close"))
         }, {
-          default: l(() => [...w[29] || (w[29] = [
+          default: i(() => [...w[29] || (w[29] = [
             y(" Cancel ", -1)
           ])]),
           _: 1
         }),
-        f(ie, {
-          variant: v.value ? "danger" : "primary",
-          disabled: !m.value || !g.value.trim() || h.value || M.value,
+        g(ie, {
+          variant: m.value ? "danger" : "primary",
+          disabled: !v.value || !f.value.trim() || h.value || E.value,
           loading: h.value,
           onClick: C
         }, {
-          default: l(() => [
-            y(a(h.value ? "Committing..." : v.value ? "⚠️ Force Commit" : "Commit"), 1)
+          default: i(() => [
+            y(a(h.value ? "Committing..." : m.value ? "⚠️ Force Commit" : "Commit"), 1)
           ]),
           _: 1
         }, 8, ["variant", "disabled", "loading"])
       ])
     ]));
   }
-}), no = /* @__PURE__ */ Y(Ip, [["__scopeId", "data-v-d92153de"]]), Ep = { class: "modal-header" }, Mp = { class: "modal-body" }, zp = { class: "switch-message" }, Lp = { class: "switch-details" }, Tp = { class: "modal-actions" }, Dp = /* @__PURE__ */ Q({
+}), so = /* @__PURE__ */ Q(Ep, [["__scopeId", "data-v-d92153de"]]), Mp = { class: "modal-header" }, zp = { class: "modal-body" }, Lp = { class: "switch-message" }, Tp = { class: "switch-details" }, Dp = { class: "modal-actions" }, Rp = /* @__PURE__ */ J({
   __name: "ConfirmSwitchModal",
   props: {
     show: { type: Boolean },
@@ -9840,7 +9839,7 @@ This will download and install the node.`))
   },
   emits: ["close", "confirm"],
   setup(t) {
-    return (c, n) => (o(), x(xe, { to: "body" }, [
+    return (c, n) => (o(), x(Se, { to: "body" }, [
       t.show ? (o(), s("div", {
         key: 0,
         class: "modal-overlay",
@@ -9851,15 +9850,15 @@ This will download and install the node.`))
           onClick: n[3] || (n[3] = ke(() => {
           }, ["stop"]))
         }, [
-          e("div", Ep, [
+          e("div", Mp, [
             n[5] || (n[5] = e("h3", { class: "modal-title" }, "CONFIRM ENVIRONMENT SWITCH", -1)),
             e("button", {
               class: "modal-close",
               onClick: n[0] || (n[0] = (r) => c.$emit("close"))
             }, "✕")
           ]),
-          e("div", Mp, [
-            e("p", zp, [
+          e("div", zp, [
+            e("p", Lp, [
               n[6] || (n[6] = y(" Switch from ", -1)),
               e("strong", null, a(t.fromEnvironment), 1),
               n[7] || (n[7] = y(" to ", -1)),
@@ -9870,34 +9869,34 @@ This will download and install the node.`))
               e("span", { class: "warning-icon" }, "⚠"),
               e("span", null, "This will restart ComfyUI")
             ], -1)),
-            e("p", Lp, ' Your current work will be preserved. You can switch back to "' + a(t.fromEnvironment) + '" anytime. ', 1),
+            e("p", Tp, ' Your current work will be preserved. You can switch back to "' + a(t.fromEnvironment) + '" anytime. ', 1),
             n[10] || (n[10] = e("p", { class: "switch-eta" }, " Estimated downtime: ~30 seconds ", -1))
           ]),
-          e("div", Tp, [
-            f(Z, {
+          e("div", Dp, [
+            g(Z, {
               variant: "secondary",
               onClick: n[1] || (n[1] = (r) => c.$emit("close"))
             }, {
-              default: l(() => [...n[11] || (n[11] = [
+              default: i(() => [...n[11] || (n[11] = [
                 y(" Cancel ", -1)
               ])]),
               _: 1
             }),
-            f(Z, {
+            g(Z, {
               variant: "primary",
               onClick: n[2] || (n[2] = (r) => c.$emit("confirm"))
             }, {
-              default: l(() => [...n[12] || (n[12] = [
+              default: i(() => [...n[12] || (n[12] = [
                 y(" Switch ", -1)
               ])]),
               _: 1
             })
           ])
         ])
-      ])) : d("", !0)
+      ])) : u("", !0)
     ]));
   }
-}), Rp = /* @__PURE__ */ Y(Dp, [["__scopeId", "data-v-e9c5253e"]]), Np = { class: "progress-bar" }, Up = /* @__PURE__ */ Q({
+}), Np = /* @__PURE__ */ Q(Rp, [["__scopeId", "data-v-e9c5253e"]]), Op = { class: "progress-bar" }, Up = /* @__PURE__ */ J({
   __name: "ProgressBar",
   props: {
     progress: {},
@@ -9906,17 +9905,17 @@ This will download and install the node.`))
   },
   setup(t) {
     const c = t, n = B(() => `${Math.max(0, Math.min(100, c.progress))}%`);
-    return (r, p) => (o(), s("div", Np, [
+    return (r, p) => (o(), s("div", Op, [
       e("div", {
-        class: ne(["progress-fill", t.variant]),
+        class: se(["progress-fill", t.variant]),
         style: Qe({ width: n.value })
       }, null, 6)
     ]));
   }
-}), Op = /* @__PURE__ */ Y(Up, [["__scopeId", "data-v-1beb0512"]]), Bp = {
+}), Bp = /* @__PURE__ */ Q(Up, [["__scopeId", "data-v-1beb0512"]]), Pp = {
   key: 0,
   class: "modal-overlay"
-}, Pp = { class: "modal-content" }, Vp = { class: "modal-body" }, Fp = { class: "progress-info" }, Ap = { class: "progress-percentage" }, Wp = { class: "progress-state" }, Gp = { class: "switch-steps" }, jp = { class: "step-icon" }, Hp = { class: "step-label" }, qp = /* @__PURE__ */ Q({
+}, Vp = { class: "modal-content" }, Ap = { class: "modal-body" }, Fp = { class: "progress-info" }, Wp = { class: "progress-percentage" }, Gp = { class: "progress-state" }, jp = { class: "switch-steps" }, Hp = { class: "step-icon" }, qp = { class: "step-label" }, Kp = /* @__PURE__ */ J({
   __name: "SwitchProgressModal",
   props: {
     show: { type: Boolean },
@@ -9926,7 +9925,7 @@ This will download and install the node.`))
   },
   setup(t) {
     const c = t, n = B(() => {
-      const g = {
+      const f = {
         idle: "Idle",
         preparing: "Stopping current environment...",
         syncing: "Preparing target environment...",
@@ -9936,60 +9935,60 @@ This will download and install the node.`))
         rolled_back: "Switch failed, restored previous environment",
         critical_failure: "Critical error occurred"
       };
-      return c.message || g[c.state] || c.state;
+      return c.message || f[c.state] || c.state;
     }), r = B(() => c.state === "complete" ? "success" : c.state === "critical_failure" || c.state === "rolled_back" ? "error" : "default"), p = B(() => {
-      const g = [
+      const f = [
         { state: "preparing", label: "Stopping current environment", icon: "●" },
         { state: "syncing", label: "Preparing target environment", icon: "●" },
         { state: "starting", label: "Starting new environment", icon: "●" },
         { state: "validating", label: "Waiting for server to be ready", icon: "●" }
-      ], h = g.findIndex((v) => v.state === c.state);
-      return g.map((v, i) => {
-        let m = "pending", $ = "○";
-        return i < h ? (m = "completed", $ = "✓") : i === h && (m = "active", $ = "⟳"), {
-          ...v,
-          status: m,
+      ], h = f.findIndex((m) => m.state === c.state);
+      return f.map((m, l) => {
+        let v = "pending", $ = "○";
+        return l < h ? (v = "completed", $ = "✓") : l === h && (v = "active", $ = "⟳"), {
+          ...m,
+          status: v,
           icon: $
         };
       });
     });
-    return (g, h) => (o(), x(xe, { to: "body" }, [
-      t.show ? (o(), s("div", Bp, [
-        e("div", Pp, [
+    return (f, h) => (o(), x(Se, { to: "body" }, [
+      t.show ? (o(), s("div", Pp, [
+        e("div", Vp, [
           h[1] || (h[1] = e("div", { class: "modal-header" }, [
             e("h3", { class: "modal-title" }, "SWITCHING ENVIRONMENTS...")
           ], -1)),
-          e("div", Vp, [
-            f(Op, {
+          e("div", Ap, [
+            g(Bp, {
               progress: t.progress,
               variant: r.value
             }, null, 8, ["progress", "variant"]),
             e("div", Fp, [
-              e("div", Ap, a(t.progress) + "%", 1),
-              e("div", Wp, a(n.value), 1)
+              e("div", Wp, a(t.progress) + "%", 1),
+              e("div", Gp, a(n.value), 1)
             ]),
-            e("div", Gp, [
-              (o(!0), s(H, null, se(p.value, (v) => (o(), s("div", {
-                key: v.state,
-                class: ne(["switch-step", v.status])
+            e("div", jp, [
+              (o(!0), s(H, null, oe(p.value, (m) => (o(), s("div", {
+                key: m.state,
+                class: se(["switch-step", m.status])
               }, [
-                e("span", jp, a(v.icon), 1),
-                e("span", Hp, a(v.label), 1)
+                e("span", Hp, a(m.icon), 1),
+                e("span", qp, a(m.label), 1)
               ], 2))), 128))
             ]),
             h[0] || (h[0] = e("p", { class: "progress-warning" }, " Please wait, do not close this window. ", -1))
           ])
         ])
-      ])) : d("", !0)
+      ])) : u("", !0)
     ]));
   }
-}), Kp = /* @__PURE__ */ Y(qp, [["__scopeId", "data-v-768a5078"]]), Jp = { class: "modal-header" }, Qp = { class: "modal-body" }, Yp = {
+}), Jp = /* @__PURE__ */ Q(Kp, [["__scopeId", "data-v-768a5078"]]), Qp = { class: "modal-header" }, Yp = { class: "modal-body" }, Xp = {
   key: 0,
   class: "node-section"
-}, Xp = { class: "node-list" }, Zp = {
+}, Zp = { class: "node-list" }, eh = {
   key: 1,
   class: "node-section"
-}, eh = { class: "node-list" }, th = { class: "modal-actions" }, oh = /* @__PURE__ */ Q({
+}, th = { class: "node-list" }, oh = { class: "modal-actions" }, sh = /* @__PURE__ */ J({
   __name: "SyncEnvironmentModal",
   props: {
     show: { type: Boolean },
@@ -9997,7 +9996,7 @@ This will download and install the node.`))
   },
   emits: ["close", "confirm"],
   setup(t) {
-    return (c, n) => (o(), x(xe, { to: "body" }, [
+    return (c, n) => (o(), x(Se, { to: "body" }, [
       t.show ? (o(), s("div", {
         key: 0,
         class: "modal-overlay",
@@ -10008,80 +10007,80 @@ This will download and install the node.`))
           onClick: n[3] || (n[3] = ke(() => {
           }, ["stop"]))
         }, [
-          e("div", Jp, [
+          e("div", Qp, [
             n[5] || (n[5] = e("h3", { class: "modal-title" }, "SYNC ENVIRONMENT", -1)),
             e("button", {
               class: "modal-close",
               onClick: n[0] || (n[0] = (r) => c.$emit("close"))
             }, "✕")
           ]),
-          e("div", Qp, [
+          e("div", Yp, [
             n[8] || (n[8] = e("p", { class: "sync-message" }, " Fix environment state mismatch: ", -1)),
-            t.mismatchDetails.missing_nodes.length ? (o(), s("div", Yp, [
+            t.mismatchDetails.missing_nodes.length ? (o(), s("div", Xp, [
               n[6] || (n[6] = e("h4", { class: "section-title" }, "Missing (will be installed):", -1)),
-              e("div", Xp, [
-                (o(!0), s(H, null, se(t.mismatchDetails.missing_nodes, (r) => (o(), s("div", {
+              e("div", Zp, [
+                (o(!0), s(H, null, oe(t.mismatchDetails.missing_nodes, (r) => (o(), s("div", {
                   key: r,
                   class: "node-item add"
                 }, " + " + a(r), 1))), 128))
               ])
-            ])) : d("", !0),
-            t.mismatchDetails.extra_nodes.length ? (o(), s("div", Zp, [
+            ])) : u("", !0),
+            t.mismatchDetails.extra_nodes.length ? (o(), s("div", eh, [
               n[7] || (n[7] = e("h4", { class: "section-title" }, "Extra (will be removed):", -1)),
-              e("div", eh, [
-                (o(!0), s(H, null, se(t.mismatchDetails.extra_nodes, (r) => (o(), s("div", {
+              e("div", th, [
+                (o(!0), s(H, null, oe(t.mismatchDetails.extra_nodes, (r) => (o(), s("div", {
                   key: r,
                   class: "node-item remove"
                 }, " - " + a(r), 1))), 128))
               ])
-            ])) : d("", !0),
+            ])) : u("", !0),
             n[9] || (n[9] = e("div", { class: "warning-box" }, [
               e("span", { class: "warning-icon" }, "⚠"),
               e("span", null, "This may take several minutes")
             ], -1))
           ]),
-          e("div", th, [
-            f(Z, {
+          e("div", oh, [
+            g(Z, {
               variant: "secondary",
               onClick: n[1] || (n[1] = (r) => c.$emit("close"))
             }, {
-              default: l(() => [...n[10] || (n[10] = [
+              default: i(() => [...n[10] || (n[10] = [
                 y(" Cancel ", -1)
               ])]),
               _: 1
             }),
-            f(Z, {
+            g(Z, {
               variant: "primary",
               onClick: n[2] || (n[2] = (r) => c.$emit("confirm"))
             }, {
-              default: l(() => [...n[11] || (n[11] = [
+              default: i(() => [...n[11] || (n[11] = [
                 y(" Sync Now ", -1)
               ])]),
               _: 1
             })
           ])
         ])
-      ])) : d("", !0)
+      ])) : u("", !0)
     ]));
   }
-}), sh = /* @__PURE__ */ Y(oh, [["__scopeId", "data-v-7cad7518"]]);
-async function pt(t, c = {}, n = 5e3) {
+}), nh = /* @__PURE__ */ Q(sh, [["__scopeId", "data-v-7cad7518"]]);
+async function ht(t, c = {}, n = 5e3) {
   const r = new AbortController(), p = setTimeout(() => r.abort(), n);
   try {
-    const g = await fetch(t, {
+    const f = await fetch(t, {
       ...c,
       signal: r.signal
     });
-    return clearTimeout(p), g;
-  } catch (g) {
-    throw clearTimeout(p), g.name === "AbortError" ? new Error(`Request timeout after ${n}ms`) : g;
+    return clearTimeout(p), f;
+  } catch (f) {
+    throw clearTimeout(p), f.name === "AbortError" ? new Error(`Request timeout after ${n}ms`) : f;
   }
 }
-function nh() {
+function ah() {
   const t = b(null);
   async function c() {
     try {
-      const h = await pt(
+      const h = await ht(
         "http://127.0.0.1:8188/api/v2/comfygit/orchestrator_port",
         {},
         5e3
@@ -10096,7 +10095,7 @@ function nh() {
     if (t.value || (t.value = await c()), !t.value)
       return null;
     try {
-      const h = await pt(
+      const h = await ht(
         `http://127.0.0.1:${t.value}/health`,
         {},
         5e3
@@ -10111,7 +10110,7 @@ function nh() {
     if (t.value || (t.value = await c()), !t.value)
       return null;
     try {
-      const h = await pt(
+      const h = await ht(
         `http://127.0.0.1:${t.value}/status`,
         {},
         5e3
@@ -10125,17 +10124,17 @@ function nh() {
   async function p() {
     if (t.value || (t.value = await c()), !t.value)
       throw new Error("Control port not available");
-    if (!(await pt(
+    if (!(await ht(
       `http://127.0.0.1:${t.value}/restart`,
       { method: "POST" },
       1e4
     )).ok)
       throw new Error("Failed to restart");
   }
-  async function g() {
+  async function f() {
     if (t.value || (t.value = await c()), !t.value)
       throw new Error("Control port not available");
-    if (!(await pt(
+    if (!(await ht(
       `http://127.0.0.1:${t.value}/kill`,
       { method: "POST" },
       1e4
@@ -10148,66 +10147,66 @@ function nh() {
     checkHealth: n,
     getStatus: r,
     restart: p,
-    kill: g
+    kill: f
   };
 }
-const ah = { class: "comfygit-panel" }, lh = { class: "panel-header" }, ih = { class: "header-left" }, rh = {
+const lh = { class: "comfygit-panel" }, ih = { class: "panel-header" }, rh = { class: "header-left" }, dh = {
   key: 0,
   class: "header-info"
-}, dh = { class: "header-actions" }, ch = { class: "env-switcher" }, uh = {
+}, ch = { class: "header-actions" }, uh = { class: "env-switcher" }, mh = {
   key: 0,
   class: "header-info"
-}, mh = { class: "branch-name" }, vh = { class: "panel-main" }, fh = { class: "sidebar" }, gh = { class: "sidebar-section" }, ph = { class: "sidebar-section" }, hh = { class: "sidebar-section" }, yh = { class: "content-area" }, wh = {
+}, vh = { class: "branch-name" }, fh = { class: "panel-main" }, gh = { class: "sidebar" }, ph = { class: "sidebar-section" }, hh = { class: "sidebar-section" }, yh = { class: "sidebar-section" }, wh = { class: "content-area" }, kh = {
   key: 0,
   class: "error-message"
-}, kh = {
+}, bh = {
   key: 1,
   class: "loading"
-}, bh = {
+}, _h = {
   key: 4,
   class: "dialog-overlay"
-}, _h = { class: "dialog-content create-progress-dialog" }, $h = { class: "dialog-body create-progress-body" }, Ch = { class: "create-progress-message" }, xh = { class: "dialog-content env-selector-dialog" }, Sh = { class: "dialog-header" }, Ih = { class: "dialog-body" }, Eh = { class: "env-list" }, Mh = { class: "env-info" }, zh = { class: "env-name-row" }, Lh = { class: "env-indicator" }, Th = { class: "env-name" }, Dh = {
+}, $h = { class: "dialog-content create-progress-dialog" }, Ch = { class: "dialog-body create-progress-body" }, xh = { class: "create-progress-message" }, Sh = { class: "dialog-content env-selector-dialog" }, Ih = { class: "dialog-header" }, Eh = { class: "dialog-body" }, Mh = { class: "env-list" }, zh = { class: "env-info" }, Lh = { class: "env-name-row" }, Th = { class: "env-indicator" }, Dh = { class: "env-name" }, Rh = {
   key: 0,
   class: "env-branch"
-}, Rh = {
+}, Nh = {
   key: 1,
   class: "current-label"
-}, Nh = { class: "env-stats" }, Uh = ["onClick"], Oh = { class: "toast-container" }, Bh = { class: "toast-icon" }, Ph = { class: "toast-message" }, Vh = /* @__PURE__ */ Q({
+}, Oh = { class: "env-stats" }, Uh = ["onClick"], Bh = { class: "toast-container" }, Ph = { class: "toast-icon" }, Vh = { class: "toast-message" }, Ah = /* @__PURE__ */ J({
   __name: "ComfyGitPanel",
   emits: ["close", "statusUpdate"],
   setup(t, { emit: c }) {
     const n = c, {
       getStatus: r,
       getHistory: p,
-      getBranches: g,
+      getBranches: f,
       checkout: h,
-      createBranch: v,
-      switchBranch: i,
-      getEnvironments: m,
+      createBranch: m,
+      switchBranch: l,
+      getEnvironments: v,
       switchEnvironment: $,
-      getSwitchProgress: u,
-      createEnvironment: M,
+      getSwitchProgress: d,
+      createEnvironment: E,
       getCreateProgress: C,
-      deleteEnvironment: L,
+      deleteEnvironment: z,
       syncEnvironmentManually: w
-    } = Se(), _ = nh(), k = b(null), R = b([]), A = b([]), j = b([]), K = B(() => j.value.find((q) => q.is_current)), P = b(!1), T = b(null), O = b(null), z = b(!1), S = b(null), V = b(null), W = b(!1), X = b(!1), oe = b(""), E = b({ state: "idle", progress: 0, message: "" });
-    let G = null, N = null;
-    const U = b(!1), ae = b({ state: "idle", message: "" }), ee = b(null);
+    } = Ce(), k = ah(), _ = b(null), T = b([]), N = b([]), U = b([]), j = B(() => U.value.find((q) => q.is_current)), P = b(!1), L = b(null), V = b(null), M = b(!1), S = b(null), F = b(null), W = b(!1), Y = b(!1), le = b(""), G = b({ state: "idle", progress: 0, message: "" });
+    let te = null, O = null;
+    const R = b(!1), ne = b({ state: "idle", message: "" }), X = b(null);
     let $e = null;
-    const le = b("status"), Ye = b("this-env");
+    const ae = b("status"), Xe = b("this-env");
     function he(q, I) {
-      le.value = q, Ye.value = I;
+      ae.value = q, Xe.value = I;
     }
-    function ut(q) {
+    function mt(q) {
       const re = {
         "model-index": { view: "model-index", section: "all-envs" }
       }[q];
       re && he(re.view, re.section);
     }
-    function mt() {
+    function vt() {
       he("branches", "this-env");
     }
-    function vt() {
+    function ft() {
       n("close"), setTimeout(() => {
         var I;
         const q = document.querySelectorAll("button.comfyui-button");
@@ -10219,18 +10218,18 @@ const ah = { class: "comfygit-panel" }, lh = { class: "panel-header" }, ih = { c
         console.warn("[ComfyGit] Manager button not found in toolbar");
       }, 100);
     }
-    const we = b(null), Ke = b(!1), Fe = b(!1), Oe = b([]);
-    let ft = 0;
+    const we = b(null), Ke = b(!1), Ae = b(!1), Ue = b([]);
+    let gt = 0;
     function fe(q, I = "info", re = 3e3) {
-      const ye = ++ft;
-      return Oe.value.push({ id: ye, message: q, type: I }), re > 0 && setTimeout(() => {
-        Oe.value = Oe.value.filter((Te) => Te.id !== ye);
+      const ye = ++gt;
+      return Ue.value.push({ id: ye, message: q, type: I }), re > 0 && setTimeout(() => {
+        Ue.value = Ue.value.filter((Te) => Te.id !== ye);
       }, re), ye;
     }
     function Be(q) {
-      Oe.value = Oe.value.filter((I) => I.id !== q);
+      Ue.value = Ue.value.filter((I) => I.id !== q);
     }
-    function J(q) {
+    function K(q) {
       switch (q) {
         case "success":
           return "✓";
@@ -10243,34 +10242,34 @@ const ah = { class: "comfygit-panel" }, lh = { class: "panel-header" }, ih = { c
       }
     }
     const de = B(() => {
-      if (!k.value) return "neutral";
-      const q = k.value.workflows, I = q.new.length > 0 || q.modified.length > 0 || q.deleted.length > 0 || k.value.has_changes;
-      return k.value.comparison.is_synced ? I ? "warning" : "success" : "error";
+      if (!_.value) return "neutral";
+      const q = _.value.workflows, I = q.new.length > 0 || q.modified.length > 0 || q.deleted.length > 0 || _.value.has_changes;
+      return _.value.comparison.is_synced ? I ? "warning" : "success" : "error";
     });
-    B(() => k.value ? de.value === "success" ? "All synced" : de.value === "warning" ? "Uncommitted changes" : de.value === "error" ? "Not synced" : "" : "");
-    async function F() {
-      P.value = !0, T.value = null;
+    B(() => _.value ? de.value === "success" ? "All synced" : de.value === "warning" ? "Uncommitted changes" : de.value === "error" ? "Not synced" : "" : "");
+    async function A() {
+      P.value = !0, L.value = null;
       try {
         const [q, I, re, ye] = await Promise.all([
           r(!0),
           p(),
-          g(),
-          m()
+          f(),
+          v()
         ]);
-        k.value = q, R.value = I.commits, A.value = re.branches, j.value = ye, n("statusUpdate", q), S.value && await S.value.loadWorkflows(!0);
+        _.value = q, T.value = I.commits, N.value = re.branches, U.value = ye, n("statusUpdate", q), S.value && await S.value.loadWorkflows(!0);
       } catch (q) {
-        T.value = q instanceof Error ? q.message : "Failed to load status", k.value = null, R.value = [], A.value = [];
+        L.value = q instanceof Error ? q.message : "Failed to load status", _.value = null, T.value = [], N.value = [];
       } finally {
         P.value = !1;
       }
     }
     function D(q) {
-      O.value = q;
+      V.value = q;
     }
-    async function te(q) {
+    async function ee(q) {
       var re;
-      O.value = null;
-      const I = k.value && (k.value.workflows.new.length > 0 || k.value.workflows.modified.length > 0 || k.value.workflows.deleted.length > 0 || k.value.has_changes);
+      V.value = null;
+      const I = _.value && (_.value.workflows.new.length > 0 || _.value.workflows.modified.length > 0 || _.value.workflows.deleted.length > 0 || _.value.has_changes);
       we.value = {
         title: I ? "Checkout with Uncommitted Changes" : "Checkout Commit",
         message: I ? "You have uncommitted changes that will be lost." : `Checkout commit ${q.short_hash || ((re = q.hash) == null ? void 0 : re.slice(0, 7))}?`,
@@ -10281,14 +10280,14 @@ const ah = { class: "comfygit-panel" }, lh = { class: "panel-header" }, ih = { c
         destructive: I,
         onConfirm: async () => {
           var De;
-          we.value = null, Ae();
+          we.value = null, Fe();
           const ye = fe(`Checking out ${q.short_hash || ((De = q.hash) == null ? void 0 : De.slice(0, 7))}...`, "info", 0), Te = await h(q.hash, I);
           Be(ye), Te.status === "success" ? fe("Restarting ComfyUI...", "success") : fe(Te.message || "Checkout failed", "error");
         }
       };
     }
     async function ge(q) {
-      const I = k.value && (k.value.workflows.new.length > 0 || k.value.workflows.modified.length > 0 || k.value.workflows.deleted.length > 0 || k.value.has_changes);
+      const I = _.value && (_.value.workflows.new.length > 0 || _.value.workflows.modified.length > 0 || _.value.workflows.deleted.length > 0 || _.value.has_changes);
       we.value = {
         title: I ? "Switch Branch with Uncommitted Changes" : "Switch Branch",
         message: I ? "You have uncommitted changes." : `Switch to branch "${q}"?`,
@@ -10297,102 +10296,102 @@ const ah = { class: "comfygit-panel" }, lh = { class: "panel-header" }, ih = { c
         confirmLabel: I ? "Switch Anyway" : "Switch",
         cancelLabel: "Cancel",
         onConfirm: async () => {
-          we.value = null, Ae();
-          const re = fe(`Switching to ${q}...`, "info", 0), ye = await i(q, I);
+          we.value = null, Fe();
+          const re = fe(`Switching to ${q}...`, "info", 0), ye = await l(q, I);
           Be(re), ye.status === "success" ? fe("Restarting ComfyUI...", "success") : fe(ye.message || "Branch switch failed", "error");
         }
       };
     }
     async function Le(q) {
-      const I = fe(`Creating branch ${q}...`, "info", 0), re = await v(q);
-      Be(I), re.status === "success" ? (fe(`Branch "${q}" created`, "success"), await F()) : fe(re.message || "Failed to create branch", "error");
+      const I = fe(`Creating branch ${q}...`, "info", 0), re = await m(q);
+      Be(I), re.status === "success" ? (fe(`Branch "${q}" created`, "success"), await A()) : fe(re.message || "Failed to create branch", "error");
     }
-    async function Xe(q) {
-      O.value = null;
+    async function Ze(q) {
+      V.value = null;
       const I = prompt("Enter branch name:");
       if (I) {
-        const re = fe(`Creating branch ${I}...`, "info", 0), ye = await v(I, q.hash);
-        Be(re), ye.status === "success" ? (fe(`Branch "${I}" created from ${q.short_hash}`, "success"), await F()) : fe(ye.message || "Failed to create branch", "error");
+        const re = fe(`Creating branch ${I}...`, "info", 0), ye = await m(I, q.hash);
+        Be(re), ye.status === "success" ? (fe(`Branch "${I}" created from ${q.short_hash}`, "success"), await A()) : fe(ye.message || "Failed to create branch", "error");
       }
     }
-    function Ae() {
+    function Fe() {
       sessionStorage.setItem("ComfyGit.PendingRefresh", "true"), console.log("[ComfyGit] Set refresh flag for post-restart notification");
     }
     async function nt(q) {
-      z.value = !1, oe.value = q, W.value = !0;
+      M.value = !1, le.value = q, W.value = !0;
     }
-    async function St() {
-      W.value = !1, X.value = !0, Ae(), E.value = {
+    async function xt() {
+      W.value = !1, Y.value = !0, Fe(), G.value = {
         progress: 10,
-        state: Ze(10),
-        message: It(10)
+        state: et(10),
+        message: St(10)
       };
       try {
-        await $(oe.value), co(), uo();
+        await $(le.value), ro(), co();
       } catch (q) {
-        et(), X.value = !1, fe(`Failed to initiate switch: ${q instanceof Error ? q.message : "Unknown error"}`, "error"), E.value = { state: "idle", progress: 0, message: "" };
+        tt(), Y.value = !1, fe(`Failed to initiate switch: ${q instanceof Error ? q.message : "Unknown error"}`, "error"), G.value = { state: "idle", progress: 0, message: "" };
       }
     }
-    function Ze(q) {
+    function et(q) {
       return q >= 100 ? "complete" : q >= 80 ? "validating" : q >= 60 ? "starting" : q >= 30 ? "syncing" : "preparing";
     }
-    function It(q) {
+    function St(q) {
       return {
         preparing: "Stopping current environment...",
         syncing: "Preparing target environment...",
         starting: "Starting new environment...",
         validating: "Waiting for server to be ready...",
         complete: "Switch complete!"
-      }[Ze(q)] || "";
+      }[et(q)] || "";
     }
-    function co() {
-      if (N) return;
+    function ro() {
+      if (O) return;
       let q = 10;
       const I = 60, re = 5e3, ye = 100, Te = (I - q) / (re / ye);
-      N = window.setInterval(() => {
-        if (q += Te, q >= I && (q = I, et()), E.value.progress < I) {
+      O = window.setInterval(() => {
+        if (q += Te, q >= I && (q = I, tt()), G.value.progress < I) {
           const De = Math.floor(q);
-          E.value = {
+          G.value = {
             progress: De,
-            state: Ze(De),
-            message: It(De)
+            state: et(De),
+            message: St(De)
           };
         }
       }, ye);
     }
-    function et() {
-      N && (clearInterval(N), N = null);
+    function tt() {
+      O && (clearInterval(O), O = null);
     }
-    function uo() {
-      G || (G = window.setInterval(async () => {
+    function co() {
+      te || (te = window.setInterval(async () => {
         try {
-          let q = await _.getStatus();
-          if ((!q || q.state === "idle") && (q = await u()), !q)
+          let q = await k.getStatus();
+          if ((!q || q.state === "idle") && (q = await d()), !q)
             return;
           const I = q.progress || 0;
-          I >= 60 && et();
-          const re = Math.max(I, E.value.progress), ye = q.state && q.state !== "idle" && q.state !== "unknown", Te = ye ? q.state : Ze(re), De = ye && q.message || It(re);
-          E.value = {
+          I >= 60 && tt();
+          const re = Math.max(I, G.value.progress), ye = q.state && q.state !== "idle" && q.state !== "unknown", Te = ye ? q.state : et(re), De = ye && q.message || St(re);
+          G.value = {
             state: Te,
             progress: re,
             message: De
-          }, q.state === "complete" ? (et(), zt(), X.value = !1, fe(`✓ Switched to ${oe.value}`, "success"), await F(), oe.value = "") : q.state === "rolled_back" ? (et(), zt(), X.value = !1, fe("Switch failed, restored previous environment", "warning"), oe.value = "") : q.state === "critical_failure" && (et(), zt(), X.value = !1, fe(`Critical error during switch: ${q.message}`, "error"), oe.value = "");
+          }, q.state === "complete" ? (tt(), zt(), Y.value = !1, fe(`✓ Switched to ${le.value}`, "success"), await A(), le.value = "") : q.state === "rolled_back" ? (tt(), zt(), Y.value = !1, fe("Switch failed, restored previous environment", "warning"), le.value = "") : q.state === "critical_failure" && (tt(), zt(), Y.value = !1, fe(`Critical error during switch: ${q.message}`, "error"), le.value = "");
         } catch (q) {
           console.error("Failed to poll switch progress:", q);
         }
       }, 1e3));
     }
     function zt() {
-      et(), G && (clearInterval(G), G = null);
+      tt(), te && (clearInterval(te), te = null);
     }
-    function mo() {
-      W.value = !1, oe.value = "";
+    function uo() {
+      W.value = !1, le.value = "";
+    }
+    async function mo() {
+      Ke.value = !1, await A(), fe("✓ Changes committed", "success");
     }
     async function vo() {
-      Ke.value = !1, await F(), fe("✓ Changes committed", "success");
-    }
-    async function fo() {
-      Fe.value = !1;
+      Ae.value = !1;
       const q = fe("Syncing environment...", "info", 0);
       try {
         const I = await w("skip", !0);
@@ -10400,7 +10399,7 @@ const ah = { class: "comfygit-panel" }, lh = { class: "panel-header" }, ih = { c
           const re = [];
           I.nodes_installed.length && re.push(`${I.nodes_installed.length} installed`), I.nodes_removed.length && re.push(`${I.nodes_removed.length} removed`);
           const ye = re.length ? `: ${re.join(", ")}` : "";
-          fe(`✓ Environment synced${ye}`, "success"), await F();
+          fe(`✓ Environment synced${ye}`, "success"), await A();
         } else {
           const re = I.errors.length ? I.errors.join("; ") : I.message;
           fe(`Sync failed: ${re}`, "error");
@@ -10409,21 +10408,21 @@ const ah = { class: "comfygit-panel" }, lh = { class: "panel-header" }, ih = { c
         Be(q), fe(`Sync error: ${I instanceof Error ? I.message : "Unknown error"}`, "error");
       }
     }
-    async function go(q) {
-      ee.value = q, U.value = !0, ae.value = { state: "creating", message: `Creating environment '${q.name}'...` };
+    async function fo(q) {
+      X.value = q, R.value = !0, ne.value = { state: "creating", message: `Creating environment '${q.name}'...` };
       try {
-        const I = await M(q);
-        I.status === "started" ? po() : I.status === "error" && (U.value = !1, fe(`Failed to create environment: ${I.message}. Check debug logs for details.`, "error"), ee.value = null);
+        const I = await E(q);
+        I.status === "started" ? go() : I.status === "error" && (R.value = !1, fe(`Failed to create environment: ${I.message}. Check debug logs for details.`, "error"), X.value = null);
       } catch (I) {
-        U.value = !1, fe(`Error creating environment: ${I instanceof Error ? I.message : "Unknown error"}. Check debug logs.`, "error"), ee.value = null;
+        R.value = !1, fe(`Error creating environment: ${I instanceof Error ? I.message : "Unknown error"}. Check debug logs.`, "error"), X.value = null;
       }
     }
-    function po() {
+    function go() {
       $e || ($e = window.setInterval(async () => {
         var q;
         try {
           const I = await C();
-          ae.value = { state: I.state, message: I.message }, I.state === "complete" ? (Gt(), U.value = !1, fe(`✓ Environment '${I.environment_name}' created`, "success"), await F(), V.value && await V.value.loadEnvironments(), (q = ee.value) != null && q.switch_after && I.environment_name && await nt(I.environment_name), ee.value = null) : I.state === "error" && (Gt(), U.value = !1, fe(`Failed to create environment: ${I.error || I.message}. Check debug logs.`, "error"), ee.value = null);
+          ne.value = { state: I.state, message: I.message }, I.state === "complete" ? (Gt(), R.value = !1, fe(`✓ Environment '${I.environment_name}' created`, "success"), await A(), F.value && await F.value.loadEnvironments(), (q = X.value) != null && q.switch_after && I.environment_name && await nt(I.environment_name), X.value = null) : I.state === "error" && (Gt(), R.value = !1, fe(`Failed to create environment: ${I.error || I.message}. Check debug logs.`, "error"), X.value = null);
         } catch (I) {
           console.error("Failed to poll create progress:", I);
         }
@@ -10432,9 +10431,9 @@ const ah = { class: "comfygit-panel" }, lh = { class: "panel-header" }, ih = { c
     function Gt() {
       $e && (clearInterval($e), $e = null);
     }
-    async function ho(q) {
+    async function po(q) {
       var I;
-      if (((I = K.value) == null ? void 0 : I.name) === q) {
+      if (((I = j.value) == null ? void 0 : I.name) === q) {
         fe("Cannot delete the currently active environment. Switch to another environment first.", "error");
         return;
       }
@@ -10448,8 +10447,8 @@ const ah = { class: "comfygit-panel" }, lh = { class: "panel-header" }, ih = { c
         onConfirm: async () => {
           we.value = null;
           try {
-            const re = await L(q);
-            re.status === "success" ? (fe(`Environment "${q}" deleted`, "success"), await F(), V.value && await V.value.loadEnvironments()) : fe(re.message || "Failed to delete environment", "error");
+            const re = await z(q);
+            re.status === "success" ? (fe(`Environment "${q}" deleted`, "success"), await A(), F.value && await F.value.loadEnvironments()) : fe(re.message || "Failed to delete environment", "error");
           } catch (re) {
             fe(`Error deleting environment: ${re instanceof Error ? re.message : "Unknown error"}`, "error");
           }
@@ -10457,22 +10456,22 @@ const ah = { class: "comfygit-panel" }, lh = { class: "panel-header" }, ih = { c
       };
     }
     function jt() {
-      if (!k.value) return [];
-      const q = [], I = k.value.workflows;
+      if (!_.value) return [];
+      const q = [], I = _.value.workflows;
       return I.new.length && q.push(`${I.new.length} new workflow(s)`), I.modified.length && q.push(`${I.modified.length} modified workflow(s)`), I.deleted.length && q.push(`${I.deleted.length} deleted workflow(s)`), q;
     }
-    return _e(F), (q, I) => {
+    return _e(A), (q, I) => {
       var re, ye, Te, De;
-      return o(), s("div", ah, [
-        e("div", lh, [
-          e("div", ih, [
+      return o(), s("div", lh, [
+        e("div", ih, [
+          e("div", rh, [
             I[27] || (I[27] = e("h2", { class: "panel-title" }, "ComfyGit", -1)),
-            k.value ? (o(), s("div", rh)) : d("", !0)
+            _.value ? (o(), s("div", dh)) : u("", !0)
           ]),
-          e("div", dh, [
+          e("div", ch, [
             e("button", {
-              class: ne(["icon-btn", { spinning: P.value }]),
-              onClick: F,
+              class: se(["icon-btn", { spinning: P.value }]),
+              onClick: A,
               title: "Refresh"
             }, [...I[28] || (I[28] = [
               e("svg", {
@@ -10500,144 +10499,144 @@ const ah = { class: "comfygit-panel" }, lh = { class: "panel-header" }, ih = { c
             ])])
           ])
         ]),
-        e("div", ch, [
+        e("div", uh, [
           I[31] || (I[31] = e("div", { class: "env-switcher-label" }, "CURRENT ENVIRONMENT", -1)),
           e("button", {
             class: "env-switcher-btn",
             onClick: I[1] || (I[1] = (ce) => he("environments", "all-envs"))
           }, [
-            k.value ? (o(), s("div", uh, [
-              e("span", null, a(((re = K.value) == null ? void 0 : re.name) || ((ye = k.value) == null ? void 0 : ye.environment) || "Loading..."), 1),
-              e("span", mh, "(" + a(k.value.branch || "detached") + ")", 1)
-            ])) : d("", !0),
+            _.value ? (o(), s("div", mh, [
+              e("span", null, a(((re = j.value) == null ? void 0 : re.name) || ((ye = _.value) == null ? void 0 : ye.environment) || "Loading..."), 1),
+              e("span", vh, "(" + a(_.value.branch || "detached") + ")", 1)
+            ])) : u("", !0),
             I[30] || (I[30] = e("span", { class: "switch-indicator" }, "SWITCH ▸", -1))
           ])
         ]),
-        e("div", vh, [
-          e("div", fh, [
-            e("div", gh, [
+        e("div", fh, [
+          e("div", gh, [
+            e("div", ph, [
               I[32] || (I[32] = e("div", { class: "sidebar-section-title" }, "THIS ENV", -1)),
               e("button", {
-                class: ne(["sidebar-item", { active: le.value === "status" && Ye.value === "this-env" }]),
+                class: se(["sidebar-item", { active: ae.value === "status" && Xe.value === "this-env" }]),
                 onClick: I[2] || (I[2] = (ce) => he("status", "this-env"))
               }, " STATUS ", 2),
               e("button", {
-                class: ne(["sidebar-item", { active: le.value === "workflows" }]),
+                class: se(["sidebar-item", { active: ae.value === "workflows" }]),
                 onClick: I[3] || (I[3] = (ce) => he("workflows", "this-env"))
               }, " WORKFLOWS ", 2),
               e("button", {
-                class: ne(["sidebar-item", { active: le.value === "models-env" }]),
+                class: se(["sidebar-item", { active: ae.value === "models-env" }]),
                 onClick: I[4] || (I[4] = (ce) => he("models-env", "this-env"))
               }, " MODELS ", 2),
               e("button", {
-                class: ne(["sidebar-item", { active: le.value === "branches" }]),
+                class: se(["sidebar-item", { active: ae.value === "branches" }]),
                 onClick: I[5] || (I[5] = (ce) => he("branches", "this-env"))
               }, " BRANCHES ", 2),
               e("button", {
-                class: ne(["sidebar-item", { active: le.value === "history" }]),
+                class: se(["sidebar-item", { active: ae.value === "history" }]),
                 onClick: I[6] || (I[6] = (ce) => he("history", "this-env"))
               }, " HISTORY ", 2),
               e("button", {
-                class: ne(["sidebar-item", { active: le.value === "nodes" }]),
+                class: se(["sidebar-item", { active: ae.value === "nodes" }]),
                 onClick: I[7] || (I[7] = (ce) => he("nodes", "this-env"))
               }, " NODES ", 2),
               e("button", {
-                class: ne(["sidebar-item", { active: le.value === "debug-env" }]),
+                class: se(["sidebar-item", { active: ae.value === "debug-env" }]),
                 onClick: I[8] || (I[8] = (ce) => he("debug-env", "this-env"))
               }, " DEBUG ", 2)
             ]),
             I[35] || (I[35] = e("div", { class: "sidebar-divider" }, null, -1)),
-            e("div", ph, [
+            e("div", hh, [
               I[33] || (I[33] = e("div", { class: "sidebar-section-title" }, "ALL ENVS", -1)),
               e("button", {
-                class: ne(["sidebar-item", { active: le.value === "environments" }]),
+                class: se(["sidebar-item", { active: ae.value === "environments" }]),
                 onClick: I[9] || (I[9] = (ce) => he("environments", "all-envs"))
               }, " ENVIRONMENTS ", 2),
               e("button", {
-                class: ne(["sidebar-item", { active: le.value === "model-index" }]),
+                class: se(["sidebar-item", { active: ae.value === "model-index" }]),
                 onClick: I[10] || (I[10] = (ce) => he("model-index", "all-envs"))
               }, " MODEL INDEX ", 2),
               e("button", {
-                class: ne(["sidebar-item", { active: le.value === "settings" }]),
+                class: se(["sidebar-item", { active: ae.value === "settings" }]),
                 onClick: I[11] || (I[11] = (ce) => he("settings", "all-envs"))
               }, " SETTINGS ", 2),
               e("button", {
-                class: ne(["sidebar-item", { active: le.value === "debug-workspace" }]),
+                class: se(["sidebar-item", { active: ae.value === "debug-workspace" }]),
                 onClick: I[12] || (I[12] = (ce) => he("debug-workspace", "all-envs"))
               }, " DEBUG ", 2)
             ]),
             I[36] || (I[36] = e("div", { class: "sidebar-divider" }, null, -1)),
-            e("div", hh, [
+            e("div", yh, [
               I[34] || (I[34] = e("div", { class: "sidebar-section-title" }, "SHARING", -1)),
               e("button", {
-                class: ne(["sidebar-item", { active: le.value === "export" }]),
+                class: se(["sidebar-item", { active: ae.value === "export" }]),
                 onClick: I[13] || (I[13] = (ce) => he("export", "sharing"))
               }, " EXPORT ", 2),
               e("button", {
-                class: ne(["sidebar-item", { active: le.value === "import" }]),
+                class: se(["sidebar-item", { active: ae.value === "import" }]),
                 onClick: I[14] || (I[14] = (ce) => he("import", "sharing"))
               }, " IMPORT ", 2),
               e("button", {
-                class: ne(["sidebar-item", { active: le.value === "remotes" }]),
+                class: se(["sidebar-item", { active: ae.value === "remotes" }]),
                 onClick: I[15] || (I[15] = (ce) => he("remotes", "sharing"))
               }, " REMOTES ", 2)
             ])
           ]),
-          e("div", yh, [
-            T.value ? (o(), s("div", wh, a(T.value), 1)) : !k.value && le.value === "status" ? (o(), s("div", kh, " Loading status... ")) : (o(), s(H, { key: 2 }, [
-              le.value === "status" ? (o(), x(Kn, {
+          e("div", wh, [
+            L.value ? (o(), s("div", kh, a(L.value), 1)) : !_.value && ae.value === "status" ? (o(), s("div", bh, " Loading status... ")) : (o(), s(H, { key: 2 }, [
+              ae.value === "status" ? (o(), x(qn, {
                 key: 0,
-                status: k.value,
-                onSwitchBranch: mt,
+                status: _.value,
+                onSwitchBranch: vt,
                 onCommitChanges: I[16] || (I[16] = (ce) => Ke.value = !0),
-                onSyncEnvironment: I[17] || (I[17] = (ce) => Fe.value = !0),
+                onSyncEnvironment: I[17] || (I[17] = (ce) => Ae.value = !0),
                 onViewWorkflows: I[18] || (I[18] = (ce) => he("workflows", "this-env")),
                 onViewHistory: I[19] || (I[19] = (ce) => he("history", "this-env")),
                 onViewDebug: I[20] || (I[20] = (ce) => he("debug-env", "this-env"))
-              }, null, 8, ["status"])) : le.value === "workflows" ? (o(), x(wc, {
+              }, null, 8, ["status"])) : ae.value === "workflows" ? (o(), x(yc, {
                 key: 1,
                 ref_key: "workflowsSectionRef",
                 ref: S,
-                onRefresh: F
-              }, null, 512)) : le.value === "models-env" ? (o(), x(tu, {
+                onRefresh: A
+              }, null, 512)) : ae.value === "models-env" ? (o(), x(eu, {
                 key: 2,
-                onNavigate: ut
-              })) : le.value === "branches" ? (o(), x(da, {
+                onNavigate: mt
+              })) : ae.value === "branches" ? (o(), x(ra, {
                 key: 3,
-                branches: A.value,
-                current: ((Te = k.value) == null ? void 0 : Te.branch) || null,
+                branches: N.value,
+                current: ((Te = _.value) == null ? void 0 : Te.branch) || null,
                 onSwitch: ge,
                 onCreate: Le
-              }, null, 8, ["branches", "current"])) : le.value === "history" ? (o(), x(ka, {
+              }, null, 8, ["branches", "current"])) : ae.value === "history" ? (o(), x(wa, {
                 key: 4,
-                commits: R.value,
+                commits: T.value,
                 onSelect: D,
-                onCheckout: te
-              }, null, 8, ["commits"])) : le.value === "nodes" ? (o(), x(Wu, {
+                onCheckout: ee
+              }, null, 8, ["commits"])) : ae.value === "nodes" ? (o(), x(Fu, {
                 key: 5,
-                onOpenNodeManager: vt
-              })) : le.value === "debug-env" ? (o(), x(Am, { key: 6 })) : le.value === "environments" ? (o(), x(zv, {
+                onOpenNodeManager: ft
+              })) : ae.value === "debug-env" ? (o(), x(Am, { key: 6 })) : ae.value === "environments" ? (o(), x(Lv, {
                 key: 7,
                 ref_key: "environmentsSectionRef",
-                ref: V,
+                ref: F,
                 onSwitch: nt,
-                onCreate: go,
-                onDelete: ho
-              }, null, 512)) : le.value === "model-index" ? (o(), x(bu, {
+                onCreate: fo,
+                onDelete: po
+              }, null, 512)) : ae.value === "model-index" ? (o(), x(ku, {
                 key: 8,
-                onRefresh: F
-              })) : le.value === "settings" ? (o(), x(Bm, { key: 9 })) : le.value === "debug-workspace" ? (o(), x(Vm, { key: 10 })) : le.value === "export" ? (o(), x(Vv, { key: 11 })) : le.value === "import" ? (o(), x(gg, { key: 12 })) : le.value === "remotes" ? (o(), x(wm, { key: 13 })) : d("", !0)
+                onRefresh: A
+              })) : ae.value === "settings" ? (o(), x(Um, { key: 9 })) : ae.value === "debug-workspace" ? (o(), x(Pm, { key: 10 })) : ae.value === "export" ? (o(), x(Av, { key: 11 })) : ae.value === "import" ? (o(), x(pg, { key: 12 })) : ae.value === "remotes" ? (o(), x(ym, { key: 13 })) : u("", !0)
             ], 64))
           ])
         ]),
-        O.value ? (o(), x(Dg, {
+        V.value ? (o(), x(Rg, {
           key: 0,
-          commit: O.value,
-          onClose: I[21] || (I[21] = (ce) => O.value = null),
-          onCheckout: te,
-          onCreateBranch: Xe
-        }, null, 8, ["commit"])) : d("", !0),
-        we.value ? (o(), x(Bg, {
+          commit: V.value,
+          onClose: I[21] || (I[21] = (ce) => V.value = null),
+          onCheckout: ee,
+          onCreateBranch: Ze
+        }, null, 8, ["commit"])) : u("", !0),
+        we.value ? (o(), x(Pg, {
           key: 1,
           title: we.value.title,
           message: we.value.message,
@@ -10651,60 +10650,60 @@ const ah = { class: "comfygit-panel" }, lh = { class: "panel-header" }, ih = { c
           onConfirm: we.value.onConfirm,
           onCancel: I[22] || (I[22] = (ce) => we.value = null),
           onSecondary: we.value.onSecondary
-        }, null, 8, ["title", "message", "details", "warning", "confirmLabel", "cancelLabel", "secondaryLabel", "secondaryAction", "destructive", "onConfirm", "onSecondary"])) : d("", !0),
-        f(Rp, {
+        }, null, 8, ["title", "message", "details", "warning", "confirmLabel", "cancelLabel", "secondaryLabel", "secondaryAction", "destructive", "onConfirm", "onSecondary"])) : u("", !0),
+        g(Np, {
           show: W.value,
-          "from-environment": ((De = K.value) == null ? void 0 : De.name) || "unknown",
-          "to-environment": oe.value,
-          onConfirm: St,
-          onClose: mo
+          "from-environment": ((De = j.value) == null ? void 0 : De.name) || "unknown",
+          "to-environment": le.value,
+          onConfirm: xt,
+          onClose: uo
         }, null, 8, ["show", "from-environment", "to-environment"]),
-        Ke.value && k.value ? (o(), x(no, {
+        Ke.value && _.value ? (o(), x(so, {
           key: 2,
-          status: k.value,
+          status: _.value,
           "as-modal": !0,
           onClose: I[23] || (I[23] = (ce) => Ke.value = !1),
-          onCommitted: vo
-        }, null, 8, ["status"])) : d("", !0),
-        Fe.value && k.value ? (o(), x(sh, {
+          onCommitted: mo
+        }, null, 8, ["status"])) : u("", !0),
+        Ae.value && _.value ? (o(), x(nh, {
           key: 3,
-          show: Fe.value,
+          show: Ae.value,
           "mismatch-details": {
-            missing_nodes: k.value.comparison.missing_nodes,
-            extra_nodes: k.value.comparison.extra_nodes
+            missing_nodes: _.value.comparison.missing_nodes,
+            extra_nodes: _.value.comparison.extra_nodes
           },
-          onConfirm: fo,
-          onClose: I[24] || (I[24] = (ce) => Fe.value = !1)
-        }, null, 8, ["show", "mismatch-details"])) : d("", !0),
-        f(Kp, {
-          show: X.value,
-          state: E.value.state,
-          progress: E.value.progress,
-          message: E.value.message
+          onConfirm: vo,
+          onClose: I[24] || (I[24] = (ce) => Ae.value = !1)
+        }, null, 8, ["show", "mismatch-details"])) : u("", !0),
+        g(Jp, {
+          show: Y.value,
+          state: G.value.state,
+          progress: G.value.progress,
+          message: G.value.message
         }, null, 8, ["show", "state", "progress", "message"]),
-        U.value ? (o(), s("div", bh, [
-          e("div", _h, [
+        R.value ? (o(), s("div", _h, [
+          e("div", $h, [
             I[39] || (I[39] = e("div", { class: "dialog-header" }, [
               e("h3", { class: "dialog-title" }, "CREATING ENVIRONMENT")
             ], -1)),
-            e("div", $h, [
+            e("div", Ch, [
               I[37] || (I[37] = e("div", { class: "create-progress-spinner" }, null, -1)),
-              e("p", Ch, a(ae.value.message), 1),
+              e("p", xh, a(ne.value.message), 1),
               I[38] || (I[38] = e("p", { class: "create-progress-hint" }, "This may take several minutes...", -1))
             ])
           ])
-        ])) : d("", !0),
-        z.value ? (o(), s("div", {
+        ])) : u("", !0),
+        M.value ? (o(), s("div", {
           key: 5,
           class: "dialog-overlay",
-          onClick: I[26] || (I[26] = ke((ce) => z.value = !1, ["self"]))
+          onClick: I[26] || (I[26] = ke((ce) => M.value = !1, ["self"]))
         }, [
-          e("div", xh, [
-            e("div", Sh, [
+          e("div", Sh, [
+            e("div", Ih, [
               I[41] || (I[41] = e("h3", { class: "dialog-title" }, "SWITCH ENVIRONMENT", -1)),
               e("button", {
                 class: "icon-btn",
-                onClick: I[25] || (I[25] = (ce) => z.value = !1)
+                onClick: I[25] || (I[25] = (ce) => M.value = !1)
               }, [...I[40] || (I[40] = [
                 e("svg", {
                   width: "16",
@@ -10716,41 +10715,41 @@ const ah = { class: "comfygit-panel" }, lh = { class: "panel-header" }, ih = { c
                 ], -1)
               ])])
             ]),
-            e("div", Ih, [
+            e("div", Eh, [
               I[42] || (I[42] = e("p", { class: "dialog-message" }, "Select environment to switch to:", -1)),
-              e("div", Eh, [
-                (o(!0), s(H, null, se(j.value, (ce) => (o(), s("div", {
+              e("div", Mh, [
+                (o(!0), s(H, null, oe(U.value, (ce) => (o(), s("div", {
                   key: ce.name,
-                  class: ne(["env-item", { current: ce.is_current }])
+                  class: se(["env-item", { current: ce.is_current }])
                 }, [
-                  e("div", Mh, [
-                    e("div", zh, [
-                      e("span", Lh, a(ce.is_current ? "●" : "○"), 1),
-                      e("span", Th, a(ce.name), 1),
-                      ce.current_branch ? (o(), s("span", Dh, "(" + a(ce.current_branch) + ")", 1)) : d("", !0),
-                      ce.is_current ? (o(), s("span", Rh, "CURRENT")) : d("", !0)
+                  e("div", zh, [
+                    e("div", Lh, [
+                      e("span", Th, a(ce.is_current ? "●" : "○"), 1),
+                      e("span", Dh, a(ce.name), 1),
+                      ce.current_branch ? (o(), s("span", Rh, "(" + a(ce.current_branch) + ")", 1)) : u("", !0),
+                      ce.is_current ? (o(), s("span", Nh, "CURRENT")) : u("", !0)
                     ]),
-                    e("div", Nh, a(ce.workflow_count) + " workflows • " + a(ce.node_count) + " nodes ", 1)
+                    e("div", Oh, a(ce.workflow_count) + " workflows • " + a(ce.node_count) + " nodes ", 1)
                   ]),
-                  ce.is_current ? d("", !0) : (o(), s("button", {
+                  ce.is_current ? u("", !0) : (o(), s("button", {
                     key: 0,
                     class: "switch-btn",
-                    onClick: (q1) => nt(ce.name)
+                    onClick: (K1) => nt(ce.name)
                   }, " SWITCH ", 8, Uh))
                 ], 2))), 128))
               ])
             ])
           ])
-        ])) : d("", !0),
-        e("div", Oh, [
-          f($o, { name: "toast" }, {
-            default: l(() => [
-              (o(!0), s(H, null, se(Oe.value, (ce) => (o(), s("div", {
+        ])) : u("", !0),
+        e("div", Bh, [
+          g(_o, { name: "toast" }, {
+            default: i(() => [
+              (o(!0), s(H, null, oe(Ue.value, (ce) => (o(), s("div", {
                 key: ce.id,
-                class: ne(["toast", ce.type])
+                class: se(["toast", ce.type])
               }, [
-                e("span", Bh, a(J(ce.type)), 1),
-                e("span", Ph, a(ce.message), 1)
+                e("span", Ph, a(K(ce.type)), 1),
+                e("span", Vh, a(ce.message), 1)
               ], 2))), 128))
             ]),
             _: 1
@@ -10759,31 +10758,31 @@ const ah = { class: "comfygit-panel" }, lh = { class: "panel-header" }, ih = { c
       ]);
     };
   }
-}), Fh = /* @__PURE__ */ Y(Vh, [["__scopeId", "data-v-0bfd7634"]]), Ah = { class: "item-header" }, Wh = { class: "item-info" }, Gh = { class: "filename" }, jh = { class: "metadata" }, Hh = { class: "size" }, qh = {
+}), Fh = /* @__PURE__ */ Q(Ah, [["__scopeId", "data-v-0bfd7634"]]), Wh = { class: "item-header" }, Gh = { class: "item-info" }, jh = { class: "filename" }, Hh = { class: "metadata" }, qh = { class: "size" }, Kh = {
   key: 0,
   class: "type"
-}, Kh = { class: "item-actions" }, Jh = {
+}, Jh = { class: "item-actions" }, Qh = {
   key: 0,
   class: "progress-section"
-}, Qh = { class: "progress-bar" }, Yh = { class: "progress-stats" }, Xh = { class: "downloaded" }, Zh = { class: "speed" }, e1 = {
+}, Yh = { class: "progress-bar" }, Xh = { class: "progress-stats" }, Zh = { class: "downloaded" }, e1 = { class: "speed" }, t1 = {
   key: 0,
   class: "eta"
-}, t1 = {
+}, o1 = {
   key: 1,
   class: "status-msg paused"
-}, o1 = {
+}, s1 = {
   key: 2,
   class: "status-msg queued"
-}, s1 = {
+}, n1 = {
   key: 3,
   class: "status-msg completed"
-}, n1 = {
+}, a1 = {
   key: 4,
   class: "status-msg failed"
-}, a1 = {
+}, l1 = {
   key: 0,
   class: "retries"
-}, l1 = /* @__PURE__ */ Q({
+}, i1 = /* @__PURE__ */ J({
   __name: "DownloadQueueItem",
   props: {
     item: {}
@@ -10793,98 +10792,98 @@ const ah = { class: "comfygit-panel" }, lh = { class: "panel-header" }, ih = { c
     const n = c;
     function r(h) {
       if (h === 0) return "?";
-      const v = h / (1024 * 1024 * 1024);
-      return v >= 1 ? `${v.toFixed(2)} GB` : `${(h / (1024 * 1024)).toFixed(1)} MB`;
+      const m = h / (1024 * 1024 * 1024);
+      return m >= 1 ? `${m.toFixed(2)} GB` : `${(h / (1024 * 1024)).toFixed(1)} MB`;
     }
     function p(h) {
       return h === 0 ? "-" : `${(h / (1024 * 1024)).toFixed(1)} MB/s`;
     }
-    function g(h) {
+    function f(h) {
       if (h < 60) return `${Math.round(h)}s`;
-      const v = Math.floor(h / 60);
-      return v < 60 ? `${v}m` : `${Math.floor(v / 60)}h ${v % 60}m`;
+      const m = Math.floor(h / 60);
+      return m < 60 ? `${m}m` : `${Math.floor(m / 60)}h ${m % 60}m`;
     }
-    return (h, v) => (o(), s("div", {
-      class: ne(["download-item", `status-${t.item.status}`])
+    return (h, m) => (o(), s("div", {
+      class: se(["download-item", `status-${t.item.status}`])
     }, [
-      e("div", Ah, [
-        e("div", Wh, [
-          e("div", Gh, a(t.item.filename), 1),
-          e("div", jh, [
-            e("span", Hh, a(r(t.item.size)), 1),
-            t.item.type ? (o(), s("span", qh, a(t.item.type), 1)) : d("", !0)
+      e("div", Wh, [
+        e("div", Gh, [
+          e("div", jh, a(t.item.filename), 1),
+          e("div", Hh, [
+            e("span", qh, a(r(t.item.size)), 1),
+            t.item.type ? (o(), s("span", Kh, a(t.item.type), 1)) : u("", !0)
           ])
         ]),
-        e("div", Kh, [
+        e("div", Jh, [
           t.item.status === "queued" || t.item.status === "downloading" ? (o(), s("button", {
             key: 0,
             class: "action-icon cancel",
-            onClick: v[0] || (v[0] = (i) => n("cancel")),
+            onClick: m[0] || (m[0] = (l) => n("cancel")),
             title: "Cancel"
-          }, " × ")) : d("", !0),
+          }, " × ")) : u("", !0),
           t.item.status === "paused" ? (o(), s("button", {
             key: 1,
             class: "action-icon resume",
-            onClick: v[1] || (v[1] = (i) => n("resume")),
+            onClick: m[1] || (m[1] = (l) => n("resume")),
             title: "Resume"
-          }, " ▶ ")) : d("", !0),
+          }, " ▶ ")) : u("", !0),
           t.item.status === "failed" ? (o(), s("button", {
             key: 2,
             class: "action-icon retry",
-            onClick: v[2] || (v[2] = (i) => n("retry")),
+            onClick: m[2] || (m[2] = (l) => n("retry")),
             title: "Retry"
-          }, " ↻ ")) : d("", !0),
+          }, " ↻ ")) : u("", !0),
           t.item.status === "completed" || t.item.status === "failed" || t.item.status === "paused" ? (o(), s("button", {
             key: 3,
             class: "action-icon remove",
-            onClick: v[3] || (v[3] = (i) => n("remove")),
+            onClick: m[3] || (m[3] = (l) => n("remove")),
             title: "Remove"
-          }, " × ")) : d("", !0)
+          }, " × ")) : u("", !0)
         ])
       ]),
-      t.item.status === "downloading" ? (o(), s("div", Jh, [
-        e("div", Qh, [
+      t.item.status === "downloading" ? (o(), s("div", Qh, [
+        e("div", Yh, [
           e("div", {
             class: "progress-fill",
             style: Qe({ width: `${t.item.progress}%` })
           }, null, 4)
         ]),
-        e("div", Yh, [
-          e("span", Xh, a(r(t.item.downloaded)) + " / " + a(r(t.item.size)), 1),
-          e("span", Zh, a(p(t.item.speed)), 1),
-          t.item.eta > 0 ? (o(), s("span", e1, a(g(t.item.eta)), 1)) : d("", !0)
+        e("div", Xh, [
+          e("span", Zh, a(r(t.item.downloaded)) + " / " + a(r(t.item.size)), 1),
+          e("span", e1, a(p(t.item.speed)), 1),
+          t.item.eta > 0 ? (o(), s("span", t1, a(f(t.item.eta)), 1)) : u("", !0)
         ])
-      ])) : t.item.status === "paused" ? (o(), s("div", t1, " Paused - click Resume to download ")) : t.item.status === "queued" ? (o(), s("div", o1, " Waiting in queue... ")) : t.item.status === "completed" ? (o(), s("div", s1, " ✓ Downloaded ")) : t.item.status === "failed" ? (o(), s("div", n1, [
+      ])) : t.item.status === "paused" ? (o(), s("div", o1, " Paused - click Resume to download ")) : t.item.status === "queued" ? (o(), s("div", s1, " Waiting in queue... ")) : t.item.status === "completed" ? (o(), s("div", n1, " ✓ Downloaded ")) : t.item.status === "failed" ? (o(), s("div", a1, [
         y(" ✗ " + a(t.item.error || "Failed") + " ", 1),
-        t.item.retries > 0 ? (o(), s("span", a1, "(" + a(t.item.retries) + " retries)", 1)) : d("", !0)
-      ])) : d("", !0)
+        t.item.retries > 0 ? (o(), s("span", l1, "(" + a(t.item.retries) + " retries)", 1)) : u("", !0)
+      ])) : u("", !0)
     ], 2));
   }
-}), ht = /* @__PURE__ */ Y(l1, [["__scopeId", "data-v-2110df65"]]), i1 = { class: "queue-title" }, r1 = { class: "count" }, d1 = { class: "queue-actions" }, c1 = { class: "action-label" }, u1 = {
+}), yt = /* @__PURE__ */ Q(i1, [["__scopeId", "data-v-2110df65"]]), r1 = { class: "queue-title" }, d1 = { class: "count" }, c1 = { class: "queue-actions" }, u1 = { class: "action-label" }, m1 = {
   key: 0,
   class: "overall-progress"
-}, m1 = { class: "progress-bar" }, v1 = {
+}, v1 = { class: "progress-bar" }, f1 = {
   key: 0,
   class: "current-mini"
-}, f1 = { class: "filename" }, g1 = { class: "speed" }, p1 = {
+}, g1 = { class: "filename" }, p1 = { class: "speed" }, h1 = {
   key: 1,
   class: "queue-content"
-}, h1 = {
+}, y1 = {
   key: 0,
   class: "section"
-}, y1 = {
+}, w1 = {
   key: 1,
   class: "section"
-}, w1 = { class: "section-header" }, k1 = { class: "section-label paused" }, b1 = { class: "items-list" }, _1 = {
+}, k1 = { class: "section-header" }, b1 = { class: "section-label paused" }, _1 = { class: "items-list" }, $1 = {
   key: 2,
   class: "section"
-}, $1 = { class: "section-header" }, C1 = { class: "section-label" }, x1 = { class: "items-list" }, S1 = {
+}, C1 = { class: "section-header" }, x1 = { class: "section-label" }, S1 = { class: "items-list" }, I1 = {
   key: 3,
   class: "section"
-}, I1 = { class: "section-header" }, E1 = { class: "section-label" }, M1 = { class: "items-list" }, z1 = {
+}, E1 = { class: "section-header" }, M1 = { class: "section-label" }, z1 = { class: "items-list" }, L1 = {
   key: 4,
   class: "section"
-}, L1 = { class: "section-header" }, T1 = { class: "section-label failed" }, D1 = { class: "items-list" }, R1 = /* @__PURE__ */ Q({
+}, T1 = { class: "section-header" }, D1 = { class: "section-label failed" }, R1 = { class: "items-list" }, N1 = /* @__PURE__ */ J({
   __name: "ModelDownloadQueue",
   setup(t) {
     const {
@@ -10892,207 +10891,207 @@ const ah = { class: "comfygit-panel" }, lh = { class: "panel-header" }, ih = { c
       currentDownload: n,
       queuedItems: r,
       completedItems: p,
-      failedItems: g,
+      failedItems: f,
       pausedItems: h,
-      hasItems: v,
-      activeCount: i,
-      cancelDownload: m,
+      hasItems: m,
+      activeCount: l,
+      cancelDownload: v,
       retryDownload: $,
-      resumeDownload: u,
-      resumeAllPaused: M,
+      resumeDownload: d,
+      resumeAllPaused: E,
       removeItem: C,
-      clearCompleted: L
-    } = xt(), w = b(!1);
-    let _ = null;
+      clearCompleted: z
+    } = Ct(), w = b(!1);
+    let k = null;
     Bt(
       () => ({
-        active: i.value,
-        failed: g.value.length,
+        active: l.value,
+        failed: f.value.length,
         paused: h.value.length,
         completed: p.value.length
       }),
-      (j, K) => {
-        _ && (clearTimeout(_), _ = null);
-        const P = j.active === 0 && j.failed === 0 && j.paused === 0 && j.completed > 0, T = K && (K.active > 0 || K.paused > 0);
-        P && T && (_ = setTimeout(() => {
-          L(), _ = null;
+      (U, j) => {
+        k && (clearTimeout(k), k = null);
+        const P = U.active === 0 && U.failed === 0 && U.paused === 0 && U.completed > 0, L = j && (j.active > 0 || j.paused > 0);
+        P && L && (k = setTimeout(() => {
+          z(), k = null;
         }, 2e3));
       },
       { deep: !0 }
     );
-    const k = B(() => {
+    const _ = B(() => {
       var P;
       if (c.items.length === 0) return 0;
-      const j = p.value.length, K = ((P = n.value) == null ? void 0 : P.progress) || 0;
-      return Math.round((j + K / 100) / c.items.length * 100);
+      const U = p.value.length, j = ((P = n.value) == null ? void 0 : P.progress) || 0;
+      return Math.round((U + j / 100) / c.items.length * 100);
     });
-    function R(j) {
-      m(j);
+    function T(U) {
+      v(U);
     }
-    function A(j) {
-      return j === 0 ? "" : `${(j / (1024 * 1024)).toFixed(1)} MB/s`;
+    function N(U) {
+      return U === 0 ? "" : `${(U / (1024 * 1024)).toFixed(1)} MB/s`;
     }
-    return (j, K) => (o(), x(xe, { to: "body" }, [
-      me(v) ? (o(), s("div", {
+    return (U, j) => (o(), x(Se, { to: "body" }, [
+      me(m) ? (o(), s("div", {
         key: 0,
-        class: ne(["model-download-queue", { minimized: !w.value }])
+        class: se(["model-download-queue", { minimized: !w.value }])
       }, [
         e("div", {
           class: "queue-header",
-          onClick: K[0] || (K[0] = (P) => w.value = !w.value)
+          onClick: j[0] || (j[0] = (P) => w.value = !w.value)
         }, [
-          e("div", i1, [
-            K[4] || (K[4] = e("span", { class: "icon" }, "↓", -1)),
-            K[5] || (K[5] = e("span", { class: "title" }, "Downloads", -1)),
-            e("span", r1, "(" + a(me(i)) + "/" + a(me(c).items.length) + ")", 1)
+          e("div", r1, [
+            j[4] || (j[4] = e("span", { class: "icon" }, "↓", -1)),
+            j[5] || (j[5] = e("span", { class: "title" }, "Downloads", -1)),
+            e("span", d1, "(" + a(me(l)) + "/" + a(me(c).items.length) + ")", 1)
           ]),
-          e("div", d1, [
-            e("span", c1, a(w.value ? "minimize" : "expand"), 1)
+          e("div", c1, [
+            e("span", u1, a(w.value ? "minimize" : "expand"), 1)
           ])
         ]),
-        w.value ? (o(), s("div", p1, [
-          me(n) ? (o(), s("div", h1, [
-            K[6] || (K[6] = e("div", { class: "section-label" }, "Downloading", -1)),
-            f(ht, {
+        w.value ? (o(), s("div", h1, [
+          me(n) ? (o(), s("div", y1, [
+            j[6] || (j[6] = e("div", { class: "section-label" }, "Downloading", -1)),
+            g(yt, {
               item: me(n),
-              onCancel: K[1] || (K[1] = (P) => R(me(n).id))
+              onCancel: j[1] || (j[1] = (P) => T(me(n).id))
             }, null, 8, ["item"])
-          ])) : d("", !0),
-          me(h).length > 0 ? (o(), s("div", y1, [
-            e("div", w1, [
-              e("span", k1, "Paused (" + a(me(h).length) + ")", 1),
+          ])) : u("", !0),
+          me(h).length > 0 ? (o(), s("div", w1, [
+            e("div", k1, [
+              e("span", b1, "Paused (" + a(me(h).length) + ")", 1),
               e("button", {
                 class: "resume-all-btn",
-                onClick: K[2] || (K[2] = //@ts-ignore
-                (...P) => me(M) && me(M)(...P))
+                onClick: j[2] || (j[2] = //@ts-ignore
+                (...P) => me(E) && me(E)(...P))
               }, "Resume All")
             ]),
-            e("div", b1, [
-              (o(!0), s(H, null, se(me(h), (P) => (o(), x(ht, {
+            e("div", _1, [
+              (o(!0), s(H, null, oe(me(h), (P) => (o(), x(yt, {
                 key: P.id,
                 item: P,
-                onResume: (T) => me(u)(P.id),
-                onRemove: (T) => me(C)(P.id)
+                onResume: (L) => me(d)(P.id),
+                onRemove: (L) => me(C)(P.id)
               }, null, 8, ["item", "onResume", "onRemove"]))), 128))
             ])
-          ])) : d("", !0),
-          me(r).length > 0 ? (o(), s("div", _1, [
-            e("div", $1, [
-              e("span", C1, "Queued (" + a(me(r).length) + ")", 1)
+          ])) : u("", !0),
+          me(r).length > 0 ? (o(), s("div", $1, [
+            e("div", C1, [
+              e("span", x1, "Queued (" + a(me(r).length) + ")", 1)
             ]),
-            e("div", x1, [
-              (o(!0), s(H, null, se(me(r), (P) => (o(), x(ht, {
+            e("div", S1, [
+              (o(!0), s(H, null, oe(me(r), (P) => (o(), x(yt, {
                 key: P.id,
                 item: P,
-                onCancel: (T) => R(P.id)
+                onCancel: (L) => T(P.id)
               }, null, 8, ["item", "onCancel"]))), 128))
             ])
-          ])) : d("", !0),
-          me(p).length > 0 ? (o(), s("div", S1, [
-            e("div", I1, [
-              e("span", E1, "Completed (" + a(me(p).length) + ")", 1),
+          ])) : u("", !0),
+          me(p).length > 0 ? (o(), s("div", I1, [
+            e("div", E1, [
+              e("span", M1, "Completed (" + a(me(p).length) + ")", 1),
               e("button", {
                 class: "clear-btn",
-                onClick: K[3] || (K[3] = //@ts-ignore
-                (...P) => me(L) && me(L)(...P))
+                onClick: j[3] || (j[3] = //@ts-ignore
+                (...P) => me(z) && me(z)(...P))
               }, "Clear")
             ]),
-            e("div", M1, [
-              (o(!0), s(H, null, se(me(p).slice(0, 3), (P) => (o(), x(ht, {
+            e("div", z1, [
+              (o(!0), s(H, null, oe(me(p).slice(0, 3), (P) => (o(), x(yt, {
                 key: P.id,
                 item: P,
-                onRemove: (T) => me(C)(P.id)
+                onRemove: (L) => me(C)(P.id)
               }, null, 8, ["item", "onRemove"]))), 128))
             ])
-          ])) : d("", !0),
-          me(g).length > 0 ? (o(), s("div", z1, [
-            e("div", L1, [
-              e("span", T1, "Failed (" + a(me(g).length) + ")", 1)
+          ])) : u("", !0),
+          me(f).length > 0 ? (o(), s("div", L1, [
+            e("div", T1, [
+              e("span", D1, "Failed (" + a(me(f).length) + ")", 1)
             ]),
-            e("div", D1, [
-              (o(!0), s(H, null, se(me(g), (P) => (o(), x(ht, {
+            e("div", R1, [
+              (o(!0), s(H, null, oe(me(f), (P) => (o(), x(yt, {
                 key: P.id,
                 item: P,
-                onRetry: (T) => me($)(P.id),
-                onRemove: (T) => me(C)(P.id)
+                onRetry: (L) => me($)(P.id),
+                onRemove: (L) => me(C)(P.id)
               }, null, 8, ["item", "onRetry", "onRemove"]))), 128))
             ])
-          ])) : d("", !0)
-        ])) : (o(), s("div", u1, [
-          e("div", m1, [
+          ])) : u("", !0)
+        ])) : (o(), s("div", m1, [
+          e("div", v1, [
             e("div", {
               class: "progress-fill",
-              style: Qe({ width: `${k.value}%` })
+              style: Qe({ width: `${_.value}%` })
             }, null, 4)
           ]),
-          me(n) ? (o(), s("div", v1, [
-            e("span", f1, a(me(n).filename), 1),
-            e("span", g1, a(A(me(n).speed)), 1)
-          ])) : d("", !0)
+          me(n) ? (o(), s("div", f1, [
+            e("span", g1, a(me(n).filename), 1),
+            e("span", p1, a(N(me(n).speed)), 1)
+          ])) : u("", !0)
         ]))
-      ], 2)) : d("", !0)
+      ], 2)) : u("", !0)
     ]));
   }
-}), N1 = /* @__PURE__ */ Y(R1, [["__scopeId", "data-v-60751cfa"]]), U1 = '@import"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap";[data-comfygit-theme=comfy]{--cg-font-display: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;--cg-font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;--cg-font-mono: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, monospace;--cg-font-size-xs: 14.3px;--cg-font-size-sm: 16.9px;--cg-font-size-base: 18.2px;--cg-font-size-lg: 20.8px;--cg-font-size-xl: 23.4px;--cg-font-size-2xl: 26px;--cg-font-weight-normal: 400;--cg-font-weight-medium: 500;--cg-font-weight-semibold: 600;--cg-font-weight-bold: 700;--cg-panel-width: 884px;--cg-space-1: 5.2px;--cg-space-2: 10.4px;--cg-space-3: 15.6px;--cg-space-4: 20.8px;--cg-space-5: 26px;--cg-space-6: 31.2px;--cg-space-8: 41.6px;--cg-space-10: 52px;--cg-space-12: 62.4px;--cg-letter-spacing-normal: 0;--cg-letter-spacing-wide: .025em;--cg-transition-fast: .15s ease;--cg-transition-base: .2s ease;--cg-transition-slow: .3s ease;--cg-color-bg-primary: #2d2e32;--cg-color-bg-secondary: #262729;--cg-color-bg-tertiary: #202121;--cg-color-bg-hover: #3c3d42;--cg-color-bg-overlay: rgba(0, 0, 0, .75);--cg-color-text-primary: #ffffff;--cg-color-text-secondary: #c5c5c5;--cg-color-text-muted: #8a8a8a;--cg-color-text-inverse: #000000;--cg-color-border: #55565e;--cg-color-border-subtle: #3c3d42;--cg-color-border-strong: #828282;--cg-color-accent: #31b9f4;--cg-color-accent-hover: #0b8ce9;--cg-color-accent-muted: rgba(49, 185, 244, .15);--cg-color-success: #47e469;--cg-color-success-muted: rgba(71, 228, 105, .15);--cg-color-warning: #fcbf64;--cg-color-warning-muted: rgba(252, 191, 100, .15);--cg-color-error: #dd424e;--cg-color-error-muted: rgba(221, 66, 78, .15);--cg-color-info: #31b9f4;--cg-color-info-muted: rgba(49, 185, 244, .15);--cg-radius-none: 0;--cg-radius-sm: 4px;--cg-radius-md: 6px;--cg-radius-lg: 8px;--cg-radius-xl: 12px;--cg-radius-2xl: 16px;--cg-radius-full: 9999px;--cg-shadow-sm: 0 1px 2px rgba(0, 0, 0, .3);--cg-shadow-md: 0 2px 8px rgba(0, 0, 0, .4);--cg-shadow-lg: 0 4px 16px rgba(0, 0, 0, .5);--cg-shadow-xl: 0 8px 32px rgba(0, 0, 0, .6);--cg-btn-gradient-start: #31b9f4;--cg-btn-gradient-end: #0b8ce9;--cg-btn-shadow-inset: inset 0 1px 0 rgba(255, 255, 255, .1);--cg-decoration-title-prefix: "";--cg-decoration-label-prefix: "";--cg-decoration-label-suffix: "";--cg-decoration-status-animation: none;--cg-decoration-status-shape: circle;--cg-shadow-accent: rgba(49, 185, 244, .3);--cg-shadow-accent-strong: rgba(49, 185, 244, .5);--cg-shadow-error: rgba(221, 66, 78, .3);--cg-shadow-success: rgba(71, 228, 105, .3);--cg-text-shadow-title: none;--cg-text-shadow-accent: none}[data-comfygit-theme=comfy] .comfygit-panel{box-shadow:var(--cg-shadow-lg);border:1px solid var(--cg-color-border-subtle)}[data-comfygit-theme=comfy] .sidebar{background:var(--cg-color-bg-secondary);border-right:1px solid var(--cg-color-border-subtle)}[data-comfygit-theme=comfy] .sidebar-item{border-radius:var(--cg-radius-md);transition:background var(--cg-transition-fast),color var(--cg-transition-fast)}[data-comfygit-theme=comfy] .sidebar-item:hover{background:var(--cg-color-bg-hover)}[data-comfygit-theme=comfy] .sidebar-item.active{background:var(--cg-color-accent-muted);color:var(--cg-color-accent);font-weight:var(--cg-font-weight-medium)}[data-comfygit-theme=comfy] button{border-radius:var(--cg-radius-md)}[data-comfygit-theme=comfy] .icon-btn{border-radius:var(--cg-radius-md);transition:all var(--cg-transition-fast)}[data-comfygit-theme=comfy] .icon-btn:hover{background:var(--cg-color-bg-hover)}[data-comfygit-theme=comfy] .status-grid{border-radius:var(--cg-radius-lg);box-shadow:var(--cg-shadow-sm)}[data-comfygit-theme=comfy] .issue-card{border-radius:var(--cg-radius-lg);box-shadow:var(--cg-shadow-sm);transition:all var(--cg-transition-fast)}[data-comfygit-theme=comfy] .issue-card:hover{box-shadow:var(--cg-shadow-md)}[data-comfygit-theme=comfy] .issue-card--warning,[data-comfygit-theme=comfy] .issue-card--error,[data-comfygit-theme=comfy] .issue-card--info{border-left-width:4px}[data-comfygit-theme=comfy] .branch-indicator{border-radius:var(--cg-radius-md)}[data-comfygit-theme=comfy] .branch-indicator__name{font-weight:var(--cg-font-weight-semibold)}[data-comfygit-theme=comfy] .commit-list{border-radius:var(--cg-radius-md)}[data-comfygit-theme=comfy] .commit-item{transition:all var(--cg-transition-fast)}[data-comfygit-theme=comfy] .commit-item:hover{background:var(--cg-color-bg-hover)}[data-comfygit-theme=comfy] .branch-item,[data-comfygit-theme=comfy] .branch-list-item{border-radius:var(--cg-radius-md);transition:all var(--cg-transition-fast)}[data-comfygit-theme=comfy] .branch-item:hover,[data-comfygit-theme=comfy] .branch-list-item:hover{background:var(--cg-color-bg-hover)}[data-comfygit-theme=comfy] .branch-list{border-radius:var(--cg-radius-md);overflow:hidden}[data-comfygit-theme=comfy] .branch-create-form,[data-comfygit-theme=comfy] .create-form{border-radius:var(--cg-radius-md);box-shadow:var(--cg-shadow-sm)}[data-comfygit-theme=comfy] .text-input{border-radius:var(--cg-radius-md)}[data-comfygit-theme=comfy] input[type=text],[data-comfygit-theme=comfy] textarea{border-radius:var(--cg-radius-md);border:1px solid var(--cg-color-border);transition:border-color var(--cg-transition-fast),box-shadow var(--cg-transition-fast)}[data-comfygit-theme=comfy] input[type=text]:focus,[data-comfygit-theme=comfy] textarea:focus{border-color:var(--cg-color-accent);box-shadow:0 0 0 3px var(--cg-color-accent-muted)}[data-comfygit-theme=comfy] .dialog-content{border-radius:var(--cg-radius-xl);box-shadow:var(--cg-shadow-xl);border:1px solid var(--cg-color-border-subtle)}[data-comfygit-theme=comfy] .status-badge{border-radius:var(--cg-radius-sm);font-size:var(--cg-font-size-xs);font-weight:var(--cg-font-weight-medium);padding:2px 8px}[data-comfygit-theme=comfy] .warning-box{border-radius:var(--cg-radius-md);border-left:4px solid var(--cg-color-warning);background:var(--cg-color-warning-muted)}[data-comfygit-theme=comfy] .env-switcher-btn{border-radius:var(--cg-radius-md);transition:all var(--cg-transition-fast)}[data-comfygit-theme=comfy] .env-switcher-btn:hover{background:var(--cg-color-bg-hover);transform:translateY(-1px);box-shadow:var(--cg-shadow-sm)}[data-comfygit-theme=comfy] .section-title{font-weight:var(--cg-font-weight-semibold);letter-spacing:var(--cg-letter-spacing-wide);color:var(--cg-color-text-secondary)}[data-comfygit-theme=comfy] .commit-hash,[data-comfygit-theme=comfy] .branch-name-mono,[data-comfygit-theme=comfy] .file-path{font-family:var(--cg-font-mono)}[data-comfygit-theme=comfy] .settings-section{border-radius:var(--cg-radius-md);background:var(--cg-color-bg-secondary)}[data-comfygit-theme=comfy] .setting-row{transition:background var(--cg-transition-fast)}[data-comfygit-theme=comfy] .setting-row:hover{background:var(--cg-color-bg-hover)}[data-comfygit-theme=comfy] .toggle-slider{border-radius:var(--cg-radius-full)}[data-comfygit-theme=comfy] .commit-hash{color:var(--cg-color-accent);font-weight:var(--cg-font-weight-medium)}[data-comfygit-theme=comfy] .status-dot.success{background:var(--cg-color-success)}[data-comfygit-theme=comfy] .status-dot.warning{background:var(--cg-color-warning)}[data-comfygit-theme=comfy] .status-dot.error{background:var(--cg-color-error)}[data-comfygit-theme=comfy] ::-webkit-scrollbar{width:8px;height:8px}[data-comfygit-theme=comfy] ::-webkit-scrollbar-track{background:var(--cg-color-bg-secondary)}[data-comfygit-theme=comfy] ::-webkit-scrollbar-thumb{background:var(--cg-color-border);border-radius:var(--cg-radius-sm)}[data-comfygit-theme=comfy] ::-webkit-scrollbar-thumb:hover{background:var(--cg-color-border-strong)}[data-comfygit-theme=comfy] .view-title:before,[data-comfygit-theme=comfy] .panel-title:before,[data-comfygit-theme=comfy] .section-title:before{content:""}[data-comfygit-theme=comfy] .status-dot{width:8px;height:8px;border-radius:50%;animation:none}[data-comfygit-theme=comfy] .env-switcher-label{font-weight:var(--cg-font-weight-semibold)}[data-comfygit-theme=comfy] .panel-title,[data-comfygit-theme=comfy] .view-title{text-shadow:none}[data-comfygit-theme=comfy] .log-level{border-radius:var(--cg-radius-sm);font-weight:var(--cg-font-weight-semibold)}[data-comfygit-theme=comfy] .log-item{border-radius:var(--cg-radius-md);transition:all var(--cg-transition-fast);margin-bottom:var(--cg-space-1)}[data-comfygit-theme=comfy] .log-item:hover{background:var(--cg-color-bg-hover)}[data-comfygit-theme=comfy] .log-item__context{border-radius:var(--cg-radius-sm);font-weight:var(--cg-font-weight-medium)}[data-comfygit-theme=comfy] .log-filter-bar{border-radius:var(--cg-radius-md);background:var(--cg-color-bg-tertiary);border:1px solid var(--cg-color-border-subtle);margin-bottom:var(--cg-space-3)}[data-comfygit-theme=comfy] .filter-option{border-radius:var(--cg-radius-sm);transition:all var(--cg-transition-fast)}[data-comfygit-theme=comfy] .filter-option:hover{transform:translateY(-1px);box-shadow:var(--cg-shadow-sm)}[data-comfygit-theme=comfy] .filter-option.active{box-shadow:0 0 8px var(--cg-shadow-accent)}[data-comfygit-theme=comfy] .log-list{border-radius:var(--cg-radius-md);overflow:hidden}[data-comfygit-theme=comfy] .remote-form{border-radius:var(--cg-radius-md);box-shadow:var(--cg-shadow-sm)}[data-comfygit-theme=comfy] .remote-url-display{background:var(--cg-color-bg-secondary);padding:var(--cg-space-1) var(--cg-space-2);border-radius:var(--cg-radius-sm)}[data-comfygit-theme=comfy] .default-badge,[data-comfygit-theme=comfy] .copy-btn{border-radius:var(--cg-radius-sm)}[data-comfygit-theme=comfy] .file-path,[data-comfygit-theme=comfy] .export-warning{border-radius:var(--cg-radius-md)}[data-comfygit-theme=comfy] .file-drop-zone{border-radius:var(--cg-radius-lg);transition:all var(--cg-transition-base)}[data-comfygit-theme=comfy] .file-drop-zone.drop-active{transform:scale(1.01)}[data-comfygit-theme=comfy] .file-drop-zone.has-file{border-radius:var(--cg-radius-md)}[data-comfygit-theme=comfy] .import-preview,[data-comfygit-theme=comfy] .import-options{border-radius:var(--cg-radius-lg);box-shadow:var(--cg-shadow-sm)}[data-comfygit-theme=comfy] .option-item{border-radius:var(--cg-radius-md)}[data-comfygit-theme=comfy] .option-item:hover{transform:translate(2px)}[data-comfygit-theme=comfy] .selected-file-bar{border-radius:var(--cg-radius-md);box-shadow:var(--cg-shadow-sm)}[data-comfygit-theme=comfy] .import-help{border-radius:var(--cg-radius-lg);box-shadow:var(--cg-shadow-sm)}[data-comfygit-theme=comfy] .help-number{border-radius:var(--cg-radius-md);box-shadow:var(--cg-shadow-sm)}[data-comfygit-theme=comfy] .progress-bar{border-radius:var(--cg-radius-full);overflow:hidden}[data-comfygit-theme=comfy] .progress-bar-fill{border-radius:var(--cg-radius-full);box-shadow:0 0 8px var(--cg-shadow-accent-strong)}[data-comfygit-theme=comfy] .complete-icon.success{box-shadow:0 0 16px var(--cg-shadow-success)}[data-comfygit-theme=comfy] .complete-icon.error{box-shadow:0 0 16px var(--cg-shadow-error)}', O1 = '@import"https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap";[data-comfygit-theme=phosphor]{--cg-font-display: "IBM Plex Mono", ui-monospace, monospace;--cg-font-body: "IBM Plex Mono", ui-monospace, monospace;--cg-font-mono: "IBM Plex Mono", ui-monospace, monospace;--cg-font-size-xs: 15.6px;--cg-font-size-sm: 18.2px;--cg-font-size-base: 22.1px;--cg-font-size-lg: 26px;--cg-font-size-xl: 31.2px;--cg-font-size-2xl: 36.4px;--cg-panel-width: 980px;--cg-space-1: 5.2px;--cg-space-2: 10.4px;--cg-space-3: 15.6px;--cg-space-4: 20.8px;--cg-space-5: 26px;--cg-space-6: 31.2px;--cg-space-8: 41.6px;--cg-space-10: 52px;--cg-space-12: 62.4px;--cg-letter-spacing-normal: .02em;--cg-letter-spacing-wide: .08em;--cg-color-bg-primary: #0a0a0a;--cg-color-bg-secondary: #050505;--cg-color-bg-tertiary: #000000;--cg-color-bg-hover: #0f1f0f;--cg-color-bg-overlay: rgba(0, 0, 0, .85);--cg-color-text-primary: #00ff41;--cg-color-text-secondary: #00cc33;--cg-color-text-muted: #008f11;--cg-color-text-inverse: #000000;--cg-color-border: #00ff41;--cg-color-border-subtle: #003b00;--cg-color-border-strong: #00ff41;--cg-color-accent: #00ff41;--cg-color-accent-hover: #39ff14;--cg-color-accent-muted: rgba(0, 255, 65, .15);--cg-color-success: #00ff41;--cg-color-success-muted: rgba(0, 255, 65, .2);--cg-color-warning: #ffff00;--cg-color-warning-muted: rgba(255, 255, 0, .15);--cg-color-error: #ff0040;--cg-color-error-muted: rgba(255, 0, 64, .15);--cg-color-info: #00ffff;--cg-color-info-muted: rgba(0, 255, 255, .15);--cg-radius-none: 0;--cg-radius-sm: 0;--cg-radius-md: 0;--cg-radius-lg: 0;--cg-radius-xl: 0;--cg-radius-2xl: 0;--cg-radius-full: 0;--cg-shadow-sm: 0 0 4px rgba(0, 255, 65, .3);--cg-shadow-md: 0 0 8px rgba(0, 255, 65, .4);--cg-shadow-lg: 0 0 16px rgba(0, 255, 65, .5);--cg-shadow-xl: 0 0 32px rgba(0, 255, 65, .6);--cg-btn-gradient-start: #00ff41;--cg-btn-gradient-end: #00cc33;--cg-btn-shadow-inset: none;--cg-decoration-title-prefix: "> ";--cg-decoration-label-prefix: "/* ";--cg-decoration-label-suffix: " */";--cg-decoration-status-animation: cursor-blink 1s step-end infinite;--cg-decoration-status-shape: cursor;--cg-shadow-accent: rgba(0, 255, 65, .3);--cg-shadow-accent-strong: rgba(0, 255, 65, .5);--cg-shadow-error: rgba(255, 0, 64, .3);--cg-shadow-success: rgba(0, 255, 65, .3);--cg-text-shadow-title: 0 0 8px var(--cg-color-accent);--cg-text-shadow-accent: 0 0 8px var(--cg-color-accent)}[data-comfygit-theme=phosphor] .comfygit-panel{position:relative;overflow:hidden}[data-comfygit-theme=phosphor] .comfygit-panel:before{content:"";position:absolute;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.15) 2px,rgba(0,0,0,.15) 3px);pointer-events:none;z-index:100}[data-comfygit-theme=phosphor] .comfygit-panel:after{content:"";position:absolute;top:0;left:0;right:0;bottom:0;background:#00ff4105;pointer-events:none;animation:phosphor-flicker 4s infinite;z-index:99}@keyframes phosphor-flicker{0%,to{opacity:1}50%{opacity:.98}52%{opacity:1}54%{opacity:.96}56%{opacity:1}}[data-comfygit-theme=phosphor] .comfygit-panel{background:var(--cg-color-bg-primary);border:2px solid var(--cg-color-border);box-shadow:var(--cg-shadow-lg),inset 0 0 100px #00ff4108;font-family:var(--cg-font-mono)}[data-comfygit-theme=phosphor] .panel-title{color:var(--cg-color-accent);text-transform:uppercase;letter-spacing:var(--cg-letter-spacing-wide);font-size:var(--cg-font-size-sm);text-shadow:0 0 8px var(--cg-color-accent)}[data-comfygit-theme=phosphor] .panel-title:before{content:var(--cg-decoration-title-prefix);opacity:.7}[data-comfygit-theme=phosphor] .view-title{text-shadow:0 0 8px var(--cg-color-accent)}[data-comfygit-theme=phosphor] .view-title:before{content:var(--cg-decoration-title-prefix);opacity:.7}[data-comfygit-theme=phosphor] .env-name,[data-comfygit-theme=phosphor] .branch-name{color:var(--cg-color-text-secondary);font-size:var(--cg-font-size-xs)}[data-comfygit-theme=phosphor] .branch-name:before{content:"@";margin-right:2px}[data-comfygit-theme=phosphor] .env-switcher-label:before{content:var(--cg-decoration-label-prefix)}[data-comfygit-theme=phosphor] .env-switcher-label:after{content:var(--cg-decoration-label-suffix)}[data-comfygit-theme=phosphor] .group-title:before{content:var(--cg-decoration-label-prefix)}[data-comfygit-theme=phosphor] .group-title:after{content:var(--cg-decoration-label-suffix)}[data-comfygit-theme=phosphor] .status-dot{width:6px;height:12px;border-radius:0;animation:var(--cg-decoration-status-animation)}[data-comfygit-theme=phosphor] .status-dot.success{background:var(--cg-color-success)}[data-comfygit-theme=phosphor] .status-dot.warning{background:var(--cg-color-warning)}[data-comfygit-theme=phosphor] .status-dot.error{background:var(--cg-color-error)}@keyframes cursor-blink{50%{opacity:0}}[data-comfygit-theme=phosphor] .icon-btn{color:var(--cg-color-text-primary);border:1px solid transparent}[data-comfygit-theme=phosphor] .icon-btn:hover{background:var(--cg-color-bg-hover);border-color:var(--cg-color-border-subtle)}[data-comfygit-theme=phosphor] .status-section{margin-bottom:var(--cg-space-4)}[data-comfygit-theme=phosphor] .section-title{color:var(--cg-color-accent);font-size:var(--cg-font-size-xs);text-transform:uppercase;letter-spacing:var(--cg-letter-spacing-wide);text-shadow:0 0 8px var(--cg-color-accent);margin-bottom:var(--cg-space-2)}[data-comfygit-theme=phosphor] .section-title:before{content:"> ";opacity:.7}[data-comfygit-theme=phosphor] .count{font-size:var(--cg-font-size-base)}[data-comfygit-theme=phosphor] .status-grid{background:var(--cg-color-bg-tertiary);border:1px solid var(--cg-color-border-subtle)}[data-comfygit-theme=phosphor] .column-title{color:var(--cg-color-text-muted);font-size:var(--cg-font-size-xs);text-transform:uppercase;letter-spacing:var(--cg-letter-spacing-wider)}[data-comfygit-theme=phosphor] .column-title:before{content:"/* "}[data-comfygit-theme=phosphor] .column-title:after{content:" */"}[data-comfygit-theme=phosphor] .status-item{font-size:var(--cg-font-size-sm)}[data-comfygit-theme=phosphor] .status-item .icon{display:none}[data-comfygit-theme=phosphor] .synced-item:before{content:"└─ "}[data-comfygit-theme=phosphor] .count{font-weight:var(--cg-font-weight-bold)}[data-comfygit-theme=phosphor] .count.new{color:var(--cg-color-success);text-shadow:0 0 4px var(--cg-color-success)}[data-comfygit-theme=phosphor] .count.modified{color:var(--cg-color-warning);text-shadow:0 0 4px var(--cg-color-warning)}[data-comfygit-theme=phosphor] .count.deleted{color:var(--cg-color-error);text-shadow:0 0 4px var(--cg-color-error)}[data-comfygit-theme=phosphor] .count.synced{color:var(--cg-color-text-muted)}[data-comfygit-theme=phosphor] .warning-box{background:transparent;border:1px solid var(--cg-color-warning);color:var(--cg-color-warning);font-size:var(--cg-font-size-sm)}[data-comfygit-theme=phosphor] .warning-box:before{content:"[!] ";font-weight:700}[data-comfygit-theme=phosphor] .warning-box.error{border-color:var(--cg-color-error);color:var(--cg-color-error)}[data-comfygit-theme=phosphor] .issue-card{background:transparent;border:1px solid;box-shadow:var(--cg-shadow-sm);transition:all var(--cg-transition-fast)}[data-comfygit-theme=phosphor] .issue-card:hover{box-shadow:var(--cg-shadow-md)}[data-comfygit-theme=phosphor] .issue-card--warning{border-color:var(--cg-color-warning)}[data-comfygit-theme=phosphor] .issue-card--warning .issue-card__icon,[data-comfygit-theme=phosphor] .issue-card--warning .issue-card__title{text-shadow:0 0 8px var(--cg-color-warning)}[data-comfygit-theme=phosphor] .issue-card--error{border-color:var(--cg-color-error)}[data-comfygit-theme=phosphor] .issue-card--error .issue-card__icon,[data-comfygit-theme=phosphor] .issue-card--error .issue-card__title{text-shadow:0 0 8px var(--cg-color-error)}[data-comfygit-theme=phosphor] .issue-card--info{border-color:var(--cg-color-accent)}[data-comfygit-theme=phosphor] .issue-card--info .issue-card__icon,[data-comfygit-theme=phosphor] .issue-card--info .issue-card__title{text-shadow:0 0 8px var(--cg-color-accent)}[data-comfygit-theme=phosphor] .status-item__icon{display:none}[data-comfygit-theme=phosphor] .status-item:before{content:"├─ ";color:var(--cg-color-border-subtle)}[data-comfygit-theme=phosphor] .status-item.is-separator:before{content:"└─ "}[data-comfygit-theme=phosphor] .status-item__count{font-weight:var(--cg-font-weight-bold)}[data-comfygit-theme=phosphor] .status-item--new .status-item__count{text-shadow:0 0 4px var(--cg-color-success)}[data-comfygit-theme=phosphor] .status-item--modified .status-item__count{text-shadow:0 0 4px var(--cg-color-warning)}[data-comfygit-theme=phosphor] .status-item--deleted .status-item__count{text-shadow:0 0 4px var(--cg-color-error)}[data-comfygit-theme=phosphor] .branch-indicator__label:before{content:"/* ";color:var(--cg-color-text-muted)}[data-comfygit-theme=phosphor] .branch-indicator__label:after{content:" */";color:var(--cg-color-text-muted)}[data-comfygit-theme=phosphor] .branch-indicator__name{font-weight:var(--cg-font-weight-bold);text-shadow:0 0 8px var(--cg-color-accent)}[data-comfygit-theme=phosphor] .branch-indicator__remote{opacity:.7}[data-comfygit-theme=phosphor] .branch-indicator__ahead{text-shadow:0 0 4px var(--cg-color-success)}[data-comfygit-theme=phosphor] .branch-indicator__behind{text-shadow:0 0 4px var(--cg-color-warning)}[data-comfygit-theme=phosphor] .branch-item,[data-comfygit-theme=phosphor] .branch-name{font-size:var(--cg-font-size-base)}[data-comfygit-theme=phosphor] .switch-btn,[data-comfygit-theme=phosphor] .current-label{font-size:var(--cg-font-size-sm)!important;padding:6px 12px!important}[data-comfygit-theme=phosphor] .switch-btn{background:transparent;border:1px solid var(--cg-color-border);color:var(--cg-color-text-primary)}[data-comfygit-theme=phosphor] .switch-btn:hover{border-color:var(--cg-color-accent);color:var(--cg-color-accent);box-shadow:var(--cg-shadow-sm)}[data-comfygit-theme=phosphor] .current-label{color:var(--cg-color-text-muted);border:1px solid var(--cg-color-border-subtle)}[data-comfygit-theme=phosphor] .history-section{font-size:var(--cg-font-size-base)}[data-comfygit-theme=phosphor] .history-title{color:var(--cg-color-text-muted);text-transform:uppercase;letter-spacing:var(--cg-letter-spacing-wide);font-size:var(--cg-font-size-xs)}[data-comfygit-theme=phosphor] .commit-item{background:transparent;border:none;border-left:2px solid var(--cg-color-border-subtle);padding-left:var(--cg-space-3);margin-left:var(--cg-space-2)}[data-comfygit-theme=phosphor] .commit-item:hover{border-left-color:var(--cg-color-accent);background:var(--cg-color-bg-hover)}[data-comfygit-theme=phosphor] .commit-hash{color:var(--cg-color-accent);font-weight:var(--cg-font-weight-bold);font-size:var(--cg-font-size-sm)}[data-comfygit-theme=phosphor] .commit-hash:before{content:"#"}[data-comfygit-theme=phosphor] .commit-message{color:var(--cg-color-text-primary);font-size:var(--cg-font-size-base)}[data-comfygit-theme=phosphor] .commit-date{color:var(--cg-color-text-muted);font-size:var(--cg-font-size-sm)}[data-comfygit-theme=phosphor] .panel-footer{border-top:1px solid var(--cg-color-border);background:var(--cg-color-bg-tertiary)}[data-comfygit-theme=phosphor] .export-btn{background:transparent;color:var(--cg-color-text-primary);border:1px solid var(--cg-color-border);text-transform:uppercase;letter-spacing:var(--cg-letter-spacing-wide);font-size:var(--cg-font-size-xs)}[data-comfygit-theme=phosphor] .export-btn:hover:not(:disabled){background:var(--cg-color-bg-hover);border-color:var(--cg-color-accent);color:var(--cg-color-accent);box-shadow:var(--cg-shadow-sm)}[data-comfygit-theme=phosphor] .commit-popover{background:var(--cg-color-bg-primary);border:2px solid var(--cg-color-border);box-shadow:var(--cg-shadow-lg)}[data-comfygit-theme=phosphor] .commit-input{background:var(--cg-color-bg-tertiary);border:1px solid var(--cg-color-border-subtle);color:var(--cg-color-text-primary);font-family:var(--cg-font-mono)}[data-comfygit-theme=phosphor] .commit-input:focus{border-color:var(--cg-color-accent);box-shadow:var(--cg-shadow-sm);outline:none}[data-comfygit-theme=phosphor] .comfygit-panel-btn{background:var(--cg-color-accent)!important;color:var(--cg-color-bg-primary)!important;border:none!important;text-transform:uppercase;letter-spacing:.1em;font-family:var(--cg-font-mono);font-size:11px;box-shadow:0 0 8px var(--cg-color-accent)!important}[data-comfygit-theme=phosphor] .comfygit-panel-btn:hover{box-shadow:0 0 16px var(--cg-color-accent)!important}[data-comfygit-theme=phosphor] .comfygit-commit-btn{background:var(--cg-color-bg-tertiary)!important;color:var(--cg-color-text-primary)!important;border:1px solid var(--cg-color-border-subtle)!important;font-family:var(--cg-font-mono)}[data-comfygit-theme=phosphor] .comfygit-commit-btn:hover{border-color:var(--cg-color-accent)!important;box-shadow:0 0 8px #00ff414d!important}[data-comfygit-theme=phosphor] .commit-indicator{background:var(--cg-color-warning);box-shadow:0 0 6px var(--cg-color-warning)}[data-comfygit-theme=phosphor] .panel-content::-webkit-scrollbar{width:8px}[data-comfygit-theme=phosphor] .panel-content::-webkit-scrollbar-track{background:var(--cg-color-bg-tertiary)}[data-comfygit-theme=phosphor] .panel-content::-webkit-scrollbar-thumb{background:var(--cg-color-border-subtle);border:1px solid var(--cg-color-bg-tertiary)}[data-comfygit-theme=phosphor] .panel-content::-webkit-scrollbar-thumb:hover{background:var(--cg-color-accent)}[data-comfygit-theme=phosphor] .comfygit-panel ::selection,[data-comfygit-theme=phosphor] .toast ::selection,[data-comfygit-theme=phosphor] .dialog-content ::selection,[data-comfygit-theme=phosphor] .commit-popover ::selection{background:var(--cg-color-accent);color:var(--cg-color-bg-primary)}[data-comfygit-theme=phosphor] .toast{background:var(--cg-color-bg-primary);border:1px solid var(--cg-color-border);font-family:var(--cg-font-mono);box-shadow:var(--cg-shadow-md)}[data-comfygit-theme=phosphor] .toast.info{border-left:3px solid var(--cg-color-info)}[data-comfygit-theme=phosphor] .toast.success{border-left:3px solid var(--cg-color-success)}[data-comfygit-theme=phosphor] .toast.warning{border-left:3px solid var(--cg-color-warning)}[data-comfygit-theme=phosphor] .toast.error{border-left:3px solid var(--cg-color-error)}[data-comfygit-theme=phosphor] .toast-icon{font-family:var(--cg-font-mono)}[data-comfygit-theme=phosphor] .toast-message:before{content:"> ";opacity:.5}[data-comfygit-theme=phosphor] .dialog-content{background:var(--cg-color-bg-primary);border:2px solid var(--cg-color-border);box-shadow:var(--cg-shadow-lg);font-family:var(--cg-font-mono)}[data-comfygit-theme=phosphor] .dialog-title{color:var(--cg-color-accent);text-transform:uppercase;letter-spacing:var(--cg-letter-spacing-wide);font-size:var(--cg-font-size-sm)}[data-comfygit-theme=phosphor] .dialog-title:before{content:"> ";opacity:.7}[data-comfygit-theme=phosphor] .dialog-message{color:var(--cg-color-text-primary)}[data-comfygit-theme=phosphor] .dialog-details{background:var(--cg-color-bg-tertiary);border:1px solid var(--cg-color-border-subtle)}[data-comfygit-theme=phosphor] .dialog-warning{background:transparent;border:1px solid var(--cg-color-warning);color:var(--cg-color-warning)}[data-comfygit-theme=phosphor] .dialog-btn{font-family:var(--cg-font-mono);text-transform:uppercase;letter-spacing:var(--cg-letter-spacing-wide);font-size:var(--cg-font-size-xs)}[data-comfygit-theme=phosphor] .dialog-btn.cancel{background:transparent;border:1px solid var(--cg-color-border);color:var(--cg-color-text-primary)}[data-comfygit-theme=phosphor] .dialog-btn.cancel:hover{border-color:var(--cg-color-accent);color:var(--cg-color-accent)}[data-comfygit-theme=phosphor] .dialog-btn.primary{background:var(--cg-color-accent);color:var(--cg-color-bg-primary);box-shadow:var(--cg-shadow-sm)}[data-comfygit-theme=phosphor] .dialog-btn.primary:hover{box-shadow:var(--cg-shadow-md)}[data-comfygit-theme=phosphor] .dialog-btn.primary.destructive{background:var(--cg-color-error)}[data-comfygit-theme=phosphor] .branch-input{background:var(--cg-color-bg-tertiary);border:1px solid var(--cg-color-border-subtle);color:var(--cg-color-text-primary);font-family:var(--cg-font-mono);font-size:var(--cg-font-size-sm)}[data-comfygit-theme=phosphor] .branch-input:focus{border-color:var(--cg-color-accent);box-shadow:var(--cg-shadow-sm)}[data-comfygit-theme=phosphor] .action-btn{font-family:var(--cg-font-mono);text-transform:uppercase;letter-spacing:var(--cg-letter-spacing-wide);font-size:var(--cg-font-size-xs)}[data-comfygit-theme=phosphor] .action-btn.create{background:var(--cg-color-accent);color:var(--cg-color-bg-primary);box-shadow:var(--cg-shadow-sm)}[data-comfygit-theme=phosphor] .action-btn.create:hover:not(:disabled){box-shadow:var(--cg-shadow-md);transform:none}[data-comfygit-theme=phosphor] .action-btn.cancel{background:transparent;border:1px solid var(--cg-color-border);color:var(--cg-color-text-primary)}[data-comfygit-theme=phosphor] .action-btn.cancel:hover{border-color:var(--cg-color-accent);color:var(--cg-color-accent);background:transparent}[data-comfygit-theme=phosphor] .commit-popover{background:var(--cg-color-bg-primary);border:2px solid var(--cg-color-border);box-shadow:var(--cg-shadow-lg);font-family:var(--cg-font-mono)}[data-comfygit-theme=phosphor] .popover-title{color:var(--cg-color-accent);text-transform:uppercase;letter-spacing:var(--cg-letter-spacing-wide);font-size:var(--cg-font-size-sm)}[data-comfygit-theme=phosphor] .popover-title:before{content:"> ";opacity:.7}[data-comfygit-theme=phosphor] .commit-input{background:var(--cg-color-bg-tertiary);border:1px solid var(--cg-color-border-subtle);color:var(--cg-color-text-primary);font-family:var(--cg-font-mono);font-size:var(--cg-font-size-sm)}[data-comfygit-theme=phosphor] .commit-input:focus{border-color:var(--cg-color-accent);box-shadow:var(--cg-shadow-sm)}[data-comfygit-theme=phosphor] .commit-input::placeholder{color:var(--cg-color-text-muted)}[data-comfygit-theme=phosphor] .changes-summary{background:var(--cg-color-bg-tertiary);border:1px solid var(--cg-color-border-subtle)}[data-comfygit-theme=phosphor] .change-item:before{content:"├─ ";color:var(--cg-color-border-subtle);margin-right:4px}[data-comfygit-theme=phosphor] .cancel-btn{font-family:var(--cg-font-mono);text-transform:uppercase;letter-spacing:var(--cg-letter-spacing-wide);font-size:var(--cg-font-size-xs);background:transparent;border:1px solid var(--cg-color-border);color:var(--cg-color-text-primary)}[data-comfygit-theme=phosphor] .cancel-btn:hover{border-color:var(--cg-color-accent);color:var(--cg-color-accent);background:transparent}[data-comfygit-theme=phosphor] .commit-btn{font-family:var(--cg-font-mono);text-transform:uppercase;letter-spacing:var(--cg-letter-spacing-wide);font-size:var(--cg-font-size-xs);background:var(--cg-color-accent);color:var(--cg-color-bg-primary);box-shadow:var(--cg-shadow-sm)}[data-comfygit-theme=phosphor] .commit-btn:hover:not(:disabled){box-shadow:var(--cg-shadow-md);transform:none}[data-comfygit-theme=phosphor] .result.success{background:transparent;border:1px solid var(--cg-color-success);color:var(--cg-color-success)}[data-comfygit-theme=phosphor] .result.error{background:transparent;border:1px solid var(--cg-color-error);color:var(--cg-color-error)}[data-comfygit-theme=phosphor] .base-modal-content{box-shadow:var(--cg-shadow-xl)}[data-comfygit-theme=phosphor] .base-title.view:before{content:var(--cg-decoration-title-prefix)}[data-comfygit-theme=phosphor] .base-title.section:before{content:var(--cg-decoration-label-prefix)}[data-comfygit-theme=phosphor] .base-title.section:after{content:var(--cg-decoration-label-suffix)}[data-comfygit-theme=phosphor] .base-title.dialog{text-shadow:0 0 8px var(--cg-color-accent)}[data-comfygit-theme=phosphor] .base-btn.primary{background:var(--cg-color-accent);color:var(--cg-color-bg-primary);box-shadow:var(--cg-shadow-sm)}[data-comfygit-theme=phosphor] .base-btn.primary:hover:not(:disabled){box-shadow:var(--cg-shadow-md);transform:none}[data-comfygit-theme=phosphor] .base-btn.secondary{background:transparent;border:1px solid var(--cg-color-border);color:var(--cg-color-text-primary)}[data-comfygit-theme=phosphor] .base-btn.secondary:hover:not(:disabled){border-color:var(--cg-color-accent);color:var(--cg-color-accent);background:transparent}', B1 = {
+}), O1 = /* @__PURE__ */ Q(N1, [["__scopeId", "data-v-60751cfa"]]), U1 = '@import"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap";[data-comfygit-theme=comfy]{--cg-font-display: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;--cg-font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;--cg-font-mono: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, monospace;--cg-font-size-xs: 14.3px;--cg-font-size-sm: 16.9px;--cg-font-size-base: 18.2px;--cg-font-size-lg: 20.8px;--cg-font-size-xl: 23.4px;--cg-font-size-2xl: 26px;--cg-font-weight-normal: 400;--cg-font-weight-medium: 500;--cg-font-weight-semibold: 600;--cg-font-weight-bold: 700;--cg-panel-width: 884px;--cg-space-1: 5.2px;--cg-space-2: 10.4px;--cg-space-3: 15.6px;--cg-space-4: 20.8px;--cg-space-5: 26px;--cg-space-6: 31.2px;--cg-space-8: 41.6px;--cg-space-10: 52px;--cg-space-12: 62.4px;--cg-letter-spacing-normal: 0;--cg-letter-spacing-wide: .025em;--cg-transition-fast: .15s ease;--cg-transition-base: .2s ease;--cg-transition-slow: .3s ease;--cg-color-bg-primary: #2d2e32;--cg-color-bg-secondary: #262729;--cg-color-bg-tertiary: #202121;--cg-color-bg-hover: #3c3d42;--cg-color-bg-overlay: rgba(0, 0, 0, .75);--cg-color-text-primary: #ffffff;--cg-color-text-secondary: #c5c5c5;--cg-color-text-muted: #8a8a8a;--cg-color-text-inverse: #000000;--cg-color-border: #55565e;--cg-color-border-subtle: #3c3d42;--cg-color-border-strong: #828282;--cg-color-accent: #31b9f4;--cg-color-accent-hover: #0b8ce9;--cg-color-accent-muted: rgba(49, 185, 244, .15);--cg-color-success: #47e469;--cg-color-success-muted: rgba(71, 228, 105, .15);--cg-color-warning: #fcbf64;--cg-color-warning-muted: rgba(252, 191, 100, .15);--cg-color-error: #dd424e;--cg-color-error-muted: rgba(221, 66, 78, .15);--cg-color-info: #31b9f4;--cg-color-info-muted: rgba(49, 185, 244, .15);--cg-radius-none: 0;--cg-radius-sm: 4px;--cg-radius-md: 6px;--cg-radius-lg: 8px;--cg-radius-xl: 12px;--cg-radius-2xl: 16px;--cg-radius-full: 9999px;--cg-shadow-sm: 0 1px 2px rgba(0, 0, 0, .3);--cg-shadow-md: 0 2px 8px rgba(0, 0, 0, .4);--cg-shadow-lg: 0 4px 16px rgba(0, 0, 0, .5);--cg-shadow-xl: 0 8px 32px rgba(0, 0, 0, .6);--cg-btn-gradient-start: #31b9f4;--cg-btn-gradient-end: #0b8ce9;--cg-btn-shadow-inset: inset 0 1px 0 rgba(255, 255, 255, .1);--cg-decoration-title-prefix: "";--cg-decoration-label-prefix: "";--cg-decoration-label-suffix: "";--cg-decoration-status-animation: none;--cg-decoration-status-shape: circle;--cg-shadow-accent: rgba(49, 185, 244, .3);--cg-shadow-accent-strong: rgba(49, 185, 244, .5);--cg-shadow-error: rgba(221, 66, 78, .3);--cg-shadow-success: rgba(71, 228, 105, .3);--cg-text-shadow-title: none;--cg-text-shadow-accent: none}[data-comfygit-theme=comfy] .comfygit-panel{box-shadow:var(--cg-shadow-lg);border:1px solid var(--cg-color-border-subtle)}[data-comfygit-theme=comfy] .sidebar{background:var(--cg-color-bg-secondary);border-right:1px solid var(--cg-color-border-subtle)}[data-comfygit-theme=comfy] .sidebar-item{border-radius:var(--cg-radius-md);transition:background var(--cg-transition-fast),color var(--cg-transition-fast)}[data-comfygit-theme=comfy] .sidebar-item:hover{background:var(--cg-color-bg-hover)}[data-comfygit-theme=comfy] .sidebar-item.active{background:var(--cg-color-accent-muted);color:var(--cg-color-accent);font-weight:var(--cg-font-weight-medium)}[data-comfygit-theme=comfy] button{border-radius:var(--cg-radius-md)}[data-comfygit-theme=comfy] .icon-btn{border-radius:var(--cg-radius-md);transition:all var(--cg-transition-fast)}[data-comfygit-theme=comfy] .icon-btn:hover{background:var(--cg-color-bg-hover)}[data-comfygit-theme=comfy] .status-grid{border-radius:var(--cg-radius-lg);box-shadow:var(--cg-shadow-sm)}[data-comfygit-theme=comfy] .issue-card{border-radius:var(--cg-radius-lg);box-shadow:var(--cg-shadow-sm);transition:all var(--cg-transition-fast)}[data-comfygit-theme=comfy] .issue-card:hover{box-shadow:var(--cg-shadow-md)}[data-comfygit-theme=comfy] .issue-card--warning,[data-comfygit-theme=comfy] .issue-card--error,[data-comfygit-theme=comfy] .issue-card--info{border-left-width:4px}[data-comfygit-theme=comfy] .branch-indicator{border-radius:var(--cg-radius-md)}[data-comfygit-theme=comfy] .branch-indicator__name{font-weight:var(--cg-font-weight-semibold)}[data-comfygit-theme=comfy] .commit-list{border-radius:var(--cg-radius-md)}[data-comfygit-theme=comfy] .commit-item{transition:all var(--cg-transition-fast)}[data-comfygit-theme=comfy] .commit-item:hover{background:var(--cg-color-bg-hover)}[data-comfygit-theme=comfy] .branch-item,[data-comfygit-theme=comfy] .branch-list-item{border-radius:var(--cg-radius-md);transition:all var(--cg-transition-fast)}[data-comfygit-theme=comfy] .branch-item:hover,[data-comfygit-theme=comfy] .branch-list-item:hover{background:var(--cg-color-bg-hover)}[data-comfygit-theme=comfy] .branch-list{border-radius:var(--cg-radius-md);overflow:hidden}[data-comfygit-theme=comfy] .branch-create-form,[data-comfygit-theme=comfy] .create-form{border-radius:var(--cg-radius-md);box-shadow:var(--cg-shadow-sm)}[data-comfygit-theme=comfy] .text-input{border-radius:var(--cg-radius-md)}[data-comfygit-theme=comfy] input[type=text],[data-comfygit-theme=comfy] textarea{border-radius:var(--cg-radius-md);border:1px solid var(--cg-color-border);transition:border-color var(--cg-transition-fast),box-shadow var(--cg-transition-fast)}[data-comfygit-theme=comfy] input[type=text]:focus,[data-comfygit-theme=comfy] textarea:focus{border-color:var(--cg-color-accent);box-shadow:0 0 0 3px var(--cg-color-accent-muted)}[data-comfygit-theme=comfy] .dialog-content{border-radius:var(--cg-radius-xl);box-shadow:var(--cg-shadow-xl);border:1px solid var(--cg-color-border-subtle)}[data-comfygit-theme=comfy] .status-badge{border-radius:var(--cg-radius-sm);font-size:var(--cg-font-size-xs);font-weight:var(--cg-font-weight-medium);padding:2px 8px}[data-comfygit-theme=comfy] .warning-box{border-radius:var(--cg-radius-md);border-left:4px solid var(--cg-color-warning);background:var(--cg-color-warning-muted)}[data-comfygit-theme=comfy] .env-switcher-btn{border-radius:var(--cg-radius-md);transition:all var(--cg-transition-fast)}[data-comfygit-theme=comfy] .env-switcher-btn:hover{background:var(--cg-color-bg-hover);transform:translateY(-1px);box-shadow:var(--cg-shadow-sm)}[data-comfygit-theme=comfy] .section-title{font-weight:var(--cg-font-weight-semibold);letter-spacing:var(--cg-letter-spacing-wide);color:var(--cg-color-text-secondary)}[data-comfygit-theme=comfy] .commit-hash,[data-comfygit-theme=comfy] .branch-name-mono,[data-comfygit-theme=comfy] .file-path{font-family:var(--cg-font-mono)}[data-comfygit-theme=comfy] .settings-section{border-radius:var(--cg-radius-md);background:var(--cg-color-bg-secondary)}[data-comfygit-theme=comfy] .setting-row{transition:background var(--cg-transition-fast)}[data-comfygit-theme=comfy] .setting-row:hover{background:var(--cg-color-bg-hover)}[data-comfygit-theme=comfy] .toggle-slider{border-radius:var(--cg-radius-full)}[data-comfygit-theme=comfy] .commit-hash{color:var(--cg-color-accent);font-weight:var(--cg-font-weight-medium)}[data-comfygit-theme=comfy] .status-dot.success{background:var(--cg-color-success)}[data-comfygit-theme=comfy] .status-dot.warning{background:var(--cg-color-warning)}[data-comfygit-theme=comfy] .status-dot.error{background:var(--cg-color-error)}[data-comfygit-theme=comfy] ::-webkit-scrollbar{width:8px;height:8px}[data-comfygit-theme=comfy] ::-webkit-scrollbar-track{background:var(--cg-color-bg-secondary)}[data-comfygit-theme=comfy] ::-webkit-scrollbar-thumb{background:var(--cg-color-border);border-radius:var(--cg-radius-sm)}[data-comfygit-theme=comfy] ::-webkit-scrollbar-thumb:hover{background:var(--cg-color-border-strong)}[data-comfygit-theme=comfy] .view-title:before,[data-comfygit-theme=comfy] .panel-title:before,[data-comfygit-theme=comfy] .section-title:before{content:""}[data-comfygit-theme=comfy] .status-dot{width:8px;height:8px;border-radius:50%;animation:none}[data-comfygit-theme=comfy] .env-switcher-label{font-weight:var(--cg-font-weight-semibold)}[data-comfygit-theme=comfy] .panel-title,[data-comfygit-theme=comfy] .view-title{text-shadow:none}[data-comfygit-theme=comfy] .log-level{border-radius:var(--cg-radius-sm);font-weight:var(--cg-font-weight-semibold)}[data-comfygit-theme=comfy] .log-item{border-radius:var(--cg-radius-md);transition:all var(--cg-transition-fast);margin-bottom:var(--cg-space-1)}[data-comfygit-theme=comfy] .log-item:hover{background:var(--cg-color-bg-hover)}[data-comfygit-theme=comfy] .log-item__context{border-radius:var(--cg-radius-sm);font-weight:var(--cg-font-weight-medium)}[data-comfygit-theme=comfy] .log-filter-bar{border-radius:var(--cg-radius-md);background:var(--cg-color-bg-tertiary);border:1px solid var(--cg-color-border-subtle);margin-bottom:var(--cg-space-3)}[data-comfygit-theme=comfy] .filter-option{border-radius:var(--cg-radius-sm);transition:all var(--cg-transition-fast)}[data-comfygit-theme=comfy] .filter-option:hover{transform:translateY(-1px);box-shadow:var(--cg-shadow-sm)}[data-comfygit-theme=comfy] .filter-option.active{box-shadow:0 0 8px var(--cg-shadow-accent)}[data-comfygit-theme=comfy] .log-list{border-radius:var(--cg-radius-md);overflow:hidden}[data-comfygit-theme=comfy] .remote-form{border-radius:var(--cg-radius-md);box-shadow:var(--cg-shadow-sm)}[data-comfygit-theme=comfy] .remote-url-display{background:var(--cg-color-bg-secondary);padding:var(--cg-space-1) var(--cg-space-2);border-radius:var(--cg-radius-sm)}[data-comfygit-theme=comfy] .default-badge,[data-comfygit-theme=comfy] .copy-btn{border-radius:var(--cg-radius-sm)}[data-comfygit-theme=comfy] .file-path,[data-comfygit-theme=comfy] .export-warning{border-radius:var(--cg-radius-md)}[data-comfygit-theme=comfy] .file-drop-zone{border-radius:var(--cg-radius-lg);transition:all var(--cg-transition-base)}[data-comfygit-theme=comfy] .file-drop-zone.drop-active{transform:scale(1.01)}[data-comfygit-theme=comfy] .file-drop-zone.has-file{border-radius:var(--cg-radius-md)}[data-comfygit-theme=comfy] .import-preview,[data-comfygit-theme=comfy] .import-options{border-radius:var(--cg-radius-lg);box-shadow:var(--cg-shadow-sm)}[data-comfygit-theme=comfy] .option-item{border-radius:var(--cg-radius-md)}[data-comfygit-theme=comfy] .option-item:hover{transform:translate(2px)}[data-comfygit-theme=comfy] .selected-file-bar{border-radius:var(--cg-radius-md);box-shadow:var(--cg-shadow-sm)}[data-comfygit-theme=comfy] .import-help{border-radius:var(--cg-radius-lg);box-shadow:var(--cg-shadow-sm)}[data-comfygit-theme=comfy] .help-number{border-radius:var(--cg-radius-md);box-shadow:var(--cg-shadow-sm)}[data-comfygit-theme=comfy] .progress-bar{border-radius:var(--cg-radius-full);overflow:hidden}[data-comfygit-theme=comfy] .progress-bar-fill{border-radius:var(--cg-radius-full);box-shadow:0 0 8px var(--cg-shadow-accent-strong)}[data-comfygit-theme=comfy] .complete-icon.success{box-shadow:0 0 16px var(--cg-shadow-success)}[data-comfygit-theme=comfy] .complete-icon.error{box-shadow:0 0 16px var(--cg-shadow-error)}', B1 = '@import"https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap";[data-comfygit-theme=phosphor]{--cg-font-display: "IBM Plex Mono", ui-monospace, monospace;--cg-font-body: "IBM Plex Mono", ui-monospace, monospace;--cg-font-mono: "IBM Plex Mono", ui-monospace, monospace;--cg-font-size-xs: 15.6px;--cg-font-size-sm: 18.2px;--cg-font-size-base: 22.1px;--cg-font-size-lg: 26px;--cg-font-size-xl: 31.2px;--cg-font-size-2xl: 36.4px;--cg-panel-width: 980px;--cg-space-1: 5.2px;--cg-space-2: 10.4px;--cg-space-3: 15.6px;--cg-space-4: 20.8px;--cg-space-5: 26px;--cg-space-6: 31.2px;--cg-space-8: 41.6px;--cg-space-10: 52px;--cg-space-12: 62.4px;--cg-letter-spacing-normal: .02em;--cg-letter-spacing-wide: .08em;--cg-color-bg-primary: #0a0a0a;--cg-color-bg-secondary: #050505;--cg-color-bg-tertiary: #000000;--cg-color-bg-hover: #0f1f0f;--cg-color-bg-overlay: rgba(0, 0, 0, .85);--cg-color-text-primary: #00ff41;--cg-color-text-secondary: #00cc33;--cg-color-text-muted: #008f11;--cg-color-text-inverse: #000000;--cg-color-border: #00ff41;--cg-color-border-subtle: #003b00;--cg-color-border-strong: #00ff41;--cg-color-accent: #00ff41;--cg-color-accent-hover: #39ff14;--cg-color-accent-muted: rgba(0, 255, 65, .15);--cg-color-success: #00ff41;--cg-color-success-muted: rgba(0, 255, 65, .2);--cg-color-warning: #ffff00;--cg-color-warning-muted: rgba(255, 255, 0, .15);--cg-color-error: #ff0040;--cg-color-error-muted: rgba(255, 0, 64, .15);--cg-color-info: #00ffff;--cg-color-info-muted: rgba(0, 255, 255, .15);--cg-radius-none: 0;--cg-radius-sm: 0;--cg-radius-md: 0;--cg-radius-lg: 0;--cg-radius-xl: 0;--cg-radius-2xl: 0;--cg-radius-full: 0;--cg-shadow-sm: 0 0 4px rgba(0, 255, 65, .3);--cg-shadow-md: 0 0 8px rgba(0, 255, 65, .4);--cg-shadow-lg: 0 0 16px rgba(0, 255, 65, .5);--cg-shadow-xl: 0 0 32px rgba(0, 255, 65, .6);--cg-btn-gradient-start: #00ff41;--cg-btn-gradient-end: #00cc33;--cg-btn-shadow-inset: none;--cg-decoration-title-prefix: "> ";--cg-decoration-label-prefix: "/* ";--cg-decoration-label-suffix: " */";--cg-decoration-status-animation: cursor-blink 1s step-end infinite;--cg-decoration-status-shape: cursor;--cg-shadow-accent: rgba(0, 255, 65, .3);--cg-shadow-accent-strong: rgba(0, 255, 65, .5);--cg-shadow-error: rgba(255, 0, 64, .3);--cg-shadow-success: rgba(0, 255, 65, .3);--cg-text-shadow-title: 0 0 8px var(--cg-color-accent);--cg-text-shadow-accent: 0 0 8px var(--cg-color-accent)}[data-comfygit-theme=phosphor] .comfygit-panel{position:relative;overflow:hidden}[data-comfygit-theme=phosphor] .comfygit-panel:before{content:"";position:absolute;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.15) 2px,rgba(0,0,0,.15) 3px);pointer-events:none;z-index:100}[data-comfygit-theme=phosphor] .comfygit-panel:after{content:"";position:absolute;top:0;left:0;right:0;bottom:0;background:#00ff4105;pointer-events:none;animation:phosphor-flicker 4s infinite;z-index:99}@keyframes phosphor-flicker{0%,to{opacity:1}50%{opacity:.98}52%{opacity:1}54%{opacity:.96}56%{opacity:1}}[data-comfygit-theme=phosphor] .comfygit-panel{background:var(--cg-color-bg-primary);border:2px solid var(--cg-color-border);box-shadow:var(--cg-shadow-lg),inset 0 0 100px #00ff4108;font-family:var(--cg-font-mono)}[data-comfygit-theme=phosphor] .panel-title{color:var(--cg-color-accent);text-transform:uppercase;letter-spacing:var(--cg-letter-spacing-wide);font-size:var(--cg-font-size-sm);text-shadow:0 0 8px var(--cg-color-accent)}[data-comfygit-theme=phosphor] .panel-title:before{content:var(--cg-decoration-title-prefix);opacity:.7}[data-comfygit-theme=phosphor] .view-title{text-shadow:0 0 8px var(--cg-color-accent)}[data-comfygit-theme=phosphor] .view-title:before{content:var(--cg-decoration-title-prefix);opacity:.7}[data-comfygit-theme=phosphor] .env-name,[data-comfygit-theme=phosphor] .branch-name{color:var(--cg-color-text-secondary);font-size:var(--cg-font-size-xs)}[data-comfygit-theme=phosphor] .branch-name:before{content:"@";margin-right:2px}[data-comfygit-theme=phosphor] .env-switcher-label:before{content:var(--cg-decoration-label-prefix)}[data-comfygit-theme=phosphor] .env-switcher-label:after{content:var(--cg-decoration-label-suffix)}[data-comfygit-theme=phosphor] .group-title:before{content:var(--cg-decoration-label-prefix)}[data-comfygit-theme=phosphor] .group-title:after{content:var(--cg-decoration-label-suffix)}[data-comfygit-theme=phosphor] .status-dot{width:6px;height:12px;border-radius:0;animation:var(--cg-decoration-status-animation)}[data-comfygit-theme=phosphor] .status-dot.success{background:var(--cg-color-success)}[data-comfygit-theme=phosphor] .status-dot.warning{background:var(--cg-color-warning)}[data-comfygit-theme=phosphor] .status-dot.error{background:var(--cg-color-error)}@keyframes cursor-blink{50%{opacity:0}}[data-comfygit-theme=phosphor] .icon-btn{color:var(--cg-color-text-primary);border:1px solid transparent}[data-comfygit-theme=phosphor] .icon-btn:hover{background:var(--cg-color-bg-hover);border-color:var(--cg-color-border-subtle)}[data-comfygit-theme=phosphor] .status-section{margin-bottom:var(--cg-space-4)}[data-comfygit-theme=phosphor] .section-title{color:var(--cg-color-accent);font-size:var(--cg-font-size-xs);text-transform:uppercase;letter-spacing:var(--cg-letter-spacing-wide);text-shadow:0 0 8px var(--cg-color-accent);margin-bottom:var(--cg-space-2)}[data-comfygit-theme=phosphor] .section-title:before{content:"> ";opacity:.7}[data-comfygit-theme=phosphor] .count{font-size:var(--cg-font-size-base)}[data-comfygit-theme=phosphor] .status-grid{background:var(--cg-color-bg-tertiary);border:1px solid var(--cg-color-border-subtle)}[data-comfygit-theme=phosphor] .column-title{color:var(--cg-color-text-muted);font-size:var(--cg-font-size-xs);text-transform:uppercase;letter-spacing:var(--cg-letter-spacing-wider)}[data-comfygit-theme=phosphor] .column-title:before{content:"/* "}[data-comfygit-theme=phosphor] .column-title:after{content:" */"}[data-comfygit-theme=phosphor] .status-item{font-size:var(--cg-font-size-sm)}[data-comfygit-theme=phosphor] .status-item .icon{display:none}[data-comfygit-theme=phosphor] .synced-item:before{content:"└─ "}[data-comfygit-theme=phosphor] .count{font-weight:var(--cg-font-weight-bold)}[data-comfygit-theme=phosphor] .count.new{color:var(--cg-color-success);text-shadow:0 0 4px var(--cg-color-success)}[data-comfygit-theme=phosphor] .count.modified{color:var(--cg-color-warning);text-shadow:0 0 4px var(--cg-color-warning)}[data-comfygit-theme=phosphor] .count.deleted{color:var(--cg-color-error);text-shadow:0 0 4px var(--cg-color-error)}[data-comfygit-theme=phosphor] .count.synced{color:var(--cg-color-text-muted)}[data-comfygit-theme=phosphor] .warning-box{background:transparent;border:1px solid var(--cg-color-warning);color:var(--cg-color-warning);font-size:var(--cg-font-size-sm)}[data-comfygit-theme=phosphor] .warning-box:before{content:"[!] ";font-weight:700}[data-comfygit-theme=phosphor] .warning-box.error{border-color:var(--cg-color-error);color:var(--cg-color-error)}[data-comfygit-theme=phosphor] .issue-card{background:transparent;border:1px solid;box-shadow:var(--cg-shadow-sm);transition:all var(--cg-transition-fast)}[data-comfygit-theme=phosphor] .issue-card:hover{box-shadow:var(--cg-shadow-md)}[data-comfygit-theme=phosphor] .issue-card--warning{border-color:var(--cg-color-warning)}[data-comfygit-theme=phosphor] .issue-card--warning .issue-card__icon,[data-comfygit-theme=phosphor] .issue-card--warning .issue-card__title{text-shadow:0 0 8px var(--cg-color-warning)}[data-comfygit-theme=phosphor] .issue-card--error{border-color:var(--cg-color-error)}[data-comfygit-theme=phosphor] .issue-card--error .issue-card__icon,[data-comfygit-theme=phosphor] .issue-card--error .issue-card__title{text-shadow:0 0 8px var(--cg-color-error)}[data-comfygit-theme=phosphor] .issue-card--info{border-color:var(--cg-color-accent)}[data-comfygit-theme=phosphor] .issue-card--info .issue-card__icon,[data-comfygit-theme=phosphor] .issue-card--info .issue-card__title{text-shadow:0 0 8px var(--cg-color-accent)}[data-comfygit-theme=phosphor] .status-item__icon{display:none}[data-comfygit-theme=phosphor] .status-item:before{content:"├─ ";color:var(--cg-color-border-subtle)}[data-comfygit-theme=phosphor] .status-item.is-separator:before{content:"└─ "}[data-comfygit-theme=phosphor] .status-item__count{font-weight:var(--cg-font-weight-bold)}[data-comfygit-theme=phosphor] .status-item--new .status-item__count{text-shadow:0 0 4px var(--cg-color-success)}[data-comfygit-theme=phosphor] .status-item--modified .status-item__count{text-shadow:0 0 4px var(--cg-color-warning)}[data-comfygit-theme=phosphor] .status-item--deleted .status-item__count{text-shadow:0 0 4px var(--cg-color-error)}[data-comfygit-theme=phosphor] .branch-indicator__label:before{content:"/* ";color:var(--cg-color-text-muted)}[data-comfygit-theme=phosphor] .branch-indicator__label:after{content:" */";color:var(--cg-color-text-muted)}[data-comfygit-theme=phosphor] .branch-indicator__name{font-weight:var(--cg-font-weight-bold);text-shadow:0 0 8px var(--cg-color-accent)}[data-comfygit-theme=phosphor] .branch-indicator__remote{opacity:.7}[data-comfygit-theme=phosphor] .branch-indicator__ahead{text-shadow:0 0 4px var(--cg-color-success)}[data-comfygit-theme=phosphor] .branch-indicator__behind{text-shadow:0 0 4px var(--cg-color-warning)}[data-comfygit-theme=phosphor] .branch-item,[data-comfygit-theme=phosphor] .branch-name{font-size:var(--cg-font-size-base)}[data-comfygit-theme=phosphor] .switch-btn,[data-comfygit-theme=phosphor] .current-label{font-size:var(--cg-font-size-sm)!important;padding:6px 12px!important}[data-comfygit-theme=phosphor] .switch-btn{background:transparent;border:1px solid var(--cg-color-border);color:var(--cg-color-text-primary)}[data-comfygit-theme=phosphor] .switch-btn:hover{border-color:var(--cg-color-accent);color:var(--cg-color-accent);box-shadow:var(--cg-shadow-sm)}[data-comfygit-theme=phosphor] .current-label{color:var(--cg-color-text-muted);border:1px solid var(--cg-color-border-subtle)}[data-comfygit-theme=phosphor] .history-section{font-size:var(--cg-font-size-base)}[data-comfygit-theme=phosphor] .history-title{color:var(--cg-color-text-muted);text-transform:uppercase;letter-spacing:var(--cg-letter-spacing-wide);font-size:var(--cg-font-size-xs)}[data-comfygit-theme=phosphor] .commit-item{background:transparent;border:none;border-left:2px solid var(--cg-color-border-subtle);padding-left:var(--cg-space-3);margin-left:var(--cg-space-2)}[data-comfygit-theme=phosphor] .commit-item:hover{border-left-color:var(--cg-color-accent);background:var(--cg-color-bg-hover)}[data-comfygit-theme=phosphor] .commit-hash{color:var(--cg-color-accent);font-weight:var(--cg-font-weight-bold);font-size:var(--cg-font-size-sm)}[data-comfygit-theme=phosphor] .commit-hash:before{content:"#"}[data-comfygit-theme=phosphor] .commit-message{color:var(--cg-color-text-primary);font-size:var(--cg-font-size-base)}[data-comfygit-theme=phosphor] .commit-date{color:var(--cg-color-text-muted);font-size:var(--cg-font-size-sm)}[data-comfygit-theme=phosphor] .panel-footer{border-top:1px solid var(--cg-color-border);background:var(--cg-color-bg-tertiary)}[data-comfygit-theme=phosphor] .export-btn{background:transparent;color:var(--cg-color-text-primary);border:1px solid var(--cg-color-border);text-transform:uppercase;letter-spacing:var(--cg-letter-spacing-wide);font-size:var(--cg-font-size-xs)}[data-comfygit-theme=phosphor] .export-btn:hover:not(:disabled){background:var(--cg-color-bg-hover);border-color:var(--cg-color-accent);color:var(--cg-color-accent);box-shadow:var(--cg-shadow-sm)}[data-comfygit-theme=phosphor] .commit-popover{background:var(--cg-color-bg-primary);border:2px solid var(--cg-color-border);box-shadow:var(--cg-shadow-lg)}[data-comfygit-theme=phosphor] .commit-input{background:var(--cg-color-bg-tertiary);border:1px solid var(--cg-color-border-subtle);color:var(--cg-color-text-primary);font-family:var(--cg-font-mono)}[data-comfygit-theme=phosphor] .commit-input:focus{border-color:var(--cg-color-accent);box-shadow:var(--cg-shadow-sm);outline:none}[data-comfygit-theme=phosphor] .comfygit-panel-btn{background:var(--cg-color-accent)!important;color:var(--cg-color-bg-primary)!important;border:none!important;text-transform:uppercase;letter-spacing:.1em;font-family:var(--cg-font-mono);font-size:11px;box-shadow:0 0 8px var(--cg-color-accent)!important}[data-comfygit-theme=phosphor] .comfygit-panel-btn:hover{box-shadow:0 0 16px var(--cg-color-accent)!important}[data-comfygit-theme=phosphor] .comfygit-commit-btn{background:var(--cg-color-bg-tertiary)!important;color:var(--cg-color-text-primary)!important;border:1px solid var(--cg-color-border-subtle)!important;font-family:var(--cg-font-mono)}[data-comfygit-theme=phosphor] .comfygit-commit-btn:hover{border-color:var(--cg-color-accent)!important;box-shadow:0 0 8px #00ff414d!important}[data-comfygit-theme=phosphor] .commit-indicator{background:var(--cg-color-warning);box-shadow:0 0 6px var(--cg-color-warning)}[data-comfygit-theme=phosphor] .panel-content::-webkit-scrollbar{width:8px}[data-comfygit-theme=phosphor] .panel-content::-webkit-scrollbar-track{background:var(--cg-color-bg-tertiary)}[data-comfygit-theme=phosphor] .panel-content::-webkit-scrollbar-thumb{background:var(--cg-color-border-subtle);border:1px solid var(--cg-color-bg-tertiary)}[data-comfygit-theme=phosphor] .panel-content::-webkit-scrollbar-thumb:hover{background:var(--cg-color-accent)}[data-comfygit-theme=phosphor] .comfygit-panel ::selection,[data-comfygit-theme=phosphor] .toast ::selection,[data-comfygit-theme=phosphor] .dialog-content ::selection,[data-comfygit-theme=phosphor] .commit-popover ::selection{background:var(--cg-color-accent);color:var(--cg-color-bg-primary)}[data-comfygit-theme=phosphor] .toast{background:var(--cg-color-bg-primary);border:1px solid var(--cg-color-border);font-family:var(--cg-font-mono);box-shadow:var(--cg-shadow-md)}[data-comfygit-theme=phosphor] .toast.info{border-left:3px solid var(--cg-color-info)}[data-comfygit-theme=phosphor] .toast.success{border-left:3px solid var(--cg-color-success)}[data-comfygit-theme=phosphor] .toast.warning{border-left:3px solid var(--cg-color-warning)}[data-comfygit-theme=phosphor] .toast.error{border-left:3px solid var(--cg-color-error)}[data-comfygit-theme=phosphor] .toast-icon{font-family:var(--cg-font-mono)}[data-comfygit-theme=phosphor] .toast-message:before{content:"> ";opacity:.5}[data-comfygit-theme=phosphor] .dialog-content{background:var(--cg-color-bg-primary);border:2px solid var(--cg-color-border);box-shadow:var(--cg-shadow-lg);font-family:var(--cg-font-mono)}[data-comfygit-theme=phosphor] .dialog-title{color:var(--cg-color-accent);text-transform:uppercase;letter-spacing:var(--cg-letter-spacing-wide);font-size:var(--cg-font-size-sm)}[data-comfygit-theme=phosphor] .dialog-title:before{content:"> ";opacity:.7}[data-comfygit-theme=phosphor] .dialog-message{color:var(--cg-color-text-primary)}[data-comfygit-theme=phosphor] .dialog-details{background:var(--cg-color-bg-tertiary);border:1px solid var(--cg-color-border-subtle)}[data-comfygit-theme=phosphor] .dialog-warning{background:transparent;border:1px solid var(--cg-color-warning);color:var(--cg-color-warning)}[data-comfygit-theme=phosphor] .dialog-btn{font-family:var(--cg-font-mono);text-transform:uppercase;letter-spacing:var(--cg-letter-spacing-wide);font-size:var(--cg-font-size-xs)}[data-comfygit-theme=phosphor] .dialog-btn.cancel{background:transparent;border:1px solid var(--cg-color-border);color:var(--cg-color-text-primary)}[data-comfygit-theme=phosphor] .dialog-btn.cancel:hover{border-color:var(--cg-color-accent);color:var(--cg-color-accent)}[data-comfygit-theme=phosphor] .dialog-btn.primary{background:var(--cg-color-accent);color:var(--cg-color-bg-primary);box-shadow:var(--cg-shadow-sm)}[data-comfygit-theme=phosphor] .dialog-btn.primary:hover{box-shadow:var(--cg-shadow-md)}[data-comfygit-theme=phosphor] .dialog-btn.primary.destructive{background:var(--cg-color-error)}[data-comfygit-theme=phosphor] .branch-input{background:var(--cg-color-bg-tertiary);border:1px solid var(--cg-color-border-subtle);color:var(--cg-color-text-primary);font-family:var(--cg-font-mono);font-size:var(--cg-font-size-sm)}[data-comfygit-theme=phosphor] .branch-input:focus{border-color:var(--cg-color-accent);box-shadow:var(--cg-shadow-sm)}[data-comfygit-theme=phosphor] .action-btn{font-family:var(--cg-font-mono);text-transform:uppercase;letter-spacing:var(--cg-letter-spacing-wide);font-size:var(--cg-font-size-xs)}[data-comfygit-theme=phosphor] .action-btn.create{background:var(--cg-color-accent);color:var(--cg-color-bg-primary);box-shadow:var(--cg-shadow-sm)}[data-comfygit-theme=phosphor] .action-btn.create:hover:not(:disabled){box-shadow:var(--cg-shadow-md);transform:none}[data-comfygit-theme=phosphor] .action-btn.cancel{background:transparent;border:1px solid var(--cg-color-border);color:var(--cg-color-text-primary)}[data-comfygit-theme=phosphor] .action-btn.cancel:hover{border-color:var(--cg-color-accent);color:var(--cg-color-accent);background:transparent}[data-comfygit-theme=phosphor] .commit-popover{background:var(--cg-color-bg-primary);border:2px solid var(--cg-color-border);box-shadow:var(--cg-shadow-lg);font-family:var(--cg-font-mono)}[data-comfygit-theme=phosphor] .popover-title{color:var(--cg-color-accent);text-transform:uppercase;letter-spacing:var(--cg-letter-spacing-wide);font-size:var(--cg-font-size-sm)}[data-comfygit-theme=phosphor] .popover-title:before{content:"> ";opacity:.7}[data-comfygit-theme=phosphor] .commit-input{background:var(--cg-color-bg-tertiary);border:1px solid var(--cg-color-border-subtle);color:var(--cg-color-text-primary);font-family:var(--cg-font-mono);font-size:var(--cg-font-size-sm)}[data-comfygit-theme=phosphor] .commit-input:focus{border-color:var(--cg-color-accent);box-shadow:var(--cg-shadow-sm)}[data-comfygit-theme=phosphor] .commit-input::placeholder{color:var(--cg-color-text-muted)}[data-comfygit-theme=phosphor] .changes-summary{background:var(--cg-color-bg-tertiary);border:1px solid var(--cg-color-border-subtle)}[data-comfygit-theme=phosphor] .change-item:before{content:"├─ ";color:var(--cg-color-border-subtle);margin-right:4px}[data-comfygit-theme=phosphor] .cancel-btn{font-family:var(--cg-font-mono);text-transform:uppercase;letter-spacing:var(--cg-letter-spacing-wide);font-size:var(--cg-font-size-xs);background:transparent;border:1px solid var(--cg-color-border);color:var(--cg-color-text-primary)}[data-comfygit-theme=phosphor] .cancel-btn:hover{border-color:var(--cg-color-accent);color:var(--cg-color-accent);background:transparent}[data-comfygit-theme=phosphor] .commit-btn{font-family:var(--cg-font-mono);text-transform:uppercase;letter-spacing:var(--cg-letter-spacing-wide);font-size:var(--cg-font-size-xs);background:var(--cg-color-accent);color:var(--cg-color-bg-primary);box-shadow:var(--cg-shadow-sm)}[data-comfygit-theme=phosphor] .commit-btn:hover:not(:disabled){box-shadow:var(--cg-shadow-md);transform:none}[data-comfygit-theme=phosphor] .result.success{background:transparent;border:1px solid var(--cg-color-success);color:var(--cg-color-success)}[data-comfygit-theme=phosphor] .result.error{background:transparent;border:1px solid var(--cg-color-error);color:var(--cg-color-error)}[data-comfygit-theme=phosphor] .base-modal-content{box-shadow:var(--cg-shadow-xl)}[data-comfygit-theme=phosphor] .base-title.view:before{content:var(--cg-decoration-title-prefix)}[data-comfygit-theme=phosphor] .base-title.section:before{content:var(--cg-decoration-label-prefix)}[data-comfygit-theme=phosphor] .base-title.section:after{content:var(--cg-decoration-label-suffix)}[data-comfygit-theme=phosphor] .base-title.dialog{text-shadow:0 0 8px var(--cg-color-accent)}[data-comfygit-theme=phosphor] .base-btn.primary{background:var(--cg-color-accent);color:var(--cg-color-bg-primary);box-shadow:var(--cg-shadow-sm)}[data-comfygit-theme=phosphor] .base-btn.primary:hover:not(:disabled){box-shadow:var(--cg-shadow-md);transform:none}[data-comfygit-theme=phosphor] .base-btn.secondary{background:transparent;border:1px solid var(--cg-color-border);color:var(--cg-color-text-primary)}[data-comfygit-theme=phosphor] .base-btn.secondary:hover:not(:disabled){border-color:var(--cg-color-accent);color:var(--cg-color-accent);background:transparent}', P1 = {
   comfy: U1,
-  phosphor: O1
-}, At = "comfy", ao = "comfygit-theme";
-let tt = null, lo = At;
-function P1() {
+  phosphor: B1
+}, Ft = "comfy", no = "comfygit-theme";
+let ot = null, ao = Ft;
+function V1() {
   try {
-    const t = localStorage.getItem(ao);
+    const t = localStorage.getItem(no);
     if (t && (t === "comfy" || t === "phosphor"))
       return t;
   } catch {
   }
-  return At;
+  return Ft;
 }
-function io(t = At) {
-  tt && tt.remove(), tt = document.createElement("style"), tt.id = "comfygit-theme-styles", tt.setAttribute("data-theme", t), tt.textContent = B1[t], document.head.appendChild(tt), document.body.setAttribute("data-comfygit-theme", t), lo = t;
+function lo(t = Ft) {
+  ot && ot.remove(), ot = document.createElement("style"), ot.id = "comfygit-theme-styles", ot.setAttribute("data-theme", t), ot.textContent = P1[t], document.head.appendChild(ot), document.body.setAttribute("data-comfygit-theme", t), ao = t;
   try {
-    localStorage.setItem(ao, t);
+    localStorage.setItem(no, t);
   } catch {
   }
   console.log(`[ComfyGit] Applied theme: ${t}`);
 }
-function V1() {
-  return lo;
+function A1() {
+  return ao;
 }
 function F1(t) {
-  io(t);
+  lo(t);
 }
 const Wt = document.createElement("link");
 Wt.rel = "stylesheet";
 Wt.href = new URL("./comfygit-panel.css", import.meta.url).href;
 document.head.appendChild(Wt);
-const A1 = P1();
-io(A1);
+const W1 = V1();
+lo(W1);
 window.ComfyGit = {
   setTheme: (t) => {
     console.log(`[ComfyGit] Switching to theme: ${t}`), F1(t);
   },
   getTheme: () => {
-    const t = V1();
+    const t = A1();
     return console.log(`[ComfyGit] Current theme: ${t}`), t;
   }
 };
-let Re = null, Me = null, _t = null, yt = null, Yt = null;
-const rt = b(null);
-async function Et() {
+let Re = null, Me = null, _t = null, wt = null, Jt = null;
+const dt = b(null);
+async function It() {
   var t;
-  if (!((t = it) != null && t.api)) return null;
+  if (!((t = rt) != null && t.api)) return null;
   try {
-    const c = await it.api.fetchApi("/v2/comfygit/status");
-    c.ok && (rt.value = await c.json());
+    const c = await rt.api.fetchApi("/v2/comfygit/status");
+    c.ok && (dt.value = await c.json());
   } catch {
   }
 }
-function W1() {
-  if (!rt.value) return !1;
-  const t = rt.value.workflows;
-  return t.new.length > 0 || t.modified.length > 0 || t.deleted.length > 0 || rt.value.has_changes;
-}
 function G1() {
+  if (!dt.value) return !1;
+  const t = dt.value.workflows;
+  return t.new.length > 0 || t.modified.length > 0 || t.deleted.length > 0 || dt.value.has_changes;
+}
+function j1() {
   Re && Re.remove(), Re = document.createElement("div"), Re.className = "comfygit-panel-overlay";
   const t = document.createElement("div");
   t.className = "comfygit-panel-container", Re.appendChild(t), Re.addEventListener("click", (r) => {
@@ -11105,7 +11104,7 @@ function G1() {
     render: () => Vt(Fh, {
       onClose: Rt,
       onStatusUpdate: (r) => {
-        rt.value = r, $t();
+        dt.value = r, $t();
       }
     })
   }).mount(t), document.body.appendChild(Re);
@@ -11113,43 +11112,43 @@ function G1() {
 function Rt() {
   Re && (Re.remove(), Re = null);
 }
-function j1(t) {
-  wt(), Me = document.createElement("div"), Me.className = "comfygit-commit-popover-container";
+function H1(t) {
+  kt(), Me = document.createElement("div"), Me.className = "comfygit-commit-popover-container";
   const c = t.getBoundingClientRect();
   Me.style.position = "fixed", Me.style.top = `${c.bottom + 8}px`, Me.style.right = `${window.innerWidth - c.right}px`, Me.style.zIndex = "10001";
   const n = (p) => {
-    Me && !Me.contains(p.target) && p.target !== t && (wt(), document.removeEventListener("mousedown", n));
+    Me && !Me.contains(p.target) && p.target !== t && (kt(), document.removeEventListener("mousedown", n));
   };
   setTimeout(() => document.addEventListener("mousedown", n), 0);
   const r = (p) => {
-    p.key === "Escape" && (wt(), document.removeEventListener("keydown", r));
+    p.key === "Escape" && (kt(), document.removeEventListener("keydown", r));
   };
   document.addEventListener("keydown", r), _t = Pt({
-    render: () => Vt(no, {
-      status: rt.value,
-      onClose: wt,
+    render: () => Vt(so, {
+      status: dt.value,
+      onClose: kt,
       onCommitted: () => {
-        wt(), Et().then($t);
+        kt(), It().then($t);
       }
     })
   }), _t.mount(Me), document.body.appendChild(Me);
 }
-function wt() {
+function kt() {
   _t && (_t.unmount(), _t = null), Me && (Me.remove(), Me = null);
 }
-function H1() {
-  yt || (yt = document.createElement("div"), yt.className = "comfygit-download-queue-root", Yt = Pt({
-    render: () => Vt(N1)
-  }), Yt.mount(yt), document.body.appendChild(yt), console.log("[ComfyGit] Model download queue mounted"));
+function q1() {
+  wt || (wt = document.createElement("div"), wt.className = "comfygit-download-queue-root", Jt = Pt({
+    render: () => Vt(O1)
+  }), Jt.mount(wt), document.body.appendChild(wt), console.log("[ComfyGit] Model download queue mounted"));
 }
 let We = null;
 function $t() {
   if (!We) return;
   const t = We.querySelector(".commit-indicator");
-  t && (t.style.display = W1() ? "block" : "none");
+  t && (t.style.display = G1() ? "block" : "none");
 }
-const ro = document.createElement("style");
-ro.textContent = `
+const io = document.createElement("style");
+io.textContent = `
   .comfygit-panel-overlay {
     position: fixed;
     top: 0;
@@ -11239,28 +11238,28 @@ ro.textContent = `
     }
   }
 `;
-document.head.appendChild(ro);
-it.registerExtension({
+document.head.appendChild(io);
+rt.registerExtension({
   name: "Comfy.ComfyGitPanel",
   async setup() {
-    var p, g;
+    var p, f;
     const t = document.createElement("div");
     t.className = "comfygit-btn-group";
     const c = document.createElement("button");
-    c.className = "comfyui-button comfyui-menu-mobile-collapse comfygit-panel-btn", c.textContent = "ComfyGit", c.title = "ComfyGit Control Panel", c.onclick = G1, We = document.createElement("button"), We.className = "comfyui-button comfyui-menu-mobile-collapse comfygit-commit-btn", We.innerHTML = 'Commit <span class="commit-indicator"></span>', We.title = "Quick Commit", We.onclick = () => j1(We), t.appendChild(c), t.appendChild(We), (g = (p = it.menu) == null ? void 0 : p.settingsGroup) != null && g.element && (it.menu.settingsGroup.element.before(t), console.log("[ComfyGit] Control Panel buttons added to toolbar")), H1();
-    const { loadPendingDownloads: n } = xt();
-    n(), await Et(), $t(), setInterval(async () => {
-      await Et(), $t();
+    c.className = "comfyui-button comfyui-menu-mobile-collapse comfygit-panel-btn", c.textContent = "ComfyGit", c.title = "ComfyGit Control Panel", c.onclick = j1, We = document.createElement("button"), We.className = "comfyui-button comfyui-menu-mobile-collapse comfygit-commit-btn", We.innerHTML = 'Commit <span class="commit-indicator"></span>', We.title = "Quick Commit", We.onclick = () => H1(We), t.appendChild(c), t.appendChild(We), (f = (p = rt.menu) == null ? void 0 : p.settingsGroup) != null && f.element && (rt.menu.settingsGroup.element.before(t), console.log("[ComfyGit] Control Panel buttons added to toolbar")), q1();
+    const { loadPendingDownloads: n } = Ct();
+    n(), await It(), $t(), setInterval(async () => {
+      await It(), $t();
     }, 3e4);
-    const r = it.api;
+    const r = rt.api;
     if (r) {
       let h = function() {
-        localStorage.removeItem("workflow"), localStorage.removeItem("Comfy.PreviousWorkflow"), localStorage.removeItem("Comfy.OpenWorkflowsPaths"), localStorage.removeItem("Comfy.ActiveWorkflowIndex"), Object.keys(sessionStorage).forEach((m) => {
-          (m.startsWith("workflow:") || m.startsWith("Comfy.OpenWorkflowsPaths:") || m.startsWith("Comfy.ActiveWorkflowIndex:")) && sessionStorage.removeItem(m);
+        localStorage.removeItem("workflow"), localStorage.removeItem("Comfy.PreviousWorkflow"), localStorage.removeItem("Comfy.OpenWorkflowsPaths"), localStorage.removeItem("Comfy.ActiveWorkflowIndex"), Object.keys(sessionStorage).forEach((v) => {
+          (v.startsWith("workflow:") || v.startsWith("Comfy.OpenWorkflowsPaths:") || v.startsWith("Comfy.ActiveWorkflowIndex:")) && sessionStorage.removeItem(v);
         }), window.location.reload();
-      }, v = function() {
-        const m = document.createElement("div");
-        m.style.cssText = `
+      }, m = function() {
+        const v = document.createElement("div");
+        v.style.cssText = `
           position: fixed;
           bottom: 20px;
           left: 50%;
@@ -11279,9 +11278,9 @@ it.registerExtension({
           color: var(--fg-color);
         `;
         const $ = document.createElement("span");
-        $.textContent = "Workflows updated - refresh required", m.appendChild($);
-        const u = document.createElement("button");
-        u.textContent = "Refresh", u.style.cssText = `
+        $.textContent = "Workflows updated - refresh required", v.appendChild($);
+        const d = document.createElement("button");
+        d.textContent = "Refresh", d.style.cssText = `
           background: var(--comfy-menu-bg);
           color: var(--fg-color);
           border: 1px solid var(--border-color);
@@ -11290,9 +11289,9 @@ it.registerExtension({
           cursor: pointer;
           font-size: 13px;
           font-weight: 500;
-        `, u.onmouseover = () => u.style.background = "var(--comfy-input-bg)", u.onmouseout = () => u.style.background = "var(--comfy-menu-bg)", u.onclick = () => h(), m.appendChild(u);
-        const M = document.createElement("button");
-        M.textContent = "×", M.style.cssText = `
+        `, d.onmouseover = () => d.style.background = "var(--comfy-input-bg)", d.onmouseout = () => d.style.background = "var(--comfy-menu-bg)", d.onclick = () => h(), v.appendChild(d);
+        const E = document.createElement("button");
+        E.textContent = "×", E.style.cssText = `
           background: transparent;
           border: none;
           color: var(--fg-color);
@@ -11301,16 +11300,16 @@ it.registerExtension({
           cursor: pointer;
           padding: 0 4px;
           opacity: 0.6;
-        `, M.onmouseover = () => M.style.opacity = "1", M.onmouseout = () => M.style.opacity = "0.6", M.onclick = () => m.remove(), m.appendChild(M), document.body.appendChild(m), console.log("[ComfyGit] Refresh notification displayed");
+        `, E.onmouseover = () => E.style.opacity = "1", E.onmouseout = () => E.style.opacity = "0.6", E.onclick = () => v.remove(), v.appendChild(E), document.body.appendChild(v), console.log("[ComfyGit] Refresh notification displayed");
       };
-      r.addEventListener("comfygit:workflow-changed", async (m) => {
-        const { change_type: $, workflow_name: u } = m.detail;
-        console.log(`[ComfyGit] Workflow ${$}: ${u}`), await Et(), $t();
+      r.addEventListener("comfygit:workflow-changed", async (v) => {
+        const { change_type: $, workflow_name: d } = v.detail;
+        console.log(`[ComfyGit] Workflow ${$}: ${d}`), await It(), $t();
       }), console.log("[ComfyGit] Registered workflow file change listener");
-      let i = !1;
-      r.addEventListener("status", async (m) => {
-        const $ = m.detail != null;
-        $ && !i && sessionStorage.getItem("ComfyGit.PendingRefresh") && (sessionStorage.removeItem("ComfyGit.PendingRefresh"), localStorage.getItem("ComfyGit.Settings.AutoRefresh") === "true" ? (console.log("[ComfyGit] Auto-refresh enabled, reloading page..."), h()) : v()), i = $;
+      let l = !1;
+      r.addEventListener("status", async (v) => {
+        const $ = v.detail != null;
+        $ && !l && sessionStorage.getItem("ComfyGit.PendingRefresh") && (sessionStorage.removeItem("ComfyGit.PendingRefresh"), localStorage.getItem("ComfyGit.Settings.AutoRefresh") === "true" ? (console.log("[ComfyGit] Auto-refresh enabled, reloading page..."), h()) : m()), l = $;
       }), console.log("[ComfyGit] Refresh notification system initialized");
     }
   }

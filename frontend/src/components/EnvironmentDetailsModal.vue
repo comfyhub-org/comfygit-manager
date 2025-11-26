@@ -60,16 +60,20 @@
     </template>
 
     <template #footer>
-      <BaseButton
-        v-if="!environment.is_current"
-        variant="primary"
-        @click="emit('switch', environment.name)"
-      >
-        Switch to Environment
-      </BaseButton>
-      <BaseButton variant="secondary" @click="emit('close')">
-        Close
-      </BaseButton>
+      <div class="footer-actions">
+        <BaseButton
+          v-if="canDelete"
+          variant="danger"
+          size="sm"
+          @click="emit('delete', environment.name)"
+        >
+          Delete
+        </BaseButton>
+        <div class="footer-spacer"></div>
+        <BaseButton variant="secondary" size="sm" @click="emit('close')">
+          Close
+        </BaseButton>
+      </div>
     </template>
   </BaseModal>
 </template>
@@ -81,11 +85,13 @@ import BaseButton from './base/BaseButton.vue'
 
 defineProps<{
   environment: EnvironmentInfo
+  /** Whether the delete action is available (not current env and more than 1 env exists) */
+  canDelete?: boolean
 }>()
 
 const emit = defineEmits<{
   close: []
-  switch: [name: string]
+  delete: [name: string]
 }>()
 
 function formatDate(timestamp?: string | null): string {
@@ -177,5 +183,15 @@ function formatDate(timestamp?: string | null): string {
   height: 1px;
   background: var(--cg-color-border-subtle);
   margin: var(--cg-space-2) 0;
+}
+
+.footer-actions {
+  display: flex;
+  width: 100%;
+  align-items: center;
+}
+
+.footer-spacer {
+  flex: 1;
 }
 </style>
