@@ -26,7 +26,17 @@
 
     <!-- Environment Switcher -->
     <div class="env-switcher">
-      <div class="env-switcher-label">CURRENT ENVIRONMENT</div>
+      <div class="env-switcher-header">
+        <div class="env-switcher-label">CURRENT ENVIRONMENT</div>
+        <div class="env-control-buttons">
+          <button class="env-control-btn" title="Restart environment" @click="handleRestart">
+            Restart
+          </button>
+          <button class="env-control-btn stop" title="Stop environment" @click="handleStop">
+            Stop
+          </button>
+        </div>
+      </div>
       <button class="env-switcher-btn" @click="selectView('environments', 'all-envs')">
         <div v-if="status" class="header-info">
           <span>{{ currentEnvironment?.name || status?.environment || 'Loading...' }}</span>
@@ -763,6 +773,53 @@ function setRefreshFlag() {
   console.log('[ComfyGit] Set refresh flag for post-restart notification')
 }
 
+// Restart current environment
+async function handleRestart() {
+  confirmDialog.value = {
+    title: 'Restart Environment',
+    message: 'Restart the current environment?',
+    warning: 'ComfyUI will restart. Any running workflows will be interrupted.',
+    confirmLabel: 'Restart',
+    cancelLabel: 'Cancel',
+    onConfirm: async () => {
+      confirmDialog.value = null
+      setRefreshFlag()
+      showToast('Restarting environment...', 'info')
+      try {
+        // Call the reboot endpoint
+        if (window.app?.api) {
+          await window.app.api.fetchApi('/v2/manager/reboot')
+        }
+      } catch {
+        // Expected - server will restart and connection will drop
+      }
+    }
+  }
+}
+
+// Stop current environment
+async function handleStop() {
+  confirmDialog.value = {
+    title: 'Stop Environment',
+    message: 'Stop the current environment?',
+    warning: 'This will completely shut down ComfyUI. You will need to restart manually.',
+    confirmLabel: 'Stop',
+    cancelLabel: 'Cancel',
+    onConfirm: async () => {
+      confirmDialog.value = null
+      showToast('Stopping environment...', 'info')
+      try {
+        // Call the stop endpoint - works for both supervised and unmanaged environments
+        if (window.app?.api) {
+          await window.app.api.fetchApi('/v2/comfygit/stop', { method: 'POST' })
+        }
+      } catch {
+        // Expected - server will shut down and connection will drop
+      }
+    }
+  }
+}
+
 // Environment switching flow
 async function handleEnvironmentSwitch(envName: string) {
   showEnvironmentSelector.value = false
@@ -1122,12 +1179,51 @@ onMounted(refresh)
   flex-shrink: 0;
 }
 
+.env-switcher-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
 .env-switcher-label {
   color: var(--cg-color-text-muted);
   font-size: var(--cg-font-size-xs);
   text-transform: uppercase;
   letter-spacing: var(--cg-letter-spacing-wide);
-  margin-bottom: 6px;
+}
+
+.env-control-buttons {
+  display: flex;
+  gap: var(--cg-space-2);
+}
+
+.env-control-btn {
+  padding: 2px 8px;
+  font-family: var(--cg-font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: var(--cg-letter-spacing-wide);
+  background: transparent;
+  border: 1px solid var(--cg-color-border);
+  color: var(--cg-color-text-muted);
+  cursor: pointer;
+  transition: all var(--cg-transition-fast);
+}
+
+.env-control-btn:hover {
+  border-color: var(--cg-color-accent);
+  color: var(--cg-color-accent);
+}
+
+.env-control-btn.stop {
+  border-color: var(--cg-color-error);
+  color: var(--cg-color-error);
+  opacity: 0.7;
+}
+
+.env-control-btn.stop:hover {
+  opacity: 1;
 }
 
 .env-switcher-btn {

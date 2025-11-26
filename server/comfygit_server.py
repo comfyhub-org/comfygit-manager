@@ -272,8 +272,9 @@ async def get_history(request):
     return web.json_response({"history": task_history})
 
 
-# Exit code that signals cg run to restart with sync
-RESTART_EXIT_CODE = 42
+# Exit codes for orchestrator communication
+RESTART_EXIT_CODE = 42  # Signals orchestrator to restart ComfyUI
+STOP_EXIT_CODE = 0      # Signals orchestrator to stop cleanly (or just exits if unmanaged)
 
 
 @routes.get("/v2/manager/reboot")
@@ -288,6 +289,35 @@ async def reboot(request):
 
     asyncio.create_task(delayed_exit())
     return web.json_response({"status": "restarting"})
+
+
+@routes.post("/v2/comfygit/stop")
+async def stop_environment(request):
+    """
+    Stop the current environment.
+
+    If running under orchestrator (COMFYGIT_SUPERVISED=1):
+        Exit with code 0, which signals orchestrator to stop cleanly.
+    If running directly (no orchestrator):
+        Exit with code 0, which just terminates the process.
+    """
+    import os
+    is_supervised = os.environ.get("COMFYGIT_SUPERVISED") == "1"
+
+    if is_supervised:
+        print(f"[ComfyGit] Stop requested (supervised) - exiting with code {STOP_EXIT_CODE} to stop orchestrator")
+    else:
+        print(f"[ComfyGit] Stop requested (unmanaged) - exiting with code {STOP_EXIT_CODE}")
+
+    async def delayed_exit():
+        await asyncio.sleep(0.3)
+        os._exit(STOP_EXIT_CODE)
+
+    asyncio.create_task(delayed_exit())
+    return web.json_response({
+        "status": "stopping",
+        "supervised": is_supervised
+    })
 
 
 @routes.get("/v2/manager/is_legacy_manager_ui")
