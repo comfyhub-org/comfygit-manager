@@ -143,33 +143,20 @@ def serialize_environment_status(status, env_name: str) -> dict:
     # Serialize analyzed workflows with full resolution state
     analyzed = []
     for wf in status.workflow.analyzed_workflows:
-        # Build issue summary that includes download intents
-        issue_parts = []
-        if wf.resolution.models_ambiguous:
-            issue_parts.append(f"{len(wf.resolution.models_ambiguous)} ambiguous models")
-        if wf.resolution.models_unresolved:
-            issue_parts.append(f"{len(wf.resolution.models_unresolved)} unresolved models")
-        if wf.resolution.nodes_unresolved:
-            issue_parts.append(f"{len(wf.resolution.nodes_unresolved)} missing nodes")
-        if wf.resolution.nodes_ambiguous:
-            issue_parts.append(f"{len(wf.resolution.nodes_ambiguous)} ambiguous nodes")
-        if wf.download_intents_count > 0:
-            issue_parts.append(f"{wf.download_intents_count} pending download{'s' if wf.download_intents_count > 1 else ''}")
-
-        issue_summary = ", ".join(issue_parts) if issue_parts else "No issues"
-
         analyzed.append({
             "name": wf.name,
             "sync_state": wf.sync_state,
             "status": "broken" if wf.has_issues else wf.sync_state,
             "has_issues": wf.has_issues,
+            "has_path_sync_issues": wf.has_path_sync_issues,
             "uninstalled_nodes": len(wf.uninstalled_nodes),
             "unresolved_nodes_count": len(wf.resolution.nodes_unresolved),
             "unresolved_models_count": len(wf.resolution.models_unresolved),
             "ambiguous_models_count": len(wf.resolution.models_ambiguous),
             "ambiguous_nodes_count": len(wf.resolution.nodes_ambiguous),
+            "models_needing_path_sync_count": wf.models_needing_path_sync_count,
             "pending_downloads_count": wf.download_intents_count,
-            "issue_summary": issue_summary,
+            "issue_summary": wf.issue_summary,  # Use core's property directly
             "node_count": wf.node_count,
             "model_count": wf.model_count
         })

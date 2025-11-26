@@ -84,6 +84,13 @@
             label="other changes"
             variant="modified"
           />
+          <!-- Show "Configuration updated" when has_changes but no specific changes (e.g., pyproject.toml) -->
+          <StatusItem
+            v-if="hasGitChanges && !hasSpecificGitChanges && !hasOtherWorkflowChanges"
+            icon="●"
+            label="configuration updated"
+            variant="modified"
+          />
           <StatusItem
             v-if="!hasGitChanges"
             icon="✓"
@@ -145,14 +152,14 @@
           </template>
         </IssueCard>
 
-        <!-- Priority 2: WARNING - Broken Uncommitted Workflows -->
+        <!-- Priority 2: WARNING - Broken Uncommitted Workflows + Path Sync Issues -->
         <IssueCard
-          v-if="brokenUncommittedWorkflows.length > 0"
+          v-if="brokenUncommittedWorkflows.length > 0 || pathSyncWorkflows.length > 0"
           severity="warning"
           icon="⚠"
-          :title="`${brokenUncommittedWorkflows.length} workflow${brokenUncommittedWorkflows.length === 1 ? '' : 's'} with issues`"
-          description="Fix dependencies before committing these workflows."
-          :items="brokenUncommittedWorkflows.map(w => `${w.name} — ${w.issue_summary}`)"
+          :title="workflowsNeedingAttentionTitle"
+          :description="workflowsNeedingAttentionDescription"
+          :items="workflowsNeedingAttentionItems"
         >
           <template #actions>
             <ActionButton variant="primary" size="sm" @click="$emit('view-workflows')">
@@ -302,16 +309,23 @@ const hasWorkflowChanges = computed(() => {
          props.status.workflows.deleted.length > 0
 })
 
+// Use top-level has_changes for determining if there are uncommitted changes
+// This catches cases like pyproject.toml modified (dependency updates) that
+// don't show up in nodes_added/nodes_removed/workflow_changes
 const hasGitChanges = computed(() => {
+  return props.status.has_changes
+})
+
+// For display purposes: detect specific change types for UI
+const hasSpecificGitChanges = computed(() => {
   const gc = props.status.git_changes
   return gc.nodes_added.length > 0 ||
          gc.nodes_removed.length > 0 ||
-         gc.workflow_changes ||
-         gc.has_other_changes
+         gc.workflow_changes
 })
 
 const hasUncommittedWork = computed(() => {
-  return hasWorkflowChanges.value || hasGitChanges.value
+  return props.status.has_changes || hasWorkflowChanges.value
 })
 
 const workflowChangesCount = computed(() => {
@@ -334,15 +348,64 @@ const brokenUncommittedWorkflows = computed(() => {
   ) || []
 })
 
+// Workflows with path sync issues (not broken, but need attention)
+const pathSyncWorkflows = computed(() => {
+  return props.status.workflows.analyzed?.filter(w =>
+    w.has_path_sync_issues && !w.has_issues
+  ) || []
+})
+
 const hasBrokenWorkflows = computed(() => {
   return brokenSyncedWorkflows.value.length > 0 || brokenUncommittedWorkflows.value.length > 0
 })
 
+const hasWorkflowsNeedingAttention = computed(() => {
+  return hasBrokenWorkflows.value || pathSyncWorkflows.value.length > 0
+})
+
 const hasIssues = computed(() => {
-  return hasBrokenWorkflows.value ||
+  return hasWorkflowsNeedingAttention.value ||
          props.status.missing_models_count > 0 ||
          hasUncommittedWork.value ||
          !props.status.comparison.is_synced
+})
+
+// Combined title, description, and items for workflows needing attention card
+const workflowsNeedingAttentionTitle = computed(() => {
+  const brokenCount = brokenUncommittedWorkflows.value.length
+  const pathSyncCount = pathSyncWorkflows.value.length
+  const total = brokenCount + pathSyncCount
+  return `${total} workflow${total === 1 ? '' : 's'} need${total === 1 ? 's' : ''} attention`
+})
+
+const workflowsNeedingAttentionDescription = computed(() => {
+  const brokenCount = brokenUncommittedWorkflows.value.length
+  const pathSyncCount = pathSyncWorkflows.value.length
+
+  if (brokenCount > 0 && pathSyncCount > 0) {
+    return 'Some workflows have missing dependencies, others have model paths that need syncing.'
+  } else if (brokenCount > 0) {
+    return 'Fix dependencies before committing these workflows.'
+  } else {
+    return 'Model paths in these workflows need to be synced.'
+  }
+})
+
+const workflowsNeedingAttentionItems = computed(() => {
+  const items: string[] = []
+
+  // Broken workflows
+  brokenUncommittedWorkflows.value.forEach(w => {
+    items.push(`${w.name} — ${w.issue_summary}`)
+  })
+
+  // Path sync workflows (different message)
+  pathSyncWorkflows.value.forEach(w => {
+    const count = w.models_needing_path_sync_count
+    items.push(`${w.name} — ${count} model path${count === 1 ? '' : 's'} need${count === 1 ? 's' : ''} syncing`)
+  })
+
+  return items
 })
 
 const uncommittedChangesDescription = computed(() => {

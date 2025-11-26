@@ -169,7 +169,10 @@ class TestStatusEndpoint:
         wf_broken.name = "broken.json"
         wf_broken.sync_state = "synced"
         wf_broken.has_issues = True
+        wf_broken.has_path_sync_issues = False
         wf_broken.uninstalled_nodes = ["node-pkg-1"]
+        wf_broken.models_needing_path_sync_count = 0
+        wf_broken.download_intents_count = 0
         wf_broken.issue_summary = "2 unresolved nodes, 1 missing model"
         wf_broken.node_count = 10
         wf_broken.model_count = 3
@@ -183,7 +186,10 @@ class TestStatusEndpoint:
         wf_healthy.name = "healthy.json"
         wf_healthy.sync_state = "new"
         wf_healthy.has_issues = False
+        wf_healthy.has_path_sync_issues = False
         wf_healthy.uninstalled_nodes = []
+        wf_healthy.models_needing_path_sync_count = 0
+        wf_healthy.download_intents_count = 0
         wf_healthy.issue_summary = "No issues"
         wf_healthy.node_count = 5
         wf_healthy.model_count = 2

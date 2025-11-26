@@ -11,11 +11,14 @@ export interface AnalyzedWorkflow {
   sync_state: 'new' | 'modified' | 'synced' | 'deleted'
   status: 'broken' | 'new' | 'modified' | 'synced' | 'deleted'
   has_issues: boolean
+  has_path_sync_issues: boolean
   uninstalled_nodes: number
   unresolved_nodes_count: number
   unresolved_models_count: number
   ambiguous_models_count: number
   ambiguous_nodes_count: number
+  models_needing_path_sync_count: number
+  pending_downloads_count: number
   issue_summary: string
   node_count: number
   model_count: number
