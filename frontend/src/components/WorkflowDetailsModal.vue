@@ -68,6 +68,13 @@
                   <span class="label">Size:</span>
                   <span class="value">{{ model.size_mb }} MB</span>
                 </div>
+                <!-- Category mismatch info -->
+                <div v-if="model.has_category_mismatch" class="model-row">
+                  <span class="label">Location issue:</span>
+                  <span class="value error">
+                    In <code>{{ model.actual_category }}/</code> but loader needs <code>{{ model.expected_categories?.[0] }}/</code>
+                  </span>
+                </div>
               </div>
               <div v-if="model.status !== 'available'" class="model-actions">
                 <BaseButton
@@ -79,15 +86,15 @@
                   Download
                 </BaseButton>
                 <BaseButton
-                  v-else-if="model.status === 'path_mismatch'"
+                  v-else-if="model.status === 'category_mismatch' && model.file_path"
                   variant="secondary"
                   size="sm"
-                  @click="emit('resolve')"
+                  @click="handleOpenFileLocation(model.file_path)"
                 >
-                  Sync Path
+                  Open File Location
                 </BaseButton>
                 <BaseButton
-                  v-else
+                  v-else-if="model.status !== 'path_mismatch'"
                   variant="secondary"
                   size="sm"
                   @click="emit('resolve')"
@@ -170,7 +177,7 @@ const emit = defineEmits<{
   refresh: []
 }>()
 
-const { getWorkflowDetails, setModelImportance } = useComfyGitService()
+const { getWorkflowDetails, setModelImportance, openFileLocation } = useComfyGitService()
 
 const details = ref<WorkflowDetails | null>(null)
 const loading = ref(false)
@@ -194,6 +201,8 @@ function getStatusClass(status: string): string {
       return 'warning'
     case 'downloadable':
       return 'info'
+    case 'category_mismatch':  // Blocking issue - show as error
+      return 'error'
     case 'missing':
     default:
       return 'error'
@@ -206,6 +215,8 @@ function getStatusLabel(status: string): string {
       return '✓ Available'
     case 'path_mismatch':
       return '⚠ Path Mismatch'
+    case 'category_mismatch':
+      return '✗ Wrong Directory'
     case 'downloadable':
       return '⬇ Downloadable'
     case 'missing':
@@ -253,6 +264,14 @@ async function loadDetails() {
 function handleImportanceChange(hash: string, importance: string) {
   importanceChanges.value[hash] = importance
   hasChanges.value = true
+}
+
+async function handleOpenFileLocation(relativePath: string) {
+  try {
+    await openFileLocation(relativePath)
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : 'Failed to open file location'
+  }
 }
 
 async function handleSave() {
@@ -357,6 +376,14 @@ onMounted(loadDetails)
 
 .model-row .value.info {
   color: var(--cg-color-info, #3b82f6);
+}
+
+.model-row code {
+  background: var(--cg-color-bg-secondary);
+  padding: 0 var(--cg-space-1);
+  border-radius: var(--cg-radius-sm, 2px);
+  font-family: var(--cg-font-mono, monospace);
+  font-size: var(--cg-font-size-xs, 11px);
 }
 
 .model-row-nodes {

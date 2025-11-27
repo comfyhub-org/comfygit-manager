@@ -84,7 +84,7 @@ import type {
  * Full details come from WorkflowAnalysisStatus in Core Library
  */
 const MOCK_WORKFLOWS: WorkflowInfo[] = [
-  // BROKEN workflows (3) - Missing dependencies
+  // BROKEN workflows (4) - Missing dependencies or category mismatch
   {
     name: 'flux-dev-img2img.json',
     status: 'broken',
@@ -93,6 +93,18 @@ const MOCK_WORKFLOWS: WorkflowInfo[] = [
     node_count: 12,
     model_count: 3,
     sync_state: 'synced' // Git status vs dependency status
+  },
+  // Category mismatch example - model exists but in wrong directory
+  {
+    name: 'lora-wrong-dir.json',
+    status: 'broken',
+    missing_nodes: 0,
+    missing_models: 0,
+    node_count: 8,
+    model_count: 2,
+    sync_state: 'synced',
+    has_category_mismatch_issues: true,
+    models_with_category_mismatch: 1
   },
   {
     name: 'sdxl-lightning.json',
@@ -247,6 +259,70 @@ const MOCK_WORKFLOW_DETAILS: Record<string, WorkflowDetails> = {
           model_type: 'clip',
           clip_type: 'clip_l'
         }
+      }
+    ]
+  },
+
+  // Category mismatch example - LoRA in wrong directory
+  'lora-wrong-dir.json': {
+    name: 'lora-wrong-dir.json',
+    status: 'broken',
+    nodes: [
+      {
+        name: 'comfyui-core',
+        installed: true,
+        registry_id: 'comfyui-core',
+        repository: null,
+        version: '0.3.0',
+        source: 'builtin',
+        download_url: null
+      }
+    ],
+    models: [
+      {
+        filename: 'my_character_lora.safetensors',
+        hash: 'f8c9e2d1', // CRC32
+        sha256_hash: 'f8c9e2d1a0b1c2d3e4f5678901234567890abcdef1234567890abcdef12345678',
+        blake3_hash: null,
+        status: 'category_mismatch',  // Wrong directory!
+        importance: 'required',
+        size_mb: 185,
+        file_size: 194000000,
+        node_type: 'LoraLoader',
+        node_id: '7',
+        relative_path: 'checkpoints/my_character_lora.safetensors',  // Wrong! Should be loras/
+        category: 'checkpoints',  // Wrong category
+        mtime: Date.now() / 1000 - 86400 * 3,
+        metadata: {
+          model_type: 'lora',
+          base_model: 'SDXL'
+        },
+        // Category mismatch details
+        has_category_mismatch: true,
+        expected_categories: ['loras'],
+        actual_category: 'checkpoints'
+      },
+      {
+        filename: 'sdxl_base_1.0.safetensors',
+        hash: 'b22f3f8c',
+        sha256_hash: 'b22f3f8c90d1e2f3456789abcdef01234567890abcdef1234567890abcdef012',
+        blake3_hash: null,
+        status: 'available',
+        importance: 'required',
+        size_mb: 6938,
+        file_size: 7275159552,
+        node_type: 'CheckpointLoader',
+        node_id: '4',
+        relative_path: 'checkpoints/sdxl_base_1.0.safetensors',
+        category: 'checkpoints',
+        mtime: Date.now() / 1000 - 86400 * 30,
+        metadata: {
+          model_type: 'checkpoint',
+          base_model: 'SDXL'
+        },
+        has_category_mismatch: false,
+        expected_categories: ['checkpoints'],
+        actual_category: 'checkpoints'
       }
     ]
   }
@@ -942,7 +1018,26 @@ export const mockApi = {
             ambiguous_nodes_count: 0,
             issue_summary: '2 unresolved nodes, 1 missing model',
             node_count: 20,
-            model_count: 5
+            model_count: 5,
+            has_category_mismatch_issues: false,
+            models_with_category_mismatch_count: 0
+          },
+          // Category mismatch example - LoRA in wrong directory
+          {
+            name: 'lora-wrong-dir.json',
+            sync_state: 'synced',
+            status: 'broken',
+            has_issues: true,
+            uninstalled_nodes: 0,
+            unresolved_nodes_count: 0,
+            unresolved_models_count: 0,
+            ambiguous_models_count: 0,
+            ambiguous_nodes_count: 0,
+            issue_summary: '1 model in wrong directory',
+            node_count: 8,
+            model_count: 2,
+            has_category_mismatch_issues: true,
+            models_with_category_mismatch_count: 1
           },
           {
             name: 'flux-dev-img2img.json',

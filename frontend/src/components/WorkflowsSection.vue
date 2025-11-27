@@ -325,6 +325,10 @@ function formatWorkflowIssues(wf: WorkflowInfo): string {
   if (wf.missing_models > 0) {
     parts.push(`${wf.missing_models} missing model${wf.missing_models > 1 ? 's' : ''}`)
   }
+  // Category mismatch - model exists but in wrong directory
+  if (wf.models_with_category_mismatch && wf.models_with_category_mismatch > 0) {
+    parts.push(`${wf.models_with_category_mismatch} model${wf.models_with_category_mismatch > 1 ? 's' : ''} in wrong directory`)
+  }
   if (wf.pending_downloads && wf.pending_downloads > 0) {
     parts.push(`${wf.pending_downloads} pending download${wf.pending_downloads > 1 ? 's' : ''}`)
   }

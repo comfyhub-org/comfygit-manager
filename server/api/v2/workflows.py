@@ -102,8 +102,42 @@ def _serialize_resolved_model(model: ResolvedModel) -> dict:
         "has_download_source": bool(model.model_source),
         "download_source": model.model_source,  # Include actual URL for download intents
         "target_path": str(model.target_path) if model.target_path else None,
-        "is_optional": model.is_optional
+        "is_optional": model.is_optional,
+        # Category mismatch (blocking issue)
+        "has_category_mismatch": getattr(model, 'has_category_mismatch', False) is True,
+        "expected_categories": _safe_list(getattr(model, 'expected_categories', None)),
+        "actual_category": _safe_str(getattr(model, 'actual_category', None)),
     }
+
+
+def _safe_list(value) -> list:
+    """Safely convert value to list, handling None and non-iterables."""
+    if value is None:
+        return []
+    try:
+        return list(value)
+    except (TypeError, ValueError):
+        return []
+
+
+def _safe_str(value) -> str | None:
+    """Safely convert value to string, handling Mock objects."""
+    if value is None:
+        return None
+    # Check if it looks like a real string (not a Mock)
+    if isinstance(value, str):
+        return value
+    return None
+
+
+def _safe_int(value) -> int:
+    """Safely convert value to int, handling Mock objects."""
+    if isinstance(value, int):
+        return value
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return 0
 
 
 def _serialize_unresolved_model(ref: WorkflowNodeWidgetRef, workflow_name: str) -> dict:
@@ -342,7 +376,10 @@ async def get_workflows(request: web.Request, env) -> web.Response:
             "pending_downloads": wf.download_intents_count,
             "sync_state": wf.sync_state,
             "has_path_sync_issues": wf.has_path_sync_issues,
-            "models_needing_path_sync": wf.models_needing_path_sync_count
+            "models_needing_path_sync": wf.models_needing_path_sync_count,
+            # Category mismatch (blocking issue)
+            "has_category_mismatch_issues": getattr(wf, 'has_category_mismatch_issues', False) is True,
+            "models_with_category_mismatch": _safe_int(getattr(wf, 'models_with_category_mismatch_count', 0)),
         })
 
     return web.json_response(workflows)

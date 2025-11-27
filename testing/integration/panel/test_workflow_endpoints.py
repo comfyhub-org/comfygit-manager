@@ -1218,3 +1218,288 @@ class TestModelImportanceEndpoint:
             }
         )
         assert resp.status == 500
+
+
+# =============================================================================
+# Category Mismatch Tests (NEW)
+# =============================================================================
+
+@pytest.mark.integration
+class TestCategoryMismatchInWorkflowsList:
+    """Tests for category mismatch fields in /v2/comfygit/workflows endpoint."""
+
+    async def test_workflow_with_category_mismatch_includes_fields(
+        self,
+        client,
+        mock_environment,
+        mock_env_status
+    ):
+        """Workflows with category mismatch should include the new fields."""
+        # Setup: Mock workflow with category mismatch
+        mock_wf = Mock()
+        mock_wf.name = "workflow_with_mismatch.json"
+        mock_wf.has_issues = True  # Category mismatch makes it broken
+        mock_wf.sync_state = "synced"
+        mock_wf.uninstalled_count = 0
+        mock_wf.download_intents_count = 0
+        mock_wf.has_path_sync_issues = False
+        mock_wf.models_needing_path_sync_count = 0
+        # NEW: Category mismatch fields
+        mock_wf.has_category_mismatch_issues = True
+        mock_wf.models_with_category_mismatch_count = 2
+        mock_wf.resolution = Mock()
+        mock_wf.resolution.models_unresolved = []
+        mock_wf.resolution.models_ambiguous = []
+
+        mock_env_status.workflow.analyzed_workflows = [mock_wf]
+        mock_environment.status.return_value = mock_env_status
+
+        # Execute
+        resp = await client.get("/v2/comfygit/workflows")
+
+        # Verify
+        assert resp.status == 200
+        data = await resp.json()
+        assert len(data) == 1
+
+        wf = data[0]
+        assert wf["status"] == "broken", "Category mismatch should make workflow broken"
+        assert "has_category_mismatch_issues" in wf, "Missing has_category_mismatch_issues field"
+        assert "models_with_category_mismatch" in wf, "Missing models_with_category_mismatch field"
+        assert wf["has_category_mismatch_issues"] is True
+        assert wf["models_with_category_mismatch"] == 2
+
+    async def test_workflow_without_category_mismatch_fields_default_to_false(
+        self,
+        client,
+        mock_environment,
+        mock_env_status
+    ):
+        """Workflows without category mismatch should have fields set to False/0."""
+        mock_wf = Mock()
+        mock_wf.name = "healthy_workflow.json"
+        mock_wf.has_issues = False
+        mock_wf.sync_state = "synced"
+        mock_wf.uninstalled_count = 0
+        mock_wf.download_intents_count = 0
+        mock_wf.has_path_sync_issues = False
+        mock_wf.models_needing_path_sync_count = 0
+        mock_wf.has_category_mismatch_issues = False
+        mock_wf.models_with_category_mismatch_count = 0
+        mock_wf.resolution = Mock()
+        mock_wf.resolution.models_unresolved = []
+        mock_wf.resolution.models_ambiguous = []
+
+        mock_env_status.workflow.analyzed_workflows = [mock_wf]
+        mock_environment.status.return_value = mock_env_status
+
+        resp = await client.get("/v2/comfygit/workflows")
+
+        assert resp.status == 200
+        data = await resp.json()
+        wf = data[0]
+        assert wf["status"] == "synced"
+        assert wf["has_category_mismatch_issues"] is False
+        assert wf["models_with_category_mismatch"] == 0
+
+
+@pytest.mark.integration
+class TestCategoryMismatchInWorkflowDetails:
+    """Tests for category mismatch in /v2/comfygit/workflow/{name}/details endpoint."""
+
+    async def test_model_with_category_mismatch_status(
+        self,
+        client,
+        mock_environment,
+        mock_env_status
+    ):
+        """Model in wrong directory should have status 'category_mismatch'."""
+        mock_wf = Mock()
+        mock_wf.name = "test.json"
+        mock_wf.has_issues = True
+        mock_wf.sync_state = "synced"
+        mock_wf.uninstalled_nodes = []
+        mock_wf.dependencies = Mock()
+
+        # Create model reference for a LoRA being loaded
+        mock_ref = Mock()
+        mock_ref.widget_value = "my_lora.safetensors"
+        mock_ref.node_type = "LoraLoader"
+        mock_ref.node_id = "5"
+        mock_wf.dependencies.found_models = [mock_ref]
+
+        # Create resolved model that's in wrong directory (checkpoints instead of loras)
+        mock_resolved_model = Mock()
+        mock_resolved_model.hash = "abc123"
+        mock_resolved_model.category = "checkpoints"  # Wrong!
+        mock_resolved_model.file_size = 1000000
+        mock_resolved_model.filename = "my_lora.safetensors"
+
+        mock_resolved = Mock()
+        mock_resolved.reference = mock_ref
+        mock_resolved.resolved_model = mock_resolved_model
+        mock_resolved.model_source = None
+        mock_resolved.is_optional = False
+        mock_resolved.needs_path_sync = False
+        # Category mismatch detection
+        mock_resolved.has_category_mismatch = True
+        mock_resolved.expected_categories = ["loras"]
+        mock_resolved.actual_category = "checkpoints"
+
+        mock_wf.resolution = create_mock_resolution(
+            models_resolved=[mock_resolved],
+            nodes_resolved=[]
+        )
+
+        mock_env_status.workflow.analyzed_workflows = [mock_wf]
+        mock_environment.status.return_value = mock_env_status
+
+        # Execute
+        resp = await client.get("/v2/comfygit/workflow/test.json/details")
+
+        # Verify
+        assert resp.status == 200
+        data = await resp.json()
+
+        assert len(data["models"]) == 1
+        model = data["models"][0]
+
+        # Status should be category_mismatch (blocking)
+        assert model["status"] == "category_mismatch", (
+            f"Expected 'category_mismatch' but got '{model['status']}'"
+        )
+
+        # Category mismatch details should be included
+        assert model["has_category_mismatch"] is True
+        assert model["expected_categories"] == ["loras"]
+        assert model["actual_category"] == "checkpoints"
+
+    async def test_category_mismatch_takes_precedence_over_path_mismatch(
+        self,
+        client,
+        mock_environment,
+        mock_env_status
+    ):
+        """Category mismatch is blocking and should take precedence over path_mismatch."""
+        mock_wf = Mock()
+        mock_wf.name = "test.json"
+        mock_wf.has_issues = True
+        mock_wf.sync_state = "synced"
+        mock_wf.uninstalled_nodes = []
+        mock_wf.dependencies = Mock()
+
+        mock_ref = Mock()
+        mock_ref.widget_value = "my_lora.safetensors"
+        mock_ref.node_type = "LoraLoader"
+        mock_ref.node_id = "5"
+        mock_wf.dependencies.found_models = [mock_ref]
+
+        mock_resolved_model = Mock()
+        mock_resolved_model.hash = "abc123"
+        mock_resolved_model.category = "checkpoints"
+        mock_resolved_model.file_size = 1000000
+        mock_resolved_model.filename = "my_lora.safetensors"
+
+        mock_resolved = Mock()
+        mock_resolved.reference = mock_ref
+        mock_resolved.resolved_model = mock_resolved_model
+        mock_resolved.model_source = None
+        mock_resolved.is_optional = False
+        # Both issues present - category_mismatch should win
+        mock_resolved.needs_path_sync = True
+        mock_resolved.has_category_mismatch = True
+        mock_resolved.expected_categories = ["loras"]
+        mock_resolved.actual_category = "checkpoints"
+
+        mock_wf.resolution = create_mock_resolution(
+            models_resolved=[mock_resolved],
+            nodes_resolved=[]
+        )
+
+        mock_env_status.workflow.analyzed_workflows = [mock_wf]
+        mock_environment.status.return_value = mock_env_status
+
+        resp = await client.get("/v2/comfygit/workflow/test.json/details")
+
+        assert resp.status == 200
+        data = await resp.json()
+        model = data["models"][0]
+        assert model["status"] == "category_mismatch", (
+            "Category mismatch should take precedence over path_mismatch"
+        )
+
+
+@pytest.mark.integration
+class TestCategoryMismatchInResolvedModel:
+    """Tests for category mismatch in _serialize_resolved_model helper."""
+
+    async def test_analyze_endpoint_includes_category_mismatch_fields(
+        self,
+        client,
+        mock_environment
+    ):
+        """The /analyze endpoint should include category mismatch details in resolved models."""
+        # Setup mock model with category mismatch
+        mock_model_ref = Mock()
+        mock_model_ref.node_id = "5"
+        mock_model_ref.node_type = "LoraLoader"
+        mock_model_ref.widget_name = "lora_name"
+        mock_model_ref.widget_value = "my_lora.safetensors"
+
+        mock_resolved_model_data = Mock()
+        mock_resolved_model_data.filename = "my_lora.safetensors"
+        mock_resolved_model_data.hash = "abc123"
+        mock_resolved_model_data.file_size = 1000000
+        mock_resolved_model_data.category = "checkpoints"  # Wrong category!
+        mock_resolved_model_data.relative_path = "checkpoints/my_lora.safetensors"
+
+        mock_resolved_model = Mock()
+        mock_resolved_model.workflow = "test.json"
+        mock_resolved_model.reference = mock_model_ref
+        mock_resolved_model.resolved_model = mock_resolved_model_data
+        mock_resolved_model.model_source = None
+        mock_resolved_model.match_confidence = 1.0
+        mock_resolved_model.match_type = "exact"
+        mock_resolved_model.needs_path_sync = False
+        mock_resolved_model.is_optional = False
+        # Category mismatch
+        mock_resolved_model.has_category_mismatch = True
+        mock_resolved_model.expected_categories = ["loras"]
+        mock_resolved_model.actual_category = "checkpoints"
+
+        mock_result = create_mock_resolution(
+            nodes_resolved=[],
+            nodes_unresolved=[],
+            models_resolved=[mock_resolved_model],
+            models_unresolved=[],
+            models_ambiguous=[]
+        )
+        mock_environment.workflow_manager.analyze_and_resolve_workflow.return_value = (Mock(), mock_result)
+
+        # Mock env.status()
+        mock_wf_status = Mock()
+        mock_wf_status.name = "test.json"
+        mock_wf_status.uninstalled_nodes = []
+        mock_status = Mock()
+        mock_status.workflow = Mock()
+        mock_status.workflow.analyzed_workflows = [mock_wf_status]
+        mock_environment.status.return_value = mock_status
+
+        # Execute
+        resp = await client.post("/v2/comfygit/workflow/test.json/analyze")
+
+        # Verify
+        assert resp.status == 200
+        data = await resp.json()
+
+        assert len(data["models"]["resolved"]) == 1
+        model = data["models"]["resolved"][0]
+
+        # Category mismatch fields should be present
+        assert "has_category_mismatch" in model, "Missing has_category_mismatch field"
+        assert "expected_categories" in model, "Missing expected_categories field"
+        assert "actual_category" in model, "Missing actual_category field"
+
+        assert model["has_category_mismatch"] is True
+        assert model["expected_categories"] == ["loras"]
+        assert model["actual_category"] == "checkpoints"

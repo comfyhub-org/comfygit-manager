@@ -1,6 +1,25 @@
 """Convert core library types to JSON-serializable dicts."""
 
 
+def _safe_list(value) -> list:
+    """Safely convert value to list, handling None and non-iterables (like Mock objects)."""
+    if value is None:
+        return []
+    try:
+        return list(value)
+    except (TypeError, ValueError):
+        return []
+
+
+def _safe_str(value) -> str | None:
+    """Safely convert value to string, handling Mock objects."""
+    if value is None:
+        return None
+    if isinstance(value, str):
+        return value
+    return None
+
+
 def serialize_workflow_details(
     workflow,
     name: str,
@@ -21,6 +40,10 @@ def serialize_workflow_details(
 
     def determine_model_status(resolved_model):
         if resolved_model.resolved_model is not None:
+            # Category mismatch is blocking - takes precedence over path_mismatch
+            has_category_mismatch = getattr(resolved_model, 'has_category_mismatch', False)
+            if has_category_mismatch is True:  # Explicit check for True, not truthy (handles Mock objects)
+                return "category_mismatch"
             if resolved_model.needs_path_sync:
                 return "path_mismatch"
             return "available"
@@ -76,6 +99,15 @@ def serialize_workflow_details(
         key = model_hash if model_hash else f"unhashed_{filename}"
 
         if key not in models_map:
+            # Get full file path for "open file location" functionality
+            file_path = None
+            if resolved and resolved.resolved_model:
+                base_dir = getattr(resolved.resolved_model, 'base_directory', None)
+                rel_path = getattr(resolved.resolved_model, 'relative_path', None)
+                if base_dir and rel_path and isinstance(base_dir, str) and isinstance(rel_path, str):
+                    from pathlib import Path
+                    file_path = str(Path(base_dir) / rel_path)
+
             models_map[key] = {
                 "filename": filename,
                 "hash": model_hash,
@@ -84,7 +116,12 @@ def serialize_workflow_details(
                 "status": status,
                 "used_in_workflows": [name],
                 "importance": importance,
-                "loaded_by": []
+                "loaded_by": [],
+                "file_path": file_path,
+                # Category mismatch details for actionable UI
+                "has_category_mismatch": getattr(resolved, 'has_category_mismatch', False) is True if resolved else False,
+                "expected_categories": _safe_list(getattr(resolved, 'expected_categories', None)) if resolved else [],
+                "actual_category": _safe_str(getattr(resolved, 'actual_category', None)) if resolved else None,
             }
 
         node_ref = {
@@ -158,7 +195,10 @@ def serialize_environment_status(status, env_name: str) -> dict:
             "pending_downloads_count": wf.download_intents_count,
             "issue_summary": wf.issue_summary,  # Use core's property directly
             "node_count": wf.node_count,
-            "model_count": wf.model_count
+            "model_count": wf.model_count,
+            # Category mismatch (blocking issue)
+            "has_category_mismatch_issues": getattr(wf, 'has_category_mismatch_issues', False),
+            "models_with_category_mismatch_count": getattr(wf, 'models_with_category_mismatch_count', 0),
         })
 
     return {

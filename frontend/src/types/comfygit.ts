@@ -22,6 +22,9 @@ export interface AnalyzedWorkflow {
   issue_summary: string
   node_count: number
   model_count: number
+  // Category mismatch (blocking issue)
+  has_category_mismatch_issues: boolean
+  models_with_category_mismatch_count: number
 }
 
 export interface GitChanges {
@@ -226,6 +229,9 @@ export interface WorkflowInfo {
   sync_state?: 'new' | 'modified' | 'synced' | 'deleted' // Git sync state
   has_path_sync_issues?: boolean // Has model paths that need syncing
   models_needing_path_sync?: number // Count of models needing path sync
+  // Category mismatch (blocking issue)
+  has_category_mismatch_issues?: boolean
+  models_with_category_mismatch?: number
 }
 
 export interface ModelUsageInfo {
@@ -233,14 +239,19 @@ export interface ModelUsageInfo {
   hash: string
   type: string
   size: number
-  status: 'available' | 'missing' | 'downloadable' | 'path_mismatch'
+  status: 'available' | 'missing' | 'downloadable' | 'path_mismatch' | 'category_mismatch'
   used_in_workflows: string[]
   importance: 'required' | 'flexible' | 'optional'
   loaded_by: Array<{ node_type: string; node_id: string }>
   line_number?: number
+  file_path?: string | null
   // Deprecated - use loaded_by instead
   node_type?: string
   node_id?: string
+  // Category mismatch details
+  has_category_mismatch?: boolean
+  expected_categories?: string[]
+  actual_category?: string | null
 }
 
 export interface WorkflowDetails {
@@ -454,6 +465,10 @@ export interface ResolvedModel {
   needs_path_sync: boolean
   has_download_source: boolean
   is_optional: boolean
+  // Category mismatch (blocking issue)
+  has_category_mismatch: boolean
+  expected_categories: string[]
+  actual_category: string | null
 }
 
 export interface UnresolvedModel {
