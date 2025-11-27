@@ -375,8 +375,8 @@ wheels = [
 
 [[package]]
 name = "comfygit-core"
-version = "0.2.5"
-source = { directory = "../comfygit/packages/core" }
+version = "0.2.4"
+source = { editable = "../comfygit/packages/core" }
 dependencies = [
     { name = "aiohttp" },
     { name = "blake3" },
@@ -400,8 +400,8 @@ requires-dist = [
     { name = "requests", specifier = ">=2.32.4" },
     { name = "requirements-parser", specifier = ">=0.13.0" },
     { name = "tomlkit", specifier = ">=0.13.3" },
-    { name = "uv", specifier = ">=0.9.9" },
-    { name = "xxhash", specifier = ">=3.6.0" },
+    { name = "uv", specifier = ">=0.7" },
+    { name = "xxhash", specifier = ">=2.0.0" },
 ]
 
 [package.metadata.requires-dev]
@@ -425,7 +425,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "comfygit-core", directory = "../comfygit/packages/core" },
+    { name = "comfygit-core", editable = "../comfygit/packages/core" },
     { name = "watchdog", specifier = ">=6.0.0" },
 ]
 
