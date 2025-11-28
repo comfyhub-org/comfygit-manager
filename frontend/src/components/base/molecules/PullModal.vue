@@ -73,6 +73,7 @@
                   </div>
                   <div v-for="file in preview.changes.workflows.modified" :key="'m-'+file" class="change-item modify">
                     ~ {{ file }}
+                    <span v-if="itemHasConflict(file)" class="conflict-badge">CONFLICT</span>
                   </div>
                   <div v-for="file in preview.changes.workflows.deleted" :key="'d-'+file" class="change-item delete">
                     - {{ file }}
@@ -106,6 +107,14 @@
                 </div>
               </details>
             </div>
+
+            <!-- Conflict Summary Box -->
+            <ConflictSummaryBox
+              v-if="previewWithConflicts"
+              :conflict-count="conflictCount"
+              :resolved-count="resolvedConflictCount"
+              operation-type="pull"
+            />
 
             <!-- Model Strategy -->
             <div v-if="preview.changes.models.count > 0" class="strategy-section">
@@ -169,9 +178,20 @@
           </template>
           <!-- Normal pull -->
           <template v-else-if="preview && preview.commits_behind > 0">
+            <!-- Show "Resolve Conflicts" button if conflicts exist and not all resolved -->
             <ActionButton
+              v-if="previewWithConflicts && !allConflictsResolved"
+              variant="primary"
+              @click="emit('openConflictResolution')"
+            >
+              Resolve Conflicts ({{ resolvedConflictCount }}/{{ conflictCount }})
+            </ActionButton>
+            <!-- Show "Pull Changes" button only if no conflicts OR all resolved -->
+            <ActionButton
+              v-else
               variant="primary"
               :loading="pulling"
+              :disabled="!canPull"
               @click="handlePull(false)"
             >
               Pull Changes
@@ -185,23 +205,27 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import type { PullPreview } from '@/types/comfygit'
+import type { PullPreview, PullPreviewWithConflicts, ConflictResolution } from '@/types/comfygit'
+import { hasConflicts } from '@/types/comfygit'
 import ActionButton from '@/components/base/atoms/ActionButton.vue'
+import ConflictSummaryBox from './ConflictSummaryBox.vue'
 
 const MODEL_STRATEGY_KEY = 'comfygit.pullModelStrategy'
 
 const props = defineProps<{
   show: boolean
   remoteName: string
-  preview: PullPreview | null
+  preview: PullPreview | PullPreviewWithConflicts | null
   loading: boolean
   pulling: boolean
   error: string | null
+  conflictResolutions?: Map<string, ConflictResolution>
 }>()
 
 const emit = defineEmits<{
   close: []
-  pull: [options: { modelStrategy: string; force: boolean }]
+  pull: [options: { modelStrategy: string; force: boolean; resolutions?: ConflictResolution[] }]
+  openConflictResolution: []
 }>()
 
 // Load saved strategy from localStorage
@@ -232,8 +256,39 @@ const hasChanges = computed(() => {
   return workflowChangesCount.value > 0 || nodeChangesCount.value > 0 || (props.preview?.changes.models.count || 0) > 0
 })
 
+// Conflict-related computed properties
+const previewWithConflicts = computed(() => {
+  if (props.preview && hasConflicts(props.preview)) {
+    return props.preview as PullPreviewWithConflicts
+  }
+  return null
+})
+
+const conflictCount = computed(() => previewWithConflicts.value?.conflicts.length ?? 0)
+
+const resolvedConflictCount = computed(() => props.conflictResolutions?.size ?? 0)
+
+const allConflictsResolved = computed(() =>
+  conflictCount.value > 0 && resolvedConflictCount.value === conflictCount.value
+)
+
+const canPull = computed(() => {
+  if (!props.preview) return false
+  if (props.preview.has_uncommitted_changes) return false
+  if (previewWithConflicts.value && !allConflictsResolved.value) return false
+  return true
+})
+
+function itemHasConflict(identifier: string): boolean {
+  if (!previewWithConflicts.value) return false
+  return previewWithConflicts.value.conflicts.some(c => c.identifier === identifier)
+}
+
 function handlePull(force: boolean) {
-  emit('pull', { modelStrategy: modelStrategy.value, force })
+  const resolutions = props.conflictResolutions
+    ? Array.from(props.conflictResolutions.values())
+    : undefined
+  emit('pull', { modelStrategy: modelStrategy.value, force, resolutions })
 }
 </script>
 
@@ -455,6 +510,19 @@ function handlePull(force: boolean) {
 .change-item.add { color: var(--cg-color-success); }
 .change-item.modify { color: var(--cg-color-info); }
 .change-item.delete { color: var(--cg-color-error); }
+
+.conflict-badge {
+  margin-left: var(--cg-space-2);
+  padding: 1px var(--cg-space-2);
+  font-size: var(--cg-font-size-xs);
+  font-weight: var(--cg-font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--cg-letter-spacing-wide);
+  background: var(--cg-color-warning-muted);
+  border: 1px solid var(--cg-color-warning);
+  border-radius: var(--cg-radius-xs);
+  color: var(--cg-color-warning);
+}
 
 .strategy-section {
   display: flex;

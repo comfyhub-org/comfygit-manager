@@ -116,8 +116,10 @@
     :loading="loadingPreview"
     :pulling="pulling"
     :error="pullError"
+    :conflict-resolutions="conflictResolutions"
     @close="closePullModal"
     @pull="handlePull"
+    @open-conflict-resolution="openConflictResolution"
   />
 
   <!-- Push Modal -->
@@ -131,12 +133,25 @@
     @push="handlePush"
     @pull-first="handlePullFirst"
   />
+
+  <!-- Conflict Resolution Modal -->
+  <ConflictResolutionModal
+    v-if="showConflictResolutionModal && pullPreviewWithConflicts"
+    :conflicts="pullPreviewWithConflicts.conflicts"
+    :resolutions="conflictResolutions"
+    :operation-type="'pull'"
+    :applying="pulling"
+    @close="handleConflictResolutionClose"
+    @resolve="handleConflictResolve"
+    @apply="handleConflictResolutionApply"
+  />
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useComfyGitService } from '@/composables/useComfyGitService'
-import type { RemoteInfo, RemoteSyncStatus, PullPreview, PushPreview } from '@/types/comfygit'
+import type { RemoteInfo, RemoteSyncStatus, PullPreview, PushPreview, PullPreviewWithConflicts, AnyConflict, ConflictResolution } from '@/types/comfygit'
+import { hasConflicts } from '@/types/comfygit'
 import PanelLayout from '@/components/base/organisms/PanelLayout.vue'
 import PanelHeader from '@/components/base/molecules/PanelHeader.vue'
 import SearchBar from '@/components/base/molecules/SearchBar.vue'
@@ -151,6 +166,7 @@ import ErrorState from '@/components/base/organisms/ErrorState.vue'
 import InfoPopover from '@/components/base/molecules/InfoPopover.vue'
 import PullModal from '@/components/base/molecules/PullModal.vue'
 import PushModal from '@/components/base/molecules/PushModal.vue'
+import ConflictResolutionModal from '@/components/ConflictResolutionModal.vue'
 
 const {
   getRemotes,
@@ -293,13 +309,25 @@ function openDocs() {
 // Push/Pull Modal State
 const showPullModal = ref(false)
 const showPushModal = ref(false)
-const pullPreview = ref<PullPreview | null>(null)
+const pullPreview = ref<PullPreview | PullPreviewWithConflicts | null>(null)
 const pushPreview = ref<PushPreview | null>(null)
 const loadingPreview = ref(false)
 const pulling = ref(false)
 const pushing = ref(false)
 const activeRemote = ref<string | null>(null)
 const pullError = ref<string | null>(null)
+
+// Conflict Resolution State (persists across modal open/close)
+const showConflictResolutionModal = ref(false)
+const conflictResolutions = ref<Map<string, ConflictResolution>>(new Map())
+
+// Computed: Get pull preview as conflicts version if applicable
+const pullPreviewWithConflicts = computed(() => {
+  if (pullPreview.value && hasConflicts(pullPreview.value)) {
+    return pullPreview.value as PullPreviewWithConflicts
+  }
+  return null
+})
 
 async function handlePullClick(remoteName: string) {
   activeRemote.value = remoteName
@@ -345,7 +373,7 @@ function closePushModal() {
   activeRemote.value = null
 }
 
-async function handlePull(options: { modelStrategy: string; force: boolean }) {
+async function handlePull(options: { modelStrategy: string; force: boolean; resolutions?: ConflictResolution[] }) {
   if (!activeRemote.value) return
 
   pulling.value = true
@@ -353,6 +381,8 @@ async function handlePull(options: { modelStrategy: string; force: boolean }) {
   try {
     await pullFromRemote(activeRemote.value, options)
     closePullModal()
+    // Clear conflict resolutions on successful pull
+    conflictResolutions.value.clear()
     // Refresh sync status after pull
     await loadRemotes()
   } catch (err) {
@@ -386,6 +416,44 @@ function handlePullFirst() {
   if (remote) {
     handlePullClick(remote)
   }
+}
+
+// Conflict Resolution Methods
+function openConflictResolution() {
+  if (!pullPreviewWithConflicts.value) return
+  // Close PullModal and open ConflictResolutionModal
+  showPullModal.value = false
+  showConflictResolutionModal.value = true
+}
+
+function handleConflictResolve(conflict: AnyConflict, resolution: 'take_base' | 'take_target') {
+  conflictResolutions.value.set(conflict.identifier, {
+    identifier: conflict.identifier,
+    category: conflict.category,
+    resolution
+  })
+}
+
+function handleConflictResolutionClose() {
+  showConflictResolutionModal.value = false
+  // Reopen PullModal so user can see their progress
+  showPullModal.value = true
+  // NOTE: We do NOT clear resolutions here - they persist!
+}
+
+async function handleConflictResolutionApply() {
+  // Close the resolution modal
+  showConflictResolutionModal.value = false
+
+  // Convert Map to array for API call
+  const resolutions = Array.from(conflictResolutions.value.values())
+
+  // Trigger pull with resolutions
+  await handlePull({
+    modelStrategy: localStorage.getItem('comfygit.pullModelStrategy') || 'skip',
+    force: false,
+    resolutions
+  })
 }
 
 onMounted(loadRemotes)

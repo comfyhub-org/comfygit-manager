@@ -634,6 +634,7 @@ export function useComfyGitService() {
 
   // Push/Pull Operations
   async function getPullPreview(remote: string, branch?: string): Promise<PullPreview> {
+    if (USE_MOCK) return mockApi.getPullPreview(remote)
     const url = branch
       ? `/v2/comfygit/remotes/${encodeURIComponent(remote)}/pull-preview?branch=${encodeURIComponent(branch)}`
       : `/v2/comfygit/remotes/${encodeURIComponent(remote)}/pull-preview`
@@ -642,19 +643,22 @@ export function useComfyGitService() {
 
   async function pullFromRemote(
     remote: string,
-    options: { modelStrategy?: string; force?: boolean } = {}
+    options: { modelStrategy?: string; force?: boolean; resolutions?: any[] } = {}
   ): Promise<PullResult> {
+    if (USE_MOCK) return mockApi.pullFromRemote(remote, options)
     return fetchApi<PullResult>(`/v2/comfygit/remotes/${encodeURIComponent(remote)}/pull`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model_strategy: options.modelStrategy || 'skip',
-        force: options.force || false
+        force: options.force || false,
+        resolutions: options.resolutions
       })
     })
   }
 
   async function getPushPreview(remote: string, branch?: string): Promise<PushPreview> {
+    if (USE_MOCK) return mockApi.getPushPreview(remote)
     const url = branch
       ? `/v2/comfygit/remotes/${encodeURIComponent(remote)}/push-preview?branch=${encodeURIComponent(branch)}`
       : `/v2/comfygit/remotes/${encodeURIComponent(remote)}/push-preview`
@@ -665,6 +669,7 @@ export function useComfyGitService() {
     remote: string,
     options: { force?: boolean } = {}
   ): Promise<PushResult> {
+    if (USE_MOCK) return mockApi.pushToRemote(remote, options)
     return fetchApi<PushResult>(`/v2/comfygit/remotes/${encodeURIComponent(remote)}/push`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

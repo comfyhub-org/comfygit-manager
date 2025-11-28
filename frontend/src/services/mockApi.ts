@@ -1053,6 +1053,148 @@ export const mockApi = {
     }
   },
 
+  /**
+   * Get Pull Preview - Returns preview with optional conflicts
+   * GET /v2/comfygit/remotes/{name}/pull-preview
+   *
+   * Test scenarios by remote name:
+   * - "origin" - Returns preview WITH conflicts (default for testing)
+   * - "upstream" - Returns preview WITHOUT conflicts (clean pull)
+   * - Any other - Returns preview with conflicts
+   */
+  getPullPreview: async (remote: string): Promise<any> => {
+    await delay(500)
+
+    const basePreview = {
+      remote,
+      branch: 'main',
+      commits_behind: 3,
+      commits: [
+        { hash: 'abc1234', short_hash: 'abc1234', message: 'Add new workflow features', date: '2024-01-15T10:30:00Z', date_relative: '2 hours ago' },
+        { hash: 'def5678', short_hash: 'def5678', message: 'Update node dependencies', date: '2024-01-15T09:15:00Z', date_relative: '3 hours ago' },
+        { hash: 'ghi9012', short_hash: 'ghi9012', message: 'Fix model path handling', date: '2024-01-15T08:00:00Z', date_relative: '4 hours ago' }
+      ],
+      changes: {
+        workflows: {
+          added: ['new-workflow.json'],
+          modified: ['flux-schnell.json', 'sdxl-lightning.json'],
+          deleted: []
+        },
+        nodes: {
+          to_install: ['comfyui-animatediff', 'comfyui-controlnet-aux'],
+          to_remove: []
+        },
+        models: {
+          referenced: ['flux1-dev.safetensors', 'sdxl_base.safetensors'],
+          count: 2
+        }
+      },
+      has_uncommitted_changes: false,
+      can_pull: true,
+      block_reason: null
+    }
+
+    // Return preview WITH conflicts for "origin" or other remotes (for testing)
+    if (remote !== 'upstream') {
+      return {
+        ...basePreview,
+        has_conflicts: true,
+        conflicts: [
+          {
+            category: 'workflow',
+            identifier: 'flux-schnell.json',
+            conflict_type: 'both_modified',
+            resolution: 'unresolved',
+            base_hash: 'abc12345',
+            target_hash: 'def67890'
+          },
+          {
+            category: 'node',
+            identifier: 'comfyui-animatediff',
+            conflict_type: 'both_modified',
+            resolution: 'unresolved',
+            base_version: 'v1.2.0',
+            target_version: 'v1.5.0',
+            base_deleted: false,
+            target_deleted: false
+          },
+          {
+            category: 'dependency',
+            identifier: 'torch',
+            conflict_type: 'both_modified',
+            resolution: 'unresolved',
+            base_spec: 'torch>=2.0.0',
+            target_spec: 'torch>=2.1.0'
+          }
+        ]
+      }
+    }
+
+    // Clean preview for "upstream" (no conflicts)
+    return {
+      ...basePreview,
+      has_conflicts: false,
+      conflicts: []
+    }
+  },
+
+  /**
+   * Pull from Remote - Execute pull with optional conflict resolutions
+   * POST /v2/comfygit/remotes/{name}/pull
+   */
+  pullFromRemote: async (remote: string, options: any): Promise<any> => {
+    await delay(1500)
+    console.log(`[MOCK] Pulling from ${remote} with options:`, options)
+    return {
+      status: 'success',
+      pull_output: 'Already up to date.',
+      sync_result: {
+        nodes_installed: options.resolutions ? ['comfyui-animatediff'] : [],
+        nodes_removed: [],
+        models_queued: 0,
+        errors: []
+      },
+      message: 'Pull completed successfully'
+    }
+  },
+
+  /**
+   * Get Push Preview
+   * GET /v2/comfygit/remotes/{name}/push-preview
+   */
+  getPushPreview: async (remote: string): Promise<any> => {
+    await delay(400)
+    return {
+      remote,
+      branch: 'main',
+      commits_ahead: 2,
+      commits: [
+        { hash: 'xyz1234', short_hash: 'xyz1234', message: 'Local workflow changes', date: '2024-01-15T11:00:00Z', date_relative: '1 hour ago' },
+        { hash: 'uvw5678', short_hash: 'uvw5678', message: 'Add new node configuration', date: '2024-01-15T10:45:00Z', date_relative: '1.5 hours ago' }
+      ],
+      has_uncommitted_changes: false,
+      remote_has_new_commits: false,
+      can_push: true,
+      needs_force: false,
+      block_reason: null
+    }
+  },
+
+  /**
+   * Push to Remote
+   * POST /v2/comfygit/remotes/{name}/push
+   */
+  pushToRemote: async (remote: string, options: any): Promise<any> => {
+    await delay(1000)
+    console.log(`[MOCK] Pushing to ${remote} with options:`, options)
+    return {
+      status: 'success',
+      push_output: 'Everything up-to-date',
+      commits_pushed: 2,
+      message: 'Push completed successfully'
+    }
+  },
+
   // =============================================================================
   // NEW: Interactive Workflow Resolution Endpoints
   // =============================================================================
