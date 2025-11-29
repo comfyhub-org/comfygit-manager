@@ -59,7 +59,6 @@
             :key="remote.name"
             :remote="remote"
             :sync-status="syncStatuses[remote.name]"
-            :tracking-branch="isTrackingRemote(remote.name) ? trackingInfo?.branch : undefined"
             :fetching-remote="fetchingRemote"
             @fetch="handleFetch"
             @edit="handleEdit"
@@ -173,6 +172,10 @@ import type {
   MergeValidation
 } from '@/types/comfygit'
 import { hasWorkflowConflicts } from '@/types/comfygit'
+
+const emit = defineEmits<{
+  toast: [message: string, type: 'info' | 'success' | 'warning' | 'error']
+}>()
 import PanelLayout from '@/components/base/organisms/PanelLayout.vue'
 import PanelHeader from '@/components/base/molecules/PanelHeader.vue'
 import SearchBar from '@/components/base/molecules/SearchBar.vue'
@@ -231,10 +234,6 @@ const filteredRemotes = computed(() => {
     r.push_url.toLowerCase().includes(query)
   )
 })
-
-function isTrackingRemote(remoteName: string): boolean {
-  return trackingInfo.value?.remote === remoteName
-}
 
 async function loadRemotes() {
   loading.value = true
@@ -307,8 +306,9 @@ async function handleFetch(remoteName: string) {
     if (status) {
       syncStatuses.value[remoteName] = status
     }
+    emit('toast', `✓ Fetched from ${remoteName}`, 'success')
   } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Fetch failed'
+    emit('toast', err instanceof Error ? err.message : 'Fetch failed', 'error')
   } finally {
     fetchingRemote.value = null
   }
@@ -403,9 +403,10 @@ async function handlePull(options: { modelStrategy: string; force: boolean; reso
 
   flowState.value = 'executing'
   pullError.value = null
+  const remote = activeRemote.value
 
   try {
-    const result = await pullFromRemote(activeRemote.value, options)
+    const result = await pullFromRemote(remote, options)
 
     // Check for rollback
     if (result.rolled_back) {
@@ -417,6 +418,7 @@ async function handlePull(options: { modelStrategy: string; force: boolean; reso
     // Success - reset everything
     resetConflictState()
     flowState.value = 'idle'
+    emit('toast', `✓ Pulled from ${remote}`, 'success')
     await loadRemotes()
   } catch (err) {
     pullError.value = err instanceof Error ? err.message : 'Pull failed'
@@ -463,10 +465,11 @@ async function handleApplyResolutions() {
 
 async function handleProceedWithMerge() {
   flowState.value = 'executing'
+  const remote = activeRemote.value!
 
   try {
     const resolutions = Array.from(workflowResolutions.value.values())
-    const result = await pullFromRemote(activeRemote.value!, {
+    const result = await pullFromRemote(remote, {
       modelStrategy: localStorage.getItem('comfygit.pullModelStrategy') || 'skip',
       force: false,
       resolutions
@@ -482,6 +485,7 @@ async function handleProceedWithMerge() {
     // Success - reset everything
     resetConflictState()
     flowState.value = 'idle'
+    emit('toast', `✓ Pulled from ${remote}`, 'success')
     await loadRemotes()
   } catch (err) {
     pullError.value = err instanceof Error ? err.message : 'Pull failed'
@@ -537,12 +541,14 @@ async function handlePush(options: { force: boolean }) {
   if (!activeRemote.value) return
 
   pushing.value = true
+  const remote = activeRemote.value
   try {
-    await pushToRemote(activeRemote.value, options)
+    await pushToRemote(remote, options)
     closePushModal()
+    emit('toast', `✓ Pushed to ${remote}`, 'success')
     await loadRemotes()
   } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Push failed'
+    emit('toast', err instanceof Error ? err.message : 'Push failed', 'error')
   } finally {
     pushing.value = false
   }

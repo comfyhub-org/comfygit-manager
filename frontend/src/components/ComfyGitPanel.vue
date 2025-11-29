@@ -244,7 +244,7 @@
           <ImportSection v-else-if="currentView === 'import'" />
 
           <!-- Remotes View -->
-          <RemotesSection v-else-if="currentView === 'remotes'" />
+          <RemotesSection v-else-if="currentView === 'remotes'" @toast="handleToast" />
         </template>
       </div>
     </div>
@@ -376,7 +376,6 @@
           :key="toast.id"
           :class="['toast', toast.type]"
         >
-          <span class="toast-icon">{{ getToastIcon(toast.type) }}</span>
           <span class="toast-message">{{ toast.message }}</span>
         </div>
       </transition-group>
@@ -554,15 +553,6 @@ function showToast(message: string, type: Toast['type'] = 'info', duration = 300
 
 function removeToast(id: number) {
   toasts.value = toasts.value.filter(t => t.id !== id)
-}
-
-function getToastIcon(type: Toast['type']): string {
-  switch (type) {
-    case 'success': return '✓'
-    case 'warning': return '!'
-    case 'error': return '✕'
-    default: return '→'
-  }
 }
 
 function handleToast(message: string, type: Toast['type']) {
@@ -1644,11 +1634,6 @@ onMounted(refresh)
 .toast.success { border-left: 3px solid var(--cg-color-success); }
 .toast.warning { border-left: 3px solid var(--cg-color-warning); }
 .toast.error { border-left: 3px solid var(--cg-color-error); }
-
-.toast-icon {
-  font-size: 10px;
-  font-weight: bold;
-}
 
 .toast-message {
   flex: 1;
