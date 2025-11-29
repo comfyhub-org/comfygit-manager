@@ -68,12 +68,11 @@
         </div>
 
         <!-- Progress display during workspace creation -->
-        <div v-if="isCreatingWorkspace" class="wizard-progress">
-          <div class="progress-bar">
-            <div class="progress-fill" :style="{ width: `${initProgress.progress}%` }"></div>
-          </div>
-          <p class="progress-message">{{ initProgress.message }}</p>
-        </div>
+        <TaskProgressDisplay
+          v-if="isCreatingWorkspace"
+          :progress="initProgress.progress"
+          :message="initProgress.message"
+        />
       </div>
 
       <!-- Step 2: Environment Creation -->
@@ -124,12 +123,14 @@
         </div>
 
         <!-- Progress display during environment creation -->
-        <div v-if="isCreatingEnvironment" class="wizard-progress">
-          <div class="progress-bar">
-            <div class="progress-fill" :style="{ width: `${createProgress.progress}%` }"></div>
-          </div>
-          <p class="progress-message">{{ createProgress.message }}</p>
-        </div>
+        <TaskProgressDisplay
+          v-if="isCreatingEnvironment"
+          :progress="createProgress.progress"
+          :message="createProgress.message"
+          :current-phase="createProgress.phase"
+          :show-steps="true"
+          :steps="environmentCreationSteps"
+        />
 
         <div v-if="envCreateError" class="form-error">
           {{ envCreateError }}
@@ -171,6 +172,7 @@ import { PYTHON_VERSIONS, DEFAULT_PYTHON_VERSION, TORCH_BACKENDS, DEFAULT_TORCH_
 import { useComfyGitService } from '@/composables/useComfyGitService'
 import BaseModal from './base/BaseModal.vue'
 import BaseButton from './base/BaseButton.vue'
+import TaskProgressDisplay from './base/molecules/TaskProgressDisplay.vue'
 
 const props = defineProps<{
   defaultPath: string
@@ -217,7 +219,20 @@ const loadingReleases = ref(false)
 const isCreatingWorkspace = ref(false)
 const isCreatingEnvironment = ref(false)
 const initProgress = ref({ progress: 0, message: '' })
-const createProgress = ref({ progress: 0, message: '' })
+const createProgress = ref<{ progress: number; message: string; phase?: string }>({ progress: 0, message: '' })
+
+// Environment creation steps (matches core library phases)
+const environmentCreationSteps = [
+  { id: 'init_structure', label: 'Initialize structure', progressThreshold: 5 },
+  { id: 'resolve_version', label: 'Resolve ComfyUI version', progressThreshold: 10 },
+  { id: 'clone_comfyui', label: 'Clone/restore ComfyUI', progressThreshold: 25 },
+  { id: 'configure_environment', label: 'Configure environment', progressThreshold: 30 },
+  { id: 'create_venv', label: 'Create virtual environment', progressThreshold: 35 },
+  { id: 'install_pytorch', label: 'Install PyTorch', progressThreshold: 70 },
+  { id: 'configure_pytorch', label: 'Configure PyTorch', progressThreshold: 75 },
+  { id: 'install_dependencies', label: 'Install dependencies', progressThreshold: 95 },
+  { id: 'finalize', label: 'Finalize environment', progressThreshold: 100 },
+]
 
 // Polling safeguards
 const MAX_FAILURES = 10
@@ -406,8 +421,9 @@ async function handleStep2Create() {
           }
 
           createProgress.value = {
-            progress: progress.state === 'creating' ? 50 : progress.state === 'complete' ? 100 : 0,
-            message: progress.message
+            progress: progress.progress ?? 0,
+            message: progress.message,
+            phase: progress.phase
           }
 
           if (progress.state === 'complete') {
@@ -602,32 +618,5 @@ onMounted(() => {
   color: var(--cg-color-accent);
   font-size: var(--cg-font-size-xs);
   margin-top: var(--cg-space-1);
-}
-
-.wizard-progress {
-  margin-top: var(--cg-space-4);
-  padding: var(--cg-space-3);
-  background: var(--cg-color-bg-tertiary);
-  border: 1px solid var(--cg-color-border-subtle);
-}
-
-.progress-bar {
-  height: 6px;
-  background: var(--cg-color-bg-primary);
-  border: 1px solid var(--cg-color-border-subtle);
-  margin-bottom: var(--cg-space-2);
-}
-
-.progress-fill {
-  height: 100%;
-  background: var(--cg-color-accent);
-  transition: width 0.3s ease;
-}
-
-.progress-message {
-  color: var(--cg-color-text-secondary);
-  font-size: var(--cg-font-size-xs);
-  text-align: center;
-  margin: 0;
 }
 </style>

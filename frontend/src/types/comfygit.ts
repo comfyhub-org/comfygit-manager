@@ -198,6 +198,8 @@ export interface CreateEnvironmentProgress {
   state: 'idle' | 'creating' | 'complete' | 'error'
   task_id?: string
   environment_name?: string
+  phase?: string
+  progress?: number
   message: string
   error?: string
 }

@@ -66,6 +66,8 @@ interface MockSetupState {
 
 interface MockCreateEnvState {
   state: 'idle' | 'creating' | 'complete' | 'error'
+  phase: string | null
+  progress: number
   message: string
   startTime: number | null
   envName: string | null
@@ -82,10 +84,25 @@ const mockSetupState: MockSetupState = {
 
 const mockCreateEnvState: MockCreateEnvState = {
   state: 'idle',
+  phase: null,
+  progress: 0,
   message: '',
   startTime: null,
   envName: null
 }
+
+// Phase definitions with timing (matches core library phases)
+const MOCK_ENV_PHASES = [
+  { id: 'init_structure', endTime: 300, progress: 5, message: 'Creating environment structure...' },
+  { id: 'resolve_version', endTime: 800, progress: 10, message: 'Resolving ComfyUI version...' },
+  { id: 'clone_comfyui', endTime: 2800, progress: 25, message: 'Cloning ComfyUI...' },
+  { id: 'configure_environment', endTime: 3300, progress: 30, message: 'Configuring environment...' },
+  { id: 'create_venv', endTime: 4300, progress: 35, message: 'Creating virtual environment...' },
+  { id: 'install_pytorch', endTime: 8300, progress: 70, message: 'Installing PyTorch...' },
+  { id: 'configure_pytorch', endTime: 8800, progress: 75, message: 'Configuring PyTorch backend...' },
+  { id: 'install_dependencies', endTime: 11300, progress: 95, message: 'Installing ComfyUI dependencies...' },
+  { id: 'finalize', endTime: 11800, progress: 100, message: 'Finalizing environment...' },
+]
 
 // Helper to simulate progress over time for workspace initialization
 function updateMockInitProgress(): void {
@@ -131,18 +148,30 @@ function updateMockCreateEnvProgress(): void {
 
   const elapsed = Date.now() - mockCreateEnvState.startTime
 
-  // Simulate: 0-10s creating, 10s+ complete
-  if (elapsed < 10000) {
-    mockCreateEnvState.state = 'creating'
-    if (elapsed < 2000) {
-      mockCreateEnvState.message = 'Setting up virtual environment...'
-    } else if (elapsed < 5000) {
-      mockCreateEnvState.message = 'Installing ComfyUI...'
-    } else {
-      mockCreateEnvState.message = 'Installing PyTorch...'
+  // Find current phase based on elapsed time
+  let foundPhase = false
+  for (const phase of MOCK_ENV_PHASES) {
+    if (elapsed < phase.endTime) {
+      mockCreateEnvState.phase = phase.id
+      mockCreateEnvState.message = phase.message
+      // Interpolate progress within phase
+      const prevPhaseIdx = MOCK_ENV_PHASES.indexOf(phase) - 1
+      const prevEndTime = prevPhaseIdx >= 0 ? MOCK_ENV_PHASES[prevPhaseIdx].endTime : 0
+      const prevProgress = prevPhaseIdx >= 0 ? MOCK_ENV_PHASES[prevPhaseIdx].progress : 0
+      const phaseDuration = phase.endTime - prevEndTime
+      const phaseElapsed = elapsed - prevEndTime
+      const phaseProgress = phaseElapsed / phaseDuration
+      mockCreateEnvState.progress = Math.floor(prevProgress + (phase.progress - prevProgress) * phaseProgress)
+      foundPhase = true
+      break
     }
-  } else {
+  }
+
+  // If past all phases, complete
+  if (!foundPhase) {
     mockCreateEnvState.state = 'complete'
+    mockCreateEnvState.phase = 'complete'
+    mockCreateEnvState.progress = 100
     mockCreateEnvState.message = `Environment '${mockCreateEnvState.envName}' created successfully`
     mockCreateEnvState.startTime = null
   }
@@ -303,7 +332,9 @@ export function useComfyGitService() {
     if (USE_MOCK) {
       // Start the mock environment creation process
       mockCreateEnvState.state = 'creating'
-      mockCreateEnvState.message = 'Setting up virtual environment...'
+      mockCreateEnvState.phase = 'init_structure'
+      mockCreateEnvState.progress = 0
+      mockCreateEnvState.message = 'Creating environment structure...'
       mockCreateEnvState.startTime = Date.now()
       mockCreateEnvState.envName = request.name
       console.log('[MOCK] Starting environment creation:', request)
@@ -324,6 +355,8 @@ export function useComfyGitService() {
 
       return {
         state: mockCreateEnvState.state,
+        phase: mockCreateEnvState.phase ?? undefined,
+        progress: mockCreateEnvState.progress,
         message: mockCreateEnvState.message,
         environment_name: mockCreateEnvState.state === 'complete' ? mockCreateEnvState.envName || undefined : undefined,
         error: mockCreateEnvState.state === 'error' ? 'Mock error occurred' : undefined
