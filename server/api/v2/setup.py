@@ -1,5 +1,7 @@
 """First-time setup API."""
+import logging
 import os
+import shutil
 import threading
 import uuid
 from pathlib import Path
@@ -9,6 +11,8 @@ from aiohttp import web
 from comfygit_core.factories.workspace_factory import WorkspaceFactory
 from comfygit_core.models.exceptions import CDWorkspaceNotFoundError
 import orchestrator
+
+logger = logging.getLogger(__name__)
 
 routes = web.RouteTableDef()
 
@@ -273,6 +277,53 @@ async def initialize_workspace(request: web.Request) -> web.Response:
     })
 
 
+def _install_self_as_system_node(workspace):
+    """Copy comfygit-manager into workspace system_nodes.
+
+    Since we ARE comfygit-manager running inside ComfyUI, we can copy
+    ourselves directly rather than cloning from GitHub. This ensures
+    the management panel is available in all environments.
+    """
+    # Find comfygit-manager root (go up from server/api/v2/setup.py)
+    manager_root = Path(__file__).parent.parent.parent.parent
+
+    # Validate this is actually comfygit-manager
+    if not (manager_root / "__init__.py").exists():
+        logger.warning("Could not locate comfygit-manager root, skipping self-install")
+        return
+
+    target_path = workspace.paths.system_nodes / "comfygit-manager"
+
+    if target_path.exists():
+        logger.debug("comfygit-manager already exists in system_nodes")
+        return
+
+    # Ensure parent directory exists
+    workspace.paths.system_nodes.mkdir(parents=True, exist_ok=True)
+
+    # Patterns to exclude from copy (development artifacts)
+    EXCLUDE_PATTERNS = {
+        '.venv', 'venv', '__pycache__', '.git', '.pytest_cache',
+        '.ruff_cache', 'node_modules', '.env', '.coverage',
+        '.mypy_cache', 'htmlcov', '.tox', 'dist', 'build',
+        '.claude', 'testing', 'api-testing'
+    }
+
+    def ignore_patterns(directory, files):
+        return [f for f in files if f in EXCLUDE_PATTERNS or f.endswith('.pyc')]
+
+    try:
+        shutil.copytree(
+            manager_root,
+            target_path,
+            ignore=ignore_patterns,
+            dirs_exist_ok=False
+        )
+        logger.info("Installed comfygit-manager to workspace system_nodes")
+    except Exception as e:
+        logger.warning(f"Failed to install comfygit-manager: {e}")
+
+
 def _run_initialize_workspace(workspace_path: Path, models_dir: Path | None):
     """Background thread function to initialize workspace."""
     from comfygit_core.analyzers.model_scanner import ModelScanProgress
@@ -282,6 +333,9 @@ def _run_initialize_workspace(workspace_path: Path, models_dir: Path | None):
         _update_init_state("creating_workspace", 10, "Creating workspace structure...")
         workspace = WorkspaceFactory.create(workspace_path)
         _update_init_state("creating_workspace", 20, "Workspace structure created")
+
+        # Install comfygit-manager into system_nodes
+        _install_self_as_system_node(workspace)
 
         # Phase 2: Set models directory (if provided)
         if models_dir:

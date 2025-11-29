@@ -1,7 +1,6 @@
 """Integration tests for first-time setup panel endpoints."""
 import pytest
-from unittest.mock import Mock, patch
-from pathlib import Path
+from unittest.mock import Mock
 
 
 @pytest.mark.integration
@@ -599,3 +598,212 @@ class TestResetInitializationEndpoint:
         assert resp.status == 200
         data = await resp.json()
         assert data["status"] == "no_action"
+
+
+@pytest.mark.integration
+class TestSystemNodeSelfInstallation:
+    """Tests for comfygit-manager self-installation into system_nodes."""
+
+    def test_install_self_as_system_node_with_real_workspace(self, tmp_path):
+        """Should copy comfygit-manager using real WorkspaceFactory."""
+        from comfygit_core.factories.workspace_factory import WorkspaceFactory
+        from api.v2.setup import _install_self_as_system_node
+
+        # Create real workspace
+        workspace = WorkspaceFactory.create(tmp_path / "test-workspace")
+
+        # Verify system_nodes path is correct
+        assert workspace.paths.system_nodes == tmp_path / "test-workspace" / ".metadata" / "system_nodes"
+
+        # Install comfygit-manager
+        _install_self_as_system_node(workspace)
+
+        # Verify installation
+        target_path = workspace.paths.system_nodes / "comfygit-manager"
+        assert target_path.exists(), "comfygit-manager should be copied to system_nodes"
+        assert (target_path / "__init__.py").exists(), "__init__.py should exist"
+        assert (target_path / "server").is_dir(), "server directory should exist"
+
+    def test_install_self_as_system_node_creates_directory(self, tmp_path, monkeypatch):
+        """Should copy comfygit-manager to workspace system_nodes directory."""
+
+        # Create mock workspace with system_nodes path
+        system_nodes_path = tmp_path / ".metadata" / "system_nodes"
+        mock_workspace = Mock()
+        mock_workspace.paths = Mock()
+        mock_workspace.paths.system_nodes = system_nodes_path
+
+        # Import the function we need to test
+        from api.v2.setup import _install_self_as_system_node
+
+        # Call installation
+        _install_self_as_system_node(mock_workspace)
+
+        # Verify comfygit-manager directory was created
+        target_path = system_nodes_path / "comfygit-manager"
+        assert target_path.exists(), "comfygit-manager should be copied to system_nodes"
+
+        # Verify key files exist
+        assert (target_path / "__init__.py").exists(), "__init__.py should exist"
+
+    def test_install_self_as_system_node_skips_if_exists(self, tmp_path, monkeypatch):
+        """Should skip installation if comfygit-manager already exists."""
+
+        # Create mock workspace
+        system_nodes_path = tmp_path / ".metadata" / "system_nodes"
+        system_nodes_path.mkdir(parents=True)
+
+        # Pre-create comfygit-manager directory with marker
+        existing_manager = system_nodes_path / "comfygit-manager"
+        existing_manager.mkdir()
+        marker_file = existing_manager / "existing_marker.txt"
+        marker_file.write_text("original")
+
+        mock_workspace = Mock()
+        mock_workspace.paths = Mock()
+        mock_workspace.paths.system_nodes = system_nodes_path
+
+        from api.v2.setup import _install_self_as_system_node
+
+        # Call installation
+        _install_self_as_system_node(mock_workspace)
+
+        # Verify original marker still exists (wasn't overwritten)
+        assert marker_file.exists(), "Existing installation should be preserved"
+        assert marker_file.read_text() == "original"
+
+    def test_install_self_as_system_node_excludes_dev_artifacts(self, tmp_path, monkeypatch):
+        """Should exclude .venv, __pycache__, .git, etc from copy."""
+
+        system_nodes_path = tmp_path / ".metadata" / "system_nodes"
+        mock_workspace = Mock()
+        mock_workspace.paths = Mock()
+        mock_workspace.paths.system_nodes = system_nodes_path
+
+        from api.v2.setup import _install_self_as_system_node
+
+        # Call installation
+        _install_self_as_system_node(mock_workspace)
+
+        target_path = system_nodes_path / "comfygit-manager"
+
+        # Verify dev artifacts are NOT copied
+        assert not (target_path / ".venv").exists(), ".venv should be excluded"
+        assert not (target_path / ".git").exists(), ".git should be excluded"
+        assert not (target_path / "__pycache__").exists(), "__pycache__ should be excluded"
+        assert not (target_path / ".pytest_cache").exists(), ".pytest_cache should be excluded"
+        assert not (target_path / "node_modules").exists(), "node_modules should be excluded"
+
+    def test_run_initialize_workspace_installs_system_node(self, tmp_path, monkeypatch):
+        """Should call _install_self_as_system_node during workspace initialization."""
+        import api.v2.setup as setup_module
+
+        # Track if _install_self_as_system_node was called
+        install_called = []
+
+        def mock_install(workspace):
+            install_called.append(workspace)
+
+        monkeypatch.setattr(setup_module, "_install_self_as_system_node", mock_install)
+
+        # Mock WorkspaceFactory.create
+        system_nodes_path = tmp_path / ".metadata" / "system_nodes"
+        mock_workspace = Mock()
+        mock_workspace.paths = Mock()
+        mock_workspace.paths.system_nodes = system_nodes_path
+
+        def mock_create(path):
+            return mock_workspace
+
+        monkeypatch.setattr(
+            "api.v2.setup.WorkspaceFactory.create",
+            mock_create
+        )
+
+        # Run initialization (without models)
+        workspace_path = tmp_path / "test-workspace"
+        setup_module._run_initialize_workspace(workspace_path, models_dir=None)
+
+        # Verify _install_self_as_system_node was called
+        assert len(install_called) == 1, "_install_self_as_system_node should be called"
+        assert install_called[0] == mock_workspace
+
+    def test_system_node_symlink_manager_creates_links(self, tmp_path):
+        """Test that SystemNodeSymlinkManager creates symlinks correctly.
+
+        This tests the symlink creation without creating a full environment.
+        The full E2E flow (with real env creation) is tested separately as a slow test.
+        """
+        from comfygit_core.factories.workspace_factory import WorkspaceFactory
+        from comfygit_core.managers.system_node_symlink_manager import SystemNodeSymlinkManager
+        from comfygit_core.utils.symlink_utils import is_link
+        from api.v2.setup import _install_self_as_system_node
+
+        # Create workspace and install system node
+        workspace = WorkspaceFactory.create(tmp_path / "test-workspace")
+        _install_self_as_system_node(workspace)
+
+        system_node_path = workspace.paths.system_nodes / "comfygit-manager"
+        assert system_node_path.exists(), "System node should be installed"
+
+        # Simulate environment structure (without full env creation)
+        env_path = workspace.paths.environments / "test-env"
+        comfyui_path = env_path / "ComfyUI"
+        custom_nodes_path = comfyui_path / "custom_nodes"
+        custom_nodes_path.mkdir(parents=True)
+
+        # Use SystemNodeSymlinkManager directly
+        manager = SystemNodeSymlinkManager(comfyui_path, workspace.paths.system_nodes)
+        linked = manager.create_symlinks()
+
+        # Verify symlink was created
+        assert "comfygit-manager" in linked, "comfygit-manager should be linked"
+
+        symlink_path = custom_nodes_path / "comfygit-manager"
+        assert symlink_path.exists(), "Symlink should exist"
+        assert is_link(symlink_path), "Should be a symlink/junction"
+
+        # Verify symlink points to system_nodes
+        resolved = symlink_path.resolve()
+        assert resolved == system_node_path.resolve(), f"Should point to system_nodes, got {resolved}"
+
+    @pytest.mark.slow
+    def test_end_to_end_system_node_symlink_flow(self, tmp_path):
+        """Full integration: workspace → system node install → env creation → symlink.
+
+        This tests the complete system nodes architecture flow with real environment creation.
+        Marked as slow because it installs ComfyUI and creates a venv.
+        """
+        from comfygit_core.factories.workspace_factory import WorkspaceFactory
+        from comfygit_core.factories.environment_factory import EnvironmentFactory
+        from comfygit_core.utils.symlink_utils import is_link
+        from api.v2.setup import _install_self_as_system_node
+
+        # Step 1: Create workspace
+        workspace = WorkspaceFactory.create(tmp_path / "test-workspace")
+
+        # Step 2: Install comfygit-manager as system node
+        _install_self_as_system_node(workspace)
+
+        system_node_path = workspace.paths.system_nodes / "comfygit-manager"
+        assert system_node_path.exists(), "System node should be installed"
+
+        # Step 3: Create environment with CPU backend (faster, no CUDA download)
+        env_path = workspace.paths.environments / "test-env"
+        env = EnvironmentFactory.create(
+            "test-env",
+            env_path,
+            workspace,
+            torch_backend="cpu"
+        )
+
+        # Step 4: Verify symlink exists in environment's custom_nodes
+        custom_nodes_path = env.comfyui_path / "custom_nodes"
+        symlink_path = custom_nodes_path / "comfygit-manager"
+
+        assert symlink_path.exists(), "Symlink should exist in custom_nodes"
+        assert is_link(symlink_path), "Should be a symlink/junction"
+
+        # Verify symlink points to system_nodes
+        resolved = symlink_path.resolve()
+        assert resolved == system_node_path.resolve(), f"Symlink should point to system_nodes, got {resolved}"
