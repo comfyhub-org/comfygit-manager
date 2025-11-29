@@ -609,3 +609,41 @@ export interface DownloadQueue {
   items: DownloadQueueItem[]
   status: 'idle' | 'downloading' | 'paused'
 }
+
+// First-Time Setup Types
+export type SetupState = 'no_workspace' | 'empty_workspace' | 'unmanaged' | 'managed'
+
+export interface SetupStatus {
+  state: SetupState
+  workspace_path: string | null
+  default_path: string
+  environments: string[]
+  current_environment: string | null
+  detected_models_dir: string | null
+}
+
+export interface InitializeWorkspaceRequest {
+  workspace_path?: string
+  models_directory?: string | null
+}
+
+export interface InitializeProgress {
+  state: 'idle' | 'creating_workspace' | 'setting_models_dir' | 'scanning_models' | 'complete' | 'error'
+  progress: number
+  message: string
+  task_id?: string
+  models_found?: number
+  error?: string
+}
+
+export interface ValidatePathRequest {
+  path: string
+  type: 'workspace' | 'models'
+}
+
+export interface ValidatePathResult {
+  valid: boolean
+  error?: string
+  suggestion?: string
+  model_count?: number
+}

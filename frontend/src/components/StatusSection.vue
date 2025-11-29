@@ -5,6 +5,35 @@
     </template>
 
     <template #content>
+      <!-- Setup Issue Cards (highest priority) -->
+      <IssueCard
+        v-if="props.setupState === 'no_workspace'"
+        severity="info"
+        icon="🚀"
+        title="No ComfyGit workspace detected"
+        description="Set up a workspace to manage your ComfyUI environments, workflows, and models with version control."
+      >
+        <template #actions>
+          <ActionButton variant="primary" size="sm" @click="$emit('start-setup')">
+            Start Setup
+          </ActionButton>
+        </template>
+      </IssueCard>
+
+      <IssueCard
+        v-else-if="props.setupState === 'unmanaged'"
+        severity="warning"
+        icon="⚠"
+        title="Not in a managed environment"
+        description="You're running from an unmanaged ComfyUI installation. Switch to a managed environment to use ComfyGit features."
+      >
+        <template #actions>
+          <ActionButton variant="primary" size="sm" @click="$emit('view-environments')">
+            View Environments
+          </ActionButton>
+        </template>
+      </IssueCard>
+
       <!-- Environment Health Section -->
       <div class="health-section-wrapper" @mouseenter="showHealthActions = true" @mouseleave="showHealthActions = false">
         <div class="health-section-header">
@@ -223,7 +252,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import type { ComfyGitStatus } from '@/types/comfygit'
+import type { ComfyGitStatus, SetupState } from '@/types/comfygit'
 import PanelLayout from '@/components/base/organisms/PanelLayout.vue'
 import PanelHeader from '@/components/base/molecules/PanelHeader.vue'
 import SectionTitle from '@/components/base/atoms/SectionTitle.vue'
@@ -234,9 +263,14 @@ import EmptyState from '@/components/base/molecules/EmptyState.vue'
 import ActionButton from '@/components/base/atoms/ActionButton.vue'
 import StatusDetailModal from '@/components/base/molecules/StatusDetailModal.vue'
 
-const props = defineProps<{
+interface Props {
   status: ComfyGitStatus
-}>()
+  setupState?: SetupState
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  setupState: 'managed'
+})
 
 const showDetailModal = ref(false)
 const showHealthActions = ref(false)
@@ -263,6 +297,8 @@ const emit = defineEmits<{
   'sync-environment': []
   'create-branch': []
   'view-nodes': []
+  'start-setup': []
+  'view-environments': []
 }>()
 
 const hasWorkflowChanges = computed(() => {

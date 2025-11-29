@@ -169,12 +169,15 @@
           <StatusSection
             v-if="currentView === 'status'"
             :status="status!"
+            :setup-state="setupState"
             @switch-branch="handleSwitchBranchClick"
             @commit-changes="showCommitModal = true"
             @sync-environment="showSyncModal = true"
             @view-workflows="selectView('workflows', 'this-env')"
             @view-history="selectView('history', 'this-env')"
             @view-debug="selectView('debug-env', 'this-env')"
+            @start-setup="showSetupWizard = true"
+            @view-environments="selectView('environments', 'all-envs')"
           />
 
           <!-- Workflows View -->
@@ -366,6 +369,15 @@
       </div>
     </div>
 
+    <!-- First-Time Setup Wizard -->
+    <FirstTimeSetupWizard
+      v-if="showSetupWizard"
+      :default-path="setupStatus?.default_path || '~/comfygit'"
+      :detected-models-dir="setupStatus?.detected_models_dir || null"
+      @complete="handleSetupComplete"
+      @close="showSetupWizard = false"
+    />
+
     <!-- Toast Notifications -->
     <div class="toast-container">
       <transition-group name="toast">
@@ -405,9 +417,10 @@ import CommitPopover from './CommitPopover.vue'
 import ConfirmSwitchModal from './base/molecules/ConfirmSwitchModal.vue'
 import SwitchProgressModal from './base/molecules/SwitchProgressModal.vue'
 import SyncEnvironmentModal from './base/molecules/SyncEnvironmentModal.vue'
+import FirstTimeSetupWizard from './FirstTimeSetupWizard.vue'
 import { useComfyGitService } from '@/composables/useComfyGitService'
 import { useOrchestratorService } from '@/composables/useOrchestratorService'
-import type { ComfyGitStatus, CommitInfo, BranchInfo, EnvironmentInfo, CreateEnvironmentRequest } from '@/types/comfygit'
+import type { ComfyGitStatus, CommitInfo, BranchInfo, EnvironmentInfo, CreateEnvironmentRequest, SetupStatus, SetupState } from '@/types/comfygit'
 
 const emit = defineEmits<{
   close: []
@@ -428,7 +441,8 @@ const {
   createEnvironment,
   getCreateProgress,
   deleteEnvironment,
-  syncEnvironmentManually
+  syncEnvironmentManually,
+  getSetupStatus
 } = useComfyGitService()
 
 const orchestratorService = useOrchestratorService()
@@ -444,6 +458,13 @@ const commits = ref<CommitInfo[]>([])
 const branches = ref<BranchInfo[]>([])
 const environments = ref<EnvironmentInfo[]>([])
 const currentEnvironment = computed(() => environments.value.find(e => e.is_current))
+
+// First-time setup state
+const setupStatus = ref<SetupStatus | null>(null)
+const showSetupWizard = ref(false)
+const setupState = computed<SetupState>(() => {
+  return setupStatus.value?.state || 'managed'
+})
 const isLoading = ref(false)
 const error = ref<string | null>(null)
 const selectedCommit = ref<CommitInfo | null>(null)
@@ -1167,6 +1188,20 @@ async function handleEnvironmentDelete(envName: string) {
   }
 }
 
+async function handleSetupComplete(environmentName: string) {
+  showSetupWizard.value = false
+
+  // Refresh setup status
+  try {
+    setupStatus.value = await getSetupStatus()
+  } catch {
+    // Ignore errors
+  }
+
+  // Trigger environment switch
+  await handleEnvironmentSwitch(environmentName)
+}
+
 function getChangeDetails(): string[] {
   if (!status.value) return []
   const details: string[] = []
@@ -1177,7 +1212,21 @@ function getChangeDetails(): string[] {
   return details
 }
 
-onMounted(refresh)
+onMounted(async () => {
+  // Check setup status first
+  try {
+    setupStatus.value = await getSetupStatus()
+
+    if (setupStatus.value.state === 'no_workspace') {
+      showSetupWizard.value = true
+      return // Don't load normal panel data yet
+    }
+  } catch (err) {
+    console.warn('Setup status check failed, proceeding normally:', err)
+  }
+
+  await refresh()
+})
 </script>
 
 <style scoped>

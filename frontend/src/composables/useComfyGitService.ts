@@ -28,7 +28,12 @@ import type {
   NodesResult,
   RemotesResult,
   RemoteOperationResult,
-  RemoteSyncStatus
+  RemoteSyncStatus,
+  SetupStatus,
+  InitializeWorkspaceRequest,
+  InitializeProgress,
+  ValidatePathRequest,
+  ValidatePathResult
 } from '@/types/comfygit'
 import { mockApi, isMockApi } from '@/services/mockApi'
 
@@ -628,6 +633,50 @@ export function useComfyGitService() {
     })
   }
 
+  // First-Time Setup
+  async function getSetupStatus(): Promise<SetupStatus> {
+    if (USE_MOCK) {
+      return {
+        state: 'no_workspace',
+        workspace_path: null,
+        default_path: '~/comfygit',
+        environments: [],
+        current_environment: null,
+        detected_models_dir: '/mock/ComfyUI/models'
+      }
+    }
+    return fetchApi<SetupStatus>('/v2/setup/status')
+  }
+
+  async function initializeWorkspace(request: InitializeWorkspaceRequest): Promise<{ status: string; task_id: string }> {
+    if (USE_MOCK) {
+      return { status: 'started', task_id: 'mock-task-id' }
+    }
+    return fetchApi('/v2/setup/initialize_workspace', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request)
+    })
+  }
+
+  async function getInitializeProgress(): Promise<InitializeProgress> {
+    if (USE_MOCK) {
+      return { state: 'idle', progress: 0, message: 'No initialization in progress' }
+    }
+    return fetchApi<InitializeProgress>('/v2/setup/initialize_status')
+  }
+
+  async function validatePath(request: ValidatePathRequest): Promise<ValidatePathResult> {
+    if (USE_MOCK) {
+      return { valid: true, model_count: 42 }
+    }
+    return fetchApi<ValidatePathResult>('/v2/setup/validate_path', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request)
+    })
+  }
+
   return {
     isLoading,
     error,
@@ -688,6 +737,11 @@ export function useComfyGitService() {
     fetchRemote,
     getRemoteSyncStatus,
     // Environment Sync
-    syncEnvironmentManually
+    syncEnvironmentManually,
+    // First-Time Setup
+    getSetupStatus,
+    initializeWorkspace,
+    getInitializeProgress,
+    validatePath
   }
 }
