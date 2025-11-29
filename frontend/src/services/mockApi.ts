@@ -78,6 +78,12 @@ import type {
 } from '@/types/comfygit'
 
 // =============================================================================
+// Mock State - Tracks added sources for testing export flow
+// =============================================================================
+
+const mockAddedSources = new Set<string>()
+
+// =============================================================================
 // Mock Data Generators - Matching Core Library Structures
 // =============================================================================
 
@@ -786,9 +792,10 @@ export const mockApi = {
     }
   },
 
-  updateModelSource: async (sha256: string, sourceUrl: string): Promise<void> => {
+  updateModelSource: async (hash: string, sourceUrl: string): Promise<void> => {
     await delay(300)
-    console.log(`[MOCK] Updating source for ${sha256}: ${sourceUrl}`)
+    mockAddedSources.add(hash)
+    console.log(`[MOCK] Added source for ${hash}: ${sourceUrl}`)
   },
 
   deleteModel: async (sha256: string): Promise<void> => {
@@ -1928,33 +1935,40 @@ export const mockApi = {
   // Export Validation - shows warnings for models without sources
   validateExport: async (): Promise<ExportValidationResult> => {
     await delay(400)
-    // Return mock validation with some models without sources
+    // All models that could be missing sources
+    const allModelsWithoutSources = [
+      {
+        filename: 'sd_xl_base_1.0.safetensors',
+        hash: 'abc123def456',
+        workflows: ['flux-dev-img2img.json', 'sdxl-lightning.json']
+      },
+      {
+        filename: 'controlnet_openpose.safetensors',
+        hash: 'xyz789ghi012',
+        workflows: ['pose-to-image.json']
+      },
+      {
+        filename: 'custom_lora_v2.safetensors',
+        hash: 'lmn345opq678',
+        workflows: ['flux-dev-img2img.json']
+      },
+      {
+        filename: 'vae_ft_mse.pt',
+        hash: 'rst901uvw234',
+        workflows: ['sdxl-lightning.json', 'pose-to-image.json', 'upscale-workflow.json']
+      }
+    ]
+
+    // Filter out models that have had sources added
+    const modelsWithoutSources = allModelsWithoutSources.filter(
+      m => !mockAddedSources.has(m.hash)
+    )
+
     return {
       can_export: true,
       blocking_issues: [],
       warnings: {
-        models_without_sources: [
-          {
-            filename: 'sd_xl_base_1.0.safetensors',
-            hash: 'abc123def456',
-            workflows: ['flux-dev-img2img.json', 'sdxl-lightning.json']
-          },
-          {
-            filename: 'controlnet_openpose.safetensors',
-            hash: 'xyz789ghi012',
-            workflows: ['pose-to-image.json']
-          },
-          {
-            filename: 'custom_lora_v2.safetensors',
-            hash: 'lmn345opq678',
-            workflows: ['flux-dev-img2img.json']
-          },
-          {
-            filename: 'vae_ft_mse.pt',
-            hash: 'rst901uvw234',
-            workflows: ['sdxl-lightning.json', 'pose-to-image.json', 'upscale-workflow.json']
-          }
-        ]
+        models_without_sources: modelsWithoutSources
       }
     }
   },

@@ -142,6 +142,7 @@
     :models="validationResult.warnings.models_without_sources"
     @confirm="handleExportConfirmed"
     @cancel="showWarningsModal = false"
+    @revalidate="handleRevalidate"
   />
 </template>
 
@@ -212,6 +213,15 @@ async function handleExport() {
 async function handleExportConfirmed() {
   showWarningsModal.value = false
   await executeExport()
+}
+
+async function handleRevalidate() {
+  try {
+    const result = await validateExport()
+    validationResult.value = result
+  } catch (err) {
+    console.error('Re-validation failed:', err)
+  }
 }
 
 async function executeExport() {
