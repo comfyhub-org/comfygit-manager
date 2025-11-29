@@ -779,6 +779,20 @@ export function useComfyGitService() {
   // First-Time Setup
   async function getSetupStatus(): Promise<SetupStatus> {
     if (USE_MOCK) {
+      // Check if environment was created in this session
+      if (mockCreateEnvState.state === 'complete' && mockCreateEnvState.envName) {
+        // Environment created, show unmanaged with the new env
+        return {
+          state: 'unmanaged',
+          workspace_path: '~/comfygit',
+          default_path: '~/comfygit',
+          environments: [mockCreateEnvState.envName],
+          current_environment: null,
+          detected_models_dir: '/mock/ComfyUI/models',
+          cli_installed: false,  // Mock as not installed to test warning
+          cli_path: null
+        }
+      }
       // Check if workspace was already created in this session
       if (mockSetupState.initState === 'complete') {
         // Workspace created, but no environments yet
@@ -788,7 +802,9 @@ export function useComfyGitService() {
           default_path: '~/comfygit',
           environments: [],
           current_environment: null,
-          detected_models_dir: '/mock/ComfyUI/models'
+          detected_models_dir: '/mock/ComfyUI/models',
+          cli_installed: false,  // Mock as not installed to test warning
+          cli_path: null
         }
       }
       // Default: no workspace
@@ -798,7 +814,9 @@ export function useComfyGitService() {
         default_path: '~/comfygit',
         environments: [],
         current_environment: null,
-        detected_models_dir: '/mock/ComfyUI/models'
+        detected_models_dir: '/mock/ComfyUI/models',
+        cli_installed: false,
+        cli_path: null
       }
     }
     return fetchApi<SetupStatus>('/v2/setup/status')

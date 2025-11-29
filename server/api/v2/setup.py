@@ -57,6 +57,10 @@ async def get_setup_status(request: web.Request) -> web.Response:
     if potential_models.exists() and potential_models.is_dir():
         detected_models_dir = str(potential_models)
 
+    # CLI detection
+    cli_path = shutil.which('comfygit') or shutil.which('cg')
+    cli_installed = cli_path is not None
+
     if is_managed and workspace and current_env:
         # Fully managed
         return web.json_response({
@@ -65,7 +69,9 @@ async def get_setup_status(request: web.Request) -> web.Response:
             "default_path": default_path,
             "environments": [e.name for e in workspace.list_environments()],
             "current_environment": current_env.name,
-            "detected_models_dir": None
+            "detected_models_dir": None,
+            "cli_installed": cli_installed,
+            "cli_path": cli_path
         })
 
     # Try to find workspace at default location
@@ -80,7 +86,9 @@ async def get_setup_status(request: web.Request) -> web.Response:
                 "default_path": default_path,
                 "environments": [],
                 "current_environment": None,
-                "detected_models_dir": detected_models_dir
+                "detected_models_dir": detected_models_dir,
+                "cli_installed": cli_installed,
+                "cli_path": cli_path
             })
         else:
             return web.json_response({
@@ -89,7 +97,9 @@ async def get_setup_status(request: web.Request) -> web.Response:
                 "default_path": default_path,
                 "environments": [e.name for e in envs],
                 "current_environment": None,
-                "detected_models_dir": detected_models_dir
+                "detected_models_dir": detected_models_dir,
+                "cli_installed": cli_installed,
+                "cli_path": cli_path
             })
 
     except CDWorkspaceNotFoundError:
@@ -99,7 +109,9 @@ async def get_setup_status(request: web.Request) -> web.Response:
             "default_path": default_path,
             "environments": [],
             "current_environment": None,
-            "detected_models_dir": detected_models_dir
+            "detected_models_dir": detected_models_dir,
+            "cli_installed": cli_installed,
+            "cli_path": cli_path
         })
 
 

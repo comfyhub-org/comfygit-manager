@@ -361,8 +361,14 @@
       v-if="showSetupWizard"
       :default-path="setupStatus?.default_path || '~/comfygit'"
       :detected-models-dir="setupStatus?.detected_models_dir || null"
+      :initial-step="wizardInitialStep"
+      :existing-environments="setupStatus?.environments || []"
+      :cli-installed="setupStatus?.cli_installed ?? true"
+      :setup-state="setupStatus?.state || 'no_workspace'"
       @complete="handleSetupComplete"
       @close="handleSetupWizardClose"
+      @switch-environment="handleEnvironmentSwitchFromWizard"
+      @environment-created-no-switch="handleEnvironmentCreatedNoSwitch"
     />
 
     <!-- Toast Notifications -->
@@ -447,6 +453,7 @@ const currentEnvironment = computed(() => environments.value.find(e => e.is_curr
 // First-time setup state
 const setupStatus = ref<SetupStatus | null>(null)
 const showSetupWizard = ref(false)
+const wizardInitialStep = ref<1 | 2>(1)
 const setupState = computed<SetupState>(() => {
   return setupStatus.value?.state || 'managed'
 })
@@ -1134,6 +1141,20 @@ function handleSetupWizardClose() {
   emit('close')
 }
 
+async function handleEnvironmentSwitchFromWizard(envName: string) {
+  // Use existing environment switch flow
+  await handleEnvironmentSwitch(envName)
+}
+
+async function handleEnvironmentCreatedNoSwitch(envName: string) {
+  // Refresh setup status to get updated environments list
+  setupStatus.value = await getSetupStatus()
+
+  // Keep wizard open but now with the new environment in the list
+  // The wizard will re-render with the updated existingEnvironments prop
+  console.log(`Environment '${envName}' created. Available for switching.`)
+}
+
 function handleCreateEnvironmentFromStatus() {
   // Navigate to environments section and trigger create modal
   selectView('environments', 'all-envs')
@@ -1158,10 +1179,26 @@ onMounted(async () => {
   try {
     setupStatus.value = await getSetupStatus()
 
+    // Block panel for all non-managed states
     if (setupStatus.value.state === 'no_workspace') {
       showSetupWizard.value = true
-      return // Don't load normal panel data yet
+      wizardInitialStep.value = 1
+      return
     }
+
+    if (setupStatus.value.state === 'empty_workspace') {
+      showSetupWizard.value = true
+      wizardInitialStep.value = 2  // Skip workspace creation
+      return
+    }
+
+    if (setupStatus.value.state === 'unmanaged') {
+      showSetupWizard.value = true
+      wizardInitialStep.value = 2  // Skip workspace creation
+      return
+    }
+
+    // Only 'managed' state reaches here
   } catch (err) {
     console.warn('Setup status check failed, proceeding normally:', err)
   }

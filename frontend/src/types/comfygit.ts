@@ -622,6 +622,8 @@ export interface SetupStatus {
   environments: string[]
   current_environment: string | null
   detected_models_dir: string | null
+  cli_installed: boolean
+  cli_path: string | null
 }
 
 export interface InitializeWorkspaceRequest {
