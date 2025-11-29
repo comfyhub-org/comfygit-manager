@@ -2,7 +2,7 @@
   <BaseModal
     title="WELCOME TO COMFYGIT"
     size="lg"
-    :show-close-button="currentStep > 1"
+    :show-close-button="true"
     :close-on-overlay-click="false"
     @close="$emit('close')"
   >

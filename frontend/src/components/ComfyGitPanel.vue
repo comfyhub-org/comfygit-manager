@@ -376,7 +376,7 @@
       :default-path="setupStatus?.default_path || '~/comfygit'"
       :detected-models-dir="setupStatus?.detected_models_dir || null"
       @complete="handleSetupComplete"
-      @close="showSetupWizard = false"
+      @close="handleSetupWizardClose"
     />
 
     <!-- Toast Notifications -->
@@ -1201,6 +1201,12 @@ async function handleSetupComplete(environmentName: string) {
 
   // Trigger environment switch
   await handleEnvironmentSwitch(environmentName)
+}
+
+function handleSetupWizardClose() {
+  // Close entire panel when wizard is closed without completing setup
+  showSetupWizard.value = false
+  emit('close')
 }
 
 function handleCreateEnvironmentFromStatus() {

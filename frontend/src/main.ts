@@ -42,6 +42,10 @@ let downloadQueueApp: ReturnType<typeof createApp> | null = null
 // Global status for indicator
 const globalStatus = ref<ComfyGitStatus | null>(null)
 
+// Setup state for commit button enablement
+type SetupState = 'no_workspace' | 'empty_workspace' | 'unmanaged' | 'managed'
+let currentSetupState: SetupState = 'managed'
+
 // Fetch status for commit indicator
 async function fetchStatus() {
   if (!app?.api) return null
@@ -49,6 +53,20 @@ async function fetchStatus() {
     const response = await app.api.fetchApi('/v2/comfygit/status')
     if (response.ok) {
       globalStatus.value = await response.json()
+    }
+  } catch {
+    // Silently fail
+  }
+}
+
+// Fetch setup status to determine if in managed environment
+async function fetchSetupStatus() {
+  if (!app?.api) return
+  try {
+    const response = await app.api.fetchApi('/v2/setup/status')
+    if (response.ok) {
+      const data = await response.json()
+      currentSetupState = data.state
     }
   } catch {
     // Silently fail
@@ -88,9 +106,12 @@ function showPanel() {
   const vueApp = createApp({
     render: () => h(ComfyGitPanel, {
       onClose: closePanel,
-      onStatusUpdate: (status: ComfyGitStatus) => {
+      onStatusUpdate: async (status: ComfyGitStatus) => {
         globalStatus.value = status
         updateCommitIndicator()
+        // Also refresh setup state in case user switched environments
+        await fetchSetupStatus()
+        updateCommitButtonState()
       }
     })
   })
@@ -178,7 +199,7 @@ function mountDownloadQueue() {
   console.log('[ComfyGit] Model download queue mounted')
 }
 
-// Update commit button indicator
+// Update commit button indicator and disabled state
 let commitButton: HTMLButtonElement | null = null
 
 function updateCommitIndicator() {
@@ -187,6 +208,15 @@ function updateCommitIndicator() {
   if (indicator) {
     indicator.style.display = hasUncommittedChanges() ? 'block' : 'none'
   }
+}
+
+function updateCommitButtonState() {
+  if (!commitButton) return
+  const isDisabled = currentSetupState !== 'managed'
+  commitButton.disabled = isDisabled
+  commitButton.title = isDisabled
+    ? 'Commit disabled - switch to a managed environment first'
+    : 'Quick Commit'
 }
 
 // Inject styles
@@ -251,8 +281,13 @@ styles.textContent = `
     position: relative;
   }
 
-  .comfygit-commit-btn:hover {
+  .comfygit-commit-btn:hover:not(:disabled) {
     background: linear-gradient(180deg, #404040 0%, #2e2e2e 100%) !important;
+  }
+
+  .comfygit-commit-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 
   .commit-indicator {
@@ -322,14 +357,16 @@ app.registerExtension({
     const { loadPendingDownloads } = useModelDownloadQueue()
     loadPendingDownloads()
 
-    // Initial status fetch for indicator
-    await fetchStatus()
+    // Initial status fetch for indicator and setup state
+    await Promise.all([fetchStatus(), fetchSetupStatus()])
     updateCommitIndicator()
+    updateCommitButtonState()
 
     // Refresh status periodically (fallback for external changes)
     setInterval(async () => {
-      await fetchStatus()
+      await Promise.all([fetchStatus(), fetchSetupStatus()])
       updateCommitIndicator()
+      updateCommitButtonState()
     }, 30000)
 
     // Register custom WebSocket event type with ComfyUI API
