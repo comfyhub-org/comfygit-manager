@@ -72,7 +72,9 @@ import type {
   EnvironmentStatus,
   GitCommit,
   NodeInfo,
-  NodesResult
+  NodesResult,
+  ExportValidationResult,
+  ExportResult
 } from '@/types/comfygit'
 
 // =============================================================================
@@ -1920,6 +1922,73 @@ export const mockApi = {
     return {
       results: allResults.slice(0, limit),
       total: allResults.length
+    }
+  },
+
+  // Export Validation - shows warnings for models without sources
+  validateExport: async (): Promise<ExportValidationResult> => {
+    await delay(400)
+    // Return mock validation with some models without sources
+    return {
+      can_export: true,
+      blocking_issues: [],
+      warnings: {
+        models_without_sources: [
+          {
+            filename: 'sd_xl_base_1.0.safetensors',
+            hash: 'abc123def456',
+            workflows: ['flux-dev-img2img.json', 'sdxl-lightning.json']
+          },
+          {
+            filename: 'controlnet_openpose.safetensors',
+            hash: 'xyz789ghi012',
+            workflows: ['pose-to-image.json']
+          },
+          {
+            filename: 'custom_lora_v2.safetensors',
+            hash: 'lmn345opq678',
+            workflows: ['flux-dev-img2img.json']
+          },
+          {
+            filename: 'vae_ft_mse.pt',
+            hash: 'rst901uvw234',
+            workflows: ['sdxl-lightning.json', 'pose-to-image.json', 'upscale-workflow.json']
+          }
+        ]
+      }
+    }
+  },
+
+  // Mock for blocked export (call this variant to test blocked UI)
+  validateExportBlocked: async (): Promise<ExportValidationResult> => {
+    await delay(400)
+    return {
+      can_export: false,
+      blocking_issues: [
+        {
+          type: 'uncommitted_workflows',
+          message: 'Cannot export with uncommitted workflow changes',
+          details: ['new-workflow.json', 'modified-portrait.json', 'another-change.json']
+        },
+        {
+          type: 'unresolved_issues',
+          message: 'Cannot export - workflows have unresolved issues',
+          details: []
+        }
+      ],
+      warnings: {
+        models_without_sources: []
+      }
+    }
+  },
+
+  exportEnvWithForce: async (outputPath?: string): Promise<ExportResult> => {
+    await delay(800)
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)
+    return {
+      status: 'success',
+      path: outputPath || `/home/user/exports/production_export_${timestamp}.tar.gz`,
+      models_without_sources: 4
     }
   }
 }

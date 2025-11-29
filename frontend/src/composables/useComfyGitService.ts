@@ -4,6 +4,7 @@ import type {
   CommitResult,
   LogResult,
   ExportResult,
+  ExportValidationResult,
   BranchesResult,
   CommitDetail,
   CheckoutResult,
@@ -106,6 +107,26 @@ export function useComfyGitService() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ output_path: outputPath })
+    })
+  }
+
+  async function validateExport(): Promise<ExportValidationResult> {
+    if (USE_MOCK) return mockApi.validateExport()
+
+    return fetchApi<ExportValidationResult>('/v2/comfygit/export/validate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({})
+    })
+  }
+
+  async function exportEnvWithForce(outputPath?: string): Promise<ExportResult> {
+    if (USE_MOCK) return mockApi.exportEnvWithForce(outputPath)
+
+    return fetchApi<ExportResult>('/v2/comfygit/export', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ output_path: outputPath, force: true })
     })
   }
 
@@ -834,6 +855,8 @@ export function useComfyGitService() {
     commit,
     getHistory,
     exportEnv,
+    validateExport,
+    exportEnvWithForce,
     // Git Operations
     getBranches,
     getCommitDetail,

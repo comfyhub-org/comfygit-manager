@@ -32,15 +32,15 @@
             <ActionButton
               variant="primary"
               size="md"
-              :loading="isExporting"
-              :disabled="isExporting"
+              :loading="isValidating || isExporting"
+              :disabled="isValidating || isExporting"
               @click="handleExport"
             >
               <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
                 <path d="M8 4L3 9h3v6h4V9h3L8 4z"/>
                 <path d="M14 2H2v2h12V2z"/>
               </svg>
-              {{ isExporting ? 'Exporting...' : 'Export Environment' }}
+              {{ buttonLabel }}
             </ActionButton>
           </div>
         </div>
@@ -128,12 +128,27 @@
       </div>
     </template>
   </InfoPopover>
+
+  <!-- Export Blocked Modal -->
+  <ExportBlockedModal
+    v-if="showBlockedModal && validationResult"
+    :issues="validationResult.blocking_issues"
+    @close="showBlockedModal = false"
+  />
+
+  <!-- Export Warnings Modal -->
+  <ExportWarningsModal
+    v-if="showWarningsModal && validationResult"
+    :models="validationResult.warnings.models_without_sources"
+    @confirm="handleExportConfirmed"
+    @cancel="showWarningsModal = false"
+  />
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useComfyGitService } from '@/composables/useComfyGitService'
-import type { ExportResult } from '@/types/comfygit'
+import type { ExportResult, ExportValidationResult } from '@/types/comfygit'
 import PanelLayout from '@/components/base/organisms/PanelLayout.vue'
 import PanelHeader from '@/components/base/molecules/PanelHeader.vue'
 import SectionGroup from '@/components/base/molecules/SectionGroup.vue'
@@ -143,26 +158,72 @@ import ActionButton from '@/components/base/atoms/ActionButton.vue'
 import TextInput from '@/components/base/atoms/TextInput.vue'
 import FilePath from '@/components/base/atoms/FilePath.vue'
 import InfoPopover from '@/components/base/molecules/InfoPopover.vue'
+import ExportBlockedModal from '@/components/ExportBlockedModal.vue'
+import ExportWarningsModal from '@/components/ExportWarningsModal.vue'
 
-const { exportEnv } = useComfyGitService()
+const { validateExport, exportEnvWithForce } = useComfyGitService()
 
 const outputPath = ref('')
+const isValidating = ref(false)
 const isExporting = ref(false)
 const isDownloading = ref(false)
 const exportResult = ref<ExportResult | null>(null)
 const showInfo = ref(false)
 
+// Validation state
+const validationResult = ref<ExportValidationResult | null>(null)
+const showBlockedModal = ref(false)
+const showWarningsModal = ref(false)
+
+const buttonLabel = computed(() => {
+  if (isValidating.value) return 'Validating...'
+  if (isExporting.value) return 'Exporting...'
+  return 'Export Environment'
+})
+
 async function handleExport() {
-  isExporting.value = true
+  isValidating.value = true
   exportResult.value = null
 
   try {
-    const result = await exportEnv(outputPath.value || undefined)
+    const result = await validateExport()
+    validationResult.value = result
+
+    if (!result.can_export) {
+      // Show blocking issues modal
+      showBlockedModal.value = true
+    } else if (result.warnings.models_without_sources.length > 0) {
+      // Show warnings modal for confirmation
+      showWarningsModal.value = true
+    } else {
+      // No issues, proceed directly
+      await executeExport()
+    }
+  } catch (err) {
+    exportResult.value = {
+      status: 'error',
+      message: err instanceof Error ? err.message : 'Validation failed'
+    }
+  } finally {
+    isValidating.value = false
+  }
+}
+
+async function handleExportConfirmed() {
+  showWarningsModal.value = false
+  await executeExport()
+}
+
+async function executeExport() {
+  isExporting.value = true
+
+  try {
+    const result = await exportEnvWithForce(outputPath.value || undefined)
     exportResult.value = result
   } catch (err) {
     exportResult.value = {
       status: 'error',
-      message: err instanceof Error ? err.message : 'Unknown error occurred'
+      message: err instanceof Error ? err.message : 'Export failed'
     }
   } finally {
     isExporting.value = false

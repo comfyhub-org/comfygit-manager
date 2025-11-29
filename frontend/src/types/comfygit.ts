@@ -81,6 +81,27 @@ export interface ExportResult {
   message?: string
 }
 
+// Export Validation Types
+export interface ModelWithoutSource {
+  filename: string
+  hash: string
+  workflows: string[]
+}
+
+export interface ExportBlockingIssue {
+  type: 'uncommitted_workflows' | 'uncommitted_git_changes' | 'unresolved_issues'
+  message: string
+  details: string[]
+}
+
+export interface ExportValidationResult {
+  can_export: boolean
+  blocking_issues: ExportBlockingIssue[]
+  warnings: {
+    models_without_sources: ModelWithoutSource[]
+  }
+}
+
 export interface LogResult {
   commits: CommitInfo[]
   has_more: boolean
