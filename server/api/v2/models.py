@@ -10,7 +10,7 @@ from pathlib import Path
 
 from aiohttp import web
 
-from cgm_core.decorators import requires_environment
+from cgm_core.decorators import requires_environment, logged_operation
 from cgm_utils.async_helpers import run_sync
 
 routes = web.RouteTableDef()
@@ -123,7 +123,7 @@ async def get_workspace_models(request: web.Request, env) -> web.Response:
 
 
 @routes.post("/v2/workspace/models/{identifier}/source")
-@requires_environment
+@logged_operation("update model sources")
 async def add_model_source(request: web.Request, env) -> web.Response:
     """Add a download source URL to a model in the workspace index.
 
@@ -173,7 +173,7 @@ async def add_model_source(request: web.Request, env) -> web.Response:
 
 
 @routes.delete("/v2/workspace/models/{identifier}/source")
-@requires_environment
+@logged_operation("remove model source")
 async def remove_model_source(request: web.Request, env) -> web.Response:
     """Remove a download source URL from a model in the workspace index."""
     identifier = request.match_info["identifier"]

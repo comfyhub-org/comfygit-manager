@@ -1,7 +1,7 @@
 """Git remotes management API."""
 from aiohttp import web
 
-from cgm_core.decorators import requires_environment
+from cgm_core.decorators import requires_environment, logged_operation
 from cgm_utils.async_helpers import run_sync
 from comfygit_core.utils.git import git_config_get
 
@@ -81,7 +81,7 @@ async def list_remotes(request: web.Request, env) -> web.Response:
 
 
 @routes.post("/v2/comfygit/remotes")
-@requires_environment
+@logged_operation("add remote")
 async def add_remote(request: web.Request, env) -> web.Response:
     """Add a new git remote."""
     json_data = await request.json()
@@ -108,7 +108,7 @@ async def add_remote(request: web.Request, env) -> web.Response:
 
 
 @routes.delete("/v2/comfygit/remotes/{name}")
-@requires_environment
+@logged_operation("remove remote")
 async def remove_remote(request: web.Request, env) -> web.Response:
     """Remove a git remote."""
     name = request.match_info["name"]
@@ -128,7 +128,7 @@ async def remove_remote(request: web.Request, env) -> web.Response:
 
 
 @routes.patch("/v2/comfygit/remotes/{name}")
-@requires_environment
+@logged_operation("update remote")
 async def update_remote_url(request: web.Request, env) -> web.Response:
     """Update remote URL(s)."""
     name = request.match_info["name"]
@@ -159,7 +159,7 @@ async def update_remote_url(request: web.Request, env) -> web.Response:
 
 
 @routes.post("/v2/comfygit/remotes/{name}/fetch")
-@requires_environment
+@logged_operation("fetch remote")
 async def fetch_remote(request: web.Request, env) -> web.Response:
     """Fetch from a remote."""
     name = request.match_info["name"]
@@ -255,7 +255,7 @@ async def get_pull_preview(request: web.Request, env) -> web.Response:
 
 
 @routes.post("/v2/comfygit/remotes/{name}/pull")
-@requires_environment
+@logged_operation("pull from remote")
 async def pull_from_remote(request: web.Request, env) -> web.Response:
     """Pull changes from remote and sync environment."""
     name = request.match_info["name"]
@@ -361,7 +361,7 @@ async def get_push_preview(request: web.Request, env) -> web.Response:
 
 
 @routes.post("/v2/comfygit/remotes/{name}/push")
-@requires_environment
+@logged_operation("push to remote")
 async def push_to_remote(request: web.Request, env) -> web.Response:
     """Push commits to remote."""
     name = request.match_info["name"]

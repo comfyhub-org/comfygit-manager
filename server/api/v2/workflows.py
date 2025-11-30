@@ -13,7 +13,7 @@ from comfygit_core.models.workflow import (
     BatchDownloadCallbacks
 )
 
-from cgm_core.decorators import requires_environment
+from cgm_core.decorators import requires_environment, logged_operation
 from cgm_core.serializers import serialize_workflow_details
 from cgm_utils.async_helpers import run_sync
 
@@ -429,7 +429,7 @@ async def get_workflow_details(request: web.Request, env) -> web.Response:
 
 
 @routes.post("/v2/comfygit/workflow/{name}/model-importance")
-@requires_environment
+@logged_operation("set model importance")
 async def set_model_importance(request: web.Request, env) -> web.Response:
     """Update model importance/criticality for a workflow."""
     name = request.match_info["name"]
@@ -474,7 +474,7 @@ async def set_model_importance(request: web.Request, env) -> web.Response:
 
 
 @routes.post("/v2/comfygit/workflow/{name}/resolve")
-@requires_environment
+@logged_operation("resolve workflow")
 async def resolve_workflow(request: web.Request, env) -> web.Response:
     """Analyze workflow and create resolution plan."""
     name = request.match_info["name"]
@@ -549,7 +549,7 @@ async def resolve_workflow(request: web.Request, env) -> web.Response:
 
 
 @routes.post("/v2/comfygit/workflow/{name}/install")
-@requires_environment
+@logged_operation("install workflow deps")
 async def install_workflow(request: web.Request, env) -> web.Response:
     """Install missing dependencies for a workflow.
 
@@ -623,7 +623,7 @@ async def install_workflow(request: web.Request, env) -> web.Response:
 # =============================================================================
 
 @routes.post("/v2/comfygit/workflow/{name}/analyze")
-@requires_environment
+@logged_operation("analyze workflow")
 async def analyze_workflow(request: web.Request, env) -> web.Response:
     """Analyze workflow for interactive resolution wizard.
 
@@ -799,7 +799,7 @@ async def search_models(request: web.Request, env) -> web.Response:
 
 
 @routes.post("/v2/comfygit/workflow/{name}/apply-resolution")
-@requires_environment
+@logged_operation("apply resolution")
 async def apply_resolution(request: web.Request, env) -> web.Response:
     """Apply user's resolution choices from the wizard.
 
@@ -961,7 +961,7 @@ async def apply_resolution(request: web.Request, env) -> web.Response:
 
 
 @routes.post("/v2/comfygit/workflow/{name}/apply-resolution-stream")
-@requires_environment
+@logged_operation("apply resolution stream")
 async def apply_resolution_stream(request: web.Request, env) -> web.StreamResponse:
     """Apply user's resolution choices and stream progress via SSE.
 
@@ -1163,7 +1163,7 @@ class DownloadCancelled(Exception):
 
 
 @routes.delete("/v2/comfygit/models/download")
-@requires_environment
+@logged_operation("cancel download")
 async def cancel_download(request: web.Request, env) -> web.Response:
     """Cancel an active download."""
     url = request.query.get("url")
@@ -1179,7 +1179,7 @@ async def cancel_download(request: web.Request, env) -> web.Response:
 
 
 @routes.get("/v2/comfygit/models/download-stream")
-@requires_environment
+@logged_operation("download model")
 async def download_model_stream(request: web.Request, env) -> web.StreamResponse:
     """Download a model with progress via SSE, then update pyproject.toml.
 
