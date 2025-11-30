@@ -1076,6 +1076,68 @@ export function useComfyGitService() {
     return fetchApi<ImportProgress>('/v2/workspace/import/status')
   }
 
+  async function previewGitImport(gitUrl: string): Promise<ImportAnalysis> {
+    if (USE_MOCK) {
+      // Return mock data for development
+      await new Promise(resolve => setTimeout(resolve, 800))
+      return {
+        comfyui_version: 'v0.3.8',
+        comfyui_version_type: 'release',
+        total_models: 3,
+        models_locally_available: 1,
+        models_needing_download: 1,
+        models_without_sources: 1,
+        models: [],
+        total_nodes: 5,
+        registry_nodes: 4,
+        dev_nodes: 1,
+        git_nodes: 0,
+        nodes: [],
+        total_workflows: 2,
+        workflows: [],
+        needs_model_downloads: true,
+        needs_node_installs: true,
+        download_strategy_recommendation: 'required'
+      }
+    }
+
+    return fetchApi<ImportAnalysis>('/v2/workspace/import/preview/git', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ git_url: gitUrl })
+    })
+  }
+
+  async function executeGitImport(
+    gitUrl: string,
+    name: string,
+    modelStrategy: 'all' | 'required' | 'skip',
+    torchBackend: string
+  ): Promise<ImportResult> {
+    if (USE_MOCK) {
+      await new Promise(resolve => setTimeout(resolve, 300))
+      // Start mock import progress simulation (reuse existing mock state)
+      mockImportState.state = 'importing'
+      mockImportState.phase = null
+      mockImportState.progress = 0
+      mockImportState.message = `Importing environment '${name}' from git...`
+      mockImportState.startTime = Date.now()
+      mockImportState.envName = name
+      return { status: 'started', message: `Importing environment '${name}'...` }
+    }
+
+    return fetchApi<ImportResult>('/v2/workspace/import/git', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        git_url: gitUrl,
+        name,
+        model_strategy: modelStrategy,
+        torch_backend: torchBackend
+      })
+    })
+  }
+
   // First-Time Setup
   async function getSetupStatus(): Promise<SetupStatus> {
     if (USE_MOCK) {
@@ -1254,8 +1316,10 @@ export function useComfyGitService() {
     repairWorkflowModels,
     // Import Operations
     previewTarballImport,
+    previewGitImport,
     validateEnvironmentName,
     executeImport,
+    executeGitImport,
     getImportProgress,
     // First-Time Setup
     getSetupStatus,

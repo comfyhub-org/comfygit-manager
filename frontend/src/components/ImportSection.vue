@@ -9,8 +9,8 @@
     </template>
 
     <template #content>
-      <!-- Empty State: No file selected -->
-      <div v-if="!selectedFile && !isImporting" class="import-empty">
+      <!-- Empty State: No file selected and no git URL -->
+      <div v-if="!selectedFile && !gitUrl && !isImporting" class="import-empty">
         <FileDropZone
           accept=".tar.gz,.tgz,.zip"
           primary-text="Drag & drop environment export here"
@@ -18,25 +18,66 @@
           button-text="Select Export File"
           @file-selected="handleFileSelected"
         />
+
+        <div class="import-divider">
+          <span>or</span>
+        </div>
+
+        <div class="git-import-section">
+          <div class="git-import-header">Import from Git Repository</div>
+          <div class="git-url-input-row">
+            <input
+              type="text"
+              class="git-url-input"
+              v-model="gitUrlInput"
+              placeholder="https://github.com/user/repo.git"
+              @keyup.enter="handleAnalyzeGitUrl"
+              :disabled="isAnalyzingGit"
+            />
+            <ActionButton
+              variant="primary"
+              size="sm"
+              :disabled="!gitUrlInput.trim() || isAnalyzingGit"
+              @click="handleAnalyzeGitUrl"
+            >
+              {{ isAnalyzingGit ? 'Analyzing...' : 'ANALYZE' }}
+            </ActionButton>
+          </div>
+          <div v-if="gitPreviewError" class="git-error">{{ gitPreviewError }}</div>
+          <div class="git-url-hint">Paste a GitHub URL to preview the environment</div>
+        </div>
       </div>
 
-      <!-- File Selected: Show preview and options -->
-      <div v-else-if="selectedFile && !isImporting && !importComplete" class="import-configure">
-        <!-- Selected File Info -->
+      <!-- Source Selected: Show preview and options -->
+      <div v-else-if="(selectedFile || gitUrl) && !isImporting && !importComplete" class="import-configure">
+        <!-- Selected Source Info -->
         <div class="selected-file-bar">
-          <div class="file-bar-content">
-            <div class="file-bar-icon">📦</div>
-            <div class="file-bar-info">
-              <div class="file-bar-name">{{ selectedFile.name }}</div>
-              <div class="file-bar-size">{{ formatFileSize(selectedFile.size) }}</div>
+          <!-- File source -->
+          <template v-if="selectedFile">
+            <div class="file-bar-content">
+              <div class="file-bar-icon">📦</div>
+              <div class="file-bar-info">
+                <div class="file-bar-name">{{ selectedFile.name }}</div>
+                <div class="file-bar-size">{{ formatFileSize(selectedFile.size) }}</div>
+              </div>
             </div>
-          </div>
+          </template>
+          <!-- Git source -->
+          <template v-else-if="gitUrl">
+            <div class="file-bar-content">
+              <div class="file-bar-icon">🔗</div>
+              <div class="file-bar-info">
+                <div class="file-bar-name">{{ formatGitUrl(gitUrl) }}</div>
+                <div class="file-bar-size">Git Repository</div>
+              </div>
+            </div>
+          </template>
           <ActionButton
             variant="ghost"
             size="sm"
-            @click="handleClearFile"
+            @click="handleClearSource"
           >
-            Change File
+            Change Source
           </ActionButton>
         </div>
 
@@ -90,22 +131,19 @@
         <!-- Action buttons -->
         <div class="import-actions">
           <ActionButton
+            variant="secondary"
+            size="md"
+            @click="handleClearSource"
+          >
+            Cancel
+          </ActionButton>
+          <ActionButton
             variant="primary"
             size="md"
             :disabled="!canImport"
             @click="handleStartImport"
           >
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-              <path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 12.5a5.5 5.5 0 110-11 5.5 5.5 0 010 11zM8 4v4h3l-4 4-4-4h3V4h2z"/>
-            </svg>
             Create Environment
-          </ActionButton>
-          <ActionButton
-            variant="secondary"
-            size="md"
-            @click="handleClearFile"
-          >
-            Cancel
           </ActionButton>
         </div>
       </div>
@@ -216,7 +254,7 @@ import TaskProgressDisplay from '@/components/base/molecules/TaskProgressDisplay
 import { useComfyGitService } from '@/composables/useComfyGitService'
 import type { ImportAnalysis } from '@/types/comfygit'
 
-const { previewTarballImport, validateEnvironmentName, executeImport, getImportProgress } = useComfyGitService()
+const { previewTarballImport, previewGitImport, validateEnvironmentName, executeImport, executeGitImport, getImportProgress } = useComfyGitService()
 
 // Emit for parent component communication
 const emit = defineEmits<{
@@ -235,6 +273,12 @@ const importSuccess = ref(false)
 const importResultMessage = ref('')
 const isLoadingPreview = ref(false)
 const previewError = ref<string | null>(null)
+
+// Git import state
+const gitUrlInput = ref('')
+const gitUrl = ref<string | null>(null) // Set after successful preview
+const isAnalyzingGit = ref(false)
+const gitPreviewError = ref<string | null>(null)
 
 // Import analysis from API
 const importAnalysis = ref<ImportAnalysis | null>(null)
@@ -302,7 +346,8 @@ const canImport = computed(() => {
          !previewError.value &&
          importAnalysis.value &&
          importConfig.value.name.length > 0 &&
-         !nameError.value
+         !nameError.value &&
+         (selectedFile.value || gitUrl.value)
 })
 
 // Handlers
@@ -323,8 +368,11 @@ async function handleFileSelected(file: File) {
   }
 }
 
-function handleClearFile() {
+function handleClearSource() {
   selectedFile.value = null
+  gitUrl.value = null
+  gitUrlInput.value = ''
+  gitPreviewError.value = null
   importComplete.value = false
   importSuccess.value = false
   importResultMessage.value = ''
@@ -336,14 +384,42 @@ function handleClearFile() {
 
 function handleReset() {
   stopImportPolling()
-  handleClearFile()
+  handleClearSource()
   isImporting.value = false
   isLoadingPreview.value = false
+  isAnalyzingGit.value = false
   importProgress.value = {
     message: 'Preparing import...',
     phase: '',
     progress: 0,
     error: null
+  }
+}
+
+async function handleAnalyzeGitUrl() {
+  if (!gitUrlInput.value.trim()) return
+
+  isAnalyzingGit.value = true
+  gitPreviewError.value = null
+
+  try {
+    const analysis = await previewGitImport(gitUrlInput.value.trim())
+    gitUrl.value = gitUrlInput.value.trim()
+    importAnalysis.value = analysis
+  } catch (err) {
+    gitPreviewError.value = err instanceof Error ? err.message : 'Failed to analyze repository'
+  } finally {
+    isAnalyzingGit.value = false
+  }
+}
+
+function formatGitUrl(url: string): string {
+  // Convert https://github.com/user/repo.git to github.com/user/repo
+  try {
+    const parsed = new URL(url)
+    return parsed.host + parsed.pathname.replace(/\.git$/, '')
+  } catch {
+    return url
   }
 }
 
@@ -361,19 +437,33 @@ async function handleValidateName(name: string) {
 }
 
 async function handleStartImport() {
-  if (!selectedFile.value || !importConfig.value.name) return
+  if (!importConfig.value.name) return
+  if (!selectedFile.value && !gitUrl.value) return
 
   isImporting.value = true
   importComplete.value = false
   importProgress.value = { message: `Creating environment '${importConfig.value.name}'...`, phase: '', progress: 0, error: null }
 
   try {
-    const result = await executeImport(
-      selectedFile.value,
-      importConfig.value.name,
-      importConfig.value.modelStrategy,
-      importConfig.value.torchBackend
-    )
+    let result
+
+    if (selectedFile.value) {
+      result = await executeImport(
+        selectedFile.value,
+        importConfig.value.name,
+        importConfig.value.modelStrategy,
+        importConfig.value.torchBackend
+      )
+    } else if (gitUrl.value) {
+      result = await executeGitImport(
+        gitUrl.value,
+        importConfig.value.name,
+        importConfig.value.modelStrategy,
+        importConfig.value.torchBackend
+      )
+    } else {
+      throw new Error('No import source selected')
+    }
 
     if (result.status === 'started') {
       // Start polling for progress
@@ -452,7 +542,7 @@ function formatFileSize(bytes: number): string {
 .import-empty {
   display: flex;
   flex-direction: column;
-  gap: var(--cg-space-6);
+  gap: var(--cg-space-2);
 }
 
 /* Info Popover Steps */
@@ -545,6 +635,7 @@ function formatFileSize(bytes: number): string {
 
 .import-actions {
   display: flex;
+  justify-content: flex-end;
   gap: var(--cg-space-3);
   padding-top: var(--cg-space-3);
   border-top: 1px solid var(--cg-color-border-subtle);
@@ -667,5 +758,79 @@ function formatFileSize(bytes: number): string {
 .loading-text {
   color: var(--cg-color-text-muted);
   font-size: var(--cg-font-size-sm);
+}
+
+/* Import Divider */
+.import-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--cg-space-4);
+  margin: var(--cg-space-2) 0;
+}
+
+.import-divider::before,
+.import-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--cg-color-border-subtle);
+}
+
+.import-divider span {
+  color: var(--cg-color-text-muted);
+  font-size: var(--cg-font-size-sm);
+  text-transform: lowercase;
+}
+
+/* Git Import Section */
+.git-import-section {
+  background: var(--cg-color-bg-tertiary);
+  border: 1px solid var(--cg-color-border-subtle);
+  padding: var(--cg-space-4);
+}
+
+.git-import-header {
+  color: var(--cg-color-text-primary);
+  font-size: var(--cg-font-size-sm);
+  font-weight: var(--cg-font-weight-medium);
+  margin-bottom: var(--cg-space-3);
+}
+
+.git-url-input-row {
+  display: flex;
+  gap: var(--cg-space-2);
+}
+
+.git-url-input {
+  flex: 1;
+  padding: var(--cg-space-1) var(--cg-space-2);
+  background: var(--cg-color-bg-secondary);
+  border: 1px solid var(--cg-color-border);
+  color: var(--cg-color-text-primary);
+  font-size: var(--cg-font-size-sm);
+  font-family: var(--cg-font-mono);
+  height: 28px;
+}
+
+.git-url-input:focus {
+  outline: none;
+  border-color: var(--cg-color-accent);
+}
+
+.git-url-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.git-url-hint {
+  color: var(--cg-color-text-muted);
+  font-size: var(--cg-font-size-xs);
+  margin-top: var(--cg-space-2);
+}
+
+.git-error {
+  color: var(--cg-color-error);
+  font-size: var(--cg-font-size-sm);
+  margin-top: var(--cg-space-2);
 }
 </style>

@@ -493,5 +493,163 @@ class TestServerImportProgressCallbacks:
         assert "complete" in progress.PHASE_PROGRESS
 
 
-# Note: Git import endpoint (/v2/workspace/import/git) was removed from the polling version.
-# For MVP, only tarball import is supported. Git import can be re-added if needed.
+@pytest.mark.integration
+class TestGitImportEndpoint:
+    """POST /v2/workspace/import/git - Start git repository import (polling-based)."""
+
+    @pytest.fixture(autouse=True)
+    def reset_import_state(self):
+        """Reset import state before each test to avoid state bleed."""
+        import api.v2.import_ops as import_ops
+        with import_ops._import_task_lock:
+            import_ops._import_task_state["state"] = "idle"
+            import_ops._import_task_state["phase"] = None
+            import_ops._import_task_state["progress"] = 0
+            import_ops._import_task_state["message"] = ""
+            import_ops._import_task_state["environment_name"] = None
+            import_ops._import_task_state["error"] = None
+
+    async def test_success_starts_import(self, client, monkeypatch):
+        """Should return status=started when import begins."""
+        mock_workspace = Mock()
+        mock_workspace.path = Path("/tmp/test-workspace")
+        mock_workspace.list_environments = Mock(return_value=[])
+
+        def mock_detect():
+            return (True, mock_workspace, Mock())
+        monkeypatch.setattr("orchestrator.detect_environment_type", mock_detect)
+
+        resp = await client.post("/v2/workspace/import/git", json={
+            "git_url": "https://github.com/user/repo.git",
+            "name": "imported-env",
+            "model_strategy": "required",
+            "torch_backend": "auto"
+        })
+
+        assert resp.status == 200
+        data = await resp.json()
+        assert data["status"] == "started"
+        assert "imported-env" in data["message"]
+
+    async def test_error_missing_git_url(self, client, monkeypatch):
+        """Should return 400 when git_url not provided."""
+        mock_workspace = Mock()
+        mock_workspace.path = Path("/tmp/test-workspace")
+
+        def mock_detect():
+            return (True, mock_workspace, Mock())
+        monkeypatch.setattr("orchestrator.detect_environment_type", mock_detect)
+
+        resp = await client.post("/v2/workspace/import/git", json={
+            "name": "my-env",
+            "model_strategy": "all"
+        })
+
+        assert resp.status == 400
+        data = await resp.json()
+        assert "git_url" in data.get("message", data.get("error", "")).lower() or "required" in data.get("message", data.get("error", "")).lower()
+
+    async def test_error_missing_name(self, client, monkeypatch):
+        """Should return 400 when name not provided."""
+        mock_workspace = Mock()
+        mock_workspace.path = Path("/tmp/test-workspace")
+
+        def mock_detect():
+            return (True, mock_workspace, Mock())
+        monkeypatch.setattr("orchestrator.detect_environment_type", mock_detect)
+
+        resp = await client.post("/v2/workspace/import/git", json={
+            "git_url": "https://github.com/user/repo.git"
+        })
+
+        assert resp.status == 400
+        data = await resp.json()
+        assert "name" in data.get("message", data.get("error", "")).lower() or "required" in data.get("message", data.get("error", "")).lower()
+
+    async def test_error_not_in_workspace(self, client, monkeypatch):
+        """Should return 500 when not in managed workspace."""
+        def mock_detect():
+            return (False, None, None)
+        monkeypatch.setattr("orchestrator.detect_environment_type", mock_detect)
+
+        resp = await client.post("/v2/workspace/import/git", json={
+            "git_url": "https://github.com/user/repo.git",
+            "name": "my-env"
+        })
+
+        assert resp.status == 500
+
+    async def test_error_environment_already_exists(self, client, monkeypatch):
+        """Should return 400 when environment name already exists."""
+        mock_workspace = Mock()
+        mock_workspace.path = Path("/tmp/test-workspace")
+        existing_env = Mock()
+        existing_env.name = "existing-env"
+        mock_workspace.list_environments = Mock(return_value=[existing_env])
+
+        def mock_detect():
+            return (True, mock_workspace, Mock())
+        monkeypatch.setattr("orchestrator.detect_environment_type", mock_detect)
+
+        resp = await client.post("/v2/workspace/import/git", json={
+            "git_url": "https://github.com/user/repo.git",
+            "name": "existing-env",
+            "model_strategy": "all",
+            "torch_backend": "auto"
+        })
+
+        assert resp.status == 400
+        data = await resp.json()
+        assert "already exists" in data["message"]
+
+    async def test_error_invalid_name_format(self, client, monkeypatch):
+        """Should return 400 when environment name has invalid characters."""
+        mock_workspace = Mock()
+        mock_workspace.path = Path("/tmp/test-workspace")
+        mock_workspace.list_environments = Mock(return_value=[])
+
+        def mock_detect():
+            return (True, mock_workspace, Mock())
+        monkeypatch.setattr("orchestrator.detect_environment_type", mock_detect)
+
+        resp = await client.post("/v2/workspace/import/git", json={
+            "git_url": "https://github.com/user/repo.git",
+            "name": "invalid/name",
+            "model_strategy": "all"
+        })
+
+        assert resp.status == 400
+        data = await resp.json()
+        assert "invalid" in data["message"].lower() or "character" in data["message"].lower()
+
+    async def test_rejects_import_in_progress(self, client, monkeypatch):
+        """Should return 409 when another import is already in progress."""
+        import api.v2.import_ops as import_ops
+
+        mock_workspace = Mock()
+        mock_workspace.path = Path("/tmp/test-workspace")
+        mock_workspace.list_environments = Mock(return_value=[])
+
+        def mock_detect():
+            return (True, mock_workspace, Mock())
+        monkeypatch.setattr("orchestrator.detect_environment_type", mock_detect)
+
+        # Simulate import already in progress
+        with import_ops._import_task_lock:
+            original_state = import_ops._import_task_state["state"]
+            import_ops._import_task_state["state"] = "importing"
+
+        try:
+            resp = await client.post("/v2/workspace/import/git", json={
+                "git_url": "https://github.com/user/repo.git",
+                "name": "my-env",
+                "model_strategy": "all"
+            })
+
+            assert resp.status == 409
+            data = await resp.json()
+            assert "in progress" in data["message"].lower()
+        finally:
+            # Restore state
+            with import_ops._import_task_lock:
+                import_ops._import_task_state["state"] = original_state

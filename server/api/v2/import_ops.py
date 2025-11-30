@@ -121,7 +121,7 @@ def _validate_env_name(name: str) -> tuple[bool, str | None]:
 
 
 def _run_import_environment(workspace, tarball_path: Path, name: str, model_strategy: str, torch_backend: str):
-    """Background thread function to import environment."""
+    """Background thread function to import environment from tarball."""
     global _import_task_state
 
     try:
@@ -162,6 +162,47 @@ def _run_import_environment(workspace, tarball_path: Path, name: str, model_stra
     finally:
         # Clean up temp file
         shutil.rmtree(tarball_path.parent, ignore_errors=True)
+
+
+def _run_import_from_git(workspace, git_url: str, name: str, model_strategy: str, torch_backend: str):
+    """Background thread function to import environment from git repository."""
+    global _import_task_state
+
+    try:
+        with _import_task_lock:
+            _import_task_state["state"] = "importing"
+            _import_task_state["phase"] = None
+            _import_task_state["progress"] = 0
+            _import_task_state["message"] = f"Importing environment '{name}' from git..."
+            _import_task_state["environment_name"] = None
+            _import_task_state["error"] = None
+
+        # Create progress callbacks
+        progress = ServerImportProgress()
+
+        # Call the core library to import from git
+        env = workspace.import_from_git(
+            git_url=git_url,
+            name=name,
+            model_strategy=model_strategy,
+            callbacks=progress,
+            torch_backend=torch_backend
+        )
+
+        with _import_task_lock:
+            _import_task_state["state"] = "complete"
+            _import_task_state["phase"] = "complete"
+            _import_task_state["progress"] = 100
+            _import_task_state["message"] = f"Environment '{name}' imported successfully"
+            _import_task_state["environment_name"] = env.name
+            _import_task_state["error"] = None
+
+    except Exception as e:
+        with _import_task_lock:
+            _import_task_state["state"] = "error"
+            _import_task_state["message"] = "Failed to import environment"
+            _import_task_state["error"] = str(e)
+        print(f"[ComfyGit] Git environment import failed: {e}")
 
 
 @routes.post("/v2/workspace/import/preview")
@@ -395,3 +436,79 @@ async def get_import_status(request: web.Request) -> web.Response:
             "environment_name": _import_task_state["environment_name"],
             "error": _import_task_state["error"]
         })
+
+
+@routes.post("/v2/workspace/import/git")
+async def import_from_git(request: web.Request) -> web.Response:
+    """Import environment from git repository (starts background task).
+
+    Request JSON:
+        {
+            "git_url": "https://github.com/user/repo.git",
+            "name": "my-env",
+            "model_strategy": "all" | "required" | "skip",
+            "torch_backend": "auto"
+        }
+
+    Response:
+        {"status": "started", "message": "Importing environment..."}
+    """
+    global _import_task_state
+
+    is_managed, workspace, _ = orchestrator.detect_environment_type()
+    if not workspace:
+        return web.json_response({"error": "Not in workspace"}, status=500)
+
+    # Check if import already in progress
+    with _import_task_lock:
+        if _import_task_state["state"] == "importing":
+            return web.json_response({
+                "status": "error",
+                "message": "Another import is already in progress"
+            }, status=409)
+
+    # Parse JSON body
+    try:
+        data = await request.json()
+    except Exception:
+        return web.json_response({"status": "error", "message": "Invalid JSON"}, status=400)
+
+    git_url = data.get("git_url")
+    name = data.get("name")
+    model_strategy = data.get("model_strategy", "all")
+    torch_backend = data.get("torch_backend", "auto")
+
+    if not git_url:
+        return web.json_response({"status": "error", "message": "git_url is required"}, status=400)
+
+    if not name:
+        return web.json_response({"status": "error", "message": "name is required"}, status=400)
+
+    # Validate name
+    is_valid, error = _validate_env_name(name)
+    if not is_valid:
+        return web.json_response({"status": "error", "message": error}, status=400)
+
+    # Check if environment already exists
+    try:
+        existing_envs = await run_sync(workspace.list_environments)
+        if any(env.name == name for env in existing_envs):
+            return web.json_response({
+                "status": "error",
+                "message": f"Environment '{name}' already exists"
+            }, status=400)
+    except Exception as e:
+        return web.json_response({"status": "error", "message": str(e)}, status=500)
+
+    # Start import in background thread
+    thread = threading.Thread(
+        target=_run_import_from_git,
+        args=(workspace, git_url, name, model_strategy, torch_backend),
+        daemon=True
+    )
+    thread.start()
+
+    return web.json_response({
+        "status": "started",
+        "message": f"Importing environment '{name}'..."
+    })

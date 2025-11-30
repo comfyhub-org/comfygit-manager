@@ -10,7 +10,7 @@
           <input
             type="text"
             class="name-input"
-            :class="{ error: nameError, valid: nameValid }"
+            :class="{ error: nameError || name.length === 0, valid: nameValid }"
             :value="name"
             placeholder="my-imported-env"
             @input="handleNameInput"

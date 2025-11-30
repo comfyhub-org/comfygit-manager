@@ -8,7 +8,7 @@
   >
     <div v-if="!hasFile" class="drop-zone-empty">
       <div class="drop-zone-icon">
-        <svg width="48" height="48" viewBox="0 0 16 16" fill="currentColor">
+        <svg width="32" height="32" viewBox="0 0 16 16" fill="currentColor">
           <path d="M8 4L4 8h3v4h2V8h3L8 4z"/>
           <path d="M2 14h12v-2H2v2z"/>
         </svg>
@@ -22,7 +22,7 @@
           :accept="accept"
           :multiple="multiple"
           variant="primary"
-          size="md"
+          size="sm"
           @change="handleFileSelect"
         >
           {{ buttonText }}
@@ -150,10 +150,10 @@ function handleClear() {
 .file-drop-zone {
   border: 2px dashed var(--cg-color-border);
   background: var(--cg-color-bg-tertiary);
-  padding: var(--cg-space-6);
+  padding: var(--cg-space-4);
   text-align: center;
   transition: all var(--cg-transition-base);
-  min-height: 200px;
+  min-height: 140px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -177,7 +177,7 @@ function handleClear() {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--cg-space-4);
+  gap: var(--cg-space-2);
   width: 100%;
 }
 
@@ -206,7 +206,7 @@ function handleClear() {
 }
 
 .drop-zone-actions {
-  margin-top: var(--cg-space-2);
+  margin-top: 0;
 }
 
 .drop-zone-file {
