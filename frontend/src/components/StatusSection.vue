@@ -5,6 +5,49 @@
     </template>
 
     <template #content>
+      <!-- Setup Issue Cards (highest priority) -->
+      <IssueCard
+        v-if="props.setupState === 'no_workspace'"
+        severity="info"
+        icon="🚀"
+        title="No ComfyGit workspace detected"
+        description="Set up a workspace to manage your ComfyUI environments, workflows, and models with version control."
+      >
+        <template #actions>
+          <ActionButton variant="primary" size="sm" @click="$emit('start-setup')">
+            Start Setup
+          </ActionButton>
+        </template>
+      </IssueCard>
+
+      <IssueCard
+        v-else-if="props.setupState === 'unmanaged'"
+        severity="warning"
+        icon="⚠"
+        title="Not in a managed environment"
+        description="You're running from an unmanaged ComfyUI installation. Switch to a managed environment to use ComfyGit features."
+      >
+        <template #actions>
+          <ActionButton variant="primary" size="sm" @click="$emit('view-environments')">
+            View Environments
+          </ActionButton>
+        </template>
+      </IssueCard>
+
+      <IssueCard
+        v-else-if="props.setupState === 'empty_workspace'"
+        severity="info"
+        icon="🏗"
+        title="Workspace ready - create your first environment"
+        description="Your workspace is set up. Create a managed environment to start using ComfyGit."
+      >
+        <template #actions>
+          <ActionButton variant="primary" size="sm" @click="$emit('create-environment')">
+            Create Environment
+          </ActionButton>
+        </template>
+      </IssueCard>
+
       <!-- Environment Health Section -->
       <div class="health-section-wrapper" @mouseenter="showHealthActions = true" @mouseleave="showHealthActions = false">
         <div class="health-section-header">
@@ -208,6 +251,21 @@
               </ActionButton>
             </template>
           </IssueCard>
+
+          <!-- WARNING: Legacy ComfyUI-Manager detected -->
+          <IssueCard
+            v-if="status.has_legacy_manager"
+            severity="warning"
+            icon="⚠"
+            title="Legacy ComfyUI-Manager detected"
+            description="The old ComfyUI-Manager extension is installed alongside ComfyGit. For proper environment tracking, use ComfyGit's built-in Manager instead and remove the legacy extension."
+          >
+            <template #actions>
+              <ActionButton variant="primary" size="sm" @click="$emit('view-nodes')">
+                See Nodes
+              </ActionButton>
+            </template>
+          </IssueCard>
         </template>
 
         <!-- No issues but has uncommitted work - simple text -->
@@ -236,7 +294,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import type { ComfyGitStatus } from '@/types/comfygit'
+import type { ComfyGitStatus, SetupState } from '@/types/comfygit'
 import PanelLayout from '@/components/base/organisms/PanelLayout.vue'
 import PanelHeader from '@/components/base/molecules/PanelHeader.vue'
 import SectionTitle from '@/components/base/atoms/SectionTitle.vue'
@@ -247,9 +305,14 @@ import EmptyState from '@/components/base/molecules/EmptyState.vue'
 import ActionButton from '@/components/base/atoms/ActionButton.vue'
 import StatusDetailModal from '@/components/base/molecules/StatusDetailModal.vue'
 
-const props = defineProps<{
+interface Props {
   status: ComfyGitStatus
-}>()
+  setupState?: SetupState
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  setupState: 'managed'
+})
 
 const showDetailModal = ref(false)
 const showHealthActions = ref(false)
@@ -277,6 +340,9 @@ const emit = defineEmits<{
   'create-branch': []
   'view-nodes': []
   'repair-missing-models': [workflowNames: string[]]
+  'start-setup': []
+  'view-environments': []
+  'create-environment': []
 }>()
 
 const isRepairing = ref(false)
@@ -363,7 +429,8 @@ const hasActualIssues = computed(() => {
   return hasBrokenWorkflows.value ||
          pathSyncWorkflows.value.length > 0 ||
          props.status.missing_models_count > 0 ||
-         !props.status.comparison.is_synced
+         !props.status.comparison.is_synced ||
+         props.status.has_legacy_manager
 })
 
 // Short summary for the suggestions box

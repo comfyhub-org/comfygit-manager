@@ -138,14 +138,14 @@
   <CreateEnvironmentModal
     v-if="showCreateModal"
     @close="showCreateModal = false"
-    @create="handleCreate"
+    @created="handleCreated"
   />
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useComfyGitService } from '@/composables/useComfyGitService'
-import type { EnvironmentInfo, CreateEnvironmentRequest } from '@/types/comfygit'
+import type { EnvironmentInfo } from '@/types/comfygit'
 import PanelLayout from '@/components/base/organisms/PanelLayout.vue'
 import PanelHeader from '@/components/base/molecules/PanelHeader.vue'
 import SearchBar from '@/components/base/molecules/SearchBar.vue'
@@ -162,7 +162,7 @@ import CreateEnvironmentModal from '@/components/CreateEnvironmentModal.vue'
 
 const emit = defineEmits<{
   switch: [environmentName: string]
-  create: [request: CreateEnvironmentRequest]
+  created: [environmentName: string, switchAfter: boolean]
   delete: [environmentName: string]
 }>()
 
@@ -189,9 +189,9 @@ const filteredEnvironments = computed(() => {
   )
 })
 
-function handleCreate(request: CreateEnvironmentRequest) {
-  emit('create', request)
+function handleCreated(environmentName: string, switchAfter: boolean) {
   showCreateModal.value = false
+  emit('created', environmentName, switchAfter)
 }
 
 function openCreateModal() {
@@ -223,7 +223,8 @@ onMounted(loadEnvironments)
 
 // Expose methods for parent component
 defineExpose({
-  loadEnvironments
+  loadEnvironments,
+  openCreateModal
 })
 </script>
 

@@ -3,7 +3,9 @@ import { createApp, h, ref, watch } from 'vue'
 import ComfyGitPanel from '@/components/ComfyGitPanel.vue'
 import CommitPopover from '@/components/CommitPopover.vue'
 import ModelDownloadQueue from '@/components/ModelDownloadQueue.vue'
+import MockControlPopover from '@/components/MockControlPopover.vue'
 import { useModelDownloadQueue } from '@/composables/useModelDownloadQueue'
+import { isMockApi } from '@/services/mockApi'
 import type { ComfyGitStatus } from '@/types/comfygit'
 import { getInitialTheme, applyTheme } from '@/themes'
 
@@ -38,9 +40,15 @@ let commitPopover: HTMLElement | null = null
 let commitVueApp: ReturnType<typeof createApp> | null = null
 let downloadQueueContainer: HTMLElement | null = null
 let downloadQueueApp: ReturnType<typeof createApp> | null = null
+let mockControlPopover: HTMLElement | null = null
+let mockControlApp: ReturnType<typeof createApp> | null = null
 
 // Global status for indicator
 const globalStatus = ref<ComfyGitStatus | null>(null)
+
+// Setup state for commit button enablement
+type SetupState = 'no_workspace' | 'empty_workspace' | 'unmanaged' | 'managed'
+let currentSetupState: SetupState = 'managed'
 
 // Fetch status for commit indicator
 async function fetchStatus() {
@@ -49,6 +57,26 @@ async function fetchStatus() {
     const response = await app.api.fetchApi('/v2/comfygit/status')
     if (response.ok) {
       globalStatus.value = await response.json()
+    }
+  } catch {
+    // Silently fail
+  }
+}
+
+// Fetch setup status to determine if in managed environment
+async function fetchSetupStatus() {
+  // Mock mode: always return no_workspace to test disabled state
+  if (isMockApi()) {
+    currentSetupState = 'no_workspace'
+    return
+  }
+
+  if (!app?.api) return
+  try {
+    const response = await app.api.fetchApi('/v2/setup/status')
+    if (response.ok) {
+      const data = await response.json()
+      currentSetupState = data.state
     }
   } catch {
     // Silently fail
@@ -88,9 +116,12 @@ function showPanel() {
   const vueApp = createApp({
     render: () => h(ComfyGitPanel, {
       onClose: closePanel,
-      onStatusUpdate: (status: ComfyGitStatus) => {
+      onStatusUpdate: async (status: ComfyGitStatus) => {
         globalStatus.value = status
         updateCommitIndicator()
+        // Also refresh setup state in case user switched environments
+        await fetchSetupStatus()
+        updateCommitButtonState()
       }
     })
   })
@@ -178,8 +209,61 @@ function mountDownloadQueue() {
   console.log('[ComfyGit] Model download queue mounted')
 }
 
-// Update commit button indicator
+function showMockControlPopover(anchorElement: HTMLElement) {
+  closeMockControlPopover()
+
+  mockControlPopover = document.createElement('div')
+  mockControlPopover.className = 'comfygit-mock-control-container'
+
+  // Position below the button
+  const rect = anchorElement.getBoundingClientRect()
+  mockControlPopover.style.position = 'fixed'
+  mockControlPopover.style.top = `${rect.bottom + 8}px`
+  mockControlPopover.style.right = `${window.innerWidth - rect.right}px`
+  mockControlPopover.style.zIndex = '10001'
+
+  // Close on outside click
+  const clickOutsideHandler = (e: MouseEvent) => {
+    if (mockControlPopover && !mockControlPopover.contains(e.target as Node) && e.target !== anchorElement) {
+      closeMockControlPopover()
+      document.removeEventListener('mousedown', clickOutsideHandler)
+    }
+  }
+  setTimeout(() => document.addEventListener('mousedown', clickOutsideHandler), 0)
+
+  // Close on Escape
+  const escHandler = (e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      closeMockControlPopover()
+      document.removeEventListener('keydown', escHandler)
+    }
+  }
+  document.addEventListener('keydown', escHandler)
+
+  mockControlApp = createApp({
+    render: () => h(MockControlPopover, {
+      onClose: closeMockControlPopover
+    })
+  })
+
+  mockControlApp.mount(mockControlPopover)
+  document.body.appendChild(mockControlPopover)
+}
+
+function closeMockControlPopover() {
+  if (mockControlApp) {
+    mockControlApp.unmount()
+    mockControlApp = null
+  }
+  if (mockControlPopover) {
+    mockControlPopover.remove()
+    mockControlPopover = null
+  }
+}
+
+// Update commit button indicator and disabled state
 let commitButton: HTMLButtonElement | null = null
+let mockButton: HTMLButtonElement | null = null
 
 function updateCommitIndicator() {
   if (!commitButton) return
@@ -187,6 +271,15 @@ function updateCommitIndicator() {
   if (indicator) {
     indicator.style.display = hasUncommittedChanges() ? 'block' : 'none'
   }
+}
+
+function updateCommitButtonState() {
+  if (!commitButton) return
+  const isDisabled = currentSetupState !== 'managed'
+  commitButton.disabled = isDisabled
+  commitButton.title = isDisabled
+    ? 'Commit disabled - switch to a managed environment first'
+    : 'Quick Commit'
 }
 
 // Inject styles
@@ -251,8 +344,31 @@ styles.textContent = `
     position: relative;
   }
 
-  .comfygit-commit-btn:hover {
+  .comfygit-commit-btn:hover:not(:disabled) {
     background: linear-gradient(180deg, #404040 0%, #2e2e2e 100%) !important;
+  }
+
+  .comfygit-commit-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .comfygit-mock-btn {
+    background: linear-gradient(180deg, #7c3aed 0%, #5b21b6 100%) !important;
+    color: white !important;
+    border: none !important;
+    border-left: 1px solid rgba(0, 0, 0, 0.3) !important;
+    border-radius: 0 4px 4px 0 !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0 rgba(0, 0, 0, 0.15) !important;
+  }
+
+  .comfygit-mock-btn:hover {
+    background: linear-gradient(180deg, #8b5cf6 0%, #6d28d9 100%) !important;
+  }
+
+  /* Adjust commit button border-radius when mock button is present */
+  .comfygit-btn-group:has(.comfygit-mock-btn) .comfygit-commit-btn {
+    border-radius: 0 !important;
   }
 
   .commit-indicator {
@@ -309,6 +425,17 @@ app.registerExtension({
     btnGroup.appendChild(panelButton)
     btnGroup.appendChild(commitButton)
 
+    // Mock control button (only in mock mode)
+    if (isMockApi()) {
+      mockButton = document.createElement('button')
+      mockButton.className = 'comfyui-button comfyui-menu-mobile-collapse comfygit-mock-btn'
+      mockButton.textContent = 'Mock'
+      mockButton.title = 'Mock Controls - Simulate different environment states'
+      mockButton.onclick = () => showMockControlPopover(mockButton!)
+      btnGroup.appendChild(mockButton)
+      console.log('[ComfyGit] Mock mode enabled - Mock Control button added')
+    }
+
     // Insert before settings button
     if (app.menu?.settingsGroup?.element) {
       app.menu.settingsGroup.element.before(btnGroup)
@@ -322,14 +449,16 @@ app.registerExtension({
     const { loadPendingDownloads } = useModelDownloadQueue()
     loadPendingDownloads()
 
-    // Initial status fetch for indicator
-    await fetchStatus()
+    // Initial status fetch for indicator and setup state
+    await Promise.all([fetchStatus(), fetchSetupStatus()])
     updateCommitIndicator()
+    updateCommitButtonState()
 
     // Refresh status periodically (fallback for external changes)
     setInterval(async () => {
-      await fetchStatus()
+      await Promise.all([fetchStatus(), fetchSetupStatus()])
       updateCommitIndicator()
+      updateCommitButtonState()
     }, 30000)
 
     // Register custom WebSocket event type with ComfyUI API

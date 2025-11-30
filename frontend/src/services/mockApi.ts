@@ -76,6 +76,7 @@ import type {
   ExportValidationResult,
   ExportResult
 } from '@/types/comfygit'
+import { useMockControls } from '@/composables/useMockControls'
 
 // =============================================================================
 // Mock State - Tracks added sources for testing export flow
@@ -960,6 +961,8 @@ export const mockApi = {
    */
   getStatus: async (): Promise<any> => {
     await delay(400)
+    // Get has_legacy_manager from mock controls
+    const { state: mockState } = useMockControls()
     return {
       environment: 'production',
       branch: 'main',  // Set to null to test detached HEAD
@@ -1075,7 +1078,8 @@ export const mockApi = {
         missing_nodes: ['rgthree-comfy', 'comfyui-image-saver'],
         extra_nodes: []
       },
-      missing_models_count: 1
+      missing_models_count: 1,
+      has_legacy_manager: mockState.hasLegacyManager
     }
   },
 

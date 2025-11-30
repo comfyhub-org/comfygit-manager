@@ -23,9 +23,26 @@ _create_task_state = {
     "state": "idle",
     "task_id": None,
     "environment_name": None,
+    "phase": None,
+    "progress": 0,
     "message": "No creation in progress",
     "error": None
 }
+
+
+class ServerCreateProgress:
+    """Implements EnvironmentCreateProgress protocol for API state updates."""
+
+    def on_phase(self, phase: str, description: str, progress_pct: int) -> None:
+        with _create_task_lock:
+            _create_task_state["phase"] = phase
+            _create_task_state["progress"] = progress_pct
+            _create_task_state["message"] = description
+
+    def on_phase_complete(self, phase: str, success: bool, error: str | None = None) -> None:
+        if not success:
+            with _create_task_lock:
+                _create_task_state["error"] = error
 
 
 def spawn_orchestrator(environment, target_env: str) -> None:
@@ -299,18 +316,26 @@ def _run_create_environment(workspace, name: str, python_version: str, comfyui_v
     try:
         with _create_task_lock:
             _create_task_state["state"] = "creating"
-            _create_task_state["message"] = f"Creating environment '{name}'..."
+            _create_task_state["phase"] = "init"
+            _create_task_state["progress"] = 0
+            _create_task_state["message"] = f"Initializing environment '{name}'..."
 
-        # Call the core library to create the environment
+        # Create progress callback
+        progress = ServerCreateProgress()
+
+        # Call the core library to create the environment with progress tracking
         workspace.create_environment(
             name=name,
             python_version=python_version,
             comfyui_version=comfyui_version if comfyui_version != "latest" else None,
-            torch_backend=torch_backend
+            torch_backend=torch_backend,
+            progress=progress
         )
 
         with _create_task_lock:
             _create_task_state["state"] = "complete"
+            _create_task_state["phase"] = "complete"
+            _create_task_state["progress"] = 100
             _create_task_state["message"] = f"Environment '{name}' created successfully"
             _create_task_state["error"] = None
 
@@ -401,6 +426,8 @@ async def create_environment(request: web.Request) -> web.Response:
             "state": "creating",
             "task_id": task_id,
             "environment_name": name,
+            "phase": "init",
+            "progress": 0,
             "message": f"Starting creation of '{name}'...",
             "error": None
         }

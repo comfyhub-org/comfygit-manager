@@ -37,9 +37,15 @@ import type {
   ImportAnalysis,
   ValidateNameResult,
   ImportResult,
-  ImportProgress
+  ImportProgress,
+  SetupStatus,
+  InitializeWorkspaceRequest,
+  InitializeProgress,
+  ValidatePathRequest,
+  ValidatePathResult
 } from '@/types/comfygit'
 import { mockApi, isMockApi } from '@/services/mockApi'
+import { useMockControls } from '@/composables/useMockControls'
 
 // Access ComfyUI's API
 declare global {
@@ -54,6 +60,132 @@ declare global {
 
 // Toggle between mock and real API (set VITE_USE_MOCK_API=false in .env to disable)
 const USE_MOCK = isMockApi()
+
+// ============================================================================
+// MOCK STATE MANAGEMENT
+// For simulating stateful operations like wizard flows
+// ============================================================================
+
+interface MockSetupState {
+  initState: 'idle' | 'creating_workspace' | 'setting_models_dir' | 'scanning_models' | 'complete' | 'error'
+  initProgress: number
+  initMessage: string
+  initStartTime: number | null
+  modelsFound: number
+}
+
+interface MockCreateEnvState {
+  state: 'idle' | 'creating' | 'complete' | 'error'
+  phase: string | null
+  progress: number
+  message: string
+  startTime: number | null
+  envName: string | null
+}
+
+// Global mock state (persists across function calls in the same session)
+const mockSetupState: MockSetupState = {
+  initState: 'idle',
+  initProgress: 0,
+  initMessage: 'No initialization in progress',
+  initStartTime: null,
+  modelsFound: 0
+}
+
+const mockCreateEnvState: MockCreateEnvState = {
+  state: 'idle',
+  phase: null,
+  progress: 0,
+  message: '',
+  startTime: null,
+  envName: null
+}
+
+// Phase definitions with timing (matches core library phases)
+const MOCK_ENV_PHASES = [
+  { id: 'init_structure', endTime: 300, progress: 5, message: 'Creating environment structure...' },
+  { id: 'resolve_version', endTime: 800, progress: 10, message: 'Resolving ComfyUI version...' },
+  { id: 'clone_comfyui', endTime: 2800, progress: 25, message: 'Cloning ComfyUI...' },
+  { id: 'configure_environment', endTime: 3300, progress: 30, message: 'Configuring environment...' },
+  { id: 'create_venv', endTime: 4300, progress: 35, message: 'Creating virtual environment...' },
+  { id: 'install_pytorch', endTime: 8300, progress: 70, message: 'Installing PyTorch...' },
+  { id: 'configure_pytorch', endTime: 8800, progress: 75, message: 'Configuring PyTorch backend...' },
+  { id: 'install_dependencies', endTime: 11300, progress: 95, message: 'Installing ComfyUI dependencies...' },
+  { id: 'finalize', endTime: 11800, progress: 100, message: 'Finalizing environment...' },
+]
+
+// Helper to simulate progress over time for workspace initialization
+function updateMockInitProgress(): void {
+  if (mockSetupState.initState === 'idle' || mockSetupState.initState === 'complete' || mockSetupState.initState === 'error') {
+    return
+  }
+
+  if (!mockSetupState.initStartTime) return
+
+  const elapsed = Date.now() - mockSetupState.initStartTime
+
+  // Simulate phases: 0-2s creating, 2-4s setting models, 4-8s scanning, 8s+ complete
+  if (elapsed < 2000) {
+    mockSetupState.initState = 'creating_workspace'
+    mockSetupState.initProgress = Math.min(20, Math.floor(elapsed / 100))
+    mockSetupState.initMessage = 'Creating workspace structure...'
+  } else if (elapsed < 4000) {
+    mockSetupState.initState = 'setting_models_dir'
+    mockSetupState.initProgress = 20 + Math.floor((elapsed - 2000) / 200)
+    mockSetupState.initMessage = 'Configuring models directory...'
+  } else if (elapsed < 8000) {
+    mockSetupState.initState = 'scanning_models'
+    const scanProgress = Math.floor((elapsed - 4000) / 50)
+    mockSetupState.initProgress = 30 + Math.min(65, scanProgress)
+    const modelsScanned = Math.floor((elapsed - 4000) / 100)
+    mockSetupState.initMessage = `Scanning models (${modelsScanned}/42)...`
+  } else {
+    mockSetupState.initState = 'complete'
+    mockSetupState.initProgress = 100
+    mockSetupState.initMessage = 'Complete! 42 models indexed'
+    mockSetupState.modelsFound = 42
+    mockSetupState.initStartTime = null
+  }
+}
+
+// Helper to simulate progress over time for environment creation
+function updateMockCreateEnvProgress(): void {
+  if (mockCreateEnvState.state === 'idle' || mockCreateEnvState.state === 'complete' || mockCreateEnvState.state === 'error') {
+    return
+  }
+
+  if (!mockCreateEnvState.startTime) return
+
+  const elapsed = Date.now() - mockCreateEnvState.startTime
+
+  // Find current phase based on elapsed time
+  let foundPhase = false
+  for (const phase of MOCK_ENV_PHASES) {
+    if (elapsed < phase.endTime) {
+      mockCreateEnvState.phase = phase.id
+      mockCreateEnvState.message = phase.message
+      // Interpolate progress within phase
+      const prevPhaseIdx = MOCK_ENV_PHASES.indexOf(phase) - 1
+      const prevEndTime = prevPhaseIdx >= 0 ? MOCK_ENV_PHASES[prevPhaseIdx].endTime : 0
+      const prevProgress = prevPhaseIdx >= 0 ? MOCK_ENV_PHASES[prevPhaseIdx].progress : 0
+      const phaseDuration = phase.endTime - prevEndTime
+      const phaseElapsed = elapsed - prevEndTime
+      const phaseProgress = phaseElapsed / phaseDuration
+      mockCreateEnvState.progress = Math.floor(prevProgress + (phase.progress - prevProgress) * phaseProgress)
+      foundPhase = true
+      break
+    }
+  }
+
+  // If past all phases, complete
+  if (!foundPhase) {
+    mockCreateEnvState.state = 'complete'
+    mockCreateEnvState.phase = 'complete'
+    mockCreateEnvState.progress = 100
+    mockCreateEnvState.message = `Environment '${mockCreateEnvState.envName}' created successfully`
+    mockCreateEnvState.startTime = null
+  }
+}
 
 export function useComfyGitService() {
   const isLoading = ref(false)
@@ -228,7 +360,14 @@ export function useComfyGitService() {
 
   async function createEnvironment(request: CreateEnvironmentRequest): Promise<CreateEnvironmentResult> {
     if (USE_MOCK) {
-      await mockApi.createEnvironment(request.name, request.torch_backend || 'auto')
+      // Start the mock environment creation process
+      mockCreateEnvState.state = 'creating'
+      mockCreateEnvState.phase = 'init_structure'
+      mockCreateEnvState.progress = 0
+      mockCreateEnvState.message = 'Creating environment structure...'
+      mockCreateEnvState.startTime = Date.now()
+      mockCreateEnvState.envName = request.name
+      console.log('[MOCK] Starting environment creation:', request)
       return { status: 'started', task_id: 'mock-task-id', message: 'Creating environment...' }
     }
 
@@ -241,7 +380,17 @@ export function useComfyGitService() {
 
   async function getCreateProgress(): Promise<CreateEnvironmentProgress> {
     if (USE_MOCK) {
-      return { state: 'idle', message: 'No creation in progress' }
+      // Update progress based on elapsed time
+      updateMockCreateEnvProgress()
+
+      return {
+        state: mockCreateEnvState.state,
+        phase: mockCreateEnvState.phase ?? undefined,
+        progress: mockCreateEnvState.progress,
+        message: mockCreateEnvState.message,
+        environment_name: mockCreateEnvState.state === 'complete' ? mockCreateEnvState.envName || undefined : undefined,
+        error: mockCreateEnvState.state === 'error' ? 'Mock error occurred' : undefined
+      }
     }
 
     return fetchApi<CreateEnvironmentProgress>('/v2/workspace/environments/create_status')
@@ -848,6 +997,111 @@ export function useComfyGitService() {
     return fetchApi<ImportProgress>('/v2/workspace/import/status')
   }
 
+  // First-Time Setup
+  async function getSetupStatus(): Promise<SetupStatus> {
+    if (USE_MOCK) {
+      // Use mock controls state as primary source
+      const { state: mockState, setupState } = useMockControls()
+
+      // Build environments list based on mock controls
+      const environments: string[] = []
+      if (mockState.hasEnvironments) {
+        environments.push('mock-env-1', 'mock-env-2')
+      }
+      // Add any environment created during this session
+      if (mockCreateEnvState.state === 'complete' && mockCreateEnvState.envName) {
+        if (!environments.includes(mockCreateEnvState.envName)) {
+          environments.push(mockCreateEnvState.envName)
+        }
+      }
+
+      return {
+        state: setupState.value,
+        workspace_path: mockState.hasWorkspace ? '~/comfygit' : null,
+        default_path: '~/comfygit',
+        environments,
+        current_environment: mockState.isManaged ? 'mock-env-1' : null,
+        detected_models_dir: '/mock/ComfyUI/models',
+        cli_installed: false,
+        cli_path: null
+      }
+    }
+    return fetchApi<SetupStatus>('/v2/setup/status')
+  }
+
+  async function initializeWorkspace(request: InitializeWorkspaceRequest): Promise<{ status: string; task_id: string }> {
+    if (USE_MOCK) {
+      // Start the mock initialization process
+      mockSetupState.initState = 'creating_workspace'
+      mockSetupState.initProgress = 0
+      mockSetupState.initMessage = 'Starting workspace creation...'
+      mockSetupState.initStartTime = Date.now()
+      mockSetupState.modelsFound = 0
+      console.log('[MOCK] Starting workspace initialization:', request)
+      return { status: 'started', task_id: 'mock-task-id' }
+    }
+    return fetchApi('/v2/setup/initialize_workspace', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request)
+    })
+  }
+
+  async function getInitializeProgress(): Promise<InitializeProgress> {
+    if (USE_MOCK) {
+      // Update progress based on elapsed time
+      updateMockInitProgress()
+
+      return {
+        state: mockSetupState.initState,
+        progress: mockSetupState.initProgress,
+        message: mockSetupState.initMessage,
+        models_found: mockSetupState.initState === 'complete' ? mockSetupState.modelsFound : undefined,
+        error: mockSetupState.initState === 'error' ? 'Mock error occurred' : undefined
+      }
+    }
+    return fetchApi<InitializeProgress>('/v2/setup/initialize_status')
+  }
+
+  async function validatePath(request: ValidatePathRequest): Promise<ValidatePathResult> {
+    if (USE_MOCK) {
+      // Simulate realistic validation
+      await new Promise(resolve => setTimeout(resolve, 200)) // Small delay
+
+      if (request.type === 'workspace') {
+        // Check for obviously invalid paths
+        if (!request.path || request.path.trim() === '') {
+          return { valid: false, error: 'Path cannot be empty' }
+        }
+        // Simulate workspace already exists
+        if (request.path.includes('existing')) {
+          return { valid: false, error: 'Workspace already exists at this location' }
+        }
+        return { valid: true }
+      } else if (request.type === 'models') {
+        if (!request.path || request.path.trim() === '') {
+          return { valid: false, error: 'Path cannot be empty' }
+        }
+        // Simulate ComfyUI root detection
+        if (request.path.endsWith('ComfyUI') || request.path.endsWith('comfyui')) {
+          return {
+            valid: false,
+            error: 'This appears to be a ComfyUI installation, not a models directory',
+            suggestion: request.path + '/models'
+          }
+        }
+        // Valid models directory
+        return { valid: true, model_count: 42 }
+      }
+      return { valid: true }
+    }
+    return fetchApi<ValidatePathResult>('/v2/setup/validate_path', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request)
+    })
+  }
+
   return {
     isLoading,
     error,
@@ -923,6 +1177,11 @@ export function useComfyGitService() {
     previewTarballImport,
     validateEnvironmentName,
     executeImport,
-    getImportProgress
+    getImportProgress,
+    // First-Time Setup
+    getSetupStatus,
+    initializeWorkspace,
+    getInitializeProgress,
+    validatePath
   }
 }

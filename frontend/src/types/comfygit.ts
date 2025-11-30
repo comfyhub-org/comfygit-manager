@@ -51,6 +51,7 @@ export interface ComfyGitStatus {
   git_changes: GitChanges
   comparison: ComparisonStatus
   missing_models_count: number
+  has_legacy_manager: boolean
 }
 
 export interface CommitInfo {
@@ -219,6 +220,8 @@ export interface CreateEnvironmentProgress {
   state: 'idle' | 'creating' | 'complete' | 'error'
   task_id?: string
   environment_name?: string
+  phase?: string
+  progress?: number
   message: string
   error?: string
 }
@@ -829,4 +832,44 @@ export interface ImportProgress {
   message: string
   environment_name?: string | null
   error?: string | null
+}
+
+// First-Time Setup Types
+export type SetupState = 'no_workspace' | 'empty_workspace' | 'unmanaged' | 'managed'
+
+export interface SetupStatus {
+  state: SetupState
+  workspace_path: string | null
+  default_path: string
+  environments: string[]
+  current_environment: string | null
+  detected_models_dir: string | null
+  cli_installed: boolean
+  cli_path: string | null
+}
+
+export interface InitializeWorkspaceRequest {
+  workspace_path?: string
+  models_directory?: string | null
+}
+
+export interface InitializeProgress {
+  state: 'idle' | 'creating_workspace' | 'setting_models_dir' | 'scanning_models' | 'complete' | 'error'
+  progress: number
+  message: string
+  task_id?: string
+  models_found?: number
+  error?: string
+}
+
+export interface ValidatePathRequest {
+  path: string
+  type: 'workspace' | 'models'
+}
+
+export interface ValidatePathResult {
+  valid: boolean
+  error?: string
+  suggestion?: string
+  model_count?: number
 }

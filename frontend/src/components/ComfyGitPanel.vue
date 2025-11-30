@@ -170,6 +170,7 @@
             v-if="currentView === 'status'"
             ref="statusSectionRef"
             :status="status!"
+            :setup-state="setupState"
             @switch-branch="handleSwitchBranchClick"
             @commit-changes="showCommitModal = true"
             @sync-environment="showSyncModal = true"
@@ -177,6 +178,9 @@
             @view-history="selectView('history', 'this-env')"
             @view-debug="selectView('debug-env', 'this-env')"
             @repair-missing-models="handleRepairMissingModels"
+            @start-setup="showSetupWizard = true"
+            @view-environments="selectView('environments', 'all-envs')"
+            @create-environment="handleCreateEnvironmentFromStatus"
           />
 
           <!-- Workflows View -->
@@ -224,7 +228,7 @@
             v-else-if="currentView === 'environments'"
             ref="environmentsSectionRef"
             @switch="handleEnvironmentSwitch"
-            @create="handleEnvironmentCreate"
+            @created="handleEnvironmentCreated"
             @delete="handleEnvironmentDelete"
           />
 
@@ -311,20 +315,6 @@
       :message="switchProgress.message"
     />
 
-    <!-- Create Environment Progress Modal -->
-    <div v-if="showCreateProgress" class="dialog-overlay">
-      <div class="dialog-content create-progress-dialog">
-        <div class="dialog-header">
-          <h3 class="dialog-title">CREATING ENVIRONMENT</h3>
-        </div>
-        <div class="dialog-body create-progress-body">
-          <div class="create-progress-spinner"></div>
-          <p class="create-progress-message">{{ createProgress.message }}</p>
-          <p class="create-progress-hint">This may take several minutes...</p>
-        </div>
-      </div>
-    </div>
-
     <!-- Environment Selector Modal -->
     <div v-if="showEnvironmentSelector" class="dialog-overlay" @click.self="showEnvironmentSelector = false">
       <div class="dialog-content env-selector-dialog">
@@ -368,6 +358,21 @@
       </div>
     </div>
 
+    <!-- First-Time Setup Wizard -->
+    <FirstTimeSetupWizard
+      v-if="showSetupWizard"
+      :default-path="setupStatus?.default_path || '~/comfygit'"
+      :detected-models-dir="setupStatus?.detected_models_dir || null"
+      :initial-step="wizardInitialStep"
+      :existing-environments="setupStatus?.environments || []"
+      :cli-installed="setupStatus?.cli_installed ?? true"
+      :setup-state="setupStatus?.state || 'no_workspace'"
+      @complete="handleSetupComplete"
+      @close="handleSetupWizardClose"
+      @switch-environment="handleEnvironmentSwitchFromWizard"
+      @environment-created-no-switch="handleEnvironmentCreatedNoSwitch"
+    />
+
     <!-- Toast Notifications -->
     <div class="toast-container">
       <transition-group name="toast">
@@ -406,9 +411,10 @@ import CommitPopover from './CommitPopover.vue'
 import ConfirmSwitchModal from './base/molecules/ConfirmSwitchModal.vue'
 import SwitchProgressModal from './base/molecules/SwitchProgressModal.vue'
 import SyncEnvironmentModal from './base/molecules/SyncEnvironmentModal.vue'
+import FirstTimeSetupWizard from './FirstTimeSetupWizard.vue'
 import { useComfyGitService } from '@/composables/useComfyGitService'
 import { useOrchestratorService } from '@/composables/useOrchestratorService'
-import type { ComfyGitStatus, CommitInfo, BranchInfo, EnvironmentInfo, CreateEnvironmentRequest } from '@/types/comfygit'
+import type { ComfyGitStatus, CommitInfo, BranchInfo, EnvironmentInfo, SetupStatus, SetupState } from '@/types/comfygit'
 
 const emit = defineEmits<{
   close: []
@@ -426,11 +432,10 @@ const {
   getEnvironments,
   switchEnvironment,
   getSwitchProgress,
-  createEnvironment,
-  getCreateProgress,
   deleteEnvironment,
   syncEnvironmentManually,
-  repairWorkflowModels
+  repairWorkflowModels,
+  getSetupStatus
 } = useComfyGitService()
 
 const orchestratorService = useOrchestratorService()
@@ -446,6 +451,14 @@ const commits = ref<CommitInfo[]>([])
 const branches = ref<BranchInfo[]>([])
 const environments = ref<EnvironmentInfo[]>([])
 const currentEnvironment = computed(() => environments.value.find(e => e.is_current))
+
+// First-time setup state
+const setupStatus = ref<SetupStatus | null>(null)
+const showSetupWizard = ref(false)
+const wizardInitialStep = ref<1 | 2>(1)
+const setupState = computed<SetupState>(() => {
+  return setupStatus.value?.state || 'managed'
+})
 const isLoading = ref(false)
 const error = ref<string | null>(null)
 const selectedCommit = ref<CommitInfo | null>(null)
@@ -453,7 +466,7 @@ const showEnvironmentSelector = ref(false)
 
 // Ref to child components for triggering reloads
 const workflowsSectionRef = ref<{ loadWorkflows: (forceRefresh?: boolean) => Promise<void> } | null>(null)
-const environmentsSectionRef = ref<{ loadEnvironments: () => Promise<void> } | null>(null)
+const environmentsSectionRef = ref<{ loadEnvironments: () => Promise<void>; openCreateModal: () => void } | null>(null)
 const statusSectionRef = ref<{ resetRepairingState: () => void } | null>(null)
 
 // Environment switching modals
@@ -463,12 +476,6 @@ const targetEnvironment = ref<string>('')
 const switchProgress = ref({ state: 'idle', progress: 0, message: '' })
 let switchPollInterval: number | null = null
 let progressSimulationInterval: number | null = null
-
-// Environment creation state
-const showCreateProgress = ref(false)
-const createProgress = ref({ state: 'idle', message: '' })
-const pendingCreateRequest = ref<CreateEnvironmentRequest | null>(null)
-let createPollInterval: number | null = null
 
 const currentView = ref<ViewName>('status')
 const currentSection = ref<SectionName>('this-env')
@@ -1016,6 +1023,12 @@ function stopSwitchPolling() {
 function cancelEnvironmentSwitch() {
   showConfirmSwitch.value = false
   targetEnvironment.value = ''
+  // If still in non-managed state, ensure wizard stays open with correct step
+  if (setupStatus.value?.state && setupStatus.value.state !== 'managed') {
+    // Update initial step based on current state (workspace may have been created)
+    wizardInitialStep.value = setupStatus.value.state === 'no_workspace' ? 1 : 2
+    showSetupWizard.value = true
+  }
 }
 
 // Commit and Sync handlers
@@ -1075,71 +1088,18 @@ async function handleRepairMissingModels(workflowNames: string[]) {
   }
 }
 
-async function handleEnvironmentCreate(request: CreateEnvironmentRequest) {
-  pendingCreateRequest.value = request
-  showCreateProgress.value = true
-  createProgress.value = { state: 'creating', message: `Creating environment '${request.name}'...` }
+async function handleEnvironmentCreated(environmentName: string, switchAfter: boolean) {
+  showToast(`Environment '${environmentName}' created`, 'success')
 
-  try {
-    const result = await createEnvironment(request)
-
-    if (result.status === 'started') {
-      // Start polling for progress
-      startCreatePolling()
-    } else if (result.status === 'error') {
-      showCreateProgress.value = false
-      showToast(`Failed to create environment: ${result.message}. Check debug logs for details.`, 'error')
-      pendingCreateRequest.value = null
-    }
-  } catch (err) {
-    showCreateProgress.value = false
-    showToast(`Error creating environment: ${err instanceof Error ? err.message : 'Unknown error'}. Check debug logs.`, 'error')
-    pendingCreateRequest.value = null
+  // Refresh environments list
+  await refresh()
+  if (environmentsSectionRef.value) {
+    await environmentsSectionRef.value.loadEnvironments()
   }
-}
 
-function startCreatePolling() {
-  if (createPollInterval) return
-
-  createPollInterval = window.setInterval(async () => {
-    try {
-      const progress = await getCreateProgress()
-      createProgress.value = { state: progress.state, message: progress.message }
-
-      if (progress.state === 'complete') {
-        stopCreatePolling()
-        showCreateProgress.value = false
-        showToast(`✓ Environment '${progress.environment_name}' created`, 'success')
-
-        // Refresh the environments list
-        await refresh()
-        if (environmentsSectionRef.value) {
-          await environmentsSectionRef.value.loadEnvironments()
-        }
-
-        // If switch_after was requested, trigger the switch
-        if (pendingCreateRequest.value?.switch_after && progress.environment_name) {
-          await handleEnvironmentSwitch(progress.environment_name)
-        }
-
-        pendingCreateRequest.value = null
-      } else if (progress.state === 'error') {
-        stopCreatePolling()
-        showCreateProgress.value = false
-        showToast(`Failed to create environment: ${progress.error || progress.message}. Check debug logs.`, 'error')
-        pendingCreateRequest.value = null
-      }
-    } catch (err) {
-      console.error('Failed to poll create progress:', err)
-      // Continue polling - might be transient
-    }
-  }, 2000) // Poll every 2 seconds
-}
-
-function stopCreatePolling() {
-  if (createPollInterval) {
-    clearInterval(createPollInterval)
-    createPollInterval = null
+  // Switch if requested
+  if (switchAfter) {
+    await handleEnvironmentSwitch(environmentName)
   }
 }
 
@@ -1179,6 +1139,49 @@ async function handleEnvironmentDelete(envName: string) {
   }
 }
 
+async function handleSetupComplete(environmentName: string) {
+  showSetupWizard.value = false
+
+  // Refresh setup status
+  try {
+    setupStatus.value = await getSetupStatus()
+  } catch {
+    // Ignore errors
+  }
+
+  // Trigger environment switch
+  await handleEnvironmentSwitch(environmentName)
+}
+
+function handleSetupWizardClose() {
+  // Close entire panel when wizard is closed without completing setup
+  showSetupWizard.value = false
+  emit('close')
+}
+
+async function handleEnvironmentSwitchFromWizard(envName: string) {
+  // Use existing environment switch flow
+  await handleEnvironmentSwitch(envName)
+}
+
+async function handleEnvironmentCreatedNoSwitch(envName: string) {
+  // Refresh setup status to get updated environments list
+  setupStatus.value = await getSetupStatus()
+
+  // Keep wizard open but now with the new environment in the list
+  // The wizard will re-render with the updated existingEnvironments prop
+  console.log(`Environment '${envName}' created. Available for switching.`)
+}
+
+function handleCreateEnvironmentFromStatus() {
+  // Navigate to environments section and trigger create modal
+  selectView('environments', 'all-envs')
+  // Give time for section to mount, then open create modal
+  setTimeout(() => {
+    environmentsSectionRef.value?.openCreateModal()
+  }, 100)
+}
+
 function getChangeDetails(): string[] {
   if (!status.value) return []
   const details: string[] = []
@@ -1189,7 +1192,37 @@ function getChangeDetails(): string[] {
   return details
 }
 
-onMounted(refresh)
+onMounted(async () => {
+  // Check setup status first
+  try {
+    setupStatus.value = await getSetupStatus()
+
+    // Block panel for all non-managed states
+    if (setupStatus.value.state === 'no_workspace') {
+      showSetupWizard.value = true
+      wizardInitialStep.value = 1
+      return
+    }
+
+    if (setupStatus.value.state === 'empty_workspace') {
+      showSetupWizard.value = true
+      wizardInitialStep.value = 2  // Skip workspace creation
+      return
+    }
+
+    if (setupStatus.value.state === 'unmanaged') {
+      showSetupWizard.value = true
+      wizardInitialStep.value = 2  // Skip workspace creation
+      return
+    }
+
+    // Only 'managed' state reaches here
+  } catch (err) {
+    console.warn('Setup status check failed, proceeding normally:', err)
+  }
+
+  await refresh()
+})
 </script>
 
 <style scoped>
@@ -1679,41 +1712,5 @@ onMounted(refresh)
 .sidebar::-webkit-scrollbar-thumb:hover,
 .content-area::-webkit-scrollbar-thumb:hover {
   background: var(--cg-color-accent);
-}
-
-/* Create Progress Modal */
-.create-progress-dialog {
-  width: 400px;
-}
-
-.create-progress-body {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--cg-space-4);
-  padding: var(--cg-space-6) var(--cg-space-4);
-}
-
-.create-progress-spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid var(--cg-color-border-subtle);
-  border-top-color: var(--cg-color-accent);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-.create-progress-message {
-  color: var(--cg-color-text-primary);
-  font-size: var(--cg-font-size-sm);
-  text-align: center;
-  margin: 0;
-}
-
-.create-progress-hint {
-  color: var(--cg-color-text-muted);
-  font-size: var(--cg-font-size-xs);
-  text-align: center;
-  margin: 0;
 }
 </style>
