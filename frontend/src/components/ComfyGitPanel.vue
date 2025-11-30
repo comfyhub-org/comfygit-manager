@@ -216,6 +216,7 @@
             @view-workflows="selectView('workflows', 'this-env')"
             @view-history="selectView('history', 'this-env')"
             @view-debug="selectView('debug-env', 'this-env')"
+            @view-nodes="selectView('nodes', 'this-env')"
             @repair-missing-models="handleRepairMissingModels"
             @start-setup="showSetupWizard = true"
             @view-environments="selectView('environments', 'all-envs')"

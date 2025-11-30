@@ -1,18 +1,7 @@
 <template>
   <PanelLayout>
     <template #header>
-      <PanelHeader title="WORKFLOWS">
-        <template #actions>
-          <ActionButton
-            v-if="brokenWorkflows.length > 0"
-            variant="primary"
-            size="sm"
-            @click="handleResolveAll"
-          >
-            Resolve All Issues
-          </ActionButton>
-        </template>
-      </PanelHeader>
+      <PanelHeader title="WORKFLOWS" />
     </template>
 
     <template #search>
@@ -180,7 +169,7 @@
   <WorkflowResolveModal
     v-if="showResolveModal && selectedWorkflow"
     :workflow-name="selectedWorkflow"
-    @close="showResolveModal = false"
+    @close="handleResolveModalClose"
     @install="handleInstall"
     @refresh="emit('refresh')"
     @restart="handleRestart"
@@ -299,13 +288,14 @@ function handleResolve(name: string) {
   showResolveModal.value = true
 }
 
-function handleResolveAll() {
-  // TODO: Implement bulk resolution
-  alert('Bulk resolution not yet implemented')
-}
-
 function handleInstall() {
   emit('refresh')
+}
+
+async function handleResolveModalClose() {
+  showResolveModal.value = false
+  // Refresh workflows to reflect any resolution changes (queued downloads, etc.)
+  await loadWorkflows(true)
 }
 
 async function handleRestart() {
