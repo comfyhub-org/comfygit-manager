@@ -247,6 +247,12 @@ async def start_queue(request):
         # Process the task
         result = await process_task(running_task)
 
+        # Log errors to console
+        if result.get("status_str") == "error":
+            print(f"[ComfyGit] Task failed: {result.get('messages', [])}")
+            if result.get("uv_error"):
+                print(f"[ComfyGit] UV Error Details:\n{result['uv_error']}")
+
         # Add to history
         task_id = running_task.get("ui_id", str(uuid.uuid4()))
         task_history[task_id] = {
@@ -397,6 +403,21 @@ def _get_operation_description(kind: str, params: dict) -> str:
     return kind
 
 
+def _extract_uv_stderr(exc: Exception) -> str | None:
+    """Extract UV stderr from exception chain.
+
+    Walks the exception chain looking for UVCommandError to get full stderr.
+    """
+    from comfygit_core.models.exceptions import UVCommandError
+
+    current = exc
+    while current is not None:
+        if isinstance(current, UVCommandError) and current.stderr:
+            return current.stderr
+        current = current.__cause__
+    return None
+
+
 async def process_task(task: dict) -> dict:
     """Process a single task using comfygit."""
     kind = task.get("kind")
@@ -516,11 +537,15 @@ async def process_install(env, params: dict) -> dict:
             "messages": [f"Successfully installed {identifier}"]
         }
     except Exception as e:
-        return {
+        result = {
             "status_str": "error",
             "completed": True,
             "messages": [str(e)]
         }
+        uv_stderr = _extract_uv_stderr(e)
+        if uv_stderr:
+            result["uv_error"] = uv_stderr
+        return result
 
 
 async def process_uninstall(env, params: dict) -> dict:
@@ -564,11 +589,15 @@ async def process_update(env, params: dict) -> dict:
             "messages": [f"Successfully updated {node_name}"]
         }
     except Exception as e:
-        return {
+        result = {
             "status_str": "error",
             "completed": True,
             "messages": [str(e)]
         }
+        uv_stderr = _extract_uv_stderr(e)
+        if uv_stderr:
+            result["uv_error"] = uv_stderr
+        return result
 
 
 async def process_enable(env, params: dict) -> dict:

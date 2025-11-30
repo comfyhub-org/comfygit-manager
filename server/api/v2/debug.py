@@ -72,6 +72,14 @@ def parse_log_file(log_file: Path, level_filter: str | None = None, lines: int =
                 if level_filter and data['level'] != level_filter.upper():
                     continue
 
+                # Combine first line message with any continuation lines
+                message = data['message']
+                if len(record) > 1:
+                    # Append continuation lines (multiline log content like stderr)
+                    continuation = ''.join(record[1:]).rstrip()
+                    if continuation:
+                        message = message + '\n' + continuation
+
                 # Return raw timestamp (matches CLI output exactly)
                 # Preserve full logger name for complete context
                 # Include function and line for debugging
@@ -81,7 +89,7 @@ def parse_log_file(log_file: Path, level_filter: str | None = None, lines: int =
                     'level': data['level'],
                     'func': data['func'],
                     'line': data['line'],
-                    'message': data['message']
+                    'message': message
                 })
 
         return entries

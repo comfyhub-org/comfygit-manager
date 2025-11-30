@@ -592,6 +592,99 @@ app.registerExtension({
       }
 
       console.log('[ComfyGit] Refresh notification system initialized')
+
+      // ========== MANAGER ERROR TOAST: Show errors for failed node installs ==========
+      api.addEventListener('cm-task-completed', (event: CustomEvent) => {
+        const { state } = event.detail || {}
+        const history = state?.history || {}
+
+        // Find the most recent failed task
+        const recentTask = Object.values(history).find(
+          (task: any) => task.result === 'error'
+        ) as any
+
+        if (recentTask?.status?.status_str === 'error') {
+          const messages = recentTask.status.messages || []
+          const errorMsg = messages[0] || 'Unknown error'
+          showManagerErrorToast(errorMsg)
+        }
+      })
+
+      function showManagerErrorToast(message: string) {
+        // Remove any existing error toast
+        const existing = document.getElementById('comfygit-error-toast')
+        if (existing) existing.remove()
+
+        const toast = document.createElement('div')
+        toast.id = 'comfygit-error-toast'
+        toast.style.cssText = `
+          position: fixed;
+          top: 20px;
+          left: 50%;
+          transform: translateX(-50%);
+          background: #1a1a1a;
+          border: 2px solid #e53935;
+          border-radius: 8px;
+          padding: 16px 20px;
+          box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+          z-index: 999999;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          font-family: sans-serif;
+          font-size: 14px;
+          color: #fff;
+          max-width: 500px;
+        `
+
+        // Error icon
+        const icon = document.createElement('span')
+        icon.textContent = '⚠️'
+        icon.style.fontSize = '20px'
+        toast.appendChild(icon)
+
+        // Message container
+        const msgContainer = document.createElement('div')
+        msgContainer.style.cssText = 'flex: 1; display: flex; flex-direction: column; gap: 4px;'
+
+        const title = document.createElement('div')
+        title.textContent = 'Node installation failed'
+        title.style.cssText = 'font-weight: 600; color: #e53935;'
+        msgContainer.appendChild(title)
+
+        const detail = document.createElement('div')
+        detail.textContent = 'Check ComfyUI console for full error details'
+        detail.style.cssText = 'font-size: 12px; opacity: 0.8;'
+        msgContainer.appendChild(detail)
+
+        toast.appendChild(msgContainer)
+
+        // Close button
+        const closeBtn = document.createElement('button')
+        closeBtn.textContent = '×'
+        closeBtn.style.cssText = `
+          background: transparent;
+          border: none;
+          color: #fff;
+          font-size: 24px;
+          line-height: 1;
+          cursor: pointer;
+          padding: 0 4px;
+          opacity: 0.6;
+        `
+        closeBtn.onmouseover = () => closeBtn.style.opacity = '1'
+        closeBtn.onmouseout = () => closeBtn.style.opacity = '0.6'
+        closeBtn.onclick = () => toast.remove()
+        toast.appendChild(closeBtn)
+
+        document.body.appendChild(toast)
+        console.log('[ComfyGit] Manager error toast displayed:', message)
+
+        // Auto-dismiss after 8 seconds
+        setTimeout(() => toast.remove(), 8000)
+      }
+
+      console.log('[ComfyGit] Manager error notification system initialized')
     }
   }
 })
