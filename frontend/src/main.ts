@@ -8,6 +8,7 @@ import { useModelDownloadQueue } from '@/composables/useModelDownloadQueue'
 import { isMockApi } from '@/services/mockApi'
 import type { ComfyGitStatus } from '@/types/comfygit'
 import { getInitialTheme, applyTheme } from '@/themes'
+import { getCompletedTaskError } from '@/utils/managerTaskError'
 
 // Load component CSS
 const cssLink = document.createElement('link')
@@ -89,7 +90,7 @@ function hasUncommittedChanges(): boolean {
   return wf.new.length > 0 || wf.modified.length > 0 || wf.deleted.length > 0 || globalStatus.value.has_changes
 }
 
-function showPanel() {
+function showPanel(initialView?: string) {
   if (panelOverlay) {
     panelOverlay.remove()
   }
@@ -115,6 +116,7 @@ function showPanel() {
 
   const vueApp = createApp({
     render: () => h(ComfyGitPanel, {
+      initialView,
       onClose: closePanel,
       onStatusUpdate: async (status: ComfyGitStatus) => {
         globalStatus.value = status
@@ -595,17 +597,8 @@ app.registerExtension({
 
       // ========== MANAGER ERROR TOAST: Show errors for failed node installs ==========
       api.addEventListener('cm-task-completed', (event: CustomEvent) => {
-        const { state } = event.detail || {}
-        const history = state?.history || {}
-
-        // Find the most recent failed task
-        const recentTask = Object.values(history).find(
-          (task: any) => task.result === 'error'
-        ) as any
-
-        if (recentTask?.status?.status_str === 'error') {
-          const messages = recentTask.status.messages || []
-          const errorMsg = messages[0] || 'Unknown error'
+        const errorMsg = getCompletedTaskError(event.detail)
+        if (errorMsg) {
           showManagerErrorToast(errorMsg)
         }
       })
@@ -634,7 +627,7 @@ app.registerExtension({
           font-family: sans-serif;
           font-size: 14px;
           color: #fff;
-          max-width: 500px;
+          max-width: 600px;
         `
 
         // Error icon
@@ -653,11 +646,33 @@ app.registerExtension({
         msgContainer.appendChild(title)
 
         const detail = document.createElement('div')
-        detail.textContent = 'Check ComfyUI console for full error details'
+        detail.textContent = 'Dependency conflict detected'
         detail.style.cssText = 'font-size: 12px; opacity: 0.8;'
         msgContainer.appendChild(detail)
 
         toast.appendChild(msgContainer)
+
+        // View Logs button
+        const viewLogsBtn = document.createElement('button')
+        viewLogsBtn.textContent = 'View Logs'
+        viewLogsBtn.style.cssText = `
+          background: #e53935;
+          color: #fff;
+          border: none;
+          border-radius: 4px;
+          padding: 6px 12px;
+          cursor: pointer;
+          font-size: 12px;
+          font-weight: 500;
+          white-space: nowrap;
+        `
+        viewLogsBtn.onmouseover = () => viewLogsBtn.style.background = '#c62828'
+        viewLogsBtn.onmouseout = () => viewLogsBtn.style.background = '#e53935'
+        viewLogsBtn.onclick = () => {
+          toast.remove()
+          showPanel('debug-env')
+        }
+        toast.appendChild(viewLogsBtn)
 
         // Close button
         const closeBtn = document.createElement('button')
@@ -680,8 +695,12 @@ app.registerExtension({
         document.body.appendChild(toast)
         console.log('[ComfyGit] Manager error toast displayed:', message)
 
-        // Auto-dismiss after 8 seconds
-        setTimeout(() => toast.remove(), 8000)
+        // Auto-dismiss after 10 seconds (longer to give time to click View Logs)
+        setTimeout(() => {
+          if (document.getElementById('comfygit-error-toast')) {
+            toast.remove()
+          }
+        }, 10000)
       }
 
       console.log('[ComfyGit] Manager error notification system initialized')

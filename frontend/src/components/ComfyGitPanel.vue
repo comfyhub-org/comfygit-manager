@@ -458,6 +458,10 @@ import { useComfyGitService } from '@/composables/useComfyGitService'
 import { useOrchestratorService } from '@/composables/useOrchestratorService'
 import type { ComfyGitStatus, CommitInfo, BranchInfo, EnvironmentInfo, SetupStatus, SetupState } from '@/types/comfygit'
 
+const props = defineProps<{
+  initialView?: string
+}>()
+
 const emit = defineEmits<{
   close: []
   statusUpdate: [status: ComfyGitStatus]
@@ -523,8 +527,16 @@ const switchProgress = ref({ state: 'idle', progress: 0, message: '' })
 let switchPollInterval: number | null = null
 let progressSimulationInterval: number | null = null
 
-const currentView = ref<ViewName>('status')
-const currentSection = ref<SectionName>('this-env')
+// Map initial view prop to view/section
+const initialViewMap: Record<string, { view: ViewName; section: SectionName }> = {
+  'debug-env': { view: 'debug-env', section: 'this-env' },
+  'debug-workspace': { view: 'debug-workspace', section: 'all-envs' },
+  'status': { view: 'status', section: 'this-env' }
+}
+const initialConfig = props.initialView ? initialViewMap[props.initialView] : null
+
+const currentView = ref<ViewName>(initialConfig?.view ?? 'status')
+const currentSection = ref<SectionName>(initialConfig?.section ?? 'this-env')
 
 function selectView(view: ViewName, section: SectionName) {
   currentView.value = view
