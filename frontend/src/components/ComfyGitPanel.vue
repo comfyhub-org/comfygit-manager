@@ -258,6 +258,7 @@
           <NodesSection
             v-else-if="currentView === 'nodes'"
             @open-node-manager="handleOpenNodeManager"
+            @toast="handleToast"
           />
 
           <!-- Debug (Environment) View -->

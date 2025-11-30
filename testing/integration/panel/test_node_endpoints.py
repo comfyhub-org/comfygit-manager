@@ -458,12 +458,12 @@ class TestUpdateNodeEndpoint:
 class TestUninstallNodeEndpoint:
     """DELETE /v2/comfygit/nodes/{name} - Uninstall/remove a node."""
 
-    async def test_success_uninstall_node(
+    async def test_success_uninstall_tracked_node(
         self,
         client,
         mock_environment
     ):
-        """Should uninstall a node."""
+        """Should uninstall a tracked node."""
         # Setup
         mock_result = Mock()
         mock_result.identifier = "some-node"
@@ -479,6 +479,81 @@ class TestUninstallNodeEndpoint:
         assert resp.status == 200
         data = await resp.json()
         assert data["status"] == "success"
+        assert data["filesystem_action"] == "disabled"
+
+    async def test_success_uninstall_untracked_node(
+        self,
+        client,
+        mock_environment
+    ):
+        """Should remove an untracked node (on filesystem but not in manifest).
+
+        The core library's remove_node() now handles untracked nodes by
+        falling back to _remove_untracked_node() when the node isn't tracked.
+        """
+        # Setup: remove_node returns result with source='untracked'
+        mock_result = Mock()
+        mock_result.identifier = "orphaned-node"
+        mock_result.name = "orphaned-node"
+        mock_result.source = "untracked"
+        mock_result.filesystem_action = "deleted"
+        mock_environment.remove_node.return_value = mock_result
+
+        # Execute
+        resp = await client.delete("/v2/comfygit/nodes/orphaned-node")
+
+        # Verify
+        assert resp.status == 200
+        data = await resp.json()
+        assert data["status"] == "success"
+        assert data["filesystem_action"] == "deleted"
+
+    async def test_success_remove_disabled_node(
+        self,
+        client,
+        mock_environment
+    ):
+        """Should remove a .disabled node directory.
+
+        When a node is disabled, it gets renamed to node_name.disabled/
+        The remove_node() should handle removing these as well.
+        """
+        # Setup
+        mock_result = Mock()
+        mock_result.identifier = "disabled-node"
+        mock_result.name = "disabled-node"
+        mock_result.source = "untracked"
+        mock_result.filesystem_action = "deleted"
+        mock_environment.remove_node.return_value = mock_result
+
+        # Execute
+        resp = await client.delete("/v2/comfygit/nodes/disabled-node")
+
+        # Verify
+        assert resp.status == 200
+        data = await resp.json()
+        assert data["status"] == "success"
+
+    async def test_error_node_not_found(
+        self,
+        client,
+        mock_environment
+    ):
+        """Should return 500 when node not found anywhere."""
+        from comfygit_core.models.exceptions import CDNodeNotFoundError
+
+        mock_environment.remove_node.side_effect = CDNodeNotFoundError(
+            "Node 'nonexistent' not found in environment"
+        )
+
+        # Execute
+        resp = await client.delete("/v2/comfygit/nodes/nonexistent")
+
+        # Verify
+        assert resp.status == 500
+        data = await resp.json()
+        assert "error" in data
+        assert "not found" in data["error"].lower()
 
     async def test_error_no_environment(self, client, monkeypatch):
         """Should return 500 when no environment detected."""
