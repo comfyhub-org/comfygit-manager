@@ -4,6 +4,7 @@ Provides /v2/ endpoints that the built-in Manager UI expects.
 """
 
 import asyncio
+import logging
 import sys
 import uuid
 from pathlib import Path
@@ -11,6 +12,11 @@ from datetime import datetime
 
 from aiohttp import web
 from server import PromptServer
+import orchestrator
+
+# Suppress verbose INFO logs from the core library during server operation
+# We only want to see WARNING and above (errors, etc.)
+logging.getLogger('comfygit_core').setLevel(logging.WARNING)
 
 # Get the routes object
 routes = PromptServer.instance.routes
@@ -19,28 +25,32 @@ routes = PromptServer.instance.routes
 # Feature Flag & CLI Argument Injection
 # ============================================================================
 
-# Inject --enable-manager into sys.argv so the frontend enables the Manager UI
-# The frontend checks systemStats.system.argv for this flag
-if '--enable-manager' not in sys.argv:
-    sys.argv.append('--enable-manager')
-    print("[ComfyGit] Injected --enable-manager into sys.argv")
+# Only enable ComfyGit's Manager UI in managed environments.
+# In unmanaged envs, users should continue using their existing ComfyUI-Manager.
+_is_managed, _, _ = orchestrator.detect_environment_type()
 
-# Inject extension.manager.supports_v4 into ComfyUI's feature flags
-# This tells the frontend to use the new Manager UI
-try:
-    from comfy_api import feature_flags
-    if hasattr(feature_flags, 'SERVER_FEATURE_FLAGS'):
-        # Add our extension feature flag
-        if 'extension' not in feature_flags.SERVER_FEATURE_FLAGS:
-            feature_flags.SERVER_FEATURE_FLAGS['extension'] = {}
-        if 'manager' not in feature_flags.SERVER_FEATURE_FLAGS['extension']:
-            feature_flags.SERVER_FEATURE_FLAGS['extension']['manager'] = {}
-        feature_flags.SERVER_FEATURE_FLAGS['extension']['manager']['supports_v4'] = True
-        print("[ComfyGit] Injected extension.manager.supports_v4 feature flag")
-except ImportError:
-    print("[ComfyGit] Warning: Could not import comfy_api.feature_flags - feature flags not injected")
-except Exception as e:
-    print(f"[ComfyGit] Warning: Failed to inject feature flags: {e}")
+if _is_managed:
+    # Inject --enable-manager into sys.argv so the frontend enables the Manager UI
+    if '--enable-manager' not in sys.argv:
+        sys.argv.append('--enable-manager')
+        print("[ComfyGit] Injected --enable-manager into sys.argv")
+
+    # Inject extension.manager.supports_v4 into ComfyUI's feature flags
+    try:
+        from comfy_api import feature_flags
+        if hasattr(feature_flags, 'SERVER_FEATURE_FLAGS'):
+            if 'extension' not in feature_flags.SERVER_FEATURE_FLAGS:
+                feature_flags.SERVER_FEATURE_FLAGS['extension'] = {}
+            if 'manager' not in feature_flags.SERVER_FEATURE_FLAGS['extension']:
+                feature_flags.SERVER_FEATURE_FLAGS['extension']['manager'] = {}
+            feature_flags.SERVER_FEATURE_FLAGS['extension']['manager']['supports_v4'] = True
+            print("[ComfyGit] Injected extension.manager.supports_v4 feature flag")
+    except ImportError:
+        print("[ComfyGit] Warning: Could not import comfy_api.feature_flags")
+    except Exception as e:
+        print(f"[ComfyGit] Warning: Failed to inject feature flags: {e}")
+else:
+    print("[ComfyGit] Unmanaged environment - Manager UI disabled (use existing ComfyUI-Manager)")
 
 # ============================================================================
 # State Management
@@ -56,6 +66,19 @@ _workspace = None
 _environment = None
 
 
+def refresh_environment():
+    """Force refresh the cached environment object.
+
+    This clears the cached environment and workspace, forcing the next
+    get_environment_from_cwd() call to create fresh objects with updated
+    filesystem state.
+    """
+    global _workspace, _environment
+    _workspace = None
+    _environment = None
+    print("[ComfyGit] Environment cache cleared - next request will reload")
+
+
 def get_environment_from_cwd():
     """Infer workspace and environment from ComfyUI's working directory.
 
@@ -67,40 +90,40 @@ def get_environment_from_cwd():
     if _environment is not None:
         return _environment
 
-    try:
-        from comfygit_core.core.workspace import Workspace, WorkspacePaths
-        from comfygit_core.core.environment import Environment
+    from comfygit_core.core.workspace import Workspace, WorkspacePaths
 
-        cwd = Path.cwd()
+    cwd = Path.cwd()
 
-        # Expected: {workspace}/environments/{env_name}/ComfyUI
-        if cwd.name == 'ComfyUI':
-            env_path = cwd.parent
-            env_name = env_path.name
-            environments_path = env_path.parent
+    # Expected: {workspace}/environments/{env_name}/ComfyUI
+    if cwd.name == 'ComfyUI':
+        env_path = cwd.parent
+        env_name = env_path.name
+        environments_path = env_path.parent
 
-            if environments_path.name == 'environments':
-                workspace_root = environments_path.parent
-                workspace_paths = WorkspacePaths(workspace_root)
+        if environments_path.name == 'environments':
+            workspace_root = environments_path.parent
+            workspace_paths = WorkspacePaths(workspace_root)
 
-                if workspace_paths.exists():
+            if workspace_paths.exists():
+                try:
                     _workspace = Workspace(workspace_paths)
-                    _environment = Environment(
-                        name=env_name,
-                        path=env_path,
-                        workspace=_workspace
-                    )
+                    # Use workspace.get_environment() which handles initialization properly
+                    # Pass auto_sync=False to avoid slow sync on every request
+                    _environment = _workspace.get_environment(env_name, auto_sync=False)
                     print(f"[ComfyGit] Detected environment '{env_name}' from CWD")
                     return _environment
+                except Exception as e:
+                    print(f"[ComfyGit] Direct environment creation failed: {e}")
+                    # Fall through to WorkspaceFactory fallback
 
-        # Fallback: try standard workspace discovery
+    # Fallback: try standard workspace discovery
+    try:
         from comfygit_core.factories.workspace_factory import WorkspaceFactory
         _workspace = WorkspaceFactory.find()
         _environment = _workspace.get_active_environment()
         if _environment:
             print(f"[ComfyGit] Using active environment '{_environment.name}'")
         return _environment
-
     except Exception as e:
         print(f"[ComfyGit] Failed to detect environment: {e}")
         return None
@@ -254,8 +277,9 @@ async def get_history(request):
     return web.json_response({"history": task_history})
 
 
-# Exit code that signals cg run to restart with sync
-RESTART_EXIT_CODE = 42
+# Exit codes for orchestrator communication
+RESTART_EXIT_CODE = 42  # Signals orchestrator to restart ComfyUI
+STOP_EXIT_CODE = 0      # Signals orchestrator to stop cleanly (or just exits if unmanaged)
 
 
 @routes.get("/v2/manager/reboot")
@@ -270,6 +294,35 @@ async def reboot(request):
 
     asyncio.create_task(delayed_exit())
     return web.json_response({"status": "restarting"})
+
+
+@routes.post("/v2/comfygit/stop")
+async def stop_environment(request):
+    """
+    Stop the current environment.
+
+    If running under orchestrator (COMFYGIT_SUPERVISED=1):
+        Exit with code 0, which signals orchestrator to stop cleanly.
+    If running directly (no orchestrator):
+        Exit with code 0, which just terminates the process.
+    """
+    import os
+    is_supervised = os.environ.get("COMFYGIT_SUPERVISED") == "1"
+
+    if is_supervised:
+        print(f"[ComfyGit] Stop requested (supervised) - exiting with code {STOP_EXIT_CODE} to stop orchestrator")
+    else:
+        print(f"[ComfyGit] Stop requested (unmanaged) - exiting with code {STOP_EXIT_CODE}")
+
+    async def delayed_exit():
+        await asyncio.sleep(0.3)
+        os._exit(STOP_EXIT_CODE)
+
+    asyncio.create_task(delayed_exit())
+    return web.json_response({
+        "status": "stopping",
+        "supervised": is_supervised
+    })
 
 
 @routes.get("/v2/manager/is_legacy_manager_ui")
@@ -288,6 +341,39 @@ async def import_fail_info(request):
 async def import_fail_info_bulk(request):
     """Return bulk import failure information."""
     return web.json_response({})
+
+
+@routes.get("/v2/debug/comfyui_info")
+async def debug_comfyui_info(request):
+    """Return all accessible ComfyUI data for debugging."""
+    info = {}
+
+    # PromptServer attributes
+    info["prompt_server_attrs"] = [a for a in dir(PromptServer.instance) if not a.startswith('_')]
+
+    # sys.argv
+    info["sys_argv"] = sys.argv
+
+    # Feature flags
+    try:
+        from comfy_api import feature_flags
+        info["feature_flags"] = dict(feature_flags.SERVER_FEATURE_FLAGS)
+    except Exception as e:
+        info["feature_flags"] = f"error: {e}"
+
+    # Environment info
+    env = get_environment_from_cwd()
+    if env:
+        info["environment"] = {
+            "name": env.name,
+            "path": str(env.path),
+            "custom_nodes_path": str(env.custom_nodes_path)
+        }
+
+    # Routes registered
+    info["routes"] = [str(r) for r in routes]
+
+    return web.json_response(info)
 
 
 # ============================================================================

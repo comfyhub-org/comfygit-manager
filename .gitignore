@@ -24,6 +24,8 @@ wheels/
 *.egg
 
 # Virtual environments
+venv
+.venv
 .venv/
 venv/
 ENV/
@@ -50,3 +52,18 @@ logs/
 .pytest_cache/
 .coverage
 htmlcov/
+tests/output/
+
+# Frontend (Node.js/Vue)
+frontend/node_modules/
+frontend/.vite/
+frontend/*.local
+frontend/.env
+frontend/dist/
+*.tsbuildinfo
+
+# Server
+server/.orchestrator_venv
+
+# Built frontend output (served by ComfyUI)
+web/
