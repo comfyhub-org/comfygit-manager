@@ -1,5 +1,5 @@
 import { app as kt } from "../../scripts/app.js";
-import { defineComponent as ee, createElementBlock as o, openBlock as s, createCommentVNode as d, createElementVNode as e, renderSlot as $e, createBlock as E, resolveDynamicComponent as us, normalizeClass as de, withCtx as l, toDisplayString as a, createVNode as k, createTextVNode as h, computed as L, Fragment as A, renderList as Z, normalizeStyle as pt, ref as C, onMounted as Oe, watch as bt, Teleport as Ve, withModifiers as Re, Transition as lo, createSlots as Wt, withKeys as gt, reactive as os, onUnmounted as zs, readonly as io, unref as _e, withDirectives as Ue, vModelText as Mt, vModelRadio as Jt, vModelCheckbox as Zt, nextTick as ro, vModelSelect as Tt, createStaticVNode as co, TransitionGroup as uo, createApp as ms, h as vs } from "vue";
+import { defineComponent as ee, createElementBlock as o, openBlock as s, createCommentVNode as d, createElementVNode as e, renderSlot as $e, createBlock as E, resolveDynamicComponent as us, normalizeClass as de, withCtx as l, toDisplayString as a, createVNode as k, createTextVNode as h, computed as L, Fragment as A, renderList as Z, normalizeStyle as pt, ref as C, onMounted as Oe, watch as bt, Teleport as Ve, withModifiers as Re, Transition as lo, createSlots as Wt, withKeys as gt, reactive as ss, onUnmounted as zs, readonly as io, unref as _e, withDirectives as Ue, vModelText as Mt, vModelRadio as Jt, vModelCheckbox as Qt, nextTick as ro, vModelSelect as Tt, createStaticVNode as co, TransitionGroup as uo, createApp as ms, h as vs } from "vue";
 const mo = { class: "panel-layout" }, vo = {
   key: 0,
   class: "panel-layout-header"
@@ -335,7 +335,7 @@ const mo = { class: "panel-layout" }, vo = {
       $e(c.$slots, "default", {}, void 0, !0)
     ], 2));
   }
-}), rs = /* @__PURE__ */ te(ln, [["__scopeId", "data-v-2f186e4c"]]), rn = { class: "detail-row" }, dn = /* @__PURE__ */ ee({
+}), is = /* @__PURE__ */ te(ln, [["__scopeId", "data-v-2f186e4c"]]), rn = { class: "detail-row" }, dn = /* @__PURE__ */ ee({
   __name: "DetailRow",
   props: {
     label: {},
@@ -353,7 +353,7 @@ const mo = { class: "panel-layout" }, vo = {
         ]),
         _: 1
       }, 8, ["min-width"]),
-      t.value ? (s(), E(rs, {
+      t.value ? (s(), E(is, {
         key: 0,
         mono: t.mono,
         variant: t.valueVariant,
@@ -1335,7 +1335,7 @@ const mo = { class: "panel-layout" }, vo = {
       onBlur: r[3] || (r[3] = (u) => v.$emit("blur"))
     }, null, 42, Wa));
   }
-}), es = /* @__PURE__ */ te(ja, [["__scopeId", "data-v-0380d08f"]]), Ga = { class: "branch-create-form" }, qa = { class: "form-actions" }, Ha = /* @__PURE__ */ ee({
+}), Zt = /* @__PURE__ */ te(ja, [["__scopeId", "data-v-0380d08f"]]), Ga = { class: "branch-create-form" }, qa = { class: "form-actions" }, Ha = /* @__PURE__ */ ee({
   __name: "BranchCreateForm",
   emits: ["create", "cancel"],
   setup(t, { emit: c }) {
@@ -1350,7 +1350,7 @@ const mo = { class: "panel-layout" }, vo = {
       i.value = "", n("cancel");
     }
     return (v, r) => (s(), o("div", Ga, [
-      k(es, {
+      k(Zt, {
         modelValue: i.value,
         "onUpdate:modelValue": r[0] || (r[0] = (u) => i.value = u),
         placeholder: "Branch name...",
@@ -1597,13 +1597,13 @@ const mo = { class: "panel-layout" }, vo = {
       _: 1
     }));
   }
-}), fl = /* @__PURE__ */ te(vl, [["__scopeId", "data-v-981c3c64"]]), T_ = os({
+}), fl = /* @__PURE__ */ te(vl, [["__scopeId", "data-v-981c3c64"]]), M_ = ss({
   hasWorkspace: !1,
   hasEnvironments: !1,
   isManaged: !1,
   hasLegacyManager: !1
 });
-const R_ = [
+const T_ = [
   // BROKEN workflows (4) - Missing dependencies or category mismatch
   {
     name: "flux-dev-img2img.json",
@@ -1685,7 +1685,7 @@ const R_ = [
     model_count: 1 + c % 3,
     sync_state: "synced"
   }))
-], z_ = {
+], R_ = {
   "flux-dev-img2img.json": {
     name: "flux-dev-img2img.json",
     status: "broken",
@@ -1929,7 +1929,7 @@ const R_ = [
       clip_type: "clip_l"
     }
   }
-], L_ = [
+], z_ = [
   ...gl,
   {
     filename: "v1-5-pruned.ckpt",
@@ -3148,7 +3148,7 @@ const pl = { class: "base-modal-header" }, hl = {
       }, 8, ["show"])
     ], 64));
   }
-}), li = /* @__PURE__ */ te(ai, [["__scopeId", "data-v-668728e6"]]), Ie = os({
+}), li = /* @__PURE__ */ te(ai, [["__scopeId", "data-v-668728e6"]]), Ie = ss({
   items: [],
   status: "idle"
 });
@@ -3156,7 +3156,7 @@ let ct = null;
 function Ns() {
   return `dl-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 }
-function ns(t) {
+function os(t) {
   return Ie.items.find((c) => c.id === t);
 }
 async function Et() {
@@ -3277,7 +3277,7 @@ function jt() {
     Ie.status === "idle" && Et();
   }
   async function c(m) {
-    const _ = ns(m);
+    const _ = os(m);
     if (_) {
       if (_.status === "downloading") {
         try {
@@ -3294,11 +3294,11 @@ function jt() {
     }
   }
   function n(m) {
-    const _ = ns(m);
+    const _ = os(m);
     !_ || _.status !== "failed" || (_.status = "queued", _.error = void 0, _.progress = 0, _.downloaded = 0, Ie.status === "idle" && Et());
   }
   function i(m) {
-    const _ = ns(m);
+    const _ = os(m);
     !_ || _.status !== "paused" || (_.status = "queued", Ie.status === "idle" && Et());
   }
   function y() {
@@ -3452,7 +3452,7 @@ function Us() {
       y.value = !1;
     }
   }
-  const w = os({
+  const w = ss({
     phase: "idle",
     completedFiles: [],
     nodesToInstall: [],
@@ -3688,7 +3688,7 @@ const di = { class: "resolution-stepper" }, ci = { class: "stepper-header" }, ui
       class: de(["confidence-badge", i.value, t.size])
     }, a(y.value), 3));
   }
-}), ts = /* @__PURE__ */ te(wi, [["__scopeId", "data-v-17ec4b80"]]), ki = { class: "node-info" }, bi = { class: "node-info-text" }, _i = { class: "item-body" }, $i = {
+}), es = /* @__PURE__ */ te(wi, [["__scopeId", "data-v-17ec4b80"]]), ki = { class: "node-info" }, bi = { class: "node-info-text" }, _i = { class: "item-body" }, $i = {
   key: 0,
   class: "resolved-state"
 }, Ci = {
@@ -3813,7 +3813,7 @@ const di = { class: "resolution-stepper" }, ci = { class: "stepper-header" }, ui
               e("div", Ei, [
                 e("div", Mi, [
                   e("span", Ti, a(p.package_id), 1),
-                  k(ts, {
+                  k(es, {
                     confidence: p.match_confidence,
                     size: "sm"
                   }, null, 8, ["confidence"])
@@ -3877,7 +3877,7 @@ const di = { class: "resolution-stepper" }, ci = { class: "stepper-header" }, ui
                 e("div", Fi, [
                   e("div", Ai, [
                     e("span", Vi, a(p.package_id), 1),
-                    k(ts, {
+                    k(es, {
                       confidence: p.match_confidence,
                       size: "sm"
                     }, null, 8, ["confidence"])
@@ -4260,7 +4260,7 @@ const di = { class: "resolution-stepper" }, ci = { class: "stepper-header" }, ui
                     }, [
                       e("div", Mr, [
                         e("code", Tr, a(ve.package_id), 1),
-                        ve.match_confidence ? (s(), E(ts, {
+                        ve.match_confidence ? (s(), E(es, {
                           key: 0,
                           confidence: ve.match_confidence,
                           size: "sm"
@@ -4428,7 +4428,7 @@ const di = { class: "resolution-stepper" }, ci = { class: "stepper-header" }, ui
               e("div", Kr, [
                 e("div", Jr, [
                   e("span", Yr, a(p.model.filename), 1),
-                  k(ts, {
+                  k(es, {
                     confidence: p.match_confidence,
                     size: "sm"
                   }, null, 8, ["confidence"])
@@ -7798,7 +7798,7 @@ const Wv = { class: "remote-url-display" }, jv = ["title"], Gv = ["title"], qv =
       t.error ? (s(), o("span", cf, a(t.error), 1)) : t.hint ? (s(), o("span", uf, a(t.hint), 1)) : d("", !0)
     ], 2));
   }
-}), as = /* @__PURE__ */ te(mf, [["__scopeId", "data-v-9a1cf296"]]), vf = { class: "remote-form" }, ff = { class: "form-header" }, gf = { class: "form-body" }, pf = {
+}), ns = /* @__PURE__ */ te(mf, [["__scopeId", "data-v-9a1cf296"]]), vf = { class: "remote-form" }, ff = { class: "form-header" }, gf = { class: "form-body" }, pf = {
   key: 0,
   class: "form-error"
 }, hf = { class: "form-actions" }, yf = /* @__PURE__ */ ee({
@@ -7846,7 +7846,7 @@ const Wv = { class: "remote-url-display" }, jv = ["title"], Gv = ["title"], qv =
         })
       ]),
       e("div", gf, [
-        k(as, {
+        k(ns, {
           label: "Remote Name",
           required: ""
         }, {
@@ -7860,7 +7860,7 @@ const Wv = { class: "remote-url-display" }, jv = ["title"], Gv = ["title"], qv =
           ]),
           _: 1
         }),
-        k(as, {
+        k(ns, {
           label: "Fetch URL",
           required: ""
         }, {
@@ -7873,7 +7873,7 @@ const Wv = { class: "remote-url-display" }, jv = ["title"], Gv = ["title"], qv =
           ]),
           _: 1
         }),
-        k(as, { label: "Push URL (optional)" }, {
+        k(ns, { label: "Push URL (optional)" }, {
           default: l(() => [
             k(it, {
               modelValue: y.value.pushUrl,
@@ -8329,7 +8329,7 @@ const Wv = { class: "remote-url-display" }, jv = ["title"], Gv = ["title"], qv =
                       type: "checkbox",
                       "onUpdate:modelValue": f[1] || (f[1] = (p) => i.value = p)
                     }, null, 512), [
-                      [Zt, i.value]
+                      [Qt, i.value]
                     ]),
                     f[11] || (f[11] = e("span", null, "Force push (overwrite remote)", -1))
                   ]),
@@ -9152,7 +9152,7 @@ const Wv = { class: "remote-url-display" }, jv = ["title"], Gv = ["title"], qv =
       n[1] || (n[1] = e("span", { class: "toggle-slider" }, null, -1))
     ]));
   }
-}), ls = /* @__PURE__ */ te(Pp, [["__scopeId", "data-v-71c0f550"]]), Dp = { class: "settings-section" }, Np = { class: "path-setting" }, Up = { class: "path-value" }, Op = { class: "path-setting" }, Bp = { class: "path-value" }, Fp = { class: "settings-section" }, Ap = { class: "settings-section" }, Vp = { class: "settings-section" }, Wp = /* @__PURE__ */ ee({
+}), as = /* @__PURE__ */ te(Pp, [["__scopeId", "data-v-71c0f550"]]), Dp = { class: "settings-section" }, Np = { class: "path-setting" }, Up = { class: "path-value" }, Op = { class: "path-setting" }, Bp = { class: "path-value" }, Fp = { class: "settings-section" }, Ap = { class: "settings-section" }, Vp = { class: "settings-section" }, Wp = /* @__PURE__ */ ee({
   __name: "WorkspaceSettingsSection",
   setup(t) {
     const { getConfig: c, updateConfig: n } = Ae(), i = C(!1), y = C(null), g = C(null), f = C(null), v = C(null), r = C(""), u = C(""), p = C(!0), w = C(!0), b = C(!1), $ = L(() => v.value ? r.value !== (v.value.civitai_api_key || "") : !1);
@@ -9257,7 +9257,7 @@ const Wv = { class: "remote-url-display" }, jv = ["title"], Gv = ["title"], qv =
                   description: "API key for downloading models from CivitAI"
                 }, {
                   default: l(() => [
-                    k(es, {
+                    k(Zt, {
                       modelValue: r.value,
                       "onUpdate:modelValue": S[0] || (S[0] = (x) => r.value = x),
                       type: "password",
@@ -9273,7 +9273,7 @@ const Wv = { class: "remote-url-display" }, jv = ["title"], Gv = ["title"], qv =
                   disabled: !0
                 }, {
                   default: l(() => [
-                    k(es, {
+                    k(Zt, {
                       modelValue: u.value,
                       "onUpdate:modelValue": S[1] || (S[1] = (x) => u.value = x),
                       type: "password",
@@ -9296,7 +9296,7 @@ const Wv = { class: "remote-url-display" }, jv = ["title"], Gv = ["title"], qv =
                   description: "Automatically refresh the page after branch switches and checkouts. If disabled, shows a notification with a refresh button."
                 }, {
                   default: l(() => [
-                    k(ls, {
+                    k(as, {
                       modelValue: b.value,
                       "onUpdate:modelValue": [
                         S[2] || (S[2] = (x) => b.value = x),
@@ -9319,7 +9319,7 @@ const Wv = { class: "remote-url-display" }, jv = ["title"], Gv = ["title"], qv =
                   disabled: !0
                 }, {
                   default: l(() => [
-                    k(ls, {
+                    k(as, {
                       modelValue: p.value,
                       "onUpdate:modelValue": S[3] || (S[3] = (x) => p.value = x),
                       disabled: ""
@@ -9333,7 +9333,7 @@ const Wv = { class: "remote-url-display" }, jv = ["title"], Gv = ["title"], qv =
                   disabled: !0
                 }, {
                   default: l(() => [
-                    k(ls, {
+                    k(as, {
                       modelValue: w.value,
                       "onUpdate:modelValue": S[4] || (S[4] = (x) => w.value = x),
                       disabled: ""
@@ -9950,7 +9950,7 @@ const Wv = { class: "remote-url-display" }, jv = ["title"], Gv = ["title"], qv =
       ])) : d("", !0)
     ]));
   }
-}), ss = /* @__PURE__ */ te(Mh, [["__scopeId", "data-v-9d1de66c"]]), Th = {
+}), ts = /* @__PURE__ */ te(Mh, [["__scopeId", "data-v-9d1de66c"]]), Th = {
   key: 0,
   class: "create-env-form"
 }, Rh = { class: "form-field" }, zh = { class: "form-field" }, Lh = ["value"], Ph = { class: "form-field" }, Dh = ["disabled"], Nh = ["value"], Uh = { class: "form-field" }, Oh = ["value"], Bh = { class: "form-field form-field--checkbox" }, Fh = { class: "form-checkbox" }, Ah = {
@@ -10064,7 +10064,7 @@ const Wv = { class: "remote-url-display" }, jv = ["title"], Gv = ["title"], qv =
             e("strong", null, a(f.value), 1),
             U[12] || (U[12] = h("... ", -1))
           ]),
-          k(ss, {
+          k(ts, {
             progress: T.value.progress,
             message: T.value.message,
             "current-phase": T.value.phase,
@@ -10140,7 +10140,7 @@ const Wv = { class: "remote-url-display" }, jv = ["title"], Gv = ["title"], qv =
                 type: "checkbox",
                 "onUpdate:modelValue": U[4] || (U[4] = (ne) => p.value = ne)
               }, null, 512), [
-                [Zt, p.value]
+                [Qt, p.value]
               ]),
               U[10] || (U[10] = e("span", null, "Switch to this environment after creation", -1))
             ])
@@ -10424,7 +10424,7 @@ const Wv = { class: "remote-url-display" }, jv = ["title"], Gv = ["title"], qv =
   },
   emits: ["close"],
   setup(t) {
-    const c = t, n = os({});
+    const c = t, n = ss({});
     function i(y) {
       const g = c.issues[y];
       return n[y] || g.details.length <= 3 ? g.details : g.details.slice(0, 3);
@@ -10698,7 +10698,7 @@ const Wv = { class: "remote-url-display" }, jv = ["title"], Gv = ["title"], qv =
                   ])
                 ], -1)),
                 e("div", x1, [
-                  k(es, {
+                  k(Zt, {
                     modelValue: i.value,
                     "onUpdate:modelValue": x[1] || (x[1] = (K) => i.value = K),
                     placeholder: "Leave empty for default, or enter path like /mnt/c/Users/you/exports/",
@@ -11109,7 +11109,7 @@ const Wv = { class: "remote-url-display" }, jv = ["title"], Gv = ["title"], qv =
         }),
         t.sourceEnvironment ? (s(), o("span", K1, [
           v[1] || (v[1] = h(" From: ", -1)),
-          k(rs, null, {
+          k(is, null, {
             default: l(() => [
               h(a(t.sourceEnvironment), 1)
             ]),
@@ -11191,7 +11191,7 @@ const Wv = { class: "remote-url-display" }, jv = ["title"], Gv = ["title"], qv =
               label: "Branch"
             }, {
               default: l(() => [
-                k(rs, null, {
+                k(is, null, {
                   default: l(() => [
                     h(a(t.gitBranch), 1)
                   ]),
@@ -11684,7 +11684,7 @@ const Wv = { class: "remote-url-display" }, jv = ["title"], Gv = ["title"], qv =
                 e("strong", null, a(q.value.name), 1),
                 le[18] || (le[18] = h("... ", -1))
               ]),
-              k(ss, {
+              k(ts, {
                 progress: M.value.progress,
                 message: M.value.message,
                 "current-phase": M.value.phase,
@@ -12811,7 +12811,7 @@ const Wv = { class: "remote-url-display" }, jv = ["title"], Gv = ["title"], qv =
                   type: "checkbox",
                   "onUpdate:modelValue": H[1] || (H[1] = (re) => T.value = re)
                 }, null, 512), [
-                  [Zt, T.value]
+                  [Qt, T.value]
                 ]),
                 H[18] || (H[18] = e("span", null, "I have existing ComfyUI models", -1))
               ])
@@ -12832,7 +12832,7 @@ const Wv = { class: "remote-url-display" }, jv = ["title"], Gv = ["title"], qv =
               _.value ? (s(), o("p", pk, a(_.value), 1)) : d("", !0),
               S.value !== null && !_.value ? (s(), o("p", hk, " Found " + a(S.value) + " model files ", 1)) : d("", !0)
             ])) : d("", !0),
-            G.value ? (s(), E(ss, {
+            G.value ? (s(), E(ts, {
               key: 1,
               progress: J.value.progress,
               message: J.value.message
@@ -12953,12 +12953,12 @@ const Wv = { class: "remote-url-display" }, jv = ["title"], Gv = ["title"], qv =
                     type: "checkbox",
                     "onUpdate:modelValue": H[9] || (H[9] = (re) => D.value = re)
                   }, null, 512), [
-                    [Zt, D.value]
+                    [Qt, D.value]
                   ]),
                   H[28] || (H[28] = e("span", null, "Switch to this environment after creation", -1))
                 ])
               ]),
-              ae.value ? (s(), E(ss, {
+              ae.value ? (s(), E(ts, {
                 key: 0,
                 progress: N.value.progress,
                 message: N.value.message,
@@ -13841,7 +13841,7 @@ const Wv = { class: "remote-url-display" }, jv = ["title"], Gv = ["title"], qv =
                   ye.is_current ? d("", !0) : (s(), o("button", {
                     key: 0,
                     class: "switch-btn",
-                    onClick: (I_) => nt(ye.name)
+                    onClick: (S_) => nt(ye.name)
                   }, " SWITCH ", 8, pb))
                 ], 2))), 128))
               ])
@@ -14205,8 +14205,8 @@ window.ComfyGit = {
 };
 let lt = null, Ye = null, At = null, Ot = null, Ts = null;
 const Rt = C(null);
-let ys = "managed", Xt = null;
-async function Qt() {
+let ys = "managed", Js = !1;
+async function Xt() {
   var t;
   if (!((t = kt) != null && t.api)) return null;
   try {
@@ -14215,27 +14215,29 @@ async function Qt() {
   } catch {
   }
 }
-async function ds() {
+async function rs() {
   var t;
   if ((t = kt) != null && t.api)
     try {
       const c = await kt.api.fetchApi("/v2/setup/status");
-      c.ok && (ys = (await c.json()).state);
+      if (c.ok) {
+        const n = await c.json();
+        ys = n.state, Js = n.has_comfyui_manager ?? !1;
+      }
     } catch {
     }
 }
-function $_() {
+function ds() {
   var c;
+  if (ys === "managed" || !Js) return;
   const t = document.querySelectorAll("button.comfyui-button");
   for (const n of t)
-    if ((c = n.textContent) != null && c.includes("Manager") && !n.classList.contains("comfygit-panel-btn"))
-      return !0;
-  return window.comfyManager !== void 0;
+    if (((c = n.textContent) == null ? void 0 : c.trim()) === "Manager" && !n.querySelector("svg, i, img")) {
+      n.style.display = "none", console.log("[ComfyGit] Hiding built-in Manager button (ComfyUI-Manager present)");
+      return;
+    }
 }
-function Js() {
-  Xt && (ys === "unmanaged" && $_() ? (Xt.style.display = "none", console.log("[ComfyGit] Hiding buttons - unmanaged environment with ComfyUI-Manager present")) : Xt.style.display = "");
-}
-function C_() {
+function $_() {
   if (!Rt.value) return !1;
   const t = Rt.value.workflows;
   return t.new.length > 0 || t.modified.length > 0 || t.deleted.length > 0 || Rt.value.has_changes;
@@ -14244,25 +14246,25 @@ function Rs(t) {
   lt && lt.remove(), lt = document.createElement("div"), lt.className = "comfygit-panel-overlay";
   const c = document.createElement("div");
   c.className = "comfygit-panel-container", lt.appendChild(c), lt.addEventListener("click", (y) => {
-    y.target === lt && is();
+    y.target === lt && ls();
   });
   const n = (y) => {
-    y.key === "Escape" && (is(), document.removeEventListener("keydown", n));
+    y.key === "Escape" && (ls(), document.removeEventListener("keydown", n));
   };
   document.addEventListener("keydown", n), ms({
     render: () => vs(kb, {
       initialView: t,
-      onClose: is,
+      onClose: ls,
       onStatusUpdate: async (y) => {
-        Rt.value = y, Vt(), await ds(), cs(), Js();
+        Rt.value = y, Vt(), await rs(), cs(), ds();
       }
     })
   }).mount(c), document.body.appendChild(lt);
 }
-function is() {
+function ls() {
   lt && (lt.remove(), lt = null);
 }
-function x_(t) {
+function C_(t) {
   Bt(), Ye = document.createElement("div"), Ye.className = "comfygit-commit-popover-container";
   const c = t.getBoundingClientRect();
   Ye.style.position = "fixed", Ye.style.top = `${c.bottom + 8}px`, Ye.style.right = `${window.innerWidth - c.right}px`, Ye.style.zIndex = "10001";
@@ -14278,7 +14280,7 @@ function x_(t) {
       status: Rt.value,
       onClose: Bt,
       onCommitted: () => {
-        Bt(), Qt().then(Vt);
+        Bt(), Xt().then(Vt);
       }
     })
   }), At.mount(Ye), document.body.appendChild(Ye);
@@ -14286,7 +14288,7 @@ function x_(t) {
 function Bt() {
   At && (At.unmount(), At = null), Ye && (Ye.remove(), Ye = null);
 }
-function S_() {
+function x_() {
   Ot || (Ot = document.createElement("div"), Ot.className = "comfygit-download-queue-root", Ts = ms({
     render: () => vs(f_)
   }), Ts.mount(Ot), document.body.appendChild(Ot), console.log("[ComfyGit] Model download queue mounted"));
@@ -14295,7 +14297,7 @@ let et = null;
 function Vt() {
   if (!et) return;
   const t = et.querySelector(".commit-indicator");
-  t && (t.style.display = C_() ? "block" : "none");
+  t && (t.style.display = $_() ? "block" : "none");
 }
 function cs() {
   if (!et) return;
@@ -14424,10 +14426,10 @@ kt.registerExtension({
     const t = document.createElement("div");
     t.className = "comfygit-btn-group";
     const c = document.createElement("button");
-    c.className = "comfyui-button comfyui-menu-mobile-collapse comfygit-panel-btn", c.textContent = "ComfyGit", c.title = "ComfyGit Control Panel", c.onclick = Rs, et = document.createElement("button"), et.className = "comfyui-button comfyui-menu-mobile-collapse comfygit-commit-btn", et.innerHTML = 'Commit <span class="commit-indicator"></span>', et.title = "Quick Commit", et.onclick = () => x_(et), t.appendChild(c), t.appendChild(et), (g = (y = kt.menu) == null ? void 0 : y.settingsGroup) != null && g.element && (kt.menu.settingsGroup.element.before(t), Xt = t, console.log("[ComfyGit] Control Panel buttons added to toolbar")), S_();
+    c.className = "comfyui-button comfyui-menu-mobile-collapse comfygit-panel-btn", c.textContent = "ComfyGit", c.title = "ComfyGit Control Panel", c.onclick = Rs, et = document.createElement("button"), et.className = "comfyui-button comfyui-menu-mobile-collapse comfygit-commit-btn", et.innerHTML = 'Commit <span class="commit-indicator"></span>', et.title = "Quick Commit", et.onclick = () => C_(et), t.appendChild(c), t.appendChild(et), (g = (y = kt.menu) == null ? void 0 : y.settingsGroup) != null && g.element && (kt.menu.settingsGroup.element.before(t), console.log("[ComfyGit] Control Panel buttons added to toolbar")), x_();
     const { loadPendingDownloads: n } = jt();
-    n(), await Promise.all([Qt(), ds()]), Vt(), Js(), cs(), setInterval(async () => {
-      await Promise.all([Qt(), ds()]), Vt(), cs();
+    n(), await Promise.all([Xt(), rs()]), Vt(), cs(), ds(), setTimeout(ds, 100), setInterval(async () => {
+      await Promise.all([Xt(), rs()]), Vt(), cs();
     }, 3e4);
     const i = kt.api;
     if (i) {
@@ -14540,7 +14542,7 @@ kt.registerExtension({
       };
       i.addEventListener("comfygit:workflow-changed", async (p) => {
         const { change_type: w, workflow_name: b } = p.detail;
-        console.log(`[ComfyGit] Workflow ${w}: ${b}`), await Qt(), Vt();
+        console.log(`[ComfyGit] Workflow ${w}: ${b}`), await Xt(), Vt();
       }), console.log("[ComfyGit] Registered workflow file change listener");
       let u = !1;
       i.addEventListener("status", async (p) => {

@@ -50,8 +50,9 @@ const globalStatus = ref<ComfyGitStatus | null>(null)
 // Setup state for commit button enablement
 type SetupState = 'no_workspace' | 'empty_workspace' | 'unmanaged' | 'managed'
 let currentSetupState: SetupState = 'managed'
+let hasComfyUIManager = false
 
-// Button group reference for visibility management
+// Button group reference
 let buttonGroup: HTMLElement | null = null
 
 // Fetch status for commit indicator
@@ -72,6 +73,7 @@ async function fetchSetupStatus() {
   // Mock mode: always return no_workspace to test disabled state
   if (isMockApi()) {
     currentSetupState = 'no_workspace'
+    hasComfyUIManager = true
     return
   }
 
@@ -81,39 +83,27 @@ async function fetchSetupStatus() {
     if (response.ok) {
       const data = await response.json()
       currentSetupState = data.state
+      hasComfyUIManager = data.has_comfyui_manager ?? false
     }
   } catch {
     // Silently fail
   }
 }
 
-// Check if ComfyUI-Manager is installed (original Manager, not us)
-function hasOriginalComfyUIManager(): boolean {
-  // Check for Manager button in toolbar (look for button with "Manager" text that's not ours)
+// Hide the built-in ComfyUI Manager button when non-managed + ComfyUI-Manager present
+function hideBuiltinManagerButton() {
+  // Only hide if: non-managed environment AND ComfyUI-Manager is installed
+  if (currentSetupState === 'managed' || !hasComfyUIManager) return
+
+  // Find the built-in Manager button (has "Manager" text, no icon)
   const buttons = document.querySelectorAll('button.comfyui-button')
   for (const btn of buttons) {
-    if (btn.textContent?.includes('Manager') && !btn.classList.contains('comfygit-panel-btn')) {
-      return true
+    const text = btn.textContent?.trim()
+    if (text === 'Manager' && !btn.querySelector('svg, i, img')) {
+      (btn as HTMLElement).style.display = 'none'
+      console.log('[ComfyGit] Hiding built-in Manager button (ComfyUI-Manager present)')
+      return
     }
-  }
-  // Also check for comfyManager global (set by ComfyUI-Manager)
-  if ((window as unknown as { comfyManager?: unknown }).comfyManager !== undefined) {
-    return true
-  }
-  return false
-}
-
-// Update button visibility based on environment state
-function updateButtonVisibility() {
-  if (!buttonGroup) return
-
-  // In unmanaged environment with original ComfyUI-Manager: hide our buttons
-  // (user should use the original Manager)
-  if (currentSetupState === 'unmanaged' && hasOriginalComfyUIManager()) {
-    buttonGroup.style.display = 'none'
-    console.log('[ComfyGit] Hiding buttons - unmanaged environment with ComfyUI-Manager present')
-  } else {
-    buttonGroup.style.display = ''
   }
 }
 
@@ -157,7 +147,7 @@ function showPanel(initialView?: string) {
         // Also refresh setup state in case user switched environments
         await fetchSetupStatus()
         updateCommitButtonState()
-        updateButtonVisibility()  // Update visibility after environment switch
+        hideBuiltinManagerButton()  // Re-check after environment switch
       }
     })
   })
@@ -489,8 +479,11 @@ app.registerExtension({
     // Initial status fetch for indicator and setup state
     await Promise.all([fetchStatus(), fetchSetupStatus()])
     updateCommitIndicator()
-    updateButtonVisibility()  // Hide buttons in unmanaged + original Manager scenario
     updateCommitButtonState()
+    hideBuiltinManagerButton()
+
+    // Re-check shortly after (built-in Manager button may render after us)
+    setTimeout(hideBuiltinManagerButton, 100)
 
     // Refresh status periodically (fallback for external changes)
     setInterval(async () => {

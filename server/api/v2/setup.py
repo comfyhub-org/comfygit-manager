@@ -51,11 +51,14 @@ async def get_setup_status(request: web.Request) -> web.Response:
     is_managed, workspace, current_env = orchestrator.detect_environment_type()
 
     # Auto-detect models directory from current ComfyUI
-    detected_models_dir = None
     cwd = Path.cwd()
+    detected_models_dir = None
     potential_models = cwd / "models"
     if potential_models.exists() and potential_models.is_dir():
         detected_models_dir = str(potential_models)
+
+    # Check if ComfyUI-Manager is installed in custom_nodes
+    has_comfyui_manager = (cwd / "custom_nodes" / "ComfyUI-Manager").is_dir()
 
     # CLI detection
     cli_path = shutil.which('comfygit') or shutil.which('cg')
@@ -70,6 +73,7 @@ async def get_setup_status(request: web.Request) -> web.Response:
             "environments": [e.name for e in workspace.list_environments()],
             "current_environment": current_env.name,
             "detected_models_dir": None,
+            "has_comfyui_manager": has_comfyui_manager,
             "cli_installed": cli_installed,
             "cli_path": cli_path
         })
@@ -87,6 +91,7 @@ async def get_setup_status(request: web.Request) -> web.Response:
                 "environments": [],
                 "current_environment": None,
                 "detected_models_dir": detected_models_dir,
+                "has_comfyui_manager": has_comfyui_manager,
                 "cli_installed": cli_installed,
                 "cli_path": cli_path
             })
@@ -98,6 +103,7 @@ async def get_setup_status(request: web.Request) -> web.Response:
                 "environments": [e.name for e in envs],
                 "current_environment": None,
                 "detected_models_dir": detected_models_dir,
+                "has_comfyui_manager": has_comfyui_manager,
                 "cli_installed": cli_installed,
                 "cli_path": cli_path
             })
@@ -110,6 +116,7 @@ async def get_setup_status(request: web.Request) -> web.Response:
             "environments": [],
             "current_environment": None,
             "detected_models_dir": detected_models_dir,
+            "has_comfyui_manager": has_comfyui_manager,
             "cli_installed": cli_installed,
             "cli_path": cli_path
         })
