@@ -529,6 +529,7 @@ const statusSectionRef = ref<{ resetRepairingState: () => void } | null>(null)
 const showConfirmSwitch = ref(false)
 const showSwitchProgress = ref(false)
 const targetEnvironment = ref<string>('')
+const switchWorkspacePath = ref<string | null>(null)  // For first-time setup
 const switchProgress = ref({ state: 'idle', progress: 0, message: '' })
 let switchPollInterval: number | null = null
 let progressSimulationInterval: number | null = null
@@ -910,9 +911,10 @@ async function handleStop() {
 }
 
 // Environment switching flow
-async function handleEnvironmentSwitch(envName: string) {
+async function handleEnvironmentSwitch(envName: string, workspacePath?: string | null) {
   showEnvironmentSelector.value = false
   targetEnvironment.value = envName
+  switchWorkspacePath.value = workspacePath || null
   showConfirmSwitch.value = true
 }
 
@@ -930,8 +932,8 @@ async function confirmEnvironmentSwitch() {
   }
 
   try {
-    // Initiate the switch
-    await switchEnvironment(targetEnvironment.value)
+    // Initiate the switch (pass workspace path for first-time setup)
+    await switchEnvironment(targetEnvironment.value, switchWorkspacePath.value || undefined)
 
     // Start smooth progress simulation (10% → 60% over 5 seconds)
     startProgressSimulation()
@@ -943,6 +945,7 @@ async function confirmEnvironmentSwitch() {
     showSwitchProgress.value = false
     showToast(`Failed to initiate switch: ${err instanceof Error ? err.message : 'Unknown error'}`, 'error')
     switchProgress.value = { state: 'idle', progress: 0, message: '' }
+    switchWorkspacePath.value = null  // Clean up
   }
 }
 
@@ -1237,7 +1240,7 @@ async function handleEnvironmentDelete(envName: string) {
   }
 }
 
-async function handleSetupComplete(environmentName: string) {
+async function handleSetupComplete(environmentName: string, workspacePath: string | null) {
   showSetupWizard.value = false
 
   // Refresh setup status
@@ -1247,8 +1250,8 @@ async function handleSetupComplete(environmentName: string) {
     // Ignore errors
   }
 
-  // Trigger environment switch
-  await handleEnvironmentSwitch(environmentName)
+  // Trigger environment switch with workspace path for first-time setup
+  await handleEnvironmentSwitch(environmentName, workspacePath)
 }
 
 function handleSetupWizardClose() {
@@ -1257,9 +1260,9 @@ function handleSetupWizardClose() {
   emit('close')
 }
 
-async function handleEnvironmentSwitchFromWizard(envName: string) {
-  // Use existing environment switch flow
-  await handleEnvironmentSwitch(envName)
+async function handleEnvironmentSwitchFromWizard(envName: string, workspacePath: string | null) {
+  // Use existing environment switch flow with workspace path
+  await handleEnvironmentSwitch(envName, workspacePath)
 }
 
 async function handleImportCompleteSwitch(environmentName: string) {

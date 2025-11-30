@@ -267,9 +267,9 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  complete: [environmentName: string]
+  complete: [environmentName: string, workspacePath: string | null]
   close: []
-  'switch-environment': [environmentName: string]
+  'switch-environment': [environmentName: string, workspacePath: string | null]
   'environment-created-no-switch': [environmentName: string]
 }>()
 
@@ -528,7 +528,7 @@ async function handleStep2Create() {
             isCreatingEnvironment.value = false
             const envName = progress.environment_name || request.name
             if (switchAfter.value) {
-              emit('complete', envName)
+              emit('complete', envName, createdWorkspacePath.value)
             } else {
               // Return to environment selection view with new env in list
               showCreateForm.value = false
@@ -570,7 +570,7 @@ async function loadReleases() {
 
 function handleSwitchToExisting() {
   if (!selectedEnv.value) return
-  emit('switch-environment', selectedEnv.value)
+  emit('switch-environment', selectedEnv.value, createdWorkspacePath.value)
 }
 
 onMounted(() => {

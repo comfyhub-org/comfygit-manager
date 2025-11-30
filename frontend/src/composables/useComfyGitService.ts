@@ -402,13 +402,16 @@ export function useComfyGitService() {
     }
   }
 
-  async function switchEnvironment(targetEnv: string): Promise<void> {
+  async function switchEnvironment(targetEnv: string, workspacePath?: string): Promise<void> {
     if (USE_MOCK) return mockApi.switchEnvironment(targetEnv)
+
+    const body: { target_env: string; workspace_path?: string } = { target_env: targetEnv }
+    if (workspacePath) body.workspace_path = workspacePath
 
     return fetchApi('/v2/comfygit/switch_environment', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ target_env: targetEnv })
+      body: JSON.stringify(body)
     })
   }
 
