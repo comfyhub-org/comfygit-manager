@@ -35,10 +35,19 @@ export interface GitChanges {
   has_other_changes: boolean
 }
 
+export interface VersionMismatch {
+  name: string
+  expected: string
+  actual: string
+}
+
 export interface ComparisonStatus {
   is_synced: boolean
   missing_nodes: string[]
   extra_nodes: string[]
+  disabled_nodes: string[]
+  version_mismatches: VersionMismatch[]
+  packages_in_sync: boolean
 }
 
 export interface ComfyGitStatus {

@@ -218,6 +218,7 @@
             @view-debug="selectView('debug-env', 'this-env')"
             @view-nodes="selectView('nodes', 'this-env')"
             @repair-missing-models="handleRepairMissingModels"
+            @repair-environment="handleRepairEnvironment"
             @start-setup="showSetupWizard = true"
             @view-environments="selectView('environments', 'all-envs')"
             @create-environment="handleCreateEnvironmentFromStatus"
@@ -257,7 +258,9 @@
           <!-- Nodes View -->
           <NodesSection
             v-else-if="currentView === 'nodes'"
+            :version-mismatches="status?.comparison?.version_mismatches || []"
             @open-node-manager="handleOpenNodeManager"
+            @repair-environment="handleRepairEnvironment"
             @toast="handleToast"
           />
 
@@ -1145,6 +1148,40 @@ async function handleRepairMissingModels(workflowNames: string[]) {
     showToast(`Repair failed: ${err instanceof Error ? err.message : 'Unknown error'}`, 'error')
   } finally {
     statusSectionRef.value?.resetRepairingState()
+  }
+}
+
+async function handleRepairEnvironment() {
+  const toastId = showToast('Repairing environment...', 'info', 0)
+
+  try {
+    const result = await syncEnvironmentManually('skip', true)
+
+    removeToast(toastId)
+
+    if (result.status === 'success') {
+      const parts: string[] = []
+      if (result.nodes_installed.length) {
+        parts.push(`${result.nodes_installed.length} installed`)
+      }
+      if (result.nodes_removed.length) {
+        parts.push(`${result.nodes_removed.length} removed`)
+      }
+      const summary = parts.length ? `: ${parts.join(', ')}` : ''
+      showToast(`✓ Environment repaired${summary}`, 'success')
+      statusSectionRef.value?.closeDetailModal()
+      await refresh()
+    } else {
+      const errorMsg = result.errors.length
+        ? result.errors.join(', ')
+        : result.message || 'Unknown error'
+      showToast(`Repair failed: ${errorMsg}`, 'error')
+    }
+  } catch (err) {
+    removeToast(toastId)
+    showToast(`Repair error: ${err instanceof Error ? err.message : 'Unknown error'}`, 'error')
+  } finally {
+    statusSectionRef.value?.resetRepairingEnvironmentState()
   }
 }
 

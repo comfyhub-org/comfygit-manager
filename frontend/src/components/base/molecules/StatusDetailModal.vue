@@ -220,17 +220,37 @@
             <div v-if="status.comparison?.version_mismatches?.length" class="drift-item">
               <DetailRow
                 label="Version Mismatches:"
-                :value="`${status.comparison.version_mismatches.length} packages have version conflicts`"
+                :value="`${status.comparison.version_mismatches.length} node(s) have wrong versions`"
               />
+              <div class="drift-list">
+                <div v-for="mismatch in status.comparison.version_mismatches.slice(0, 10)" :key="mismatch.name" class="drift-list-item version-mismatch">
+                  {{ mismatch.name }}: <span class="version-actual">{{ mismatch.actual }}</span> → <span class="version-expected">{{ mismatch.expected }}</span>
+                </div>
+                <div v-if="status.comparison.version_mismatches.length > 10" class="drift-list-more">
+                  ... and {{ status.comparison.version_mismatches.length - 10 }} more
+                </div>
+              </div>
             </div>
 
             <!-- Packages Out of Sync -->
-            <div v-if="!status.comparison?.packages_in_sync" class="drift-item">
+            <div v-if="status.comparison?.packages_in_sync === false" class="drift-item">
               <DetailRow
                 label="Package Sync:"
                 value="Python packages out of sync"
                 value-variant="warning"
               />
+            </div>
+
+            <!-- Repair Button -->
+            <div class="repair-action">
+              <ActionButton
+                variant="warning"
+                :loading="isRepairing"
+                @click="$emit('repair')"
+              >
+                Repair Environment
+              </ActionButton>
+              <p class="help-text">Syncs environment to match pyproject.toml manifest</p>
             </div>
           </div>
 
@@ -294,12 +314,14 @@ import ActionButton from '@/components/base/atoms/ActionButton.vue'
 const props = defineProps<{
   show: boolean
   status: ComfyGitStatus
+  isRepairing?: boolean
 }>()
 
 defineEmits<{
   close: []
   'navigate-workflows': []
   'navigate-nodes': []
+  repair: []
 }>()
 
 const showSynced = ref(false)
@@ -742,5 +764,32 @@ function isDevNode(node: string | { name: string; is_development?: boolean }): b
   font-size: var(--cg-font-size-sm);
   color: var(--cg-color-text-secondary);
   line-height: 1.5;
+}
+
+/* Version Mismatch */
+.version-mismatch {
+  display: flex;
+  align-items: center;
+  gap: var(--cg-space-1);
+}
+
+.version-actual {
+  color: var(--cg-color-error);
+  text-decoration: line-through;
+}
+
+.version-expected {
+  color: var(--cg-color-success);
+}
+
+/* Repair Action */
+.repair-action {
+  margin-top: var(--cg-space-4);
+  padding-top: var(--cg-space-3);
+  border-top: 1px solid var(--cg-color-border-subtle);
+}
+
+.repair-action .help-text {
+  margin-top: var(--cg-space-2);
 }
 </style>

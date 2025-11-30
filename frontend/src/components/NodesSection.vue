@@ -40,6 +40,44 @@
           <template v-if="nodesData.untracked_count"> • {{ nodesData.untracked_count }} untracked</template>
         </SummaryBar>
 
+        <!-- Version Mismatches (highest priority - needs repair) -->
+        <SectionGroup
+          v-if="hasMismatches"
+          title="VERSION MISMATCHES"
+          :count="versionMismatches.length"
+          collapsible
+          :initially-expanded="true"
+        >
+          <div class="mismatch-warning">
+            <span class="warning-icon">⚠</span>
+            <span>{{ versionMismatches.length }} node(s) have wrong versions. Environment needs repair.</span>
+          </div>
+          <ItemCard
+            v-for="mismatch in versionMismatches"
+            :key="mismatch.name"
+            status="warning"
+          >
+            <template #icon>⚠</template>
+            <template #title>{{ mismatch.name }}</template>
+            <template #subtitle>
+              <span class="version-mismatch">
+                <span class="version-actual">{{ mismatch.actual }}</span>
+                <span class="version-arrow">→</span>
+                <span class="version-expected">{{ mismatch.expected }}</span>
+              </span>
+            </template>
+            <template #actions>
+              <ActionButton
+                variant="warning"
+                size="sm"
+                @click="emit('repair-environment')"
+              >
+                Repair
+              </ActionButton>
+            </template>
+          </ItemCard>
+        </SectionGroup>
+
         <!-- Untracked Nodes (highest priority - needs attention) -->
         <SectionGroup
           v-if="filteredUntracked.length"
@@ -240,7 +278,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useComfyGitService } from '@/composables/useComfyGitService'
-import type { NodeInfo, NodesResult } from '@/types/comfygit'
+import type { NodeInfo, NodesResult, VersionMismatch } from '@/types/comfygit'
 import PanelLayout from '@/components/base/organisms/PanelLayout.vue'
 import PanelHeader from '@/components/base/molecules/PanelHeader.vue'
 import SearchBar from '@/components/base/molecules/SearchBar.vue'
@@ -256,8 +294,17 @@ import InfoPopover from '@/components/base/molecules/InfoPopover.vue'
 import NodeDetailsModal from '@/components/NodeDetailsModal.vue'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 
+interface Props {
+  versionMismatches?: VersionMismatch[]
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  versionMismatches: () => []
+})
+
 const emit = defineEmits<{
   'open-node-manager': []
+  'repair-environment': []
   toast: [message: string, type: 'info' | 'success' | 'warning' | 'error']
 }>()
 
@@ -325,6 +372,12 @@ function getSourceLabel(source: string): string {
   }
   return labels[source] || source
 }
+
+function getVersionMismatch(nodeName: string): VersionMismatch | undefined {
+  return props.versionMismatches.find(m => m.name === nodeName)
+}
+
+const hasMismatches = computed(() => props.versionMismatches.length > 0)
 
 function getUsageLabel(node: NodeInfo): string {
   if (!node.used_in_workflows || node.used_in_workflows.length === 0) {
@@ -441,5 +494,41 @@ onMounted(loadNodes)
 </script>
 
 <style scoped>
-/* Minimal CSS - everything in components */
+.mismatch-warning {
+  display: flex;
+  align-items: center;
+  gap: var(--cg-space-2);
+  padding: var(--cg-space-3);
+  background: var(--cg-color-warning-muted);
+  border: 1px solid var(--cg-color-warning);
+  border-radius: var(--cg-radius-sm);
+  font-size: var(--cg-font-size-sm);
+  color: var(--cg-color-warning);
+  margin-bottom: var(--cg-space-3);
+}
+
+.warning-icon {
+  font-size: var(--cg-font-size-lg);
+  flex-shrink: 0;
+}
+
+.version-mismatch {
+  display: flex;
+  align-items: center;
+  gap: var(--cg-space-1);
+  font-family: var(--cg-font-mono);
+}
+
+.version-actual {
+  color: var(--cg-color-error);
+  text-decoration: line-through;
+}
+
+.version-arrow {
+  color: var(--cg-color-text-muted);
+}
+
+.version-expected {
+  color: var(--cg-color-success);
+}
 </style>
