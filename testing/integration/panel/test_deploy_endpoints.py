@@ -1,0 +1,268 @@
+"""Deploy API endpoint tests.
+
+Tests for RunPod deployment and package export functionality.
+"""
+import pytest
+from unittest.mock import Mock, AsyncMock, patch
+
+
+@pytest.fixture
+def mock_workspace_context(mock_environment, monkeypatch):
+    """Fixture to properly mock workspace for @requires_workspace endpoints."""
+    mock_workspace = Mock()
+    mock_workspace.workspace_config_manager = Mock()
+    mock_workspace.workspace_config_manager.set_runpod_token = Mock()
+    mock_workspace.workspace_config_manager.get_runpod_token = Mock(return_value=None)
+    mock_environment.workspace = mock_workspace
+
+    # Patch get_workspace_from_request to return our mock
+    def get_workspace(request):
+        return mock_workspace
+
+    monkeypatch.setattr(
+        "cgm_core.context.get_workspace_from_request",
+        get_workspace
+    )
+    monkeypatch.setattr(
+        "cgm_core.decorators.get_workspace_from_request",
+        get_workspace
+    )
+
+    return mock_workspace
+
+
+@pytest.mark.integration
+class TestRunPodTestConnection:
+    """POST /v2/comfygit/deploy/runpod/test - Test RunPod API key."""
+
+    async def test_success_valid_key(self, client, mock_workspace_context):
+        """Should return 200 with balance on valid key."""
+        with patch("api.v2.deploy.RunPodClient") as MockClient:
+            mock_client = AsyncMock()
+            mock_client.test_connection.return_value = {"success": True}
+            MockClient.return_value = mock_client
+
+            resp = await client.post(
+                "/v2/comfygit/deploy/runpod/test",
+                json={"api_key": "rpa_test123", "save_key": False},
+            )
+
+            assert resp.status == 200
+            data = await resp.json()
+            assert data["status"] == "success"
+
+    async def test_success_save_key(self, client, mock_workspace_context):
+        """Should save API key when save_key is true."""
+        with patch("api.v2.deploy.RunPodClient") as MockClient:
+            mock_client = AsyncMock()
+            mock_client.test_connection.return_value = {"success": True}
+            MockClient.return_value = mock_client
+
+            resp = await client.post(
+                "/v2/comfygit/deploy/runpod/test",
+                json={"api_key": "rpa_savekey", "save_key": True},
+            )
+
+            assert resp.status == 200
+            mock_workspace_context.workspace_config_manager.set_runpod_token.assert_called_once_with(
+                "rpa_savekey"
+            )
+
+    async def test_error_invalid_key(self, client, mock_workspace_context):
+        """Should return 401 on invalid API key."""
+        with patch("api.v2.deploy.RunPodClient") as MockClient:
+            mock_client = AsyncMock()
+            mock_client.test_connection.return_value = {
+                "success": False,
+                "error": "Unauthorized",
+            }
+            MockClient.return_value = mock_client
+
+            resp = await client.post(
+                "/v2/comfygit/deploy/runpod/test",
+                json={"api_key": "invalid_key", "save_key": False},
+            )
+
+            assert resp.status == 401
+            data = await resp.json()
+            assert data["status"] == "error"
+
+    async def test_error_missing_key(self, client, mock_workspace_context):
+        """Should return 400 when API key is missing."""
+        resp = await client.post(
+            "/v2/comfygit/deploy/runpod/test",
+            json={"save_key": False},
+        )
+
+        assert resp.status == 400
+        data = await resp.json()
+        assert "api_key" in data.get("error", "").lower() or "required" in data.get("error", "").lower()
+
+
+@pytest.mark.integration
+class TestRunPodGetPods:
+    """GET /v2/comfygit/deploy/runpod/pods - List user's pods."""
+
+    async def test_success_with_pods(self, client, mock_workspace_context):
+        """Should return 200 with pods list."""
+        mock_workspace_context.workspace_config_manager.get_runpod_token.return_value = "rpa_test123"
+
+        with patch("api.v2.deploy.RunPodClient") as MockClient:
+            mock_client = AsyncMock()
+            mock_client.list_pods.return_value = [
+                {
+                    "id": "pod123",
+                    "name": "test-pod",
+                    "desiredStatus": "RUNNING",
+                    "costPerHr": 0.44,
+                    "machine": {"gpuDisplayName": "RTX 4090"},
+                }
+            ]
+            MockClient.return_value = mock_client
+            # Mock the static method to work with our test data
+            MockClient.get_comfyui_url.return_value = "https://pod123-8188.proxy.runpod.net"
+
+            resp = await client.get("/v2/comfygit/deploy/runpod/pods")
+
+            assert resp.status == 200
+            data = await resp.json()
+            assert "pods" in data
+            assert len(data["pods"]) == 1
+            assert data["pods"][0]["id"] == "pod123"
+
+    async def test_success_empty_pods(self, client, mock_workspace_context):
+        """Should return 200 with empty pods list."""
+        mock_workspace_context.workspace_config_manager.get_runpod_token.return_value = "rpa_test123"
+
+        with patch("api.v2.deploy.RunPodClient") as MockClient:
+            mock_client = AsyncMock()
+            mock_client.list_pods.return_value = []
+            MockClient.return_value = mock_client
+
+            resp = await client.get("/v2/comfygit/deploy/runpod/pods")
+
+            assert resp.status == 200
+            data = await resp.json()
+            assert data["pods"] == []
+
+    async def test_error_no_api_key(self, client, mock_workspace_context):
+        """Should return 400 when no API key configured."""
+        mock_workspace_context.workspace_config_manager.get_runpod_token.return_value = None
+
+        resp = await client.get("/v2/comfygit/deploy/runpod/pods")
+
+        assert resp.status == 400
+        data = await resp.json()
+        assert "api key" in data.get("error", "").lower()
+
+
+@pytest.mark.integration
+class TestRunPodTerminatePod:
+    """DELETE /v2/comfygit/deploy/runpod/{pod_id} - Terminate pod."""
+
+    async def test_success(self, client, mock_workspace_context):
+        """Should return 200 on successful termination."""
+        mock_workspace_context.workspace_config_manager.get_runpod_token.return_value = "rpa_test123"
+
+        with patch("api.v2.deploy.RunPodClient") as MockClient:
+            mock_client = AsyncMock()
+            mock_client.delete_pod.return_value = True
+            MockClient.return_value = mock_client
+
+            resp = await client.delete("/v2/comfygit/deploy/runpod/pod123")
+
+            assert resp.status == 200
+            data = await resp.json()
+            assert data["status"] == "success"
+
+    async def test_error_no_api_key(self, client, mock_workspace_context):
+        """Should return 400 when no API key configured."""
+        mock_workspace_context.workspace_config_manager.get_runpod_token.return_value = None
+
+        resp = await client.delete("/v2/comfygit/deploy/runpod/pod123")
+
+        assert resp.status == 400
+
+
+@pytest.mark.integration
+class TestRunPodDeployEndpoint:
+    """POST /v2/comfygit/deploy/runpod - Deploy to RunPod."""
+
+    async def test_success(self, client, mock_workspace_context):
+        """Should return 200 with pod_id on success."""
+        mock_workspace_context.workspace_config_manager.get_runpod_token.return_value = "rpa_test123"
+
+        with patch("api.v2.deploy.RunPodClient") as MockClient:
+            mock_client = AsyncMock()
+            mock_client.create_pod.return_value = {"id": "newpod123", "name": "test"}
+            MockClient.return_value = mock_client
+
+            resp = await client.post(
+                "/v2/comfygit/deploy/runpod",
+                json={
+                    "gpu_type_id": "NVIDIA GeForce RTX 4090",
+                    "pod_name": "my-comfyui",
+                    "volume_size_gb": 50,
+                },
+            )
+
+            assert resp.status == 200
+            data = await resp.json()
+            assert data["status"] == "success"
+            assert data["pod_id"] == "newpod123"
+
+    async def test_error_no_api_key(self, client, mock_workspace_context):
+        """Should return 400 when no API key configured."""
+        mock_workspace_context.workspace_config_manager.get_runpod_token.return_value = None
+
+        resp = await client.post(
+            "/v2/comfygit/deploy/runpod",
+            json={
+                "gpu_type_id": "NVIDIA GeForce RTX 4090",
+                "pod_name": "my-comfyui",
+            },
+        )
+
+        assert resp.status == 400
+
+
+@pytest.mark.integration
+class TestRunPodClearKey:
+    """DELETE /v2/comfygit/deploy/runpod/key - Clear stored API key."""
+
+    async def test_success(self, client, mock_workspace_context):
+        """Should return 200 and clear the key."""
+        resp = await client.delete("/v2/comfygit/deploy/runpod/key")
+
+        assert resp.status == 200
+        data = await resp.json()
+        assert data["status"] == "success"
+        mock_workspace_context.workspace_config_manager.set_runpod_token.assert_called_once_with(None)
+
+
+@pytest.mark.integration
+class TestRunPodKeyStatus:
+    """GET /v2/comfygit/deploy/runpod/key-status - Check if key is configured."""
+
+    async def test_key_configured(self, client, mock_workspace_context):
+        """Should return configured=true when key exists."""
+        mock_workspace_context.workspace_config_manager.get_runpod_token.return_value = "rpa_test123456"
+
+        resp = await client.get("/v2/comfygit/deploy/runpod/key-status")
+
+        assert resp.status == 200
+        data = await resp.json()
+        assert data["configured"] is True
+        # Should only show last 4 chars
+        assert data["key_suffix"] == "3456"
+
+    async def test_key_not_configured(self, client, mock_workspace_context):
+        """Should return configured=false when no key."""
+        mock_workspace_context.workspace_config_manager.get_runpod_token.return_value = None
+
+        resp = await client.get("/v2/comfygit/deploy/runpod/key-status")
+
+        assert resp.status == 200
+        data = await resp.json()
+        assert data["configured"] is False
+        assert data.get("key_suffix") is None
