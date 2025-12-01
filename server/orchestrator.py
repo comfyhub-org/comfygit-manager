@@ -7,6 +7,8 @@ Handles restarts (exit 42) and environment switches (exit 43).
 """
 
 import argparse
+import atexit
+import ctypes
 import json
 import os
 import signal
@@ -18,10 +20,24 @@ import venv
 from pathlib import Path
 from typing import Optional
 
-from comfygit_core.factories.workspace_factory import WorkspaceFactory
-from comfygit_core.core.workspace import Workspace
 from comfygit_core.core.environment import Environment
-from comfygit_core.models.exceptions import CDWorkspaceNotFoundError, CDEnvironmentNotFoundError
+from comfygit_core.core.workspace import Workspace
+from comfygit_core.factories.workspace_factory import WorkspaceFactory
+from comfygit_core.models.exceptions import CDEnvironmentNotFoundError, CDWorkspaceNotFoundError
+
+
+# ============================================================================
+# Child Process Cleanup (Linux)
+# ============================================================================
+
+def _set_pdeathsig():
+    """Set parent death signal so child dies when orchestrator dies (Linux only)."""
+    try:
+        libc = ctypes.CDLL("libc.so.6", use_errno=True)
+        PR_SET_PDEATHSIG = 1
+        libc.prctl(PR_SET_PDEATHSIG, signal.SIGTERM)
+    except (OSError, AttributeError):
+        pass  # Not Linux or libc not available
 
 
 # ============================================================================
@@ -209,12 +225,12 @@ def force_cleanup_orchestrator_state(metadata_dir: Path) -> None:
                 try:
                     os.kill(pid, 0)
                     # Still alive - force kill
-                    print(f"[ComfyGit]   Process didn't exit, force killing...")
+                    print("[ComfyGit]   Process didn't exit, force killing...")
                     os.kill(pid, signal.SIGKILL)
                 except ProcessLookupError:
-                    print(f"[ComfyGit]   ✓ Process terminated successfully")
+                    print("[ComfyGit]   ✓ Process terminated successfully")
             except ProcessLookupError:
-                print(f"[ComfyGit]   Process already dead")
+                print("[ComfyGit]   Process already dead")
 
             pid_file.unlink()
         except Exception as e:
@@ -382,7 +398,6 @@ def safe_write_command(metadata_dir: Path, command: dict) -> None:
 
     Uses atomic rename pattern to prevent partial reads.
     """
-    import tempfile
 
     # Write to temp file in same directory (atomic rename requirement)
     temp_file = metadata_dir / f".cmd.tmp.{os.getpid()}"
@@ -461,7 +476,7 @@ def load_workspace_config(metadata_dir: Path) -> dict:
 
     except Exception as e:
         print(f"[Orchestrator] Error loading config: {e}")
-        print(f"[Orchestrator] Using default configuration")
+        print("[Orchestrator] Using default configuration")
         import copy
         return copy.deepcopy(DEFAULT_CONFIG)
 
@@ -483,15 +498,15 @@ def ensure_orchestrator_venv(venv_path: Path) -> None:
     # Create venv
     venv.create(venv_path, with_pip=True, clear=True)
 
-    # Install comfygit-core in orchestrator venv
     pip_exe = venv_path / "bin" / "pip"
 
-    subprocess.run([
-        str(pip_exe),
-        "install",
-        "comfygit-core",
-        "--quiet"
-    ], check=True)
+    # Dev mode: install from local path as editable
+    dev_core_path = os.environ.get("COMFYGIT_DEV_CORE_PATH")
+    if dev_core_path:
+        print(f"[ComfyGit] Dev mode: installing core from {dev_core_path}")
+        subprocess.run([str(pip_exe), "install", "-e", dev_core_path, "--quiet"], check=True)
+    else:
+        subprocess.run([str(pip_exe), "install", "comfygit-core", "--quiet"], check=True)
 
     print("[ComfyGit] Orchestrator environment ready")
 
@@ -569,6 +584,9 @@ class Orchestrator:
 
         # Write PID file
         write_orchestrator_pid(self.metadata_dir)
+
+        # Register cleanup on any exit (catches crashes, unhandled exceptions, etc.)
+        atexit.register(self._emergency_cleanup)
 
         # Start control server (if enabled in config)
         if self.config["orchestrator"]["enable_control_server"]:
@@ -760,7 +778,7 @@ class Orchestrator:
 
         try:
             env.sync(preserve_workflows=True, remove_extra_nodes=False)
-            print(f"[Orchestrator] Sync complete")
+            print("[Orchestrator] Sync complete")
         except Exception as e:
             print(f"[Orchestrator] Sync failed: {e}")
             # Continue anyway - ComfyUI might still work
@@ -785,13 +803,14 @@ class Orchestrator:
 
         print(f"[Orchestrator] Starting ComfyUI: {' '.join(cmd)}")
 
-        # Start process
+        # Start process with parent death signal (Linux: child dies when orchestrator dies)
         proc = subprocess.Popen(
             cmd,
             cwd=env.comfyui_path,
             env=env_vars,
-            stdout=sys.stdout,  # Inherit stdout (shows in terminal)
-            stderr=sys.stderr   # Inherit stderr
+            stdout=sys.stdout,
+            stderr=sys.stderr,
+            preexec_fn=_set_pdeathsig,
         )
 
         # Track current process and start time (Phase 1 - Control Endpoints)
@@ -944,6 +963,18 @@ class Orchestrator:
 
     def _cleanup(self):
         """Clean up orchestrator state."""
+        self._kill_supervised_process()
+        cleanup_orchestrator_pid(self.metadata_dir)
+
+    def _emergency_cleanup(self):
+        """Emergency cleanup called via atexit - catches crashes and unhandled exceptions."""
+        if self.current_process and self.current_process.poll() is None:
+            print("[Orchestrator] Emergency cleanup: killing supervised process")
+            try:
+                self.current_process.kill()
+                self.current_process.wait(timeout=2)
+            except Exception:
+                pass
         cleanup_orchestrator_pid(self.metadata_dir)
 
     # ========================================================================
