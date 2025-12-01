@@ -1,11 +1,33 @@
 <template>
   <BaseModal
-    title="WELCOME TO COMFYGIT"
     size="lg"
-    :show-close-button="true"
+    :show-close-button="false"
     :close-on-overlay-click="false"
     @close="$emit('close')"
   >
+    <!-- Custom header with settings button -->
+    <template #header>
+      <h3 class="base-modal-title">WELCOME TO COMFYGIT</h3>
+      <div class="header-actions">
+        <button
+          v-if="currentStep === 2 && createdWorkspacePath"
+          class="settings-btn"
+          title="Workspace Settings"
+          @click="showSettingsModal = true"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </button>
+        <button class="base-modal-close" @click="$emit('close')">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M4.28 3.22a.75.75 0 0 0-1.06 1.06L6.94 8l-3.72 3.72a.75.75 0 1 0 1.06 1.06L8 9.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L9.06 8l3.72-3.72a.75.75 0 0 0-1.06-1.06L8 6.94 4.28 3.22z"/>
+          </svg>
+        </button>
+      </div>
+    </template>
+
     <template #body>
       <!-- Step Indicator - full 2-step for no_workspace, single step otherwise -->
       <div v-if="props.setupState === 'no_workspace'" class="wizard-steps">
@@ -40,7 +62,6 @@
             type="text"
             class="form-input"
             :placeholder="defaultPath"
-            @blur="validateWorkspacePath"
           />
           <p v-if="workspaceError" class="form-error">{{ workspaceError }}</p>
         </div>
@@ -59,7 +80,6 @@
             type="text"
             class="form-input"
             :placeholder="detectedModelsDir || '/path/to/models'"
-            @blur="validateModelsPath"
           />
           <p v-if="detectedModelsDir && !modelsPath" class="form-info">
             Detected: {{ detectedModelsDir }}
@@ -81,7 +101,7 @@
         />
       </div>
 
-      <!-- Step 2: Environment Creation -->
+      <!-- Step 2: Environment Setup -->
       <div v-if="currentStep === 2" class="wizard-step">
         <!-- CLI Warning Banner -->
         <div v-if="!props.cliInstalled" class="cli-warning">
@@ -100,30 +120,53 @@
           </div>
         </div>
 
-        <!-- Environment Selection (for unmanaged state with existing envs) -->
-        <div v-if="props.existingEnvironments?.length && !showCreateForm" class="env-selection">
+        <!-- Landing Mode (new default) -->
+        <div v-if="wizardMode === 'landing'" class="env-landing">
           <p class="wizard-intro">
-            You have existing managed environments. Switch to one, or create a new environment:
+            Now let's set up your first environment.
           </p>
 
-          <div class="env-list">
-            <label
-              v-for="env in props.existingEnvironments"
-              :key="env"
-              class="env-option"
-              :class="{ selected: selectedEnv === env }"
-            >
-              <input
-                type="radio"
-                name="env-select"
-                :value="env"
-                v-model="selectedEnv"
-              />
-              <span class="env-name">{{ env }}</span>
-            </label>
-          </div>
+          <!-- Create Button -->
+          <button class="landing-option" @click="wizardMode = 'create'">
+            <span class="option-icon">➕</span>
+            <div class="option-content">
+              <span class="option-title">Create New Environment</span>
+              <span class="option-description">Start fresh with a new ComfyUI installation</span>
+            </div>
+            <span class="option-arrow">▸</span>
+          </button>
 
-          <div class="env-actions">
+          <!-- Import Button -->
+          <button class="landing-option" @click="wizardMode = 'import'">
+            <span class="option-icon">📦</span>
+            <div class="option-content">
+              <span class="option-title">Import Environment</span>
+              <span class="option-description">From exported bundle (.tar.gz) or git repository</span>
+            </div>
+            <span class="option-arrow">▸</span>
+          </button>
+
+          <!-- Existing Environments (if any) -->
+          <template v-if="props.existingEnvironments?.length">
+            <div class="landing-divider">
+              <span>or switch to existing</span>
+            </div>
+            <div class="env-list">
+              <label
+                v-for="env in props.existingEnvironments"
+                :key="env"
+                class="env-option"
+                :class="{ selected: selectedEnv === env }"
+              >
+                <input
+                  type="radio"
+                  name="env-select"
+                  :value="env"
+                  v-model="selectedEnv"
+                />
+                <span class="env-name">{{ env }}</span>
+              </label>
+            </div>
             <BaseButton
               v-if="selectedEnv"
               variant="primary"
@@ -131,19 +174,13 @@
             >
               Switch to {{ selectedEnv }}
             </BaseButton>
-            <BaseButton
-              variant="secondary"
-              @click="showCreateForm = true"
-            >
-              + Create New Environment
-            </BaseButton>
-          </div>
+          </template>
         </div>
 
-        <!-- Create Environment Form -->
-        <div v-if="showCreateForm || !props.existingEnvironments?.length">
+        <!-- Create Mode -->
+        <div v-else-if="wizardMode === 'create'" class="env-create">
           <p class="wizard-intro">
-            {{ props.existingEnvironments?.length ? 'Create a new managed environment:' : 'Now let\'s create your first managed environment. This will be an isolated ComfyUI installation with its own nodes and workflows.' }}
+            Create a new managed environment:
           </p>
 
           <div class="form-field">
@@ -200,6 +237,16 @@
             {{ envCreateError }}
           </div>
         </div>
+
+        <!-- Import Mode -->
+        <div v-else-if="wizardMode === 'import'" class="env-import">
+          <ImportFlow
+            :workspace-path="createdWorkspacePath"
+            @import-complete="handleImportComplete"
+            @import-started="isImporting = true"
+            @source-cleared="handleImportCleared"
+          />
+        </div>
       </div>
     </template>
 
@@ -215,36 +262,35 @@
       </template>
 
       <template v-else-if="currentStep === 2">
-        <!-- Back button: only for no_workspace or when create form is shown for unmanaged -->
+        <!-- Back button: hide entirely during creation/import, and hide at landing if workspace already created -->
         <BaseButton
-          v-if="props.setupState === 'no_workspace'"
+          v-if="!isCreatingEnvironment && !isImporting && (wizardMode !== 'landing' || (props.setupState === 'no_workspace' && !createdWorkspacePath))"
           variant="secondary"
-          :disabled="isCreatingEnvironment"
-          @click="currentStep = 1"
-        >
-          Back
-        </BaseButton>
-        <BaseButton
-          v-else-if="props.existingEnvironments?.length && showCreateForm"
-          variant="secondary"
-          :disabled="isCreatingEnvironment"
-          @click="showCreateForm = false"
+          @click="handleBack"
         >
           Back
         </BaseButton>
 
-        <!-- Create button: only show when in create mode -->
+        <!-- Create button (only in create mode) -->
         <BaseButton
-          v-if="showCreateForm || !props.existingEnvironments?.length"
+          v-if="wizardMode === 'create'"
           variant="primary"
           :disabled="!canProceedStep2 || isCreatingEnvironment"
           @click="handleStep2Create"
         >
           {{ isCreatingEnvironment ? 'Creating...' : (switchAfter ? 'Create & Switch' : 'Create Environment') }}
         </BaseButton>
+
+        <!-- Import mode has its own buttons in ImportFlow -->
       </template>
     </template>
   </BaseModal>
+
+  <!-- Settings Modal (overlay on top of wizard) -->
+  <WorkspaceSettingsModal
+    v-if="showSettingsModal"
+    @close="showSettingsModal = false"
+  />
 </template>
 
 <script setup lang="ts">
@@ -255,6 +301,8 @@ import { useComfyGitService } from '@/composables/useComfyGitService'
 import BaseModal from './base/BaseModal.vue'
 import BaseButton from './base/BaseButton.vue'
 import TaskProgressDisplay from './base/molecules/TaskProgressDisplay.vue'
+import ImportFlow from './ImportFlow.vue'
+import WorkspaceSettingsModal from './WorkspaceSettingsModal.vue'
 
 const props = defineProps<{
   defaultPath: string
@@ -285,7 +333,12 @@ const {
 // Step state
 const currentStep = ref(props.initialStep || 1)
 const selectedEnv = ref<string | null>(null)
-const showCreateForm = ref(false)
+
+// Wizard mode for Step 2
+type WizardMode = 'landing' | 'create' | 'import'
+const wizardMode = ref<WizardMode>('landing')
+const showSettingsModal = ref(false)
+const isImporting = ref(false)
 
 // Step 1 state
 const workspacePath = ref(props.defaultPath)
@@ -401,6 +454,16 @@ async function handleStep1Next() {
 
   // Pre-submit validation
   await validateWorkspacePath()
+
+  // Defensive: if workspace already exists at this path, skip forward to step 2
+  if (workspaceError.value?.includes('already exists')) {
+    workspaceError.value = null
+    createdWorkspacePath.value = workspacePath.value?.trim() || props.defaultPath
+    currentStep.value = 2
+    loadReleases()
+    return
+  }
+
   if (workspaceError.value) return
 
   if (hasExistingModels.value && modelsPath.value?.trim()) {
@@ -530,8 +593,8 @@ async function handleStep2Create() {
             if (switchAfter.value) {
               emit('complete', envName, createdWorkspacePath.value)
             } else {
-              // Return to environment selection view with new env in list
-              showCreateForm.value = false
+              // Return to landing view with new env in list
+              wizardMode.value = 'landing'
               emit('environment-created-no-switch', envName)
             }
           } else if (progress.state === 'error') {
@@ -573,7 +636,31 @@ function handleSwitchToExisting() {
   emit('switch-environment', selectedEnv.value, createdWorkspacePath.value)
 }
 
-onMounted(() => {
+function handleBack() {
+  if (wizardMode.value === 'create' || wizardMode.value === 'import') {
+    wizardMode.value = 'landing'
+  } else if (currentStep.value === 2 && props.setupState === 'no_workspace') {
+    currentStep.value = 1
+  }
+  // For empty_workspace/unmanaged at landing - nothing to go back to
+}
+
+function handleImportComplete(envName: string, switchRequested: boolean) {
+  isImporting.value = false
+  if (switchRequested) {
+    emit('complete', envName, createdWorkspacePath.value)
+  } else {
+    // Refresh environments list and return to landing
+    emit('environment-created-no-switch', envName)
+    wizardMode.value = 'landing'
+  }
+}
+
+function handleImportCleared() {
+  // User cancelled import source selection - stay in import mode
+}
+
+onMounted(async () => {
   // Pre-fill models path if detected
   if (props.detectedModelsDir) {
     modelsPath.value = props.detectedModelsDir
@@ -588,11 +675,145 @@ onMounted(() => {
   // Load releases if starting at step 2
   if (currentStep.value === 2) {
     loadReleases()
+
+    // Check if there's an environment creation already in progress
+    await checkAndResumeCreation()
   }
 })
+
+async function checkAndResumeCreation() {
+  try {
+    const progress = await getCreateProgress()
+
+    // If creation is in progress, resume monitoring it
+    if (progress.state === 'creating') {
+      console.log('[ComfyGit] Resuming in-progress environment creation:', progress.environment_name)
+
+      // Set up the UI to show creation progress
+      wizardMode.value = 'create'
+      isCreatingEnvironment.value = true
+      envName.value = progress.environment_name || 'my-new-env'
+
+      createProgress.value = {
+        progress: progress.progress ?? 0,
+        message: progress.message,
+        phase: progress.phase
+      }
+
+      // Start polling for progress updates
+      resumeCreationPolling()
+    }
+  } catch (err) {
+    // Ignore errors - might just mean no creation in progress
+    console.debug('[ComfyGit] No environment creation in progress')
+  }
+}
+
+function resumeCreationPolling() {
+  // Initialize polling safeguards
+  step2FailureCount.value = 0
+  step2StartTime.value = Date.now()
+
+  const poll = setInterval(async () => {
+    // Check overall timeout
+    if (step2StartTime.value && Date.now() - step2StartTime.value > STEP2_TIMEOUT_MS) {
+      clearInterval(poll)
+      isCreatingEnvironment.value = false
+      envCreateError.value = 'Environment creation timed out. Check server logs for details.'
+      return
+    }
+
+    try {
+      const progress = await getCreateProgress()
+      step2FailureCount.value = 0  // Reset on success
+
+      // Detect unexpected idle state
+      if (progress.state === 'idle' && isCreatingEnvironment.value) {
+        clearInterval(poll)
+        isCreatingEnvironment.value = false
+        envCreateError.value = 'Environment creation was interrupted. Please try again.'
+        return
+      }
+
+      createProgress.value = {
+        progress: progress.progress ?? 0,
+        message: progress.message,
+        phase: progress.phase
+      }
+
+      if (progress.state === 'complete') {
+        clearInterval(poll)
+        isCreatingEnvironment.value = false
+        const completedEnvName = progress.environment_name || envName.value
+        // For resumed creations, assume switch was intended (safest default)
+        emit('complete', completedEnvName, createdWorkspacePath.value)
+      } else if (progress.state === 'error') {
+        clearInterval(poll)
+        isCreatingEnvironment.value = false
+        envCreateError.value = progress.error || 'Environment creation failed'
+      }
+    } catch (err) {
+      step2FailureCount.value++
+      console.warn(`Polling failure ${step2FailureCount.value}/${MAX_FAILURES}:`, err)
+
+      if (step2FailureCount.value >= MAX_FAILURES) {
+        clearInterval(poll)
+        isCreatingEnvironment.value = false
+        envCreateError.value = 'Lost connection to server. Please refresh and try again.'
+      }
+    }
+  }, 2000)
+}
 </script>
 
 <style scoped>
+.base-modal-title {
+  color: var(--cg-color-accent);
+  text-transform: uppercase;
+  letter-spacing: var(--cg-letter-spacing-wide);
+  font-size: var(--cg-font-size-sm);
+  margin: 0;
+  flex: 1;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--cg-space-2);
+}
+
+.settings-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--cg-color-text-primary);
+  cursor: pointer;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.settings-btn:hover {
+  background: var(--cg-color-bg-hover);
+  border-color: var(--cg-color-border-subtle);
+}
+
+.base-modal-close {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--cg-color-text-primary);
+  cursor: pointer;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.base-modal-close:hover {
+  background: var(--cg-color-bg-hover);
+  border-color: var(--cg-color-border-subtle);
+}
+
 .wizard-steps {
   display: flex;
   align-items: center;
@@ -804,16 +1025,85 @@ onMounted(() => {
   font-size: var(--cg-font-size-xs);
 }
 
-/* Environment Selection */
-.env-selection {
-  margin-bottom: var(--cg-space-4);
+/* Landing View */
+.env-landing {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cg-space-3);
 }
 
+.landing-option {
+  display: flex;
+  align-items: center;
+  gap: var(--cg-space-3);
+  padding: var(--cg-space-4);
+  background: var(--cg-color-bg-secondary);
+  border: 1px solid var(--cg-color-border-subtle);
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: all var(--cg-transition-fast);
+}
+
+.landing-option:hover {
+  border-color: var(--cg-color-accent);
+  background: var(--cg-color-bg-tertiary);
+}
+
+.option-icon {
+  font-size: var(--cg-font-size-2xl);
+  flex-shrink: 0;
+}
+
+.option-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--cg-space-1);
+}
+
+.option-title {
+  color: var(--cg-color-text-primary);
+  font-size: var(--cg-font-size-base);
+  font-weight: var(--cg-font-weight-semibold);
+}
+
+.option-description {
+  color: var(--cg-color-text-secondary);
+  font-size: var(--cg-font-size-sm);
+}
+
+.option-arrow {
+  color: var(--cg-color-text-muted);
+  font-size: var(--cg-font-size-lg);
+}
+
+.landing-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--cg-space-4);
+  margin: var(--cg-space-2) 0;
+}
+
+.landing-divider::before,
+.landing-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--cg-color-border-subtle);
+}
+
+.landing-divider span {
+  color: var(--cg-color-text-muted);
+  font-size: var(--cg-font-size-sm);
+  text-transform: lowercase;
+}
+
+/* Environment List */
 .env-list {
   display: flex;
   flex-direction: column;
   gap: var(--cg-space-2);
-  margin: var(--cg-space-3) 0;
 }
 
 .env-option {
@@ -847,9 +1137,10 @@ onMounted(() => {
   color: var(--cg-color-text-primary);
 }
 
-.env-actions {
+/* Create/Import modes */
+.env-create,
+.env-import {
   display: flex;
-  gap: var(--cg-space-2);
-  margin-top: var(--cg-space-3);
+  flex-direction: column;
 }
 </style>
