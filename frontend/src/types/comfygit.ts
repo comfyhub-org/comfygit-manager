@@ -352,6 +352,7 @@ export interface ConfigSettings {
   huggingface_token?: string
   auto_sync_models: boolean
   confirm_destructive: boolean
+  comfyui_extra_args: string[]
 }
 
 // Node Management Types

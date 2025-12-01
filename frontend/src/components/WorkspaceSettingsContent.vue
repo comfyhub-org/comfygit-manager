@@ -38,20 +38,6 @@
               :style="{ minWidth: '300px' }"
             />
           </SettingRow>
-
-          <SettingRow
-            label="HuggingFace Token"
-            description="Token for accessing HuggingFace models (not yet supported)"
-            :disabled="true"
-          >
-            <TextInput
-              v-model="huggingfaceToken"
-              type="password"
-              placeholder="Not yet supported"
-              disabled
-              :style="{ minWidth: '300px' }"
-            />
-          </SettingRow>
         </div>
       </SectionGroup>
 
@@ -86,27 +72,6 @@
         </div>
       </SectionGroup>
 
-      <!-- Future Settings (Disabled) -->
-      <SectionGroup title="ADDITIONAL SETTINGS (Coming Soon)">
-        <div class="settings-section">
-          <SettingRow
-            label="Auto-Sync Models"
-            description="Automatically sync models when switching environments (not yet supported)"
-            :disabled="true"
-          >
-            <Toggle v-model="autoSyncModels" disabled />
-          </SettingRow>
-
-          <SettingRow
-            label="Confirm Destructive Actions"
-            description="Show confirmation dialogs for destructive operations (not yet supported)"
-            :disabled="true"
-          >
-            <Toggle v-model="confirmDestructive" disabled />
-          </SettingRow>
-        </div>
-      </SectionGroup>
-
       <!-- Save Status -->
       <SummaryBar v-if="saveStatus" :variant="saveStatus.type === 'success' ? 'compact' : 'compact'">
         <span :style="{ color: saveStatus.type === 'success' ? 'var(--cg-color-success)' : 'var(--cg-color-error)' }">
@@ -129,6 +94,11 @@ import ErrorState from '@/components/base/organisms/ErrorState.vue'
 import { useComfyGitService } from '@/composables/useComfyGitService'
 import type { ConfigSettings } from '@/types/comfygit'
 
+const props = defineProps<{
+  // Optional workspace path for when no environment is running (e.g., wizard setup)
+  workspacePath?: string | null
+}>()
+
 const emit = defineEmits<{
   saved: []
   error: [message: string]
@@ -146,9 +116,6 @@ const originalConfig = ref<ConfigSettings | null>(null)
 
 // Editable fields
 const civitaiToken = ref<string>('')
-const huggingfaceToken = ref<string>('')  // Not yet supported
-const autoSyncModels = ref(true)          // Not yet supported
-const confirmDestructive = ref(true)      // Not yet supported
 const comfyuiExtraArgs = ref<string>('')  // Space-separated args shown as string
 
 // UI settings (stored in localStorage)
@@ -180,14 +147,11 @@ async function loadSettings() {
   error.value = null
 
   try {
-    config.value = await getConfig()
+    config.value = await getConfig(props.workspacePath || undefined)
     originalConfig.value = { ...config.value }
 
     // Populate editable fields
     civitaiToken.value = config.value.civitai_api_key || ''
-    huggingfaceToken.value = config.value.huggingface_token || ''
-    autoSyncModels.value = config.value.auto_sync_models
-    confirmDestructive.value = config.value.confirm_destructive
     comfyuiExtraArgs.value = argsToString(config.value.comfyui_extra_args || [])
 
     // Load UI settings from localStorage
@@ -216,7 +180,7 @@ async function saveSettings() {
     }
 
     // Send update
-    await updateConfig(updates)
+    await updateConfig(updates, props.workspacePath || undefined)
 
     // Reload to get latest state
     await loadSettings()
@@ -238,9 +202,6 @@ async function saveSettings() {
 function resetSettings() {
   if (originalConfig.value) {
     civitaiToken.value = originalConfig.value.civitai_api_key || ''
-    huggingfaceToken.value = originalConfig.value.huggingface_token || ''
-    autoSyncModels.value = originalConfig.value.auto_sync_models
-    confirmDestructive.value = originalConfig.value.confirm_destructive
     comfyuiExtraArgs.value = argsToString(originalConfig.value.comfyui_extra_args || [])
     saveStatus.value = null
   }

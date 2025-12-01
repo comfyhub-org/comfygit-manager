@@ -6,7 +6,11 @@
     @close="$emit('close')"
   >
     <template #body>
-      <WorkspaceSettingsContent ref="contentRef" @saved="handleSaved" />
+      <WorkspaceSettingsContent
+        ref="contentRef"
+        :workspace-path="workspacePath"
+        @saved="handleSaved"
+      />
     </template>
     <template #footer>
       <BaseButton
@@ -28,6 +32,11 @@ import { ref } from 'vue'
 import BaseModal from './base/BaseModal.vue'
 import BaseButton from './base/BaseButton.vue'
 import WorkspaceSettingsContent from './WorkspaceSettingsContent.vue'
+
+const props = defineProps<{
+  // Optional workspace path for when no environment is running
+  workspacePath?: string | null
+}>()
 
 const emit = defineEmits<{
   close: []

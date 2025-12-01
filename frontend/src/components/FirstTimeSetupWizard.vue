@@ -9,8 +9,9 @@
     <template #header>
       <h3 class="base-modal-title">WELCOME TO COMFYGIT</h3>
       <div class="header-actions">
+        <!-- Settings button: show when workspace exists (step 2, or step 1 after workspace created) -->
         <button
-          v-if="currentStep === 2 && createdWorkspacePath"
+          v-if="showSettingsButton"
           class="settings-btn"
           title="Workspace Settings"
           @click="showSettingsModal = true"
@@ -29,25 +30,6 @@
     </template>
 
     <template #body>
-      <!-- Step Indicator - full 2-step for no_workspace, single step otherwise -->
-      <div v-if="props.setupState === 'no_workspace'" class="wizard-steps">
-        <div :class="['step', { active: currentStep === 1, complete: currentStep > 1 }]">
-          <span class="step-number">{{ currentStep > 1 ? '✓' : '1' }}</span>
-          <span class="step-label">Workspace</span>
-        </div>
-        <div class="step-connector"></div>
-        <div :class="['step', { active: currentStep === 2 }]">
-          <span class="step-number">2</span>
-          <span class="step-label">Environment</span>
-        </div>
-      </div>
-      <div v-else class="wizard-steps wizard-steps--single">
-        <div class="step active">
-          <span class="step-number">1</span>
-          <span class="step-label">Environment</span>
-        </div>
-      </div>
-
       <!-- Step 1: Workspace Setup -->
       <div v-if="currentStep === 1" class="wizard-step">
         <p class="wizard-intro">
@@ -179,62 +161,74 @@
 
         <!-- Create Mode -->
         <div v-else-if="wizardMode === 'create'" class="env-create">
-          <p class="wizard-intro">
-            Create a new managed environment:
-          </p>
+          <!-- Form (only when not creating) -->
+          <template v-if="!isCreatingEnvironment">
+            <p class="wizard-intro">
+              Create a new managed environment:
+            </p>
 
-          <div class="form-field">
-            <label class="form-label">Environment Name</label>
-            <input
-              v-model="envName"
-              type="text"
-              class="form-input"
-              placeholder="my-new-env"
+            <div class="form-field">
+              <label class="form-label">Environment Name</label>
+              <input
+                v-model="envName"
+                type="text"
+                class="form-input"
+                placeholder="my-new-env"
+              />
+            </div>
+
+            <div class="form-field">
+              <label class="form-label">Python Version</label>
+              <select v-model="pythonVersion" class="form-select">
+                <option v-for="v in PYTHON_VERSIONS" :key="v" :value="v">{{ v }}</option>
+              </select>
+            </div>
+
+            <div class="form-field">
+              <label class="form-label">ComfyUI Version</label>
+              <select v-model="comfyUIVersion" class="form-select" :disabled="loadingReleases">
+                <option v-for="r in releases" :key="r.tag_name" :value="r.tag_name">{{ r.name }}</option>
+              </select>
+            </div>
+
+            <div class="form-field">
+              <label class="form-label">PyTorch Backend</label>
+              <select v-model="torchBackend" class="form-select">
+                <option v-for="b in TORCH_BACKENDS" :key="b" :value="b">
+                  {{ b }}{{ b === 'auto' ? ' (detect GPU)' : '' }}
+                </option>
+              </select>
+            </div>
+
+            <div class="form-field form-field--checkbox">
+              <label class="form-checkbox">
+                <input type="checkbox" v-model="switchAfter" />
+                <span>Switch to this environment after creation</span>
+              </label>
+            </div>
+
+            <div v-if="envCreateError" class="form-error">
+              {{ envCreateError }}
+            </div>
+          </template>
+
+          <!-- Progress display (only when creating) -->
+          <div v-else class="env-creating">
+            <p class="creating-intro">
+              Creating environment <strong>{{ envName }}</strong>...
+            </p>
+
+            <TaskProgressDisplay
+              :progress="createProgress.progress"
+              :message="createProgress.message"
+              :current-phase="createProgress.phase"
+              :show-steps="true"
+              :steps="environmentCreationSteps"
             />
-          </div>
 
-          <div class="form-field">
-            <label class="form-label">Python Version</label>
-            <select v-model="pythonVersion" class="form-select">
-              <option v-for="v in PYTHON_VERSIONS" :key="v" :value="v">{{ v }}</option>
-            </select>
-          </div>
-
-          <div class="form-field">
-            <label class="form-label">ComfyUI Version</label>
-            <select v-model="comfyUIVersion" class="form-select" :disabled="loadingReleases">
-              <option v-for="r in releases" :key="r.tag_name" :value="r.tag_name">{{ r.name }}</option>
-            </select>
-          </div>
-
-          <div class="form-field">
-            <label class="form-label">PyTorch Backend</label>
-            <select v-model="torchBackend" class="form-select">
-              <option v-for="b in TORCH_BACKENDS" :key="b" :value="b">
-                {{ b }}{{ b === 'auto' ? ' (detect GPU)' : '' }}
-              </option>
-            </select>
-          </div>
-
-          <div class="form-field form-field--checkbox">
-            <label class="form-checkbox">
-              <input type="checkbox" v-model="switchAfter" />
-              <span>Switch to this environment after creation</span>
-            </label>
-          </div>
-
-          <!-- Progress display during environment creation -->
-          <TaskProgressDisplay
-            v-if="isCreatingEnvironment"
-            :progress="createProgress.progress"
-            :message="createProgress.message"
-            :current-phase="createProgress.phase"
-            :show-steps="true"
-            :steps="environmentCreationSteps"
-          />
-
-          <div v-if="envCreateError" class="form-error">
-            {{ envCreateError }}
+            <p class="progress-warning">
+              This may take several minutes. Please wait...
+            </p>
           </div>
         </div>
 
@@ -289,6 +283,7 @@
   <!-- Settings Modal (overlay on top of wizard) -->
   <WorkspaceSettingsModal
     v-if="showSettingsModal"
+    :workspace-path="effectiveWorkspacePath"
     @close="showSettingsModal = false"
   />
 </template>
@@ -327,6 +322,7 @@ const {
   validatePath,
   createEnvironment,
   getCreateProgress,
+  getImportProgress,
   getComfyUIReleases
 } = useComfyGitService()
 
@@ -400,6 +396,25 @@ const canProceedStep1 = computed(() => {
 
 const canProceedStep2 = computed(() => {
   return envName.value?.trim()
+})
+
+// Show settings button when workspace exists (step 2, empty_workspace, unmanaged, or after workspace created in step 1)
+const showSettingsButton = computed(() => {
+  // In step 2 (workspace already exists or was just created)
+  if (currentStep.value === 2) return true
+
+  // Workspace just created in this session (still on step 1 but workspace exists)
+  if (createdWorkspacePath.value) return true
+
+  // empty_workspace or unmanaged state - workspace already exists
+  if (props.setupState === 'empty_workspace' || props.setupState === 'unmanaged') return true
+
+  return false
+})
+
+// Get the effective workspace path for settings modal (from prop or from created workspace)
+const effectiveWorkspacePath = computed(() => {
+  return createdWorkspacePath.value || props.workspacePath || null
 })
 
 async function validateWorkspacePath() {
@@ -682,14 +697,14 @@ onMounted(async () => {
 })
 
 async function checkAndResumeCreation() {
+  // Check for in-progress environment creation
   try {
     const progress = await getCreateProgress()
+    console.log('[ComfyGit] Create progress check:', progress.state, progress)
 
-    // If creation is in progress, resume monitoring it
     if (progress.state === 'creating') {
       console.log('[ComfyGit] Resuming in-progress environment creation:', progress.environment_name)
 
-      // Set up the UI to show creation progress
       wizardMode.value = 'create'
       isCreatingEnvironment.value = true
       envName.value = progress.environment_name || 'my-new-env'
@@ -700,12 +715,29 @@ async function checkAndResumeCreation() {
         phase: progress.phase
       }
 
-      // Start polling for progress updates
       resumeCreationPolling()
+      return  // Found active creation, don't check import
     }
   } catch (err) {
-    // Ignore errors - might just mean no creation in progress
-    console.debug('[ComfyGit] No environment creation in progress')
+    console.log('[ComfyGit] Create progress check failed:', err)
+  }
+
+  // Check for in-progress import operation
+  try {
+    const importProgress = await getImportProgress()
+    console.log('[ComfyGit] Import progress check:', importProgress.state, importProgress)
+
+    if (importProgress.state === 'importing') {
+      console.log('[ComfyGit] Resuming in-progress import:', importProgress.environment_name)
+
+      wizardMode.value = 'import'
+      isImporting.value = true
+
+      // The ImportFlow component handles its own polling, but we need to set up the wizard state
+      // The ImportFlow will detect the in-progress import when it mounts
+    }
+  } catch (err) {
+    console.log('[ComfyGit] Import progress check failed:', err)
   }
 }
 
@@ -814,60 +846,6 @@ function resumeCreationPolling() {
   border-color: var(--cg-color-border-subtle);
 }
 
-.wizard-steps {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--cg-space-3);
-  margin-bottom: var(--cg-space-6);
-  padding: var(--cg-space-4) 0;
-  border-bottom: 1px solid var(--cg-color-border-subtle);
-}
-
-.step {
-  display: flex;
-  align-items: center;
-  gap: var(--cg-space-2);
-  color: var(--cg-color-text-muted);
-}
-
-.step.active {
-  color: var(--cg-color-accent);
-}
-
-.step.complete {
-  color: var(--cg-color-success);
-}
-
-.step-number {
-  width: 24px;
-  height: 24px;
-  border: 2px solid currentColor;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: var(--cg-font-size-xs);
-  font-weight: bold;
-}
-
-.step.active .step-number,
-.step.complete .step-number {
-  background: currentColor;
-  color: var(--cg-color-bg-primary);
-}
-
-.step-label {
-  font-size: var(--cg-font-size-sm);
-  font-weight: 500;
-}
-
-.step-connector {
-  width: 60px;
-  height: 2px;
-  background: var(--cg-color-border-subtle);
-}
-
 .wizard-step {
   min-height: 300px;
 }
@@ -960,15 +938,6 @@ function resumeCreationPolling() {
   color: var(--cg-color-accent);
   font-size: var(--cg-font-size-xs);
   margin-top: var(--cg-space-1);
-}
-
-/* Single step indicator styling */
-.wizard-steps--single {
-  justify-content: center;
-}
-
-.wizard-steps--single .step-connector {
-  display: none;
 }
 
 /* CLI Warning Banner */
@@ -1142,5 +1111,31 @@ function resumeCreationPolling() {
 .env-import {
   display: flex;
   flex-direction: column;
+}
+
+/* Creating progress state */
+.env-creating {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cg-space-4);
+  padding: var(--cg-space-4);
+}
+
+.creating-intro {
+  color: var(--cg-color-text-secondary);
+  font-size: var(--cg-font-size-base);
+  margin: 0;
+  text-align: center;
+}
+
+.creating-intro strong {
+  color: var(--cg-color-text-primary);
+}
+
+.progress-warning {
+  color: var(--cg-color-text-muted);
+  font-size: var(--cg-font-size-sm);
+  text-align: center;
+  margin: 0;
 }
 </style>

@@ -665,25 +665,32 @@ export function useComfyGitService() {
   }
 
   // Settings
-  async function getConfig(): Promise<ConfigSettings> {
+  async function getConfig(workspacePath?: string): Promise<ConfigSettings> {
     if (USE_MOCK) return mockApi.getConfig()
 
     try {
-      return fetchApi<ConfigSettings>('/v2/comfygit/config')
+      const url = workspacePath
+        ? `/v2/comfygit/config?workspace_path=${encodeURIComponent(workspacePath)}`
+        : '/v2/comfygit/config'
+      return fetchApi<ConfigSettings>(url)
     } catch {
       return {
         workspace_path: '~/comfygit',
         models_path: '~/comfygit/models',
         auto_sync_models: true,
-        confirm_destructive: true
+        confirm_destructive: true,
+        comfyui_extra_args: []
       }
     }
   }
 
-  async function updateConfig(config: Partial<ConfigSettings>): Promise<void> {
+  async function updateConfig(config: Partial<ConfigSettings>, workspacePath?: string): Promise<void> {
     if (USE_MOCK) return mockApi.updateConfig(config as ConfigSettings)
 
-    return fetchApi('/v2/comfygit/config', {
+    const url = workspacePath
+      ? `/v2/comfygit/config?workspace_path=${encodeURIComponent(workspacePath)}`
+      : '/v2/comfygit/config'
+    return fetchApi(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(config)

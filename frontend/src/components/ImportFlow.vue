@@ -191,7 +191,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import FileDropZone from '@/components/base/molecules/FileDropZone.vue'
 import ImportPreview from '@/components/base/molecules/ImportPreview.vue'
 import ImportConfigForm from '@/components/base/molecules/ImportConfigForm.vue'
@@ -491,6 +491,34 @@ function formatFileSize(bytes: number): string {
   if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
   return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`
 }
+
+// Check for in-progress import on mount and resume if found
+onMounted(async () => {
+  try {
+    const progress = await getImportProgress()
+    console.log('[ComfyGit ImportFlow] Import progress check:', progress.state, progress)
+
+    if (progress.state === 'importing') {
+      console.log('[ComfyGit ImportFlow] Resuming in-progress import:', progress.environment_name)
+
+      // Set up the UI to show import progress
+      isImporting.value = true
+      importConfig.value.name = progress.environment_name || 'importing...'
+
+      importProgress.value = {
+        progress: progress.progress ?? 0,
+        message: progress.message || 'Importing...',
+        phase: progress.phase || '',
+        error: null
+      }
+
+      // Start polling for progress updates
+      startImportPolling()
+    }
+  } catch (err) {
+    console.log('[ComfyGit ImportFlow] Import progress check failed:', err)
+  }
+})
 
 // Expose for parent access
 defineExpose({
