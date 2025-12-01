@@ -847,6 +847,70 @@ export interface ImportProgress {
   error?: string | null
 }
 
+// =============================================================================
+// Deploy Types
+// =============================================================================
+
+export interface RunPodGpuType {
+  id: string
+  displayName: string
+  memoryInGb: number
+  securePrice: number      // $/hr for secure cloud
+  communityPrice: number   // $/hr for community cloud
+  available: boolean
+}
+
+export interface DeployConfig {
+  gpu_type_id: string
+  pod_name: string
+  volume_size_gb: number
+  cloud_type: 'SECURE' | 'COMMUNITY'
+}
+
+export interface EnvironmentDeploySummary {
+  comfyui_version: string
+  node_count: number
+  model_count: number
+  models_with_sources: number
+  models_without_sources: number
+  workflow_count: number
+  estimated_package_size_mb: number
+}
+
+export interface DeployResult {
+  status: 'success' | 'error'
+  pod_id?: string
+  message: string
+}
+
+export interface RunPodInstance {
+  id: string
+  name: string
+  gpu_type: string
+  gpu_count: number
+  status: 'CREATED' | 'RUNNING' | 'EXITED' | 'TERMINATED'
+  created_at: string
+  cost_per_hour: number
+  uptime_seconds: number
+  total_cost: number
+  // Connection info (when running)
+  pod_url?: string
+  comfyui_url?: string      // Proxied port 8188
+}
+
+export interface DeployPackageResult {
+  status: 'success' | 'error'
+  package_path?: string
+  package_size_mb?: number
+  message?: string
+}
+
+export interface RunPodConnectionResult {
+  status: 'success' | 'error'
+  message: string
+  credit_balance?: number
+}
+
 // First-Time Setup Types
 export type SetupState = 'no_workspace' | 'empty_workspace' | 'unmanaged' | 'managed'
 

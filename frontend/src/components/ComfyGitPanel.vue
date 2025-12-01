@@ -143,6 +143,12 @@
           <div class="sidebar-section">
             <div class="sidebar-section-title">SHARING</div>
             <button
+              :class="['sidebar-item', { active: currentView === 'deploy' }]"
+              @click="selectView('deploy', 'sharing')"
+            >
+              DEPLOY
+            </button>
+            <button
               :class="['sidebar-item', { active: currentView === 'export' }]"
               @click="selectView('export', 'sharing')"
             >
@@ -258,6 +264,12 @@
 
           <!-- Debug (Workspace) View -->
           <WorkspaceDebugSection v-else-if="currentView === 'debug-workspace'" />
+
+          <!-- Deploy View -->
+          <DeploySection
+            v-else-if="currentView === 'deploy'"
+            @toast="handleToast"
+          />
 
           <!-- Export View -->
           <ExportSection v-else-if="currentView === 'export'" />
@@ -427,6 +439,7 @@ import DebugEnvSection from './DebugEnvSection.vue'
 import EnvironmentsSection from './EnvironmentsSection.vue'
 import ExportSection from './ExportSection.vue'
 import ImportSection from './ImportSection.vue'
+import DeploySection from './DeploySection.vue'
 import CommitDetailModal from './CommitDetailModal.vue'
 import ConfirmDialog from './ConfirmDialog.vue'
 import CommitPopover from './CommitPopover.vue'
@@ -470,7 +483,7 @@ const orchestratorService = useOrchestratorService()
 
 type ViewName = 'status' | 'workflows' | 'models-env' | 'branches' | 'history' | 'nodes' | 'debug-env' |
                 'environments' | 'model-index' | 'settings' | 'debug-workspace' |
-                'export' | 'import' | 'remotes'
+                'export' | 'import' | 'remotes' | 'deploy'
 
 type SectionName = 'this-env' | 'all-envs' | 'sharing'
 

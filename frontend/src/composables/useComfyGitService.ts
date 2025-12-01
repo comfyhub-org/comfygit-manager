@@ -42,7 +42,14 @@ import type {
   InitializeWorkspaceRequest,
   InitializeProgress,
   ValidatePathRequest,
-  ValidatePathResult
+  ValidatePathResult,
+  EnvironmentDeploySummary,
+  RunPodGpuType,
+  RunPodInstance,
+  RunPodConnectionResult,
+  DeployResult,
+  DeployPackageResult,
+  DeployConfig
 } from '@/types/comfygit'
 import { mockApi, isMockApi } from '@/services/mockApi'
 import { useMockControls } from '@/composables/useMockControls'
@@ -1282,6 +1289,68 @@ export function useComfyGitService() {
     })
   }
 
+  // Deploy Operations
+  async function getDeploySummary(): Promise<EnvironmentDeploySummary> {
+    if (USE_MOCK) return mockApi.getDeploySummary()
+    return fetchApi<EnvironmentDeploySummary>('/v2/comfygit/deploy/summary')
+  }
+
+  async function testRunPodConnection(apiKey: string, saveKey: boolean): Promise<RunPodConnectionResult> {
+    if (USE_MOCK) return mockApi.testRunPodConnection(apiKey, saveKey)
+    return fetchApi<RunPodConnectionResult>('/v2/comfygit/deploy/runpod/test', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ api_key: apiKey, save_key: saveKey })
+    })
+  }
+
+  async function getRunPodGpuTypes(): Promise<{ gpu_types: RunPodGpuType[] }> {
+    if (USE_MOCK) return mockApi.getRunPodGpuTypes()
+    return fetchApi<{ gpu_types: RunPodGpuType[] }>('/v2/comfygit/deploy/runpod/gpu-types')
+  }
+
+  async function deployToRunPod(config: DeployConfig): Promise<DeployResult> {
+    if (USE_MOCK) return mockApi.deployToRunPod(config)
+    return fetchApi<DeployResult>('/v2/comfygit/deploy/runpod', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(config)
+    })
+  }
+
+  async function getRunPodPods(): Promise<{ pods: RunPodInstance[] }> {
+    if (USE_MOCK) return mockApi.getRunPodPods()
+    return fetchApi<{ pods: RunPodInstance[] }>('/v2/comfygit/deploy/runpod/pods')
+  }
+
+  async function terminateRunPodPod(podId: string): Promise<{ status: 'success' | 'error'; message: string }> {
+    if (USE_MOCK) return mockApi.terminateRunPodPod(podId)
+    return fetchApi(`/v2/comfygit/deploy/runpod/${encodeURIComponent(podId)}`, {
+      method: 'DELETE'
+    })
+  }
+
+  async function exportDeployPackage(outputPath?: string): Promise<DeployPackageResult> {
+    if (USE_MOCK) return mockApi.exportDeployPackage(outputPath)
+    return fetchApi<DeployPackageResult>('/v2/comfygit/deploy/package', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ output_path: outputPath })
+    })
+  }
+
+  async function getStoredRunPodKey(): Promise<{ has_key: boolean; key_preview?: string }> {
+    if (USE_MOCK) return mockApi.getStoredRunPodKey()
+    return fetchApi<{ has_key: boolean; key_preview?: string }>('/v2/comfygit/deploy/runpod/key')
+  }
+
+  async function clearRunPodKey(): Promise<{ status: 'success' }> {
+    if (USE_MOCK) return mockApi.clearRunPodKey()
+    return fetchApi('/v2/comfygit/deploy/runpod/key', {
+      method: 'DELETE'
+    })
+  }
+
   return {
     isLoading,
     error,
@@ -1367,6 +1436,16 @@ export function useComfyGitService() {
     getSetupStatus,
     initializeWorkspace,
     getInitializeProgress,
-    validatePath
+    validatePath,
+    // Deploy Operations
+    getDeploySummary,
+    testRunPodConnection,
+    getRunPodGpuTypes,
+    deployToRunPod,
+    getRunPodPods,
+    terminateRunPodPod,
+    exportDeployPackage,
+    getStoredRunPodKey,
+    clearRunPodKey
   }
 }
