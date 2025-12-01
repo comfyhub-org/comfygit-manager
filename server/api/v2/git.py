@@ -1,14 +1,14 @@
 """Git operations API."""
 from aiohttp import web
 
-from cgm_core.decorators import requires_environment
+from cgm_core.decorators import requires_environment, logged_operation
 from cgm_utils.async_helpers import run_sync
 
 routes = web.RouteTableDef()
 
 
 @routes.post("/v2/comfygit/commit")
-@requires_environment
+@logged_operation("create commit")
 async def create_commit(request: web.Request, env) -> web.Response:
     """Commit workflow changes."""
     json_data = await request.json()
@@ -85,7 +85,7 @@ async def get_commit_log(request: web.Request, env) -> web.Response:
 
 
 @routes.post("/v2/comfygit/branch")
-@requires_environment
+@logged_operation("create branch")
 async def create_branch(request: web.Request, env) -> web.Response:
     """Create a new branch."""
     json_data = await request.json()
@@ -110,7 +110,7 @@ async def create_branch(request: web.Request, env) -> web.Response:
 
 
 @routes.delete("/v2/comfygit/branch/{name}")
-@requires_environment
+@logged_operation("delete branch")
 async def delete_branch(request: web.Request, env) -> web.Response:
     """Delete a branch."""
     name = request.match_info["name"]
@@ -146,7 +146,7 @@ async def delete_branch(request: web.Request, env) -> web.Response:
 
 
 @routes.post("/v2/comfygit/switch")
-@requires_environment
+@logged_operation("switch branch")
 async def switch_branch(request: web.Request, env) -> web.Response:
     """Switch to a different branch. Requires restart to take effect."""
     import os
@@ -194,7 +194,7 @@ async def switch_branch(request: web.Request, env) -> web.Response:
 
 
 @routes.post("/v2/comfygit/checkout")
-@requires_environment
+@logged_operation("checkout")
 async def checkout_commit(request: web.Request, env) -> web.Response:
     """Checkout a specific commit or ref."""
     import os

@@ -7,6 +7,33 @@ from datetime import datetime
 from pathlib import Path
 
 
+class ComfyGitLogFilter(logging.Filter):
+    """Filter to only capture logs from comfygit_* loggers.
+
+    This prevents noisy third-party libraries (watchdog, aiohttp, etc.)
+    from flooding the environment log files.
+    """
+
+    # Logger name prefixes we want to capture
+    ALLOWED_PREFIXES = (
+        "comfygit_",      # comfygit_core, comfygit_panel, etc.
+        "comfygit-",      # Alternative naming
+        "cgm_",           # cgm_core, cgm_utils
+        "uv",             # UV package manager (we want these errors)
+    )
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        """Return True if log should be captured."""
+        name = record.name
+
+        # Always capture root logger messages (our explicit logs)
+        if name == "root":
+            return True
+
+        # Check if logger name starts with allowed prefix
+        return any(name.startswith(prefix) for prefix in self.ALLOWED_PREFIXES)
+
+
 class EnvironmentLogger:
     """Manages environment-specific logging with rotation.
 
@@ -72,6 +99,9 @@ class EnvironmentLogger:
         # Set formatter
         formatter = logging.Formatter(cls.DETAILED_FORMAT)
         handler.setFormatter(formatter)
+
+        # Add filter to only capture comfygit_* logs (exclude watchdog, aiohttp, etc.)
+        handler.addFilter(ComfyGitLogFilter())
 
         # Add a name to identify this handler
         handler.set_name(f"env_handler_{env_name}")
@@ -237,6 +267,9 @@ class WorkspaceLogger:
         # Set formatter
         formatter = logging.Formatter(cls.DETAILED_FORMAT)
         handler.setFormatter(formatter)
+
+        # Add filter to only capture comfygit_* logs (exclude watchdog, aiohttp, etc.)
+        handler.addFilter(ComfyGitLogFilter())
 
         # Add a name to identify this handler
         handler.set_name("workspace_handler")

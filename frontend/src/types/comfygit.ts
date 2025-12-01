@@ -35,10 +35,19 @@ export interface GitChanges {
   has_other_changes: boolean
 }
 
+export interface VersionMismatch {
+  name: string
+  expected: string
+  actual: string
+}
+
 export interface ComparisonStatus {
   is_synced: boolean
   missing_nodes: string[]
   extra_nodes: string[]
+  disabled_nodes: string[]
+  version_mismatches: VersionMismatch[]
+  packages_in_sync: boolean
 }
 
 export interface ComfyGitStatus {
@@ -206,6 +215,7 @@ export interface CreateEnvironmentRequest {
   comfyui_version?: string
   torch_backend?: string
   switch_after?: boolean
+  workspace_path?: string  // Optional, used during first-time setup
 }
 
 export interface CreateEnvironmentResult {
@@ -342,6 +352,7 @@ export interface ConfigSettings {
   huggingface_token?: string
   auto_sync_models: boolean
   confirm_destructive: boolean
+  comfyui_extra_args: string[]
 }
 
 // Node Management Types

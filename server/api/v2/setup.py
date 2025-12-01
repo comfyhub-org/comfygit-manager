@@ -51,11 +51,14 @@ async def get_setup_status(request: web.Request) -> web.Response:
     is_managed, workspace, current_env = orchestrator.detect_environment_type()
 
     # Auto-detect models directory from current ComfyUI
-    detected_models_dir = None
     cwd = Path.cwd()
+    detected_models_dir = None
     potential_models = cwd / "models"
     if potential_models.exists() and potential_models.is_dir():
         detected_models_dir = str(potential_models)
+
+    # Check if ComfyUI-Manager is installed in custom_nodes
+    has_comfyui_manager = (cwd / "custom_nodes" / "ComfyUI-Manager").is_dir()
 
     # CLI detection
     cli_path = shutil.which('comfygit') or shutil.which('cg')
@@ -70,6 +73,7 @@ async def get_setup_status(request: web.Request) -> web.Response:
             "environments": [e.name for e in workspace.list_environments()],
             "current_environment": current_env.name,
             "detected_models_dir": None,
+            "has_comfyui_manager": has_comfyui_manager,
             "cli_installed": cli_installed,
             "cli_path": cli_path
         })
@@ -87,6 +91,7 @@ async def get_setup_status(request: web.Request) -> web.Response:
                 "environments": [],
                 "current_environment": None,
                 "detected_models_dir": detected_models_dir,
+                "has_comfyui_manager": has_comfyui_manager,
                 "cli_installed": cli_installed,
                 "cli_path": cli_path
             })
@@ -98,6 +103,7 @@ async def get_setup_status(request: web.Request) -> web.Response:
                 "environments": [e.name for e in envs],
                 "current_environment": None,
                 "detected_models_dir": detected_models_dir,
+                "has_comfyui_manager": has_comfyui_manager,
                 "cli_installed": cli_installed,
                 "cli_path": cli_path
             })
@@ -110,6 +116,7 @@ async def get_setup_status(request: web.Request) -> web.Response:
             "environments": [],
             "current_environment": None,
             "detected_models_dir": detected_models_dir,
+            "has_comfyui_manager": has_comfyui_manager,
             "cli_installed": cli_installed,
             "cli_path": cli_path
         })
@@ -290,30 +297,32 @@ async def initialize_workspace(request: web.Request) -> web.Response:
 
 
 def _install_self_as_system_node(workspace):
-    """Copy comfygit-manager into workspace system_nodes.
+    """Install comfygit-manager into workspace system_nodes.
 
-    Since we ARE comfygit-manager running inside ComfyUI, we can copy
-    ourselves directly rather than cloning from GitHub. This ensures
-    the management panel is available in all environments.
+    In dev mode (COMFYGIT_DEV_MANAGER_PATH set): creates symlink to dev path
+    In production: copies ourselves directly from running location
     """
-    # Find comfygit-manager root (go up from server/api/v2/setup.py)
-    manager_root = Path(__file__).parent.parent.parent.parent
-
-    # Validate this is actually comfygit-manager
-    if not (manager_root / "__init__.py").exists():
-        logger.warning("Could not locate comfygit-manager root, skipping self-install")
-        return
-
     target_path = workspace.paths.system_nodes / "comfygit-manager"
 
     if target_path.exists():
         logger.debug("comfygit-manager already exists in system_nodes")
         return
 
-    # Ensure parent directory exists
     workspace.paths.system_nodes.mkdir(parents=True, exist_ok=True)
 
-    # Patterns to exclude from copy (development artifacts)
+    # Dev mode: symlink to dev path
+    dev_manager_path = os.environ.get("COMFYGIT_DEV_MANAGER_PATH")
+    if dev_manager_path:
+        logger.info(f"Dev mode: symlinking to {dev_manager_path}")
+        target_path.symlink_to(Path(dev_manager_path))
+        return
+
+    # Production: copy ourselves
+    manager_root = Path(__file__).parent.parent.parent.parent
+    if not (manager_root / "__init__.py").exists():
+        logger.warning("Could not locate comfygit-manager root, skipping self-install")
+        return
+
     EXCLUDE_PATTERNS = {
         '.venv', 'venv', '__pycache__', '.git', '.pytest_cache',
         '.ruff_cache', 'node_modules', '.env', '.coverage',
@@ -321,14 +330,11 @@ def _install_self_as_system_node(workspace):
         '.claude', 'testing', 'api-testing'
     }
 
-    def ignore_patterns(directory, files):
-        return [f for f in files if f in EXCLUDE_PATTERNS or f.endswith('.pyc')]
-
     try:
         shutil.copytree(
             manager_root,
             target_path,
-            ignore=ignore_patterns,
+            ignore=lambda d, f: [x for x in f if x in EXCLUDE_PATTERNS or x.endswith('.pyc')],
             dirs_exist_ok=False
         )
         logger.info("Installed comfygit-manager to workspace system_nodes")
@@ -349,35 +355,39 @@ def _run_initialize_workspace(workspace_path: Path, models_dir: Path | None):
         # Install comfygit-manager into system_nodes
         _install_self_as_system_node(workspace)
 
-        # Phase 2: Set models directory (if provided)
+        # Phase 2: Set models directory with progress (if provided)
         if models_dir:
-            _update_init_state("setting_models_dir", 25, "Configuring models directory...")
-            workspace.set_models_directory(models_dir)
-            _update_init_state("scanning_models", 30, "Starting model scan...")
-
-            # Phase 3: Scan models with progress
             class ProgressCallback(ModelScanProgress):
                 def on_scan_start(self, total_files: int):
+                    logger.info(f"[Setup] Model scan starting: {total_files} files")
                     self.total = total_files
-                    _update_init_state("scanning_models", 30, f"Found {total_files} files to scan...")
+                    if total_files == 0:
+                        _update_init_state("scanning_models", 95, "No model files found to index")
+                    else:
+                        _update_init_state("scanning_models", 30, f"Found {total_files} files to scan...")
 
                 def on_file_processed(self, current: int, total: int, filename: str):
+                    logger.debug(f"[Setup] Processing {current}/{total}: {filename}")
                     # Map to 30-95% progress range
                     pct = 30 + int((current / max(total, 1)) * 65)
                     _update_init_state("scanning_models", pct, f"Scanning models ({current}/{total})...")
 
                 def on_scan_complete(self, result):
+                    logger.info(f"[Setup] Model scan complete: {result.added_count} added")
                     _update_init_state(
                         "complete", 100,
                         f"Complete! {result.added_count} models indexed",
                         models_found=result.added_count
                     )
 
-            workspace.sync_model_directory(progress=ProgressCallback())
+            _update_init_state("scanning_models", 25, "Scanning models directory...")
+            # Pass progress to set_models_directory - the scan happens there
+            workspace.set_models_directory(models_dir, progress=ProgressCallback())
         else:
             _update_init_state("complete", 100, "Workspace created successfully", models_found=0)
 
     except Exception as e:
+        logger.error(f"[Setup] Workspace initialization failed: {e}")
         _update_init_state("error", 0, f"Failed: {e}", error=str(e))
 
 

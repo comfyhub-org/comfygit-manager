@@ -4,7 +4,7 @@ from pathlib import Path
 
 from aiohttp import web
 
-from cgm_core.decorators import requires_environment
+from cgm_core.decorators import requires_environment, logged_operation
 from cgm_utils.async_helpers import run_sync
 
 routes = web.RouteTableDef()
@@ -91,7 +91,7 @@ async def validate_export(request: web.Request, env) -> web.Response:
 
 
 @routes.post("/v2/comfygit/export")
-@requires_environment
+@logged_operation("export environment")
 async def export_environment(request: web.Request, env) -> web.Response:
     """Export environment to tarball."""
     json_data = await request.json()
@@ -158,7 +158,7 @@ async def download_file(request: web.Request) -> web.Response:
 
 
 @routes.post("/v2/comfygit/sync")
-@requires_environment
+@logged_operation("sync environment")
 async def sync_environment(request: web.Request, env) -> web.Response:
     """Manually trigger environment sync to match git repository state."""
     json_data = await request.json()

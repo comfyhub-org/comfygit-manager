@@ -40,6 +40,44 @@
           <template v-if="nodesData.untracked_count"> • {{ nodesData.untracked_count }} untracked</template>
         </SummaryBar>
 
+        <!-- Version Mismatches (highest priority - needs repair) -->
+        <SectionGroup
+          v-if="hasMismatches"
+          title="VERSION MISMATCHES"
+          :count="versionMismatches.length"
+          collapsible
+          :initially-expanded="true"
+        >
+          <div class="mismatch-warning">
+            <span class="warning-icon">⚠</span>
+            <span>{{ versionMismatches.length }} node(s) have wrong versions. Environment needs repair.</span>
+          </div>
+          <ItemCard
+            v-for="mismatch in versionMismatches"
+            :key="mismatch.name"
+            status="warning"
+          >
+            <template #icon>⚠</template>
+            <template #title>{{ mismatch.name }}</template>
+            <template #subtitle>
+              <span class="version-mismatch">
+                <span class="version-actual">{{ mismatch.actual }}</span>
+                <span class="version-arrow">→</span>
+                <span class="version-expected">{{ mismatch.expected }}</span>
+              </span>
+            </template>
+            <template #actions>
+              <ActionButton
+                variant="warning"
+                size="sm"
+                @click="emit('repair-environment')"
+              >
+                Repair
+              </ActionButton>
+            </template>
+          </ItemCard>
+        </SectionGroup>
+
         <!-- Untracked Nodes (highest priority - needs attention) -->
         <SectionGroup
           v-if="filteredUntracked.length"
@@ -223,12 +261,24 @@
     :node="selectedNode"
     @close="selectedNode = null"
   />
+
+  <!-- Confirmation Dialog -->
+  <ConfirmDialog
+    v-if="confirmDialog"
+    :title="confirmDialog.title"
+    :message="confirmDialog.message"
+    :warning="confirmDialog.warning"
+    :confirm-label="confirmDialog.confirmLabel"
+    :destructive="confirmDialog.destructive"
+    @confirm="confirmDialog.onConfirm"
+    @cancel="confirmDialog = null"
+  />
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useComfyGitService } from '@/composables/useComfyGitService'
-import type { NodeInfo, NodesResult } from '@/types/comfygit'
+import type { NodeInfo, NodesResult, VersionMismatch } from '@/types/comfygit'
 import PanelLayout from '@/components/base/organisms/PanelLayout.vue'
 import PanelHeader from '@/components/base/molecules/PanelHeader.vue'
 import SearchBar from '@/components/base/molecules/SearchBar.vue'
@@ -242,9 +292,20 @@ import LoadingState from '@/components/base/organisms/LoadingState.vue'
 import ErrorState from '@/components/base/organisms/ErrorState.vue'
 import InfoPopover from '@/components/base/molecules/InfoPopover.vue'
 import NodeDetailsModal from '@/components/NodeDetailsModal.vue'
+import ConfirmDialog from '@/components/ConfirmDialog.vue'
+
+interface Props {
+  versionMismatches?: VersionMismatch[]
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  versionMismatches: () => []
+})
 
 const emit = defineEmits<{
   'open-node-manager': []
+  'repair-environment': []
+  toast: [message: string, type: 'info' | 'success' | 'warning' | 'error']
 }>()
 
 const { getNodes, trackNodeAsDev, installNode, uninstallNode } = useComfyGitService()
@@ -262,6 +323,17 @@ const error = ref<string | null>(null)
 const searchQuery = ref('')
 const showPopover = ref(false)
 const selectedNode = ref<NodeInfo | null>(null)
+
+// Confirmation dialog state
+interface ConfirmDialogConfig {
+  title: string
+  message: string
+  warning?: string
+  confirmLabel: string
+  destructive: boolean
+  onConfirm: () => void
+}
+const confirmDialog = ref<ConfirmDialogConfig | null>(null)
 
 // Computed properties for filtering by category
 const filteredNodes = computed(() => {
@@ -301,6 +373,12 @@ function getSourceLabel(source: string): string {
   return labels[source] || source
 }
 
+function getVersionMismatch(nodeName: string): VersionMismatch | undefined {
+  return props.versionMismatches.find(m => m.name === nodeName)
+}
+
+const hasMismatches = computed(() => props.versionMismatches.length > 0)
+
 function getUsageLabel(node: NodeInfo): string {
   if (!node.used_in_workflows || node.used_in_workflows.length === 0) {
     return 'Not used in any workflows'
@@ -319,66 +397,84 @@ function openNodeManager() {
   emit('open-node-manager')
 }
 
-async function handleTrackAsDev(nodeName: string) {
-  if (!confirm(`Track "${nodeName}" as a development node?\n\nThis will add it to your environment manifest with source='development'. It won't be version-controlled but will be recognized as intentional.`)) {
-    return
-  }
-
-  try {
-    loading.value = true
-    const result = await trackNodeAsDev(nodeName)
-    if (result.status === 'success') {
-      alert(`Node "${nodeName}" is now tracked as development!`)
-      await loadNodes()
-    } else {
-      alert(`Failed to track node: ${result.message || 'Unknown error'}`)
+function handleTrackAsDev(nodeName: string) {
+  confirmDialog.value = {
+    title: 'Track as Development Node',
+    message: `Track "${nodeName}" as a development node? This will add it to your environment manifest with source='development'.`,
+    warning: 'Development nodes are tracked locally but not version-controlled.',
+    confirmLabel: 'Track as Dev',
+    destructive: false,
+    onConfirm: async () => {
+      confirmDialog.value = null
+      try {
+        loading.value = true
+        const result = await trackNodeAsDev(nodeName)
+        if (result.status === 'success') {
+          emit('toast', `✓ Node "${nodeName}" tracked as development`, 'success')
+          await loadNodes()
+        } else {
+          emit('toast', `Failed to track node: ${result.message || 'Unknown error'}`, 'error')
+        }
+      } catch (err) {
+        emit('toast', `Error tracking node: ${err instanceof Error ? err.message : 'Unknown error'}`, 'error')
+      } finally {
+        loading.value = false
+      }
     }
-  } catch (err) {
-    alert(`Error tracking node: ${err instanceof Error ? err.message : 'Unknown error'}`)
-  } finally {
-    loading.value = false
   }
 }
 
-async function handleRemoveUntracked(nodeName: string) {
-  if (!confirm(`Remove untracked node "${nodeName}"?\n\nThis will delete the node directory from custom_nodes/.`)) {
-    return
-  }
-
-  try {
-    loading.value = true
-    const result = await uninstallNode(nodeName)
-    if (result.status === 'success') {
-      alert(`Node "${nodeName}" removed!`)
-      await loadNodes()
-    } else {
-      alert(`Failed to remove node: ${result.message || 'Unknown error'}`)
+function handleRemoveUntracked(nodeName: string) {
+  confirmDialog.value = {
+    title: 'Remove Untracked Node',
+    message: `Remove "${nodeName}" from custom_nodes/?`,
+    warning: 'This will permanently delete the node directory.',
+    confirmLabel: 'Remove',
+    destructive: true,
+    onConfirm: async () => {
+      confirmDialog.value = null
+      try {
+        loading.value = true
+        const result = await uninstallNode(nodeName)
+        if (result.status === 'success') {
+          emit('toast', `✓ Node "${nodeName}" removed`, 'success')
+          await loadNodes()
+        } else {
+          emit('toast', `Failed to remove node: ${result.message || 'Unknown error'}`, 'error')
+        }
+      } catch (err) {
+        emit('toast', `Error removing node: ${err instanceof Error ? err.message : 'Unknown error'}`, 'error')
+      } finally {
+        loading.value = false
+      }
     }
-  } catch (err) {
-    alert(`Error removing node: ${err instanceof Error ? err.message : 'Unknown error'}`)
-  } finally {
-    loading.value = false
   }
 }
 
-async function handleInstallNode(nodeName: string) {
-  if (!confirm(`Install node "${nodeName}"?\n\nThis will download and install the node.`)) {
-    return
-  }
-
-  try {
-    loading.value = true
-    const result = await installNode(nodeName)
-    if (result.status === 'success') {
-      alert(`Node "${nodeName}" installed successfully!`)
-      await loadNodes()
-    } else {
-      alert(`Failed to install node: ${result.message || 'Unknown error'}`)
+function handleInstallNode(nodeName: string) {
+  confirmDialog.value = {
+    title: 'Install Missing Node',
+    message: `Install "${nodeName}"?`,
+    warning: 'This will download and install the node from the registry.',
+    confirmLabel: 'Install',
+    destructive: false,
+    onConfirm: async () => {
+      confirmDialog.value = null
+      try {
+        loading.value = true
+        const result = await installNode(nodeName)
+        if (result.status === 'success') {
+          emit('toast', `✓ Node "${nodeName}" installed`, 'success')
+          await loadNodes()
+        } else {
+          emit('toast', `Failed to install node: ${result.message || 'Unknown error'}`, 'error')
+        }
+      } catch (err) {
+        emit('toast', `Error installing node: ${err instanceof Error ? err.message : 'Unknown error'}`, 'error')
+      } finally {
+        loading.value = false
+      }
     }
-  } catch (err) {
-    alert(`Error installing node: ${err instanceof Error ? err.message : 'Unknown error'}`)
-  } finally {
-    loading.value = false
   }
 }
 
@@ -398,5 +494,41 @@ onMounted(loadNodes)
 </script>
 
 <style scoped>
-/* Minimal CSS - everything in components */
+.mismatch-warning {
+  display: flex;
+  align-items: center;
+  gap: var(--cg-space-2);
+  padding: var(--cg-space-3);
+  background: var(--cg-color-warning-muted);
+  border: 1px solid var(--cg-color-warning);
+  border-radius: var(--cg-radius-sm);
+  font-size: var(--cg-font-size-sm);
+  color: var(--cg-color-warning);
+  margin-bottom: var(--cg-space-3);
+}
+
+.warning-icon {
+  font-size: var(--cg-font-size-lg);
+  flex-shrink: 0;
+}
+
+.version-mismatch {
+  display: flex;
+  align-items: center;
+  gap: var(--cg-space-1);
+  font-family: var(--cg-font-mono);
+}
+
+.version-actual {
+  color: var(--cg-color-error);
+  text-decoration: line-through;
+}
+
+.version-arrow {
+  color: var(--cg-color-text-muted);
+}
+
+.version-expected {
+  color: var(--cg-color-success);
+}
 </style>

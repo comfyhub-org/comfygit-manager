@@ -49,6 +49,12 @@ def mock_environment():
     mock_env.export_environment = Mock()
     mock_env.create_branch = Mock()
 
+    # Mock status() for sync endpoint version mismatch workaround
+    mock_status = Mock()
+    mock_status.comparison = Mock()
+    mock_status.comparison.version_mismatches = []
+    mock_env.status.return_value = mock_status
+
     return mock_env
 
 
@@ -86,7 +92,9 @@ def mock_env_status():
     status.comparison.is_synced = True
     status.comparison.missing_nodes = set()
     status.comparison.extra_nodes = set()
+    status.comparison.disabled_nodes = []
     status.comparison.version_mismatches = []
+    status.comparison.packages_in_sync = True
 
     # Top-level fields
     status.is_synced = True

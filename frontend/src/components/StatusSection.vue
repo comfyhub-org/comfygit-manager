@@ -286,9 +286,11 @@
   <StatusDetailModal
     :show="showDetailModal"
     :status="status"
+    :is-repairing="isRepairingEnvironment"
     @close="showDetailModal = false"
     @navigate-workflows="handleNavigateWorkflows"
     @navigate-nodes="handleNavigateNodes"
+    @repair="handleRepairEnvironment"
   />
 </template>
 
@@ -340,12 +342,27 @@ const emit = defineEmits<{
   'create-branch': []
   'view-nodes': []
   'repair-missing-models': [workflowNames: string[]]
+  'repair-environment': []
   'start-setup': []
   'view-environments': []
   'create-environment': []
 }>()
 
 const isRepairing = ref(false)
+const isRepairingEnvironment = ref(false)
+
+function handleRepairEnvironment() {
+  isRepairingEnvironment.value = true
+  emit('repair-environment')
+}
+
+function resetRepairingEnvironmentState() {
+  isRepairingEnvironment.value = false
+}
+
+function closeDetailModal() {
+  showDetailModal.value = false
+}
 
 // Workflows with unresolved or ambiguous models
 const workflowsWithMissingModels = computed(() => {
@@ -373,7 +390,7 @@ function resetRepairingState() {
   isRepairing.value = false
 }
 
-defineExpose({ resetRepairingState })
+defineExpose({ resetRepairingState, resetRepairingEnvironmentState, closeDetailModal })
 
 const hasWorkflowChanges = computed(() => {
   return props.status.workflows.new.length > 0 ||

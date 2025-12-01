@@ -7,6 +7,8 @@ Handles restarts (exit 42) and environment switches (exit 43).
 """
 
 import argparse
+import atexit
+import ctypes
 import json
 import os
 import signal
@@ -18,10 +20,24 @@ import venv
 from pathlib import Path
 from typing import Optional
 
-from comfygit_core.factories.workspace_factory import WorkspaceFactory
-from comfygit_core.core.workspace import Workspace
 from comfygit_core.core.environment import Environment
-from comfygit_core.models.exceptions import CDWorkspaceNotFoundError, CDEnvironmentNotFoundError
+from comfygit_core.core.workspace import Workspace
+from comfygit_core.factories.workspace_factory import WorkspaceFactory
+from comfygit_core.models.exceptions import CDEnvironmentNotFoundError, CDWorkspaceNotFoundError
+
+
+# ============================================================================
+# Child Process Cleanup (Linux)
+# ============================================================================
+
+def _set_pdeathsig():
+    """Set parent death signal so child dies when orchestrator dies (Linux only)."""
+    try:
+        libc = ctypes.CDLL("libc.so.6", use_errno=True)
+        PR_SET_PDEATHSIG = 1
+        libc.prctl(PR_SET_PDEATHSIG, signal.SIGTERM)
+    except (OSError, AttributeError):
+        pass  # Not Linux or libc not available
 
 
 # ============================================================================
@@ -45,14 +61,13 @@ def find_workspace_root() -> Optional[Path]:
 
     # Try default location
     default_workspace = Path.home() / 'comfygit'
-    if default_workspace.exists() and (default_workspace / 'pyproject.toml').exists():
+    if (default_workspace / '.metadata').is_dir():
         return default_workspace
 
     # Try searching upwards from CWD
     current = Path.cwd()
     while current != current.parent:
-        if (current / 'pyproject.toml').exists() and \
-           (current / 'environments').is_dir():
+        if (current / '.metadata').is_dir():
             return current
         current = current.parent
 
@@ -210,12 +225,12 @@ def force_cleanup_orchestrator_state(metadata_dir: Path) -> None:
                 try:
                     os.kill(pid, 0)
                     # Still alive - force kill
-                    print(f"[ComfyGit]   Process didn't exit, force killing...")
+                    print("[ComfyGit]   Process didn't exit, force killing...")
                     os.kill(pid, signal.SIGKILL)
                 except ProcessLookupError:
-                    print(f"[ComfyGit]   ✓ Process terminated successfully")
+                    print("[ComfyGit]   ✓ Process terminated successfully")
             except ProcessLookupError:
-                print(f"[ComfyGit]   Process already dead")
+                print("[ComfyGit]   Process already dead")
 
             pid_file.unlink()
         except Exception as e:
@@ -383,7 +398,6 @@ def safe_write_command(metadata_dir: Path, command: dict) -> None:
 
     Uses atomic rename pattern to prevent partial reads.
     """
-    import tempfile
 
     # Write to temp file in same directory (atomic rename requirement)
     temp_file = metadata_dir / f".cmd.tmp.{os.getpid()}"
@@ -426,6 +440,7 @@ DEFAULT_CONFIG = {
     "comfyui": {
         "default_port": 8188,
         "default_host": "127.0.0.1",
+        "extra_args": [],
     },
     "frontend": {
         "emergency_threshold_normal_s": 10,
@@ -462,7 +477,7 @@ def load_workspace_config(metadata_dir: Path) -> dict:
 
     except Exception as e:
         print(f"[Orchestrator] Error loading config: {e}")
-        print(f"[Orchestrator] Using default configuration")
+        print("[Orchestrator] Using default configuration")
         import copy
         return copy.deepcopy(DEFAULT_CONFIG)
 
@@ -484,15 +499,15 @@ def ensure_orchestrator_venv(venv_path: Path) -> None:
     # Create venv
     venv.create(venv_path, with_pip=True, clear=True)
 
-    # Install comfygit-core in orchestrator venv
     pip_exe = venv_path / "bin" / "pip"
 
-    subprocess.run([
-        str(pip_exe),
-        "install",
-        "comfygit-core",
-        "--quiet"
-    ], check=True)
+    # Dev mode: install from local path as editable
+    dev_core_path = os.environ.get("COMFYGIT_DEV_CORE_PATH")
+    if dev_core_path:
+        print(f"[ComfyGit] Dev mode: installing core from {dev_core_path}")
+        subprocess.run([str(pip_exe), "install", "-e", dev_core_path, "--quiet"], check=True)
+    else:
+        subprocess.run([str(pip_exe), "install", "comfygit-core", "--quiet"], check=True)
 
     print("[ComfyGit] Orchestrator environment ready")
 
@@ -561,6 +576,10 @@ class Orchestrator:
         self._shutdown_requested = False
         self._restart_requested = False
 
+        # Crash recovery flags for extra_args bypass
+        self._skip_extra_args = False  # Set True after crash to retry without user args
+        self._used_extra_args = False  # Tracks whether extra_args were used in last start
+
         # Cleanup stale temp files from previous runs
         cleanup_stale_temp_files(self.metadata_dir)
 
@@ -570,6 +589,9 @@ class Orchestrator:
 
         # Write PID file
         write_orchestrator_pid(self.metadata_dir)
+
+        # Register cleanup on any exit (catches crashes, unhandled exceptions, etc.)
+        atexit.register(self._emergency_cleanup)
 
         # Start control server (if enabled in config)
         if self.config["orchestrator"]["enable_control_server"]:
@@ -676,6 +698,7 @@ class Orchestrator:
                         cleanup_switch_status(self.metadata_dir)
                         release_switch_lock(self.metadata_dir)
                         source_env = None  # Clear source after successful switch
+                        self._clear_crash_recovery_flags()  # Clear bypass flags after success
                     else:
                         # Health check failed - rollback if we have a source env
                         print(f"[Orchestrator] Health check failed for {self.current_env_name}")
@@ -722,11 +745,13 @@ class Orchestrator:
                 if self._restart_requested:
                     print("[Orchestrator] Restart requested via command, resyncing...")
                     self._restart_requested = False  # Clear flag
+                    self._clear_crash_recovery_flags()  # User explicitly restarting, try fresh
                     continue  # Loop continues with same environment
 
                 # Handle exit codes
                 if exit_code == self.EXIT_RESTART:
                     print("[Orchestrator] Restart requested (exit 42), resyncing...")
+                    self._clear_crash_recovery_flags()  # User explicitly restarting, try fresh
                     continue  # Loop continues with same environment
 
                 elif exit_code == self.EXIT_SWITCH_ENV:
@@ -749,7 +774,15 @@ class Orchestrator:
                     break
 
                 else:
-                    print(f"[Orchestrator] ComfyUI crashed (exit {exit_code}), exiting")
+                    # ComfyUI crashed with unexpected exit code
+                    print(f"[Orchestrator] ComfyUI crashed (exit {exit_code})")
+
+                    # Try crash recovery (retry without extra_args if applicable)
+                    if self._handle_crash_for_recovery(exit_code):
+                        continue  # Retry the loop
+
+                    # Cannot recover, exit
+                    print("[Orchestrator] Cannot recover, exiting")
                     break
 
         finally:
@@ -761,10 +794,51 @@ class Orchestrator:
 
         try:
             env.sync(preserve_workflows=True, remove_extra_nodes=False)
-            print(f"[Orchestrator] Sync complete")
+            print("[Orchestrator] Sync complete")
         except Exception as e:
             print(f"[Orchestrator] Sync failed: {e}")
             # Continue anyway - ComfyUI might still work
+
+    def _get_comfyui_backend_flags(self, env: Environment) -> list[str]:
+        """
+        Detect installed PyTorch backend and return required ComfyUI flags.
+
+        Inspects the actual installed torch package to determine the backend,
+        rather than relying on pyproject.toml (which may be stale after git pulls).
+
+        Returns:
+            List of flags (e.g., ["--cpu"]) or empty list
+        """
+        try:
+            # Get torch version from the environment's venv
+            pip_show_output = env.uv_manager.show_package(
+                "torch", env.uv_manager.python_executable
+            )
+
+            # Extract version from output (e.g., "Version: 2.9.0+cu128")
+            import re
+            match = re.search(r'^Version:\s*(.+)$', pip_show_output, re.MULTILINE)
+            if not match:
+                print("[Orchestrator] Could not parse torch version, defaulting to --cpu")
+                return ["--cpu"]
+
+            version = match.group(1).strip()
+
+            # Check for backend suffix (e.g., +cu128, +rocm6.3)
+            if '+' in version:
+                # Has backend suffix - CUDA or ROCm, no extra flags needed
+                backend = version.split('+')[1]
+                print(f"[Orchestrator] Detected PyTorch backend: {backend}")
+                return []
+            else:
+                # No suffix = CPU-only build
+                print("[Orchestrator] Detected CPU-only PyTorch, adding --cpu flag")
+                return ["--cpu"]
+
+        except Exception as e:
+            # If we can't detect, default to CPU mode (safer than crashing)
+            print(f"[Orchestrator] Could not detect PyTorch backend ({e}), defaulting to --cpu")
+            return ["--cpu"]
 
     def _start_comfyui(self, env: Environment) -> subprocess.Popen:
         """
@@ -773,12 +847,29 @@ class Orchestrator:
         Returns:
             Running process
         """
+        # Reload config to pick up any changes from API (e.g., new extra_args)
+        self.config = load_workspace_config(self.metadata_dir)
+
         # Use environment's UV-managed Python
         python_exe = env.uv_manager.python_executable
         main_py = env.comfyui_path / "main.py"
 
-        # Build command
-        cmd = [str(python_exe), str(main_py)] + self.comfyui_args
+        # Detect backend-specific flags
+        backend_flags = self._get_comfyui_backend_flags(env)
+
+        # Get extra_args from workspace config (unless bypassed due to crash)
+        if self._skip_extra_args:
+            extra_args = []
+            print("[Orchestrator] Skipping extra_args due to previous crash")
+        else:
+            extra_args = self.config.get("comfyui", {}).get("extra_args", [])
+
+        # Track whether we used extra_args for crash recovery
+        self._used_extra_args = bool(extra_args)
+
+        # Build command: backend_flags → extra_args → original comfyui_args
+        # This order allows user args to override if needed
+        cmd = [str(python_exe), str(main_py)] + backend_flags + extra_args + self.comfyui_args
 
         # Set environment variables
         env_vars = os.environ.copy()
@@ -786,13 +877,14 @@ class Orchestrator:
 
         print(f"[Orchestrator] Starting ComfyUI: {' '.join(cmd)}")
 
-        # Start process
+        # Start process with parent death signal (Linux: child dies when orchestrator dies)
         proc = subprocess.Popen(
             cmd,
             cwd=env.comfyui_path,
             env=env_vars,
-            stdout=sys.stdout,  # Inherit stdout (shows in terminal)
-            stderr=sys.stderr   # Inherit stderr
+            stdout=sys.stdout,
+            stderr=sys.stderr,
+            preexec_fn=_set_pdeathsig,
         )
 
         # Track current process and start time (Phase 1 - Control Endpoints)
@@ -800,6 +892,40 @@ class Orchestrator:
         self._process_start_time = time.time()
 
         return proc
+
+    def _handle_crash_for_recovery(self, exit_code: int) -> bool:
+        """
+        Handle crash and determine if we should retry without extra_args.
+
+        Args:
+            exit_code: The exit code from ComfyUI
+
+        Returns:
+            True if should retry (loop continues), False if should exit
+        """
+        # If we used extra_args and haven't tried skipping them yet, retry
+        if self._used_extra_args and not self._skip_extra_args:
+            print("[Orchestrator] Crash detected with extra_args, retrying without them...")
+            self._skip_extra_args = True
+
+            # Write status for frontend to show recovery attempt
+            write_switch_status(
+                self.metadata_dir,
+                state="recovering",
+                progress=50,
+                message="ComfyUI crashed. Retrying without custom startup args...",
+                error=f"Crash with exit code {exit_code}"
+            )
+
+            return True  # Retry
+
+        # Either no extra_args were used, or we already tried without them
+        return False
+
+    def _clear_crash_recovery_flags(self) -> None:
+        """Clear crash recovery flags after successful start."""
+        self._skip_extra_args = False
+        self._used_extra_args = False
 
     def _handle_switch_request(self) -> bool:
         """
@@ -945,6 +1071,18 @@ class Orchestrator:
 
     def _cleanup(self):
         """Clean up orchestrator state."""
+        self._kill_supervised_process()
+        cleanup_orchestrator_pid(self.metadata_dir)
+
+    def _emergency_cleanup(self):
+        """Emergency cleanup called via atexit - catches crashes and unhandled exceptions."""
+        if self.current_process and self.current_process.poll() is None:
+            print("[Orchestrator] Emergency cleanup: killing supervised process")
+            try:
+                self.current_process.kill()
+                self.current_process.wait(timeout=2)
+            except Exception:
+                pass
         cleanup_orchestrator_pid(self.metadata_dir)
 
     # ========================================================================

@@ -5,7 +5,6 @@ Provides /v2/comfygit/ endpoints for git operations, status, and environment man
 
 import atexit
 import logging
-from contextlib import asynccontextmanager
 
 from server import PromptServer
 
@@ -58,17 +57,6 @@ for route_def in [status.routes, git.routes, workflows.routes, operations.routes
             routes.delete(path)(handler)
         elif method == 'PATCH':
             routes.patch(path)(handler)
-
-# Setup context management for request logging
-@asynccontextmanager
-async def log_panel_request(env_name: str, operation: str, **context):
-    """Context manager for logging panel requests."""
-    if EnvironmentLogger:
-        with EnvironmentLogger.log_command(env_name, f"panel: {operation}", **context):
-            yield
-    else:
-        yield
-
 
 def _initialize_panel_logging():
     """Initialize environment logging for panel backend."""

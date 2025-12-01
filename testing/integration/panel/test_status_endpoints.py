@@ -181,6 +181,8 @@ class TestStatusEndpoint:
         wf_broken.resolution.models_unresolved = [Mock()]
         wf_broken.resolution.models_ambiguous = []
         wf_broken.resolution.nodes_ambiguous = []
+        wf_broken.has_category_mismatch_issues = False
+        wf_broken.models_with_category_mismatch_count = 0
 
         wf_healthy = Mock()
         wf_healthy.name = "healthy.json"
@@ -198,6 +200,8 @@ class TestStatusEndpoint:
         wf_healthy.resolution.models_unresolved = []
         wf_healthy.resolution.models_ambiguous = []
         wf_healthy.resolution.nodes_ambiguous = []
+        wf_healthy.has_category_mismatch_issues = False
+        wf_healthy.models_with_category_mismatch_count = 0
 
         mock_env_status.workflow.analyzed_workflows = [wf_broken, wf_healthy]
         mock_environment.status.return_value = mock_env_status

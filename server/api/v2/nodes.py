@@ -2,7 +2,7 @@
 from collections import defaultdict
 from aiohttp import web
 
-from cgm_core.decorators import requires_environment
+from cgm_core.decorators import requires_environment, logged_operation
 from cgm_utils.async_helpers import run_sync
 
 routes = web.RouteTableDef()
@@ -116,7 +116,7 @@ async def get_nodes(request: web.Request, env) -> web.Response:
 
 
 @routes.post("/v2/comfygit/nodes/{name}/track-dev")
-@requires_environment
+@logged_operation("track node as dev")
 async def track_node_as_dev(request: web.Request, env) -> web.Response:
     """
     Track an untracked node as a development node.
@@ -165,7 +165,7 @@ async def track_node_as_dev(request: web.Request, env) -> web.Response:
 
 
 @routes.post("/v2/comfygit/nodes/{name}/install")
-@requires_environment
+@logged_operation("install node")
 async def install_node(request: web.Request, env) -> web.Response:
     """Install a missing (tracked but not installed) node."""
     node_name = request.match_info['name']
@@ -189,7 +189,7 @@ async def install_node(request: web.Request, env) -> web.Response:
 
 
 @routes.post("/v2/comfygit/nodes/{name}/update")
-@requires_environment
+@logged_operation("update node")
 async def update_node(request: web.Request, env) -> web.Response:
     """Update an installed node to latest version."""
     node_name = request.match_info['name']
@@ -211,7 +211,7 @@ async def update_node(request: web.Request, env) -> web.Response:
 
 
 @routes.delete("/v2/comfygit/nodes/{name}")
-@requires_environment
+@logged_operation("remove node")
 async def uninstall_node(request: web.Request, env) -> web.Response:
     """Uninstall/remove a node."""
     node_name = request.match_info['name']

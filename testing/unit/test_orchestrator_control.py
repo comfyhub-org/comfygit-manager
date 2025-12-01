@@ -6,11 +6,9 @@ Following the revised design document from 2025-11-20.
 """
 
 import json
-import os
 import time
 from pathlib import Path
-from unittest.mock import Mock, patch, MagicMock
-import tempfile
+from unittest.mock import Mock, patch
 import pytest
 import subprocess
 
@@ -140,7 +138,6 @@ class TestFilePolling:
     def test_wait_with_polling_returns_exit_code(self, metadata_dir):
         """Should return process exit code when process exits."""
         from server.orchestrator import Orchestrator
-        import subprocess
 
         # Mock a process that exits after one timeout
         mock_proc = Mock()
@@ -173,7 +170,6 @@ class TestFilePolling:
     def test_wait_with_polling_calls_check_command_file(self, metadata_dir):
         """Should check for commands while waiting."""
         from server.orchestrator import Orchestrator
-        import subprocess
 
         mock_proc = Mock()
         mock_proc.wait.side_effect = [subprocess.TimeoutExpired('cmd', 0.5), 0]
@@ -237,7 +233,6 @@ class TestFilePolling:
     def test_handle_shutdown_command_kills_current_process(self, metadata_dir):
         """Should call _kill_supervised_process on shutdown."""
         from server.orchestrator import Orchestrator
-        from unittest.mock import patch
 
         orch = Mock(spec=Orchestrator)
         orch.metadata_dir = metadata_dir
@@ -382,6 +377,10 @@ class TestProcessTracking:
         orch.current_process = None
         orch._process_start_time = 0
         orch.comfyui_args = []
+        orch.config = {"comfyui": {"extra_args": []}}
+        orch._get_comfyui_backend_flags = Mock(return_value=[])
+        orch._skip_extra_args = False
+        orch._used_extra_args = False
 
         mock_env = Mock()
         mock_env.uv_manager.python_executable = "/usr/bin/python"
@@ -391,7 +390,7 @@ class TestProcessTracking:
             mock_proc = Mock()
             mock_popen.return_value = mock_proc
 
-            proc = Orchestrator._start_comfyui(orch, mock_env)
+            Orchestrator._start_comfyui(orch, mock_env)
 
             # Should have set current_process
             assert orch.current_process == mock_proc
@@ -405,12 +404,16 @@ class TestProcessTracking:
         orch.current_process = None
         orch._process_start_time = 0
         orch.comfyui_args = []
+        orch.config = {"comfyui": {"extra_args": []}}
+        orch._get_comfyui_backend_flags = Mock(return_value=[])
+        orch._skip_extra_args = False
+        orch._used_extra_args = False
 
         mock_env = Mock()
         mock_env.uv_manager.python_executable = "/usr/bin/python"
         mock_env.comfyui_path = Path("/tmp/comfyui")
 
-        with patch('subprocess.Popen') as mock_popen:
+        with patch('subprocess.Popen'):
             with patch('time.time', return_value=1234567890.0):
                 Orchestrator._start_comfyui(orch, mock_env)
 
@@ -493,7 +496,7 @@ class TestOrchestratorInitialization:
             with patch('server.orchestrator.load_workspace_config') as mock_load:
                 mock_load.return_value = DEFAULT_CONFIG.copy()
 
-                orch = Orchestrator(
+                Orchestrator(
                     workspace_root=metadata_dir.parent,
                     initial_env="test",
                     args=[]

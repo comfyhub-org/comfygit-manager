@@ -18,6 +18,7 @@
 - Try to add new tests to existing test files rather than creating new files (unless necessary)
 - `uv run pytest testing/ -v` - Run all tests (full info)
 - `uv run pytest <filename>` - Run specific test file
+- INSTALL CORE IN EDITABLE MODE: `uv pip install -e /home/akatzfey/projects/comfyhub/comfygit/packages/core`
 
 ## Codebase Navigation
 
@@ -43,6 +44,8 @@ Before starting any work, familiarize yourself with the codebase by reviewing th
 - **.claude/context/shared/api/**  
   - cli-ref.md ComfyGit CLI Complete API Reference (3600 lines)
   - Core Library Quick Refs: quick-ref-environment.md, quick-ref-git.md, quick-ref-models.md, quick-ref-nodes.md, quick-ref-status-sync.md, quick-ref-workflows.md, quick-ref-workspace.md
+- **CORE LIBRARY** - /home/akatzfey/projects/comfyhub/comfygit/packages/core
+- **CLI LIBRARY** - /home/akatzfey/projects/comfyhub/comfygit/packages/cli
 
 ### Additional Documentation
 - **frontend/THEMES.md** - Theme system documentation

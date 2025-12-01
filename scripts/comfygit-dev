@@ -1,0 +1,151 @@
+#!/bin/bash
+# comfygit-dev - Development launcher for ComfyGit
+#
+# Usage: comfygit-dev [/path/to/ComfyUI] [-- additional args]
+#
+# Sets up dev environment and launches ComfyUI with comfygit-manager
+
+set -e
+
+# Resolve symlinks to get actual script location
+SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
+SCRIPT_DIR="$(dirname "$SCRIPT_PATH")"
+MANAGER_PATH="$(dirname "$SCRIPT_DIR")"
+CORE_PATH="/home/akatzfey/projects/comfyhub/comfygit/packages/core"
+DEFAULT_COMFYUI="/home/akatzfey/projects/ComfyUI_dev/ComfyUI"
+
+# Parse arguments
+COMFYUI_PATH="$DEFAULT_COMFYUI"
+EXTRA_ARGS=()
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --)
+            shift
+            EXTRA_ARGS=("$@")
+            break
+            ;;
+        *)
+            if [[ -d "$1" ]]; then
+                COMFYUI_PATH="$1"
+            else
+                EXTRA_ARGS+=("$1")
+            fi
+            shift
+            ;;
+    esac
+done
+
+# Validate paths
+if [[ ! -d "$COMFYUI_PATH" ]]; then
+    echo "Error: ComfyUI not found at $COMFYUI_PATH"
+    exit 1
+fi
+
+if [[ ! -f "$COMFYUI_PATH/main.py" ]]; then
+    echo "Error: $COMFYUI_PATH doesn't look like a ComfyUI installation (no main.py)"
+    exit 1
+fi
+
+echo "[comfygit-dev] ComfyUI: $COMFYUI_PATH"
+echo "[comfygit-dev] Manager: $MANAGER_PATH"
+echo "[comfygit-dev] Core:    $CORE_PATH"
+
+# Check for existing processes on port 8188
+check_and_kill_zombies() {
+    local PORT=8188
+    local PID=$(lsof -t -i :$PORT 2>/dev/null | head -1)
+
+    if [[ -n "$PID" ]]; then
+        local CMD=$(ps -p "$PID" -o cmd= 2>/dev/null || echo "unknown")
+        echo "[comfygit-dev] Port $PORT is in use by PID $PID"
+        echo "[comfygit-dev] Command: $CMD"
+
+        read -p "[comfygit-dev] Kill existing process? [y/N] " -n 1 -r
+        echo
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            # Also kill parent if it's an orchestrator
+            local PPID=$(ps -p "$PID" -o ppid= 2>/dev/null | tr -d ' ')
+            if [[ -n "$PPID" ]] && [[ "$PPID" != "1" ]]; then
+                local PCMD=$(ps -p "$PPID" -o cmd= 2>/dev/null || echo "")
+                if [[ "$PCMD" == *"orchestrator.py"* ]]; then
+                    echo "[comfygit-dev] Killing orchestrator (PID $PPID)..."
+                    kill "$PPID" 2>/dev/null || true
+                fi
+            fi
+            echo "[comfygit-dev] Killing process (PID $PID)..."
+            kill "$PID" 2>/dev/null || true
+            sleep 1
+        else
+            echo "[comfygit-dev] Aborting. Kill the process manually or use a different port."
+            exit 1
+        fi
+    fi
+}
+
+check_and_kill_zombies
+
+# Ensure custom_nodes directory exists
+mkdir -p "$COMFYUI_PATH/custom_nodes"
+
+# Check/create comfygit-manager symlink
+MANAGER_LINK="$COMFYUI_PATH/custom_nodes/comfygit-manager"
+if [[ -L "$MANAGER_LINK" ]]; then
+    CURRENT_TARGET="$(readlink "$MANAGER_LINK")"
+    if [[ "$CURRENT_TARGET" != "$MANAGER_PATH" ]]; then
+        echo "[comfygit-dev] Updating manager symlink (was: $CURRENT_TARGET)"
+        rm "$MANAGER_LINK"
+        ln -s "$MANAGER_PATH" "$MANAGER_LINK"
+    else
+        echo "[comfygit-dev] Manager symlink OK"
+    fi
+elif [[ -e "$MANAGER_LINK" ]]; then
+    echo "Error: $MANAGER_LINK exists but is not a symlink"
+    exit 1
+else
+    echo "[comfygit-dev] Creating manager symlink"
+    ln -s "$MANAGER_PATH" "$MANAGER_LINK"
+fi
+
+# Check/create .venv with comfygit-core
+VENV_PATH="$COMFYUI_PATH/.venv"
+if [[ ! -d "$VENV_PATH" ]]; then
+    echo "[comfygit-dev] Creating venv..."
+    cd "$COMFYUI_PATH"
+    uv venv
+    uv pip install -r requirements.txt
+    uv pip install -e "$CORE_PATH"
+else
+    # Check if comfygit-core is installed as editable
+    INSTALLED=$(cd "$COMFYUI_PATH" && uv pip show comfygit-core 2>/dev/null | grep "Editable project location" || true)
+    if [[ -z "$INSTALLED" ]]; then
+        echo "[comfygit-dev] Installing comfygit-core as editable..."
+        cd "$COMFYUI_PATH"
+        uv pip install -e "$CORE_PATH"
+    elif [[ "$INSTALLED" != *"$CORE_PATH"* ]]; then
+        echo "[comfygit-dev] Reinstalling comfygit-core (wrong path)..."
+        cd "$COMFYUI_PATH"
+        uv pip install -e "$CORE_PATH"
+    else
+        echo "[comfygit-dev] Core editable install OK"
+    fi
+fi
+
+# Clean stale orchestrator venv if needed
+ORCH_VENV="$MANAGER_PATH/server/.orchestrator_venv"
+if [[ -d "$ORCH_VENV" ]]; then
+    # Check if it has the right core installed
+    ORCH_CORE=$("$ORCH_VENV/bin/pip" show comfygit-core 2>/dev/null | grep "Editable project location" || true)
+    if [[ -z "$ORCH_CORE" ]] || [[ "$ORCH_CORE" != *"$CORE_PATH"* ]]; then
+        echo "[comfygit-dev] Removing stale orchestrator venv..."
+        rm -rf "$ORCH_VENV"
+    fi
+fi
+
+# Export dev mode environment variables
+export COMFYGIT_DEV_CORE_PATH="$CORE_PATH"
+export COMFYGIT_DEV_MANAGER_PATH="$MANAGER_PATH"
+
+echo "[comfygit-dev] Starting ComfyUI..."
+cd "$COMFYUI_PATH"
+exec uv run main.py "${EXTRA_ARGS[@]}"

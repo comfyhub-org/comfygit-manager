@@ -402,13 +402,16 @@ export function useComfyGitService() {
     }
   }
 
-  async function switchEnvironment(targetEnv: string): Promise<void> {
+  async function switchEnvironment(targetEnv: string, workspacePath?: string): Promise<void> {
     if (USE_MOCK) return mockApi.switchEnvironment(targetEnv)
+
+    const body: { target_env: string; workspace_path?: string } = { target_env: targetEnv }
+    if (workspacePath) body.workspace_path = workspacePath
 
     return fetchApi('/v2/comfygit/switch_environment', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ target_env: targetEnv })
+      body: JSON.stringify(body)
     })
   }
 
@@ -662,25 +665,32 @@ export function useComfyGitService() {
   }
 
   // Settings
-  async function getConfig(): Promise<ConfigSettings> {
+  async function getConfig(workspacePath?: string): Promise<ConfigSettings> {
     if (USE_MOCK) return mockApi.getConfig()
 
     try {
-      return fetchApi<ConfigSettings>('/v2/comfygit/config')
+      const url = workspacePath
+        ? `/v2/comfygit/config?workspace_path=${encodeURIComponent(workspacePath)}`
+        : '/v2/comfygit/config'
+      return fetchApi<ConfigSettings>(url)
     } catch {
       return {
         workspace_path: '~/comfygit',
         models_path: '~/comfygit/models',
         auto_sync_models: true,
-        confirm_destructive: true
+        confirm_destructive: true,
+        comfyui_extra_args: []
       }
     }
   }
 
-  async function updateConfig(config: Partial<ConfigSettings>): Promise<void> {
+  async function updateConfig(config: Partial<ConfigSettings>, workspacePath?: string): Promise<void> {
     if (USE_MOCK) return mockApi.updateConfig(config as ConfigSettings)
 
-    return fetchApi('/v2/comfygit/config', {
+    const url = workspacePath
+      ? `/v2/comfygit/config?workspace_path=${encodeURIComponent(workspacePath)}`
+      : '/v2/comfygit/config'
+    return fetchApi(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(config)
@@ -712,6 +722,35 @@ export function useComfyGitService() {
     } catch {
       return []
     }
+  }
+
+  async function getEnvironmentLogPath(): Promise<{ path: string; exists: boolean }> {
+    if (USE_MOCK) {
+      return { path: '/mock/workspace/logs/env/full.log', exists: true }
+    }
+
+    return fetchApi<{ path: string; exists: boolean }>('/v2/comfygit/debug/logs/path')
+  }
+
+  async function getWorkspaceLogPath(): Promise<{ path: string; exists: boolean }> {
+    if (USE_MOCK) {
+      return { path: '/mock/workspace/logs/workspace/full.log', exists: true }
+    }
+
+    return fetchApi<{ path: string; exists: boolean }>('/v2/workspace/debug/logs/path')
+  }
+
+  async function openFile(path: string): Promise<{ status: string }> {
+    if (USE_MOCK) {
+      console.log(`[MOCK] Opening file: ${path}`)
+      return { status: 'success' }
+    }
+
+    return fetchApi('/v2/workspace/open-file', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ path })
+    })
   }
 
   // Node Management
@@ -1291,6 +1330,9 @@ export function useComfyGitService() {
     // Debug/Logs
     getEnvironmentLogs,
     getWorkspaceLogs,
+    getEnvironmentLogPath,
+    getWorkspaceLogPath,
+    openFile,
     // Node Management
     getNodes,
     trackNodeAsDev,

@@ -8,6 +8,7 @@ import { useModelDownloadQueue } from '@/composables/useModelDownloadQueue'
 import { isMockApi } from '@/services/mockApi'
 import type { ComfyGitStatus } from '@/types/comfygit'
 import { getInitialTheme, applyTheme } from '@/themes'
+import { getCompletedTaskError } from '@/utils/managerTaskError'
 
 // Load component CSS
 const cssLink = document.createElement('link')
@@ -49,6 +50,10 @@ const globalStatus = ref<ComfyGitStatus | null>(null)
 // Setup state for commit button enablement
 type SetupState = 'no_workspace' | 'empty_workspace' | 'unmanaged' | 'managed'
 let currentSetupState: SetupState = 'managed'
+let hasComfyUIManager = false
+
+// Button group reference
+let buttonGroup: HTMLElement | null = null
 
 // Fetch status for commit indicator
 async function fetchStatus() {
@@ -68,6 +73,7 @@ async function fetchSetupStatus() {
   // Mock mode: always return no_workspace to test disabled state
   if (isMockApi()) {
     currentSetupState = 'no_workspace'
+    hasComfyUIManager = true
     return
   }
 
@@ -77,9 +83,27 @@ async function fetchSetupStatus() {
     if (response.ok) {
       const data = await response.json()
       currentSetupState = data.state
+      hasComfyUIManager = data.has_comfyui_manager ?? false
     }
   } catch {
     // Silently fail
+  }
+}
+
+// Hide the built-in ComfyUI Manager button when non-managed + ComfyUI-Manager present
+function hideBuiltinManagerButton() {
+  // Only hide if: non-managed environment AND ComfyUI-Manager is installed
+  if (currentSetupState === 'managed' || !hasComfyUIManager) return
+
+  // Find the built-in Manager button (has "Manager" text, no icon)
+  const buttons = document.querySelectorAll('button.comfyui-button')
+  for (const btn of buttons) {
+    const text = btn.textContent?.trim()
+    if (text === 'Manager' && !btn.querySelector('svg, i, img')) {
+      (btn as HTMLElement).style.display = 'none'
+      console.log('[ComfyGit] Hiding built-in Manager button (ComfyUI-Manager present)')
+      return
+    }
   }
 }
 
@@ -89,7 +113,7 @@ function hasUncommittedChanges(): boolean {
   return wf.new.length > 0 || wf.modified.length > 0 || wf.deleted.length > 0 || globalStatus.value.has_changes
 }
 
-function showPanel() {
+function showPanel(initialView?: string) {
   if (panelOverlay) {
     panelOverlay.remove()
   }
@@ -115,6 +139,7 @@ function showPanel() {
 
   const vueApp = createApp({
     render: () => h(ComfyGitPanel, {
+      initialView,
       onClose: closePanel,
       onStatusUpdate: async (status: ComfyGitStatus) => {
         globalStatus.value = status
@@ -122,6 +147,7 @@ function showPanel() {
         // Also refresh setup state in case user switched environments
         await fetchSetupStatus()
         updateCommitButtonState()
+        hideBuiltinManagerButton()  // Re-check after environment switch
       }
     })
   })
@@ -172,8 +198,9 @@ function showCommitPopover(anchorElement: HTMLElement) {
     render: () => h(CommitPopover, {
       status: globalStatus.value,
       onClose: closeCommitPopover,
-      onCommitted: () => {
+      onCommitted: (result: { success: boolean; message: string }) => {
         closeCommitPopover()
+        showCommitToast(result.success, result.message)
         fetchStatus().then(updateCommitIndicator)
       }
     })
@@ -192,6 +219,56 @@ function closeCommitPopover() {
     commitPopover.remove()
     commitPopover = null
   }
+}
+
+function showCommitToast(success: boolean, message: string) {
+  const toast = document.createElement('div')
+  const borderColor = success ? '#22c55e' : '#ef4444'
+  const bgColor = success ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)'
+
+  toast.style.cssText = `
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg-color, #1a1a1a);
+    border: 1px solid ${borderColor};
+    border-radius: 8px;
+    padding: 12px 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    z-index: 10002;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: sans-serif;
+    font-size: 13px;
+    color: var(--fg-color, #fff);
+    animation: toastSlideUp 0.2s ease;
+  `
+
+  // Icon
+  const icon = document.createElement('span')
+  icon.textContent = success ? '✓' : '✕'
+  icon.style.cssText = `
+    color: ${borderColor};
+    font-weight: bold;
+    font-size: 14px;
+  `
+  toast.appendChild(icon)
+
+  // Message
+  const msgEl = document.createElement('span')
+  msgEl.textContent = message
+  toast.appendChild(msgEl)
+
+  document.body.appendChild(toast)
+
+  // Auto-remove after 3 seconds
+  setTimeout(() => {
+    toast.style.opacity = '0'
+    toast.style.transition = 'opacity 0.2s ease'
+    setTimeout(() => toast.remove(), 200)
+  }, 3000)
 }
 
 function mountDownloadQueue() {
@@ -439,6 +516,7 @@ app.registerExtension({
     // Insert before settings button
     if (app.menu?.settingsGroup?.element) {
       app.menu.settingsGroup.element.before(btnGroup)
+      buttonGroup = btnGroup  // Store reference for visibility management
       console.log('[ComfyGit] Control Panel buttons added to toolbar')
     }
 
@@ -453,6 +531,10 @@ app.registerExtension({
     await Promise.all([fetchStatus(), fetchSetupStatus()])
     updateCommitIndicator()
     updateCommitButtonState()
+    hideBuiltinManagerButton()
+
+    // Re-check shortly after (built-in Manager button may render after us)
+    setTimeout(hideBuiltinManagerButton, 100)
 
     // Refresh status periodically (fallback for external changes)
     setInterval(async () => {
@@ -592,6 +674,116 @@ app.registerExtension({
       }
 
       console.log('[ComfyGit] Refresh notification system initialized')
+
+      // ========== MANAGER ERROR TOAST: Show errors for failed node installs ==========
+      api.addEventListener('cm-task-completed', (event: CustomEvent) => {
+        const errorMsg = getCompletedTaskError(event.detail)
+        if (errorMsg) {
+          showManagerErrorToast(errorMsg)
+        }
+      })
+
+      function showManagerErrorToast(message: string) {
+        // Remove any existing error toast
+        const existing = document.getElementById('comfygit-error-toast')
+        if (existing) existing.remove()
+
+        const toast = document.createElement('div')
+        toast.id = 'comfygit-error-toast'
+        toast.style.cssText = `
+          position: fixed;
+          top: 20px;
+          left: 50%;
+          transform: translateX(-50%);
+          background: #1a1a1a;
+          border: 2px solid #e53935;
+          border-radius: 8px;
+          padding: 16px 20px;
+          box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+          z-index: 999999;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          font-family: sans-serif;
+          font-size: 14px;
+          color: #fff;
+          max-width: 600px;
+        `
+
+        // Error icon
+        const icon = document.createElement('span')
+        icon.textContent = '⚠️'
+        icon.style.fontSize = '20px'
+        toast.appendChild(icon)
+
+        // Message container
+        const msgContainer = document.createElement('div')
+        msgContainer.style.cssText = 'flex: 1; display: flex; flex-direction: column; gap: 4px;'
+
+        const title = document.createElement('div')
+        title.textContent = 'Node installation failed'
+        title.style.cssText = 'font-weight: 600; color: #e53935;'
+        msgContainer.appendChild(title)
+
+        const detail = document.createElement('div')
+        detail.textContent = 'Dependency conflict detected'
+        detail.style.cssText = 'font-size: 12px; opacity: 0.8;'
+        msgContainer.appendChild(detail)
+
+        toast.appendChild(msgContainer)
+
+        // View Logs button
+        const viewLogsBtn = document.createElement('button')
+        viewLogsBtn.textContent = 'View Logs'
+        viewLogsBtn.style.cssText = `
+          background: #e53935;
+          color: #fff;
+          border: none;
+          border-radius: 4px;
+          padding: 6px 12px;
+          cursor: pointer;
+          font-size: 12px;
+          font-weight: 500;
+          white-space: nowrap;
+        `
+        viewLogsBtn.onmouseover = () => viewLogsBtn.style.background = '#c62828'
+        viewLogsBtn.onmouseout = () => viewLogsBtn.style.background = '#e53935'
+        viewLogsBtn.onclick = () => {
+          toast.remove()
+          showPanel('debug-env')
+        }
+        toast.appendChild(viewLogsBtn)
+
+        // Close button
+        const closeBtn = document.createElement('button')
+        closeBtn.textContent = '×'
+        closeBtn.style.cssText = `
+          background: transparent;
+          border: none;
+          color: #fff;
+          font-size: 24px;
+          line-height: 1;
+          cursor: pointer;
+          padding: 0 4px;
+          opacity: 0.6;
+        `
+        closeBtn.onmouseover = () => closeBtn.style.opacity = '1'
+        closeBtn.onmouseout = () => closeBtn.style.opacity = '0.6'
+        closeBtn.onclick = () => toast.remove()
+        toast.appendChild(closeBtn)
+
+        document.body.appendChild(toast)
+        console.log('[ComfyGit] Manager error toast displayed:', message)
+
+        // Auto-dismiss after 10 seconds (longer to give time to click View Logs)
+        setTimeout(() => {
+          if (document.getElementById('comfygit-error-toast')) {
+            toast.remove()
+          }
+        }, 10000)
+      }
+
+      console.log('[ComfyGit] Manager error notification system initialized')
     }
   }
 })

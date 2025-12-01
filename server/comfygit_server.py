@@ -14,9 +14,11 @@ from aiohttp import web
 from server import PromptServer
 import orchestrator
 
-# Suppress verbose INFO logs from the core library during server operation
-# We only want to see WARNING and above (errors, etc.)
-logging.getLogger('comfygit_core').setLevel(logging.WARNING)
+# Import panel logging infrastructure for operation logging
+try:
+    from panel_environment_logger import EnvironmentLogger
+except ImportError:
+    EnvironmentLogger = None
 
 # Get the routes object
 routes = PromptServer.instance.routes
@@ -245,6 +247,12 @@ async def start_queue(request):
         # Process the task
         result = await process_task(running_task)
 
+        # Log errors to console
+        if result.get("status_str") == "error":
+            print(f"[ComfyGit] Task failed: {result.get('messages', [])}")
+            if result.get("uv_error"):
+                print(f"[ComfyGit] UV Error Details:\n{result['uv_error']}")
+
         # Add to history
         task_id = running_task.get("ui_id", str(uuid.uuid4()))
         task_history[task_id] = {
@@ -380,6 +388,36 @@ async def debug_comfyui_info(request):
 # Task Processing
 # ============================================================================
 
+def _get_operation_description(kind: str, params: dict) -> str:
+    """Get a human-readable description of the operation for logging."""
+    if kind == "install":
+        return f"install {params.get('id', 'unknown')}"
+    elif kind == "uninstall":
+        return f"uninstall {params.get('node_name', 'unknown')}"
+    elif kind == "update":
+        return f"update {params.get('node_name', 'unknown')}"
+    elif kind == "enable":
+        return f"enable {params.get('cnr_id', 'unknown')}"
+    elif kind == "disable":
+        return f"disable {params.get('node_name', 'unknown')}"
+    return kind
+
+
+def _extract_uv_stderr(exc: Exception) -> str | None:
+    """Extract UV stderr from exception chain.
+
+    Walks the exception chain looking for UVCommandError to get full stderr.
+    """
+    from comfygit_core.models.exceptions import UVCommandError
+
+    current = exc
+    while current is not None:
+        if isinstance(current, UVCommandError) and current.stderr:
+            return current.stderr
+        current = current.__cause__
+    return None
+
+
 async def process_task(task: dict) -> dict:
     """Process a single task using comfygit."""
     kind = task.get("kind")
@@ -393,29 +431,53 @@ async def process_task(task: dict) -> dict:
             "messages": ["No ComfyGit environment detected"]
         }
 
+    # Setup logging for this operation
+    if EnvironmentLogger and env.workspace:
+        EnvironmentLogger.set_workspace_path(env.workspace.path)
+        operation_desc = _get_operation_description(kind, params)
+        log_context = EnvironmentLogger.log_command(
+            env.name,
+            f"manager: {operation_desc}",
+            kind=kind,
+            **{k: v for k, v in params.items() if v is not None}
+        )
+    else:
+        log_context = None
+
     try:
+        # Enter logging context if available
+        if log_context:
+            log_context.__enter__()
+
         if kind == "install":
-            return await process_install(env, params)
+            result = await process_install(env, params)
         elif kind == "uninstall":
-            return await process_uninstall(env, params)
+            result = await process_uninstall(env, params)
         elif kind == "update":
-            return await process_update(env, params)
+            result = await process_update(env, params)
         elif kind == "enable":
-            return await process_enable(env, params)
+            result = await process_enable(env, params)
         elif kind == "disable":
-            return await process_disable(env, params)
+            result = await process_disable(env, params)
         else:
-            return {
+            result = {
                 "status_str": "error",
                 "completed": True,
                 "messages": [f"Unknown task kind: {kind}"]
             }
+
+        return result
+
     except Exception as e:
         return {
             "status_str": "error",
             "completed": True,
             "messages": [str(e)]
         }
+    finally:
+        # Exit logging context
+        if log_context:
+            log_context.__exit__(None, None, None)
 
 
 async def process_install(env, params: dict) -> dict:
@@ -475,11 +537,15 @@ async def process_install(env, params: dict) -> dict:
             "messages": [f"Successfully installed {identifier}"]
         }
     except Exception as e:
-        return {
+        result = {
             "status_str": "error",
             "completed": True,
             "messages": [str(e)]
         }
+        uv_stderr = _extract_uv_stderr(e)
+        if uv_stderr:
+            result["uv_error"] = uv_stderr
+        return result
 
 
 async def process_uninstall(env, params: dict) -> dict:
@@ -523,11 +589,15 @@ async def process_update(env, params: dict) -> dict:
             "messages": [f"Successfully updated {node_name}"]
         }
     except Exception as e:
-        return {
+        result = {
             "status_str": "error",
             "completed": True,
             "messages": [str(e)]
         }
+        uv_stderr = _extract_uv_stderr(e)
+        if uv_stderr:
+            result["uv_error"] = uv_stderr
+        return result
 
 
 async def process_enable(env, params: dict) -> dict:

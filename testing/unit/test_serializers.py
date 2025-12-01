@@ -43,6 +43,9 @@ class TestSerializeEnvironmentStatus:
         status.comparison.is_synced = True
         status.comparison.missing_nodes = set()
         status.comparison.extra_nodes = set()
+        status.comparison.disabled_nodes = []
+        status.comparison.version_mismatches = []
+        status.comparison.packages_in_sync = True
 
         status.missing_models = []
 
@@ -84,6 +87,9 @@ class TestSerializeEnvironmentStatus:
         status.comparison.is_synced = True
         status.comparison.missing_nodes = set()
         status.comparison.extra_nodes = set()
+        status.comparison.disabled_nodes = []
+        status.comparison.version_mismatches = []
+        status.comparison.packages_in_sync = True
 
         status.missing_models = []
 
@@ -130,6 +136,9 @@ class TestSerializeEnvironmentStatus:
         status.comparison.is_synced = True
         status.comparison.missing_nodes = set()
         status.comparison.extra_nodes = set()
+        status.comparison.disabled_nodes = []
+        status.comparison.version_mismatches = []
+        status.comparison.packages_in_sync = True
 
         status.missing_models = []
 
@@ -174,6 +183,9 @@ class TestSerializeEnvironmentStatus:
         status.comparison.is_synced = True
         status.comparison.missing_nodes = set()
         status.comparison.extra_nodes = set()
+        status.comparison.disabled_nodes = []
+        status.comparison.version_mismatches = []
+        status.comparison.packages_in_sync = True
 
         status.missing_models = []
 
@@ -241,6 +253,9 @@ class TestSerializeEnvironmentStatus:
         status.comparison.is_synced = True
         status.comparison.missing_nodes = set()
         status.comparison.extra_nodes = set()
+        status.comparison.disabled_nodes = []
+        status.comparison.version_mismatches = []
+        status.comparison.packages_in_sync = True
 
         status.missing_models = []
 
@@ -316,6 +331,9 @@ class TestSerializeEnvironmentStatus:
         status.comparison.is_synced = True
         status.comparison.missing_nodes = set()
         status.comparison.extra_nodes = set()
+        status.comparison.disabled_nodes = []
+        status.comparison.version_mismatches = []
+        status.comparison.packages_in_sync = True
 
         status.missing_models = []
 

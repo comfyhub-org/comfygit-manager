@@ -9,6 +9,8 @@ from aiohttp import web
 from pathlib import Path
 
 from cgm_utils.async_helpers import run_sync
+from comfygit_core.factories.workspace_factory import WorkspaceFactory
+from comfygit_core.models.exceptions import CDWorkspaceNotFoundError
 import orchestrator
 
 routes = web.RouteTableDef()
@@ -158,7 +160,8 @@ async def switch_environment(request: web.Request) -> web.Response:
 
     Request body:
         {
-            "target_env": "env2"
+            "target_env": "env2",
+            "workspace_path": "/path/to/workspace"  // Optional, for first-time setup
         }
 
     Returns:
@@ -167,17 +170,11 @@ async def switch_environment(request: web.Request) -> web.Response:
             "message": "Switching to env2..."
         }
     """
-    # Get current environment (validate managed)
-    is_managed, workspace, environment = orchestrator.detect_environment_type()
-    if not is_managed or not environment:
-        return web.json_response({
-            "error": "Not in managed environment"
-        }, status=500)
-
-    # Parse request
+    # Parse request first to get workspace_path
     try:
         data = await request.json()
         target_env = data.get("target_env")
+        workspace_path = data.get("workspace_path")
 
         if not target_env:
             return web.json_response({
@@ -188,9 +185,25 @@ async def switch_environment(request: web.Request) -> web.Response:
             "error": "Invalid JSON"
         }, status=400)
 
+    # Get workspace - use explicit path if provided (first-time setup), otherwise detect
+    if workspace_path:
+        try:
+            workspace = WorkspaceFactory.find(Path(workspace_path))
+            environment = None  # No source environment when switching from unmanaged
+        except CDWorkspaceNotFoundError:
+            return web.json_response({
+                "error": f"Workspace not found at {workspace_path}"
+            }, status=404)
+    else:
+        is_managed, workspace, environment = orchestrator.detect_environment_type()
+        if not is_managed or not environment:
+            return web.json_response({
+                "error": "Not in managed environment"
+            }, status=500)
+
     # Validate target environment exists
     try:
-        await run_sync(workspace.get_environment, target_env, auto_sync=False)
+        target_env_obj = await run_sync(workspace.get_environment, target_env, auto_sync=False)
     except Exception:
         return web.json_response({
             "error": f"Environment '{target_env}' not found"
@@ -204,12 +217,13 @@ async def switch_environment(request: web.Request) -> web.Response:
         }, status=409)
 
     try:
-        # Spawn orchestrator if needed (first switch)
+        # Spawn orchestrator - always needed when switching from unmanaged
         if orchestrator.should_spawn_orchestrator_for_switch():
-            spawn_orchestrator(environment, target_env)
+            spawn_orchestrator(target_env_obj, target_env)
 
-        # Write switch request
-        orchestrator.write_switch_request(metadata_dir, target_env, source_env=environment.name)
+        # Write switch request (source_env may be None for first-time setup)
+        source_env_name = environment.name if environment else None
+        orchestrator.write_switch_request(metadata_dir, target_env, source_env=source_env_name)
 
         # Schedule exit with code 43 (after response sent)
         import asyncio
@@ -358,7 +372,8 @@ async def create_environment(request: web.Request) -> web.Response:
             "python_version": "3.12",
             "comfyui_version": "latest",
             "torch_backend": "auto",
-            "switch_after": false
+            "switch_after": false,
+            "workspace_path": "/path/to/workspace"  // Optional, for first-time setup
         }
 
     Returns:
@@ -370,28 +385,14 @@ async def create_environment(request: web.Request) -> web.Response:
     """
     global _create_task_state
 
-    is_managed, workspace, _ = orchestrator.detect_environment_type()
-    if not is_managed or not workspace:
-        return web.json_response({
-            "status": "error",
-            "message": "Not in managed workspace"
-        }, status=500)
-
-    # Check if creation already in progress
-    with _create_task_lock:
-        if _create_task_state["state"] == "creating":
-            return web.json_response({
-                "status": "error",
-                "message": "Environment creation already in progress"
-            }, status=409)
-
-    # Parse request
+    # Parse request first to get workspace_path
     try:
         data = await request.json()
         name = data.get("name", "").strip()
         python_version = data.get("python_version", "3.12")
         comfyui_version = data.get("comfyui_version", "latest")
         torch_backend = data.get("torch_backend", "auto")
+        workspace_path = data.get("workspace_path")  # Optional explicit path
 
         if not name:
             return web.json_response({
@@ -404,6 +405,31 @@ async def create_environment(request: web.Request) -> web.Response:
             "status": "error",
             "message": "Invalid JSON"
         }, status=400)
+
+    # Get workspace - use explicit path if provided (first-time setup), otherwise detect
+    if workspace_path:
+        try:
+            workspace = WorkspaceFactory.find(Path(workspace_path))
+        except CDWorkspaceNotFoundError:
+            return web.json_response({
+                "status": "error",
+                "message": f"Workspace not found at {workspace_path}"
+            }, status=404)
+    else:
+        is_managed, workspace, _ = orchestrator.detect_environment_type()
+        if not is_managed or not workspace:
+            return web.json_response({
+                "status": "error",
+                "message": "Not in managed workspace"
+            }, status=500)
+
+    # Check if creation already in progress
+    with _create_task_lock:
+        if _create_task_state["state"] == "creating":
+            return web.json_response({
+                "status": "error",
+                "message": "Environment creation already in progress"
+            }, status=409)
 
     # Check if environment already exists
     try:

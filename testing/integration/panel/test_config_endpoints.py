@@ -301,3 +301,156 @@ class TestUpdateConfigEndpoint:
         assert resp.status == 200
         data = await resp.json()
         assert data["status"] == "updated"
+
+
+@pytest.mark.integration
+class TestGetConfigWithoutEnvironment:
+    """GET /v2/comfygit/config with workspace_path fallback (no running environment)."""
+
+    async def test_success_with_workspace_path_param(self, client, monkeypatch, tmp_path):
+        """Should return 200 with config when workspace_path param is provided and no env running."""
+        # Setup: No environment, but workspace_path is provided
+        monkeypatch.setattr("comfygit_panel.get_environment_from_cwd", lambda: None)
+
+        # Create mock workspace with config manager
+        mock_workspace = Mock()
+        mock_workspace.path = tmp_path
+        mock_config_manager = Mock()
+        mock_config_manager.get_models_directory.return_value = tmp_path / "models"
+        mock_config_manager.get_civitai_token.return_value = "test_token"
+        mock_workspace.workspace_config_manager = mock_config_manager
+
+        # Import config module and patch Workspace class
+        from api.v2 import config as config_module
+        monkeypatch.setattr(config_module, "Workspace", lambda path: mock_workspace)
+
+        # Execute with workspace_path query param
+        resp = await client.get(f"/v2/comfygit/config?workspace_path={tmp_path}")
+
+        # Verify
+        assert resp.status == 200
+        data = await resp.json()
+        assert "workspace_path" in data
+        assert "models_path" in data
+        assert "civitai_api_key" in data
+
+    async def test_success_reads_orchestrator_config_with_workspace_path(self, client, monkeypatch, tmp_path):
+        """Should read comfyui_extra_args from workspace config when no env running."""
+        # Setup: No environment
+        monkeypatch.setattr("comfygit_panel.get_environment_from_cwd", lambda: None)
+
+        # Create real orchestrator config file
+        metadata_dir = tmp_path / ".metadata"
+        metadata_dir.mkdir()
+        import json
+        with open(metadata_dir / "workspace_config.json", "w") as f:
+            json.dump({"comfyui": {"extra_args": ["--lowvram", "--listen", "0.0.0.0"]}}, f)
+
+        # Create mock workspace
+        mock_workspace = Mock()
+        mock_workspace.path = tmp_path
+        mock_config_manager = Mock()
+        mock_config_manager.get_models_directory.return_value = None
+        mock_config_manager.get_civitai_token.return_value = None
+        mock_workspace.workspace_config_manager = mock_config_manager
+
+        from api.v2 import config as config_module
+        monkeypatch.setattr(config_module, "Workspace", lambda path: mock_workspace)
+
+        # Execute
+        resp = await client.get(f"/v2/comfygit/config?workspace_path={tmp_path}")
+
+        # Verify
+        assert resp.status == 200
+        data = await resp.json()
+        assert data["comfyui_extra_args"] == ["--lowvram", "--listen", "0.0.0.0"]
+
+    async def test_error_no_environment_and_no_workspace_path(self, client, monkeypatch):
+        """Should return 500 when no environment and no workspace_path provided."""
+        # Setup: No environment, no workspace_path param
+        monkeypatch.setattr("comfygit_panel.get_environment_from_cwd", lambda: None)
+
+        # Execute without workspace_path param
+        resp = await client.get("/v2/comfygit/config")
+
+        # Verify - should fail with 500
+        assert resp.status == 500
+        data = await resp.json()
+        assert "error" in data
+
+
+@pytest.mark.integration
+class TestUpdateConfigWithoutEnvironment:
+    """POST /v2/comfygit/config with workspace_path fallback (no running environment)."""
+
+    async def test_success_update_extra_args_with_workspace_path(self, client, monkeypatch, tmp_path):
+        """Should update comfyui_extra_args when workspace_path param is provided."""
+        # Setup: No environment
+        monkeypatch.setattr("comfygit_panel.get_environment_from_cwd", lambda: None)
+
+        # Create metadata dir for config file
+        metadata_dir = tmp_path / ".metadata"
+        metadata_dir.mkdir()
+
+        # Create mock workspace
+        mock_workspace = Mock()
+        mock_workspace.path = tmp_path
+        mock_config_manager = Mock()
+        mock_workspace.workspace_config_manager = mock_config_manager
+
+        from api.v2 import config as config_module
+        monkeypatch.setattr(config_module, "Workspace", lambda path: mock_workspace)
+
+        # Execute
+        resp = await client.post(
+            f"/v2/comfygit/config?workspace_path={tmp_path}",
+            json={"comfyui_extra_args": ["--lowvram"]}
+        )
+
+        # Verify
+        assert resp.status == 200
+        data = await resp.json()
+        assert data["status"] == "updated"
+
+        # Verify file was written
+        import json
+        with open(metadata_dir / "workspace_config.json") as f:
+            config = json.load(f)
+        assert config["comfyui"]["extra_args"] == ["--lowvram"]
+
+    async def test_success_update_civitai_token_with_workspace_path(self, client, monkeypatch, tmp_path):
+        """Should update civitai_api_key when workspace_path param is provided."""
+        # Setup: No environment
+        monkeypatch.setattr("comfygit_panel.get_environment_from_cwd", lambda: None)
+
+        # Create mock workspace
+        mock_workspace = Mock()
+        mock_workspace.path = tmp_path
+        mock_config_manager = Mock()
+        mock_workspace.workspace_config_manager = mock_config_manager
+
+        from api.v2 import config as config_module
+        monkeypatch.setattr(config_module, "Workspace", lambda path: mock_workspace)
+
+        # Execute
+        resp = await client.post(
+            f"/v2/comfygit/config?workspace_path={tmp_path}",
+            json={"civitai_api_key": "new_token"}
+        )
+
+        # Verify
+        assert resp.status == 200
+        mock_config_manager.set_civitai_token.assert_called_once_with("new_token")
+
+    async def test_error_no_environment_and_no_workspace_path(self, client, monkeypatch):
+        """Should return 500 when no environment and no workspace_path provided."""
+        # Setup: No environment, no workspace_path param
+        monkeypatch.setattr("comfygit_panel.get_environment_from_cwd", lambda: None)
+
+        # Execute without workspace_path param
+        resp = await client.post("/v2/comfygit/config", json={"civitai_api_key": "test"})
+
+        # Verify - should fail with 500
+        assert resp.status == 500
+        data = await resp.json()
+        assert "error" in data
