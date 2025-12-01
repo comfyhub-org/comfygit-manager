@@ -440,6 +440,7 @@ DEFAULT_CONFIG = {
     "comfyui": {
         "default_port": 8188,
         "default_host": "127.0.0.1",
+        "extra_args": [],
     },
     "frontend": {
         "emergency_threshold_normal_s": 10,
@@ -575,6 +576,10 @@ class Orchestrator:
         self._shutdown_requested = False
         self._restart_requested = False
 
+        # Crash recovery flags for extra_args bypass
+        self._skip_extra_args = False  # Set True after crash to retry without user args
+        self._used_extra_args = False  # Tracks whether extra_args were used in last start
+
         # Cleanup stale temp files from previous runs
         cleanup_stale_temp_files(self.metadata_dir)
 
@@ -693,6 +698,7 @@ class Orchestrator:
                         cleanup_switch_status(self.metadata_dir)
                         release_switch_lock(self.metadata_dir)
                         source_env = None  # Clear source after successful switch
+                        self._clear_crash_recovery_flags()  # Clear bypass flags after success
                     else:
                         # Health check failed - rollback if we have a source env
                         print(f"[Orchestrator] Health check failed for {self.current_env_name}")
@@ -739,11 +745,13 @@ class Orchestrator:
                 if self._restart_requested:
                     print("[Orchestrator] Restart requested via command, resyncing...")
                     self._restart_requested = False  # Clear flag
+                    self._clear_crash_recovery_flags()  # User explicitly restarting, try fresh
                     continue  # Loop continues with same environment
 
                 # Handle exit codes
                 if exit_code == self.EXIT_RESTART:
                     print("[Orchestrator] Restart requested (exit 42), resyncing...")
+                    self._clear_crash_recovery_flags()  # User explicitly restarting, try fresh
                     continue  # Loop continues with same environment
 
                 elif exit_code == self.EXIT_SWITCH_ENV:
@@ -766,7 +774,15 @@ class Orchestrator:
                     break
 
                 else:
-                    print(f"[Orchestrator] ComfyUI crashed (exit {exit_code}), exiting")
+                    # ComfyUI crashed with unexpected exit code
+                    print(f"[Orchestrator] ComfyUI crashed (exit {exit_code})")
+
+                    # Try crash recovery (retry without extra_args if applicable)
+                    if self._handle_crash_for_recovery(exit_code):
+                        continue  # Retry the loop
+
+                    # Cannot recover, exit
+                    print("[Orchestrator] Cannot recover, exiting")
                     break
 
         finally:
@@ -783,6 +799,47 @@ class Orchestrator:
             print(f"[Orchestrator] Sync failed: {e}")
             # Continue anyway - ComfyUI might still work
 
+    def _get_comfyui_backend_flags(self, env: Environment) -> list[str]:
+        """
+        Detect installed PyTorch backend and return required ComfyUI flags.
+
+        Inspects the actual installed torch package to determine the backend,
+        rather than relying on pyproject.toml (which may be stale after git pulls).
+
+        Returns:
+            List of flags (e.g., ["--cpu"]) or empty list
+        """
+        try:
+            # Get torch version from the environment's venv
+            pip_show_output = env.uv_manager.show_package(
+                "torch", env.uv_manager.python_executable
+            )
+
+            # Extract version from output (e.g., "Version: 2.9.0+cu128")
+            import re
+            match = re.search(r'^Version:\s*(.+)$', pip_show_output, re.MULTILINE)
+            if not match:
+                print("[Orchestrator] Could not parse torch version, defaulting to --cpu")
+                return ["--cpu"]
+
+            version = match.group(1).strip()
+
+            # Check for backend suffix (e.g., +cu128, +rocm6.3)
+            if '+' in version:
+                # Has backend suffix - CUDA or ROCm, no extra flags needed
+                backend = version.split('+')[1]
+                print(f"[Orchestrator] Detected PyTorch backend: {backend}")
+                return []
+            else:
+                # No suffix = CPU-only build
+                print("[Orchestrator] Detected CPU-only PyTorch, adding --cpu flag")
+                return ["--cpu"]
+
+        except Exception as e:
+            # If we can't detect, default to CPU mode (safer than crashing)
+            print(f"[Orchestrator] Could not detect PyTorch backend ({e}), defaulting to --cpu")
+            return ["--cpu"]
+
     def _start_comfyui(self, env: Environment) -> subprocess.Popen:
         """
         Start ComfyUI subprocess.
@@ -790,12 +847,29 @@ class Orchestrator:
         Returns:
             Running process
         """
+        # Reload config to pick up any changes from API (e.g., new extra_args)
+        self.config = load_workspace_config(self.metadata_dir)
+
         # Use environment's UV-managed Python
         python_exe = env.uv_manager.python_executable
         main_py = env.comfyui_path / "main.py"
 
-        # Build command
-        cmd = [str(python_exe), str(main_py)] + self.comfyui_args
+        # Detect backend-specific flags
+        backend_flags = self._get_comfyui_backend_flags(env)
+
+        # Get extra_args from workspace config (unless bypassed due to crash)
+        if self._skip_extra_args:
+            extra_args = []
+            print("[Orchestrator] Skipping extra_args due to previous crash")
+        else:
+            extra_args = self.config.get("comfyui", {}).get("extra_args", [])
+
+        # Track whether we used extra_args for crash recovery
+        self._used_extra_args = bool(extra_args)
+
+        # Build command: backend_flags → extra_args → original comfyui_args
+        # This order allows user args to override if needed
+        cmd = [str(python_exe), str(main_py)] + backend_flags + extra_args + self.comfyui_args
 
         # Set environment variables
         env_vars = os.environ.copy()
@@ -818,6 +892,40 @@ class Orchestrator:
         self._process_start_time = time.time()
 
         return proc
+
+    def _handle_crash_for_recovery(self, exit_code: int) -> bool:
+        """
+        Handle crash and determine if we should retry without extra_args.
+
+        Args:
+            exit_code: The exit code from ComfyUI
+
+        Returns:
+            True if should retry (loop continues), False if should exit
+        """
+        # If we used extra_args and haven't tried skipping them yet, retry
+        if self._used_extra_args and not self._skip_extra_args:
+            print("[Orchestrator] Crash detected with extra_args, retrying without them...")
+            self._skip_extra_args = True
+
+            # Write status for frontend to show recovery attempt
+            write_switch_status(
+                self.metadata_dir,
+                state="recovering",
+                progress=50,
+                message="ComfyUI crashed. Retrying without custom startup args...",
+                error=f"Crash with exit code {exit_code}"
+            )
+
+            return True  # Retry
+
+        # Either no extra_args were used, or we already tried without them
+        return False
+
+    def _clear_crash_recovery_flags(self) -> None:
+        """Clear crash recovery flags after successful start."""
+        self._skip_extra_args = False
+        self._used_extra_args = False
 
     def _handle_switch_request(self) -> bool:
         """
