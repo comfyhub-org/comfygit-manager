@@ -133,3 +133,103 @@ class TestRunPodLiveNetworkVolumes:
             vol = volumes[0]
             assert "id" in vol
             assert "name" in vol
+
+
+# =============================================================================
+# GraphQL API Tests (read-only)
+# =============================================================================
+
+
+@pytest.mark.integration
+@skip_if_no_key
+class TestRunPodLiveGraphQLUserInfo:
+    """Test live GraphQL user info queries."""
+
+    @pytest.mark.asyncio
+    async def test_get_user_info_returns_balance(self):
+        """Should return user info with credit balance."""
+        from server.deploy.runpod_client import RunPodClient
+
+        client = RunPodClient(api_key=API_KEY)
+        user_info = await client.get_user_info()
+
+        # Should have expected fields
+        assert "id" in user_info
+        assert "clientBalance" in user_info
+        assert isinstance(user_info["clientBalance"], (int, float))
+
+    @pytest.mark.asyncio
+    async def test_test_connection_returns_credit_balance(self):
+        """Should return credit balance with connection test."""
+        from server.deploy.runpod_client import RunPodClient
+
+        client = RunPodClient(api_key=API_KEY)
+        result = await client.test_connection()
+
+        assert result["success"] is True
+        assert "credit_balance" in result
+        assert isinstance(result["credit_balance"], (int, float))
+
+
+@pytest.mark.integration
+@skip_if_no_key
+class TestRunPodLiveGraphQLGpuTypes:
+    """Test live GraphQL GPU types queries."""
+
+    @pytest.mark.asyncio
+    async def test_get_gpu_types_with_pricing(self):
+        """Should return GPU types with real pricing data."""
+        from server.deploy.runpod_client import RunPodClient
+
+        client = RunPodClient(api_key=API_KEY)
+        gpu_types = await client.get_gpu_types_with_pricing()
+
+        # Should return a non-empty list
+        assert isinstance(gpu_types, list)
+        assert len(gpu_types) > 0
+
+        # Find a common GPU type to verify structure
+        rtx_4090 = next(
+            (g for g in gpu_types if "4090" in g.get("id", "")),
+            None
+        )
+
+        if rtx_4090:
+            # Verify pricing fields exist
+            assert "securePrice" in rtx_4090
+            assert "communityPrice" in rtx_4090
+            assert "memoryInGb" in rtx_4090
+            assert "displayName" in rtx_4090
+
+            # Pricing should be numeric (may be 0 if unavailable)
+            assert isinstance(rtx_4090["securePrice"], (int, float, type(None)))
+
+    @pytest.mark.asyncio
+    async def test_gpu_types_includes_spot_pricing(self):
+        """Should include spot pricing fields."""
+        from server.deploy.runpod_client import RunPodClient
+
+        client = RunPodClient(api_key=API_KEY)
+        gpu_types = await client.get_gpu_types_with_pricing()
+
+        # Check first GPU has spot pricing fields
+        if gpu_types:
+            gpu = gpu_types[0]
+            # These fields should exist (may be None if unavailable)
+            assert "secureSpotPrice" in gpu
+            assert "communitySpotPrice" in gpu
+
+    @pytest.mark.asyncio
+    async def test_gpu_types_includes_availability_info(self):
+        """Should include availability/stock status."""
+        from server.deploy.runpod_client import RunPodClient
+
+        client = RunPodClient(api_key=API_KEY)
+        gpu_types = await client.get_gpu_types_with_pricing()
+
+        # Check for lowestPrice field with availability
+        if gpu_types:
+            gpu = gpu_types[0]
+            # lowestPrice may be None if no availability data
+            if gpu.get("lowestPrice"):
+                assert "stockStatus" in gpu["lowestPrice"]

@@ -45,29 +45,33 @@ class TestRunPodClientTestConnection:
 
     @pytest.mark.asyncio
     async def test_test_connection_success(self):
-        """Should return success when API key is valid."""
+        """Should return success with credit balance when API key is valid."""
         from server.deploy.runpod_client import RunPodClient
 
         client = RunPodClient(api_key="rpa_valid_key")
 
-        # test_connection calls _get which returns pod list
-        with patch.object(client, '_get', AsyncMock(return_value=[])):
+        # test_connection now uses get_user_info (GraphQL) which returns user data
+        mock_user_info = {
+            "id": "user_123",
+            "clientBalance": 25.50,
+            "currentSpendPerHr": 0.0,
+            "spendLimit": 100.0,
+        }
+        with patch.object(client, 'get_user_info', AsyncMock(return_value=mock_user_info)):
             result = await client.test_connection()
 
         assert result["success"] is True
-        assert "error" not in result
+        assert result["credit_balance"] == 25.50
 
     @pytest.mark.asyncio
     async def test_test_connection_invalid_key(self):
         """Should return error when API key is invalid."""
-        from server.deploy.runpod_client import RunPodClient
+        from server.deploy.runpod_client import RunPodClient, RunPodAPIError
 
         client = RunPodClient(api_key="invalid_key")
 
-        mock_response = MagicMock()
-        mock_response.status = 401
-
-        with patch.object(client, '_request', return_value=mock_response):
+        # test_connection now uses get_user_info which raises RunPodAPIError on failure
+        with patch.object(client, 'get_user_info', AsyncMock(side_effect=RunPodAPIError("Unauthorized", 401))):
             result = await client.test_connection()
 
         assert result["success"] is False

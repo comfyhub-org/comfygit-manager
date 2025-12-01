@@ -1,6 +1,7 @@
-"""RunPod REST API client for pod and resource management.
+"""RunPod REST and GraphQL API client for pod and resource management.
 
-Based on RunPod REST API v1: https://rest.runpod.io/v1
+REST API v1: https://rest.runpod.io/v1
+GraphQL API: https://api.runpod.io/graphql
 """
 import aiohttp
 from typing import Any
@@ -120,6 +121,7 @@ class RunPodClient:
     """
 
     base_url = "https://rest.runpod.io/v1"
+    graphql_url = "https://api.runpod.io/graphql"
 
     def __init__(self, api_key: str):
         """Initialize client with API key.
@@ -238,19 +240,193 @@ class RunPodClient:
         raise RunPodAPIError(message, response.status)
 
     # =========================================================================
+    # GraphQL API
+    # =========================================================================
+
+    async def _graphql_query(self, query: str, variables: dict | None = None) -> dict:
+        """Execute a GraphQL query against RunPod API.
+
+        Note: RunPod GraphQL uses API key as URL parameter, not Bearer token.
+
+        Args:
+            query: GraphQL query string
+            variables: Optional query variables
+
+        Returns:
+            Full GraphQL response dict (may contain "data" and/or "errors")
+        """
+        url = f"{self.graphql_url}?api_key={self.api_key}"
+        payload: dict[str, Any] = {"query": query}
+        if variables:
+            payload["variables"] = variables
+
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                url,
+                json=payload,
+                headers={"Content-Type": "application/json"},
+            ) as response:
+                return await response.json()
+
+    def _handle_graphql_errors(self, result: dict) -> None:
+        """Raise exception if GraphQL response contains errors."""
+        if "errors" in result:
+            error_msg = result["errors"][0].get("message", "GraphQL error")
+            raise RunPodAPIError(error_msg, 400)
+
+    async def get_user_info(self) -> dict[str, Any]:
+        """Get user account info including credit balance.
+
+        Returns:
+            Dict with id, clientBalance, currentSpendPerHr, spendLimit
+        """
+        query = """
+        query {
+            myself {
+                id
+                clientBalance
+                currentSpendPerHr
+                spendLimit
+            }
+        }
+        """
+        result = await self._graphql_query(query)
+        self._handle_graphql_errors(result)
+        return result["data"]["myself"]
+
+    async def get_gpu_types_with_pricing(self) -> list[dict]:
+        """Get GPU types with real pricing and availability from GraphQL API.
+
+        Returns:
+            List of GPU types with pricing fields:
+            - id, displayName, memoryInGb
+            - secureCloud, communityCloud (availability flags)
+            - securePrice, communityPrice (on-demand $/hr)
+            - secureSpotPrice, communitySpotPrice (spot $/hr)
+            - lowestPrice: {minimumBidPrice, uninterruptablePrice, stockStatus}
+        """
+        query = """
+        query {
+            gpuTypes {
+                id
+                displayName
+                memoryInGb
+                secureCloud
+                communityCloud
+                securePrice
+                communityPrice
+                secureSpotPrice
+                communitySpotPrice
+                lowestPrice(input: { gpuCount: 1 }) {
+                    minimumBidPrice
+                    uninterruptablePrice
+                    stockStatus
+                }
+            }
+        }
+        """
+        result = await self._graphql_query(query)
+        self._handle_graphql_errors(result)
+        return result["data"]["gpuTypes"]
+
+    async def create_spot_pod(
+        self,
+        name: str,
+        image_name: str,
+        gpu_type_id: str,
+        bid_per_gpu: float,
+        gpu_count: int = 1,
+        volume_in_gb: int = 20,
+        container_disk_in_gb: int = 50,
+        cloud_type: str = "SECURE",
+        ports: str = "8188/http,22/tcp",
+        env: list[dict] | None = None,
+        network_volume_id: str | None = None,
+        volume_mount_path: str = "/workspace",
+        min_vcpu_count: int = 2,
+        min_memory_in_gb: int = 15,
+    ) -> dict:
+        """Create a spot/interruptible pod using GraphQL API.
+
+        Spot pods are ~50% cheaper but can be interrupted if capacity is needed.
+
+        Args:
+            name: Pod name
+            image_name: Docker image
+            gpu_type_id: GPU type (e.g., "NVIDIA GeForce RTX 4090")
+            bid_per_gpu: Bid price per GPU per hour
+            gpu_count: Number of GPUs (default 1)
+            volume_in_gb: Pod volume size in GB (default 20)
+            container_disk_in_gb: Container disk size in GB (default 50)
+            cloud_type: SECURE or COMMUNITY (default SECURE)
+            ports: Comma-separated ports (default "8188/http,22/tcp")
+            env: Environment variables as list of {key, value} dicts
+            network_volume_id: Attach existing network volume
+            volume_mount_path: Mount path for volume (default "/workspace")
+            min_vcpu_count: Minimum vCPUs (default 2)
+            min_memory_in_gb: Minimum RAM in GB (default 15)
+
+        Returns:
+            Created pod object with id, name, desiredStatus, costPerHr, machineId
+        """
+        # Build mutation with inline values (GraphQL doesn't require input type for this)
+        env_str = "[]"
+        if env:
+            env_items = ", ".join(f'{{key: "{e["key"]}", value: "{e["value"]}"}}' for e in env)
+            env_str = f"[{env_items}]"
+
+        network_volume_part = ""
+        if network_volume_id:
+            network_volume_part = f'networkVolumeId: "{network_volume_id}",'
+
+        query = f"""
+        mutation {{
+            podRentInterruptable(input: {{
+                name: "{name}"
+                imageName: "{image_name}"
+                gpuTypeId: "{gpu_type_id}"
+                bidPerGpu: {bid_per_gpu}
+                gpuCount: {gpu_count}
+                volumeInGb: {volume_in_gb}
+                containerDiskInGb: {container_disk_in_gb}
+                cloudType: {cloud_type}
+                ports: "{ports}"
+                volumeMountPath: "{volume_mount_path}"
+                minVcpuCount: {min_vcpu_count}
+                minMemoryInGb: {min_memory_in_gb}
+                env: {env_str}
+                {network_volume_part}
+            }}) {{
+                id
+                name
+                desiredStatus
+                costPerHr
+                machineId
+            }}
+        }}
+        """
+
+        result = await self._graphql_query(query)
+        self._handle_graphql_errors(result)
+        return result["data"]["podRentInterruptable"]
+
+    # =========================================================================
     # Connection Test
     # =========================================================================
 
     async def test_connection(self) -> dict[str, Any]:
-        """Test if API key is valid by listing pods.
+        """Test API key validity and return account info with credit balance.
 
         Returns:
-            {"success": True} on success
+            {"success": True, "credit_balance": float} on success
             {"success": False, "error": "message"} on failure
         """
         try:
-            await self._get("/pods")
-            return {"success": True}
+            user_info = await self.get_user_info()
+            return {
+                "success": True,
+                "credit_balance": user_info.get("clientBalance", 0),
+            }
         except RunPodAPIError as e:
             return {"success": False, "error": e.message}
         except Exception as e:
