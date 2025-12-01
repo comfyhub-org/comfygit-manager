@@ -55,3 +55,14 @@ Don't make any implementation overly complex. This is a one-person dev MVP proje
 We are still pre-customer - any unnecessary fallbacks, unnecessary versioning, testing overkill should be avoided.
 Simple, elegant, maintainable code is the goal.
 We DONT want any legacy or backwards compatible code.
+
+## Cross-Platform Compatibility
+This codebase must run on **Windows, Linux, and macOS**. All engineering choices should consider cross-platform compatibility:
+- Use `pathlib.Path` instead of string concatenation for file paths
+- Use `os.path.join()` or `Path` objects, never hardcode `/` or `\\` separators
+- Use `shutil` for file operations instead of shell commands when possible
+- Avoid platform-specific shell commands; when unavoidable, handle all platforms explicitly
+- Use `subprocess` with lists (not shell strings) to avoid shell escaping issues
+- Be mindful of case sensitivity differences (Linux/macOS case-sensitive, Windows case-insensitive)
+- Test path handling with spaces and special characters
+- Use `sys.executable` for Python interpreter path, not hardcoded paths

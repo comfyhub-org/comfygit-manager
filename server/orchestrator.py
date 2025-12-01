@@ -40,6 +40,44 @@ def _set_pdeathsig():
         pass  # Not Linux or libc not available
 
 
+def _is_process_running(pid: int) -> bool:
+    """Check if a process is running (cross-platform)."""
+    if sys.platform == "win32":
+        kernel32 = ctypes.windll.kernel32
+        SYNCHRONIZE = 0x00100000
+        PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
+        handle = kernel32.OpenProcess(SYNCHRONIZE | PROCESS_QUERY_LIMITED_INFORMATION, False, pid)
+        if handle:
+            kernel32.CloseHandle(handle)
+            return True
+        return False
+    else:
+        try:
+            os.kill(pid, 0)
+            return True
+        except ProcessLookupError:
+            return False
+
+
+def _kill_process(pid: int, force: bool = False) -> bool:
+    """Kill a process (cross-platform). Returns True if signal sent."""
+    if sys.platform == "win32":
+        kernel32 = ctypes.windll.kernel32
+        PROCESS_TERMINATE = 0x0001
+        handle = kernel32.OpenProcess(PROCESS_TERMINATE, False, pid)
+        if handle:
+            result = kernel32.TerminateProcess(handle, 1)
+            kernel32.CloseHandle(handle)
+            return bool(result)
+        return False
+    else:
+        try:
+            os.kill(pid, signal.SIGKILL if force else signal.SIGTERM)
+            return True
+        except ProcessLookupError:
+            return False
+
+
 # ============================================================================
 # Environment Detection
 # ============================================================================
@@ -138,11 +176,11 @@ def should_spawn_orchestrator_for_switch() -> bool:
     if orchestrator_pid_file.exists():
         try:
             pid = int(orchestrator_pid_file.read_text())
-            # Check if process is alive
-            os.kill(pid, 0)  # Signal 0 just checks existence
-            return False  # Orchestrator already running
-        except (ProcessLookupError, ValueError):
+            if _is_process_running(pid):
+                return False  # Orchestrator already running
             # Stale PID file
+            orchestrator_pid_file.unlink()
+        except ValueError:
             orchestrator_pid_file.unlink()
 
     return True
@@ -170,9 +208,10 @@ def detect_manual_start_during_orchestrator() -> bool:
 
     try:
         orch_pid = int(orch_pid_file.read_text())
-        os.kill(orch_pid, 0)  # Check if alive
-    except (ProcessLookupError, ValueError):
-        return False  # Orchestrator dead
+        if not _is_process_running(orch_pid):
+            return False  # Orchestrator dead
+    except ValueError:
+        return False
 
     # Check if we're supervised by that orchestrator
     if os.environ.get("COMFYGIT_SUPERVISED") == "1":
@@ -217,20 +256,15 @@ def force_cleanup_orchestrator_state(metadata_dir: Path) -> None:
             pid = int(pid_file.read_text())
             print(f"[ComfyGit]   Attempting to kill orchestrator process {pid}")
 
-            try:
-                os.kill(pid, signal.SIGTERM)
-                time.sleep(2)
-
-                # Check if still alive
-                try:
-                    os.kill(pid, 0)
-                    # Still alive - force kill
-                    print("[ComfyGit]   Process didn't exit, force killing...")
-                    os.kill(pid, signal.SIGKILL)
-                except ProcessLookupError:
-                    print("[ComfyGit]   ✓ Process terminated successfully")
-            except ProcessLookupError:
+            if not _is_process_running(pid):
                 print("[ComfyGit]   Process already dead")
+            elif _kill_process(pid, force=False):
+                time.sleep(2)
+                if _is_process_running(pid):
+                    print("[ComfyGit]   Process didn't exit, force killing...")
+                    _kill_process(pid, force=True)
+                else:
+                    print("[ComfyGit]   ✓ Process terminated successfully")
 
             pid_file.unlink()
         except Exception as e:
@@ -434,7 +468,7 @@ DEFAULT_CONFIG = {
         "control_port_range": [8189, 8199],
         "enable_control_server": True,
         "log_level": "info",
-        "health_check_timeout_s": 90,
+        "health_check_timeout_s": 180,
         "sync_timeout_s": 600,
     },
     "comfyui": {
@@ -486,20 +520,39 @@ def load_workspace_config(metadata_dir: Path) -> dict:
 # Orchestrator Venv Setup
 # ============================================================================
 
+def _get_venv_executables(venv_path: Path) -> tuple[Path, Path]:
+    """
+    Get platform-specific paths for Python and pip executables in a venv.
+
+    Returns:
+        (python_exe, pip_exe) paths
+    """
+    if sys.platform == "win32":
+        return (
+            venv_path / "Scripts" / "python.exe",
+            venv_path / "Scripts" / "pip.exe"
+        )
+    else:
+        return (
+            venv_path / "bin" / "python",
+            venv_path / "bin" / "pip"
+        )
+
+
 def ensure_orchestrator_venv(venv_path: Path) -> None:
     """
     Create dedicated virtual environment for orchestrator.
     This runs once when custom node first loads.
     """
-    if venv_path.exists() and (venv_path / "bin" / "python").exists():
+    python_exe, pip_exe = _get_venv_executables(venv_path)
+
+    if venv_path.exists() and python_exe.exists():
         return  # Already set up
 
     print("[ComfyGit] Setting up orchestrator environment...")
 
     # Create venv
     venv.create(venv_path, with_pip=True, clear=True)
-
-    pip_exe = venv_path / "bin" / "pip"
 
     # Dev mode: install from local path as editable
     dev_core_path = os.environ.get("COMFYGIT_DEV_CORE_PATH")
@@ -515,7 +568,7 @@ def ensure_orchestrator_venv(venv_path: Path) -> None:
 def get_orchestrator_python(custom_node_root: Path) -> Path:
     """Get path to orchestrator Python executable."""
     venv_path = custom_node_root / "server" / ".orchestrator_venv"
-    python_exe = venv_path / "bin" / "python"
+    python_exe, _ = _get_venv_executables(venv_path)
 
     if not python_exe.exists():
         raise RuntimeError("Orchestrator venv not found - run setup")
@@ -682,7 +735,8 @@ class Orchestrator:
                         source_env=source_env
                     )
 
-                    if self._wait_for_health(proc, timeout=90):
+                    health_timeout = self.config["orchestrator"].get("health_check_timeout_s", 90)
+                    if self._wait_for_health(proc, timeout=health_timeout):
                         print(f"[Orchestrator] {self.current_env_name} is healthy")
                         write_switch_status(
                             self.metadata_dir,
@@ -875,17 +929,30 @@ class Orchestrator:
         env_vars = os.environ.copy()
         env_vars["COMFYGIT_SUPERVISED"] = "1"  # Mark as supervised
 
+        # Force UTF-8 encoding on Windows to prevent emoji/unicode crashes
+        if sys.platform == "win32":
+            env_vars["PYTHONIOENCODING"] = "utf-8"
+
         print(f"[Orchestrator] Starting ComfyUI: {' '.join(cmd)}")
 
-        # Start process with parent death signal (Linux: child dies when orchestrator dies)
-        proc = subprocess.Popen(
-            cmd,
-            cwd=env.comfyui_path,
-            env=env_vars,
-            stdout=sys.stdout,
-            stderr=sys.stderr,
-            preexec_fn=_set_pdeathsig,
-        )
+        # Start process
+        # On Linux: use preexec_fn to set parent death signal (child dies when orchestrator dies)
+        # On Windows: preexec_fn is not supported, use creationflags instead
+        popen_kwargs = {
+            "cwd": env.comfyui_path,
+            "env": env_vars,
+            "stdout": sys.stdout,
+            "stderr": sys.stderr,
+        }
+
+        if sys.platform != "win32":
+            popen_kwargs["preexec_fn"] = _set_pdeathsig
+        else:
+            # On Windows, CREATE_NEW_PROCESS_GROUP allows the child to be managed separately
+            # Note: Windows doesn't have an equivalent to PR_SET_PDEATHSIG
+            popen_kwargs["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
+
+        proc = subprocess.Popen(cmd, **popen_kwargs)
 
         # Track current process and start time (Phase 1 - Control Endpoints)
         self.current_process = proc
@@ -1133,8 +1200,10 @@ class Orchestrator:
                     self._handle_restart_command()
                 elif command == "shutdown":
                     self._handle_shutdown_command()
+                    return None  # Exit immediately after shutdown
                 elif command == "abort_switch":
                     self._handle_abort_switch_command(cmd)
+                    return None  # Exit immediately after abort
                 else:
                     print(f"[Orchestrator] Unknown command: {command}")
 

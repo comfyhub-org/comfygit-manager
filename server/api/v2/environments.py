@@ -75,14 +75,28 @@ def spawn_orchestrator(environment, target_env: str) -> None:
 
     # Spawn detached orchestrator
     log_file = environment.workspace.path / ".metadata" / "orchestrator.log"
-    subprocess.Popen(
-        cmd,
-        start_new_session=True,  # Detach from parent
-        stdin=subprocess.DEVNULL,
-        stdout=open(log_file, "a"),
-        stderr=subprocess.STDOUT,
-        cwd=str(environment.workspace.path)
-    )
+
+    # Platform-specific process detachment
+    popen_kwargs = {
+        "stdin": subprocess.DEVNULL,
+        "stdout": open(log_file, "a"),
+        "stderr": subprocess.STDOUT,
+        "cwd": str(environment.workspace.path)
+    }
+
+    if sys.platform == "win32":
+        # On Windows: use DETACHED_PROCESS and CREATE_NEW_PROCESS_GROUP to fully detach
+        # This prevents signals from propagating to the child
+        popen_kwargs["creationflags"] = (
+            subprocess.DETACHED_PROCESS |
+            subprocess.CREATE_NEW_PROCESS_GROUP |
+            subprocess.CREATE_NO_WINDOW
+        )
+    else:
+        # On Unix: start_new_session creates a new process group
+        popen_kwargs["start_new_session"] = True
+
+    subprocess.Popen(cmd, **popen_kwargs)
 
     print(f"[ComfyGit] Spawned orchestrator daemon (log: {log_file})")
 

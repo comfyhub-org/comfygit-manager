@@ -1,11 +1,11 @@
 [project]
 name = "comfygit-manager"
-version = "0.0.2"
+version = "0.0.3"
 description = "ComfyGit Manager - Node for managing comfygit environments in ComfyUI"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "comfygit-core>=0.3.0",
+    "comfygit-core>=0.3.1",
     "watchdog>=6.0.0",
 ]
 
