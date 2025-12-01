@@ -128,6 +128,7 @@ async def deploy_to_runpod(request: web.Request, workspace) -> web.Response:
         pod_name: Name for the pod
         network_volume_id: Network volume to attach (for persistent storage)
         cloud_type: "SECURE" or "COMMUNITY" (optional, default "SECURE")
+        pricing_type: "ON_DEMAND" or "SPOT" (optional, default "ON_DEMAND")
 
     Returns:
         status: "success" or "error"
@@ -145,18 +146,25 @@ async def deploy_to_runpod(request: web.Request, workspace) -> web.Response:
     pod_name = data.get("pod_name", "comfygit-deploy")
     network_volume_id = data.get("network_volume_id")
     cloud_type = data.get("cloud_type", "SECURE")
+    pricing_type = data.get("pricing_type", "ON_DEMAND")
+
+    # Convert pricing_type to interruptible flag
+    interruptible = pricing_type == "SPOT"
 
     client = RunPodClient(api_key)
 
     try:
         # Create pod with ComfyUI setup
+        # Container disk hardcoded at 30GB per MVP spec
         pod = await client.create_pod(
             name=pod_name,
             image_name="runpod/pytorch:2.1.0-py3.10-cuda11.8.0-devel-ubuntu22.04",
             gpu_type_id=gpu_type_id,
             cloud_type=cloud_type,
             network_volume_id=network_volume_id,
+            container_disk_in_gb=30,
             ports=["8188/http", "22/tcp"],
+            interruptible=interruptible,
         )
 
         return web.json_response({
@@ -239,6 +247,27 @@ async def get_runpod_volumes(request: web.Request, workspace) -> web.Response:
     ]
 
     return web.json_response({"volumes": result_volumes})
+
+
+@routes.get("/v2/comfygit/deploy/runpod/data-centers")
+@requires_workspace
+async def get_runpod_data_centers(request: web.Request, workspace) -> web.Response:
+    """Get available RunPod data centers.
+
+    Returns:
+        data_centers: List of data center objects with id, name, available
+    """
+    api_key = workspace.workspace_config_manager.get_runpod_token()
+    if not api_key:
+        return web.json_response(
+            {"status": "error", "error": "RunPod API key not configured"},
+            status=400,
+        )
+
+    client = RunPodClient(api_key)
+    data_centers = await client.get_data_centers()
+
+    return web.json_response({"data_centers": data_centers})
 
 
 @routes.get("/v2/comfygit/deploy/runpod/gpu-types")

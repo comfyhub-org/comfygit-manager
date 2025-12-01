@@ -6,6 +6,41 @@ import aiohttp
 from typing import Any
 from dataclasses import dataclass
 
+# RunPod data centers from OpenAPI spec (static list - no REST endpoint available)
+DATA_CENTERS = [
+    # United States
+    {"id": "US-GA-1", "name": "United States (Georgia)", "available": True},
+    {"id": "US-GA-2", "name": "United States (Georgia 2)", "available": True},
+    {"id": "US-IL-1", "name": "United States (Illinois)", "available": True},
+    {"id": "US-KS-2", "name": "United States (Kansas)", "available": True},
+    {"id": "US-KS-3", "name": "United States (Kansas 2)", "available": True},
+    {"id": "US-TX-1", "name": "United States (Texas)", "available": True},
+    {"id": "US-TX-3", "name": "United States (Texas 2)", "available": True},
+    {"id": "US-TX-4", "name": "United States (Texas 3)", "available": True},
+    {"id": "US-WA-1", "name": "United States (Washington)", "available": True},
+    {"id": "US-CA-2", "name": "United States (California)", "available": True},
+    {"id": "US-NC-1", "name": "United States (North Carolina)", "available": True},
+    {"id": "US-DE-1", "name": "United States (Delaware)", "available": True},
+    # Canada
+    {"id": "CA-MTL-1", "name": "Canada (Montreal)", "available": True},
+    {"id": "CA-MTL-2", "name": "Canada (Montreal 2)", "available": True},
+    {"id": "CA-MTL-3", "name": "Canada (Montreal 3)", "available": True},
+    # Europe
+    {"id": "EU-CZ-1", "name": "Europe (Czech Republic)", "available": True},
+    {"id": "EU-FR-1", "name": "Europe (France)", "available": True},
+    {"id": "EU-NL-1", "name": "Europe (Netherlands)", "available": True},
+    {"id": "EU-RO-1", "name": "Europe (Romania)", "available": True},
+    {"id": "EU-SE-1", "name": "Europe (Sweden)", "available": True},
+    {"id": "EUR-IS-1", "name": "Europe (Iceland)", "available": True},
+    {"id": "EUR-IS-2", "name": "Europe (Iceland 2)", "available": True},
+    {"id": "EUR-IS-3", "name": "Europe (Iceland 3)", "available": True},
+    {"id": "EUR-NO-1", "name": "Europe (Norway)", "available": True},
+    # Asia-Pacific
+    {"id": "AP-JP-1", "name": "Asia-Pacific (Japan)", "available": True},
+    # Oceania
+    {"id": "OC-AU-1", "name": "Oceania (Australia)", "available": True},
+]
+
 # Common GPU types available on RunPod
 GPU_TYPES = [
     "NVIDIA GeForce RTX 4090",
@@ -285,6 +320,7 @@ class RunPodClient:
         docker_start_cmd: list[str] | None = None,
         network_volume_id: str | None = None,
         data_center_ids: list[str] | None = None,
+        interruptible: bool = False,
     ) -> dict:
         """Create a new pod.
 
@@ -301,6 +337,7 @@ class RunPodClient:
             docker_start_cmd: Override container start command
             network_volume_id: Attach existing network volume
             data_center_ids: Preferred data centers
+            interruptible: If True, creates a spot/interruptible pod (~50% cheaper but can be stopped)
 
         Returns:
             Created pod object
@@ -313,6 +350,7 @@ class RunPodClient:
             "volumeInGb": volume_in_gb,
             "containerDiskInGb": container_disk_in_gb,
             "cloudType": cloud_type,
+            "interruptible": interruptible,
         }
 
         if ports:
@@ -572,10 +610,25 @@ class RunPodClient:
         return True
 
     # =========================================================================
+    # Data Centers (static list - no REST endpoint available)
+    # =========================================================================
+
+    async def get_data_centers(self) -> list[dict]:
+        """Get available data centers.
+
+        Note: The RunPod REST API doesn't have a data centers endpoint.
+        This returns a static list of known data centers.
+
+        Returns:
+            List of data center objects with id, name, available
+        """
+        return DATA_CENTERS.copy()
+
+    # =========================================================================
     # GPU Types (derived from static list - no REST endpoint available)
     # =========================================================================
 
-    async def get_gpu_types(self, data_center_id: str | None = None) -> list[dict]:
+    async def get_gpu_types(self, data_center_id: str | None = None) -> list[dict]:  # noqa: ARG002
         """Get available GPU types.
 
         Note: The RunPod REST API doesn't have a GPU types endpoint.
@@ -584,13 +637,14 @@ class RunPodClient:
         since availability data isn't available via REST API.
 
         Args:
-            data_center_id: Optional data center filter (not implemented)
+            data_center_id: Optional data center filter (accepted but not implemented)
 
         Returns:
             List of GPU type objects with id and display info
         """
         # Return GPU types with basic info
         # Real pricing/availability would require GraphQL API
+        # data_center_id is accepted for API compatibility but not used
         return [
             {
                 "id": gpu_id,

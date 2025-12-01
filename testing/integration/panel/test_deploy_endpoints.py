@@ -432,3 +432,127 @@ class TestRunPodDeployWithNetworkVolume:
             # Verify network_volume_id was passed to create_pod
             call_kwargs = mock_client.create_pod.call_args[1]
             assert call_kwargs.get("network_volume_id") == "5aio30csvw"
+
+
+@pytest.mark.integration
+class TestRunPodGetDataCenters:
+    """GET /v2/comfygit/deploy/runpod/data-centers - Get available data centers."""
+
+    async def test_success_returns_data_centers(self, client, mock_workspace_context):
+        """Should return 200 with data centers list."""
+        mock_workspace_context.workspace_config_manager.get_runpod_token.return_value = "rpa_test123"
+
+        with patch("api.v2.deploy.RunPodClient") as MockClient:
+            mock_client = AsyncMock()
+            mock_client.get_data_centers.return_value = [
+                {"id": "US-IL-1", "name": "United States", "available": True},
+                {"id": "EU-CZ-1", "name": "Europe (Czech)", "available": True},
+                {"id": "CA-MTL-1", "name": "Canada (Montreal)", "available": False},
+            ]
+            MockClient.return_value = mock_client
+
+            resp = await client.get("/v2/comfygit/deploy/runpod/data-centers")
+
+            assert resp.status == 200
+            data = await resp.json()
+            assert "data_centers" in data
+            assert len(data["data_centers"]) == 3
+            dc = data["data_centers"][0]
+            assert dc["id"] == "US-IL-1"
+            assert dc["name"] == "United States"
+            assert dc["available"] is True
+
+    async def test_error_no_api_key(self, client, mock_workspace_context):
+        """Should return 400 when no API key configured."""
+        mock_workspace_context.workspace_config_manager.get_runpod_token.return_value = None
+
+        resp = await client.get("/v2/comfygit/deploy/runpod/data-centers")
+
+        assert resp.status == 400
+        data = await resp.json()
+        assert "api key" in data.get("error", "").lower()
+
+
+@pytest.mark.integration
+class TestRunPodDeployWithPricingType:
+    """POST /v2/comfygit/deploy/runpod - Deploy with pricing_type parameter."""
+
+    async def test_success_with_spot_pricing(self, client, mock_workspace_context):
+        """Should deploy with pricing_type=SPOT (interruptible=True)."""
+        mock_workspace_context.workspace_config_manager.get_runpod_token.return_value = "rpa_test123"
+
+        with patch("api.v2.deploy.RunPodClient") as MockClient:
+            mock_client = AsyncMock()
+            mock_client.create_pod.return_value = {"id": "spotpod123", "name": "spot-test"}
+            MockClient.return_value = mock_client
+
+            resp = await client.post(
+                "/v2/comfygit/deploy/runpod",
+                json={
+                    "gpu_type_id": "NVIDIA GeForce RTX 4090",
+                    "pod_name": "my-spot-comfyui",
+                    "network_volume_id": "5aio30csvw",
+                    "pricing_type": "SPOT",
+                },
+            )
+
+            assert resp.status == 200
+            data = await resp.json()
+            assert data["status"] == "success"
+            assert data["pod_id"] == "spotpod123"
+
+            # Verify interruptible=True for spot pricing
+            call_kwargs = mock_client.create_pod.call_args[1]
+            assert call_kwargs.get("interruptible") is True
+
+    async def test_success_with_on_demand_pricing(self, client, mock_workspace_context):
+        """Should deploy with pricing_type=ON_DEMAND (interruptible=False)."""
+        mock_workspace_context.workspace_config_manager.get_runpod_token.return_value = "rpa_test123"
+
+        with patch("api.v2.deploy.RunPodClient") as MockClient:
+            mock_client = AsyncMock()
+            mock_client.create_pod.return_value = {"id": "odpod123", "name": "ondemand-test"}
+            MockClient.return_value = mock_client
+
+            resp = await client.post(
+                "/v2/comfygit/deploy/runpod",
+                json={
+                    "gpu_type_id": "NVIDIA GeForce RTX 4090",
+                    "pod_name": "my-ondemand-comfyui",
+                    "network_volume_id": "5aio30csvw",
+                    "pricing_type": "ON_DEMAND",
+                },
+            )
+
+            assert resp.status == 200
+            data = await resp.json()
+            assert data["status"] == "success"
+
+            # Verify interruptible=False for on-demand
+            call_kwargs = mock_client.create_pod.call_args[1]
+            assert call_kwargs.get("interruptible") is False
+
+    async def test_default_pricing_type_is_on_demand(self, client, mock_workspace_context):
+        """Should default to ON_DEMAND when pricing_type not specified."""
+        mock_workspace_context.workspace_config_manager.get_runpod_token.return_value = "rpa_test123"
+
+        with patch("api.v2.deploy.RunPodClient") as MockClient:
+            mock_client = AsyncMock()
+            mock_client.create_pod.return_value = {"id": "defpod123", "name": "default-test"}
+            MockClient.return_value = mock_client
+
+            resp = await client.post(
+                "/v2/comfygit/deploy/runpod",
+                json={
+                    "gpu_type_id": "NVIDIA GeForce RTX 4090",
+                    "pod_name": "my-comfyui",
+                    "network_volume_id": "5aio30csvw",
+                    # pricing_type not specified - should default to ON_DEMAND
+                },
+            )
+
+            assert resp.status == 200
+
+            # Verify interruptible=False (on-demand behavior)
+            call_kwargs = mock_client.create_pod.call_args[1]
+            assert call_kwargs.get("interruptible") is False
