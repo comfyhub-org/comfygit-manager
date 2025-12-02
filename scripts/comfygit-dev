@@ -142,6 +142,50 @@ if [[ -d "$ORCH_VENV" ]]; then
     fi
 fi
 
+# Update core library source in all managed environments' pyproject.toml
+# This ensures uv sync uses the dev version of comfygit-core
+WORKSPACE_PATH="$HOME/comfygit"
+if [[ -d "$WORKSPACE_PATH/environments" ]]; then
+    for ENV_DIR in "$WORKSPACE_PATH/environments"/*/; do
+        ENV_NAME=$(basename "$ENV_DIR")
+        PYPROJECT="$ENV_DIR.cec/pyproject.toml"
+
+        if [[ -f "$PYPROJECT" ]]; then
+            # Check if comfygit-core source is already set to dev path
+            if ! grep -q "tool.uv.sources.comfygit-core" "$PYPROJECT" 2>/dev/null; then
+                echo "[comfygit-dev] Adding dev core source to: $ENV_NAME"
+                # Append the source configuration
+                cat >> "$PYPROJECT" << EOF
+
+[tool.uv.sources.comfygit-core]
+path = "$CORE_PATH"
+editable = true
+EOF
+            elif ! grep -A2 "tool.uv.sources.comfygit-core" "$PYPROJECT" | grep -q "$CORE_PATH"; then
+                echo "[comfygit-dev] Updating dev core source in: $ENV_NAME"
+                # Use Python to update the TOML properly
+                python3 << PYEOF
+import re
+with open("$PYPROJECT", "r") as f:
+    content = f.read()
+# Remove existing comfygit-core source section
+content = re.sub(r'\[tool\.uv\.sources\.comfygit-core\][^\[]*', '', content)
+# Add new section
+content = content.rstrip() + '''
+
+[tool.uv.sources.comfygit-core]
+path = "$CORE_PATH"
+editable = true
+'''
+with open("$PYPROJECT", "w") as f:
+    f.write(content)
+PYEOF
+            fi
+        fi
+    done
+    echo "[comfygit-dev] Managed environments pyproject.toml OK"
+fi
+
 # Export dev mode environment variables
 export COMFYGIT_DEV_CORE_PATH="$CORE_PATH"
 export COMFYGIT_DEV_MANAGER_PATH="$MANAGER_PATH"
