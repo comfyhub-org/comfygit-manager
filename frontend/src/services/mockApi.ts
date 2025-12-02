@@ -74,7 +74,16 @@ import type {
   NodeInfo,
   NodesResult,
   ExportValidationResult,
-  ExportResult
+  ExportResult,
+  DataCenter,
+  EnvironmentDeploySummary,
+  NetworkVolume,
+  RunPodGpuType,
+  RunPodInstance,
+  RunPodConnectionResult,
+  DeployResult,
+  DeployPackageResult,
+  DeployConfig
 } from '@/types/comfygit'
 import { useMockControls } from '@/composables/useMockControls'
 
@@ -2106,6 +2115,165 @@ export const mockApi = {
       path: outputPath || `/home/user/exports/production_export_${timestamp}.tar.gz`,
       models_without_sources: 4
     }
+  },
+
+  // =============================================================================
+  // Deploy Endpoints
+  // =============================================================================
+
+  getDeploySummary: async (): Promise<EnvironmentDeploySummary> => {
+    await delay(300)
+    return {
+      comfyui_version: 'v0.3.48',
+      node_count: 15,
+      model_count: 8,
+      models_with_sources: 6,
+      models_without_sources: 2,
+      workflow_count: 3,
+      estimated_package_size_mb: 45.2
+    }
+  },
+
+  testRunPodConnection: async (apiKey: string, saveKey: boolean): Promise<RunPodConnectionResult> => {
+    await delay(800)
+    if (apiKey.startsWith('rp_')) {
+      return {
+        status: 'success',
+        message: 'Connected to RunPod',
+        credit_balance: 25.50
+      }
+    }
+    return {
+      status: 'error',
+      message: 'Invalid API key format. Keys should start with "rp_"'
+    }
+  },
+
+  getDataCenters: async (): Promise<{ data_centers: DataCenter[] }> => {
+    await delay(300)
+    return {
+      data_centers: [
+        { id: 'US-IL-1', name: 'United States', available: true },
+        { id: 'EU-CZ-1', name: 'Europe (Czech)', available: true },
+        { id: 'EU-RO-1', name: 'Europe (Romania)', available: true },
+        { id: 'CA-MTL-1', name: 'Canada (Montreal)', available: true }
+      ]
+    }
+  },
+
+  getNetworkVolumes: async (): Promise<{ volumes: NetworkVolume[] }> => {
+    await delay(400)
+    return {
+      volumes: [
+        {
+          id: '5aio30csvw',
+          name: 'comfygit_workspace',
+          size_gb: 100,
+          data_center_id: 'US-IL-1',
+          data_center_name: 'United States'
+        },
+        {
+          id: 'abc123xyz',
+          name: 'my-sd-models',
+          size_gb: 200,
+          data_center_id: 'EU-CZ-1',
+          data_center_name: 'Europe'
+        }
+      ]
+    }
+  },
+
+  getRunPodGpuTypes: async (dataCenterId?: string): Promise<{ gpu_types: RunPodGpuType[] }> => {
+    await delay(400)
+
+    const allGpus: RunPodGpuType[] = [
+      { id: 'NVIDIA RTX 4090', displayName: 'RTX 4090', memoryInGb: 24, securePrice: 0.44, communityPrice: 0.34, available: true, data_center_id: 'US-IL-1' },
+      { id: 'NVIDIA RTX 3090', displayName: 'RTX 3090', memoryInGb: 24, securePrice: 0.22, communityPrice: 0.16, available: true, data_center_id: 'US-IL-1' },
+      { id: 'NVIDIA A100 80GB', displayName: 'A100 80GB', memoryInGb: 80, securePrice: 1.89, communityPrice: 1.49, available: true, data_center_id: 'US-IL-1' },
+      { id: 'NVIDIA RTX 4090', displayName: 'RTX 4090', memoryInGb: 24, securePrice: 0.44, communityPrice: 0.34, available: true, data_center_id: 'EU-CZ-1' },
+      { id: 'NVIDIA RTX A6000', displayName: 'RTX A6000', memoryInGb: 48, securePrice: 0.79, communityPrice: 0.59, available: true, data_center_id: 'EU-CZ-1' }
+    ]
+
+    // Filter by data center if specified
+    if (dataCenterId) {
+      return { gpu_types: allGpus.filter(g => g.data_center_id === dataCenterId) }
+    }
+
+    return { gpu_types: allGpus }
+  },
+
+  deployToRunPod: async (config: DeployConfig): Promise<DeployResult> => {
+    await delay(2000)
+    console.log('[MOCK] Deploying to RunPod:', config)
+    return {
+      status: 'success',
+      pod_id: 'mock_pod_' + Date.now(),
+      message: 'Pod created. Starting ComfyUI setup...'
+    }
+  },
+
+  getRunPodPods: async (): Promise<{ pods: RunPodInstance[] }> => {
+    await delay(500)
+    return {
+      pods: [
+        {
+          id: 'mock_abc123',
+          name: 'my-comfyui-deploy',
+          gpu_type: 'NVIDIA RTX 4090',
+          gpu_count: 1,
+          status: 'RUNNING',
+          created_at: new Date(Date.now() - 3600000).toISOString(),
+          cost_per_hour: 0.44,
+          uptime_seconds: 3600,
+          total_cost: 0.44,
+          pod_url: 'https://mock_abc123.runpod.net',
+          comfyui_url: 'https://mock_abc123-8188.proxy.runpod.net'
+        },
+        {
+          id: 'mock_def456',
+          name: 'test-deployment',
+          gpu_type: 'NVIDIA RTX 3090',
+          gpu_count: 1,
+          status: 'EXITED',
+          created_at: new Date(Date.now() - 86400000).toISOString(),
+          cost_per_hour: 0.22,
+          uptime_seconds: 900,
+          total_cost: 0.06,
+          pod_url: 'https://mock_def456.runpod.net'
+        }
+      ]
+    }
+  },
+
+  terminateRunPodPod: async (podId: string): Promise<{ status: 'success' | 'error'; message: string }> => {
+    await delay(1000)
+    console.log(`[MOCK] Terminating pod: ${podId}`)
+    return { status: 'success', message: 'Pod terminated' }
+  },
+
+  exportDeployPackage: async (outputPath?: string): Promise<DeployPackageResult> => {
+    await delay(1500)
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)
+    return {
+      status: 'success',
+      package_path: outputPath || `/home/user/comfygit_deploy_${timestamp}.tar.gz`,
+      package_size_mb: 45.2,
+      message: 'Deploy package created successfully'
+    }
+  },
+
+  getStoredRunPodKey: async (): Promise<{ has_key: boolean; key_preview?: string }> => {
+    await delay(200)
+    // Simulate stored key state - toggle this to test different states
+    return {
+      has_key: false
+    }
+  },
+
+  clearRunPodKey: async (): Promise<{ status: 'success' }> => {
+    await delay(200)
+    console.log('[MOCK] Cleared RunPod API key')
+    return { status: 'success' }
   }
 }
 
