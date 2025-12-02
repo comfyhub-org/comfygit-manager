@@ -2189,11 +2189,11 @@ export const mockApi = {
     await delay(400)
 
     const allGpus: RunPodGpuType[] = [
-      { id: 'NVIDIA RTX 4090', displayName: 'RTX 4090', memoryInGb: 24, securePrice: 0.44, communityPrice: 0.34, available: true, data_center_id: 'US-IL-1' },
-      { id: 'NVIDIA RTX 3090', displayName: 'RTX 3090', memoryInGb: 24, securePrice: 0.22, communityPrice: 0.16, available: true, data_center_id: 'US-IL-1' },
-      { id: 'NVIDIA A100 80GB', displayName: 'A100 80GB', memoryInGb: 80, securePrice: 1.89, communityPrice: 1.49, available: true, data_center_id: 'US-IL-1' },
-      { id: 'NVIDIA RTX 4090', displayName: 'RTX 4090', memoryInGb: 24, securePrice: 0.44, communityPrice: 0.34, available: true, data_center_id: 'EU-CZ-1' },
-      { id: 'NVIDIA RTX A6000', displayName: 'RTX A6000', memoryInGb: 48, securePrice: 0.79, communityPrice: 0.59, available: true, data_center_id: 'EU-CZ-1' }
+      { id: 'NVIDIA RTX 4090', displayName: 'RTX 4090', memoryInGb: 24, securePrice: 0.44, communityPrice: 0.34, secureSpotPrice: 0.22, communitySpotPrice: 0.17, stockStatus: 'HIGH', available: true, data_center_id: 'US-IL-1' },
+      { id: 'NVIDIA RTX 3090', displayName: 'RTX 3090', memoryInGb: 24, securePrice: 0.22, communityPrice: 0.16, secureSpotPrice: 0.11, communitySpotPrice: 0.08, stockStatus: 'MEDIUM', available: true, data_center_id: 'US-IL-1' },
+      { id: 'NVIDIA A100 80GB', displayName: 'A100 80GB', memoryInGb: 80, securePrice: 1.89, communityPrice: 1.49, secureSpotPrice: 0.95, communitySpotPrice: 0.75, stockStatus: 'LOW', available: true, data_center_id: 'US-IL-1' },
+      { id: 'NVIDIA RTX 4090', displayName: 'RTX 4090', memoryInGb: 24, securePrice: 0.44, communityPrice: 0.34, secureSpotPrice: 0.22, communitySpotPrice: 0.17, stockStatus: 'HIGH', available: true, data_center_id: 'EU-CZ-1' },
+      { id: 'NVIDIA RTX A6000', displayName: 'RTX A6000', memoryInGb: 48, securePrice: 0.79, communityPrice: 0.59, secureSpotPrice: 0.40, communitySpotPrice: 0.30, stockStatus: 'MEDIUM', available: true, data_center_id: 'EU-CZ-1' }
     ]
 
     // Filter by data center if specified

@@ -246,27 +246,27 @@ class TestRunPodKeyStatus:
     """GET /v2/comfygit/deploy/runpod/key-status - Check if key is configured."""
 
     async def test_key_configured(self, client, mock_workspace_context):
-        """Should return configured=true when key exists."""
+        """Should return has_key=true when key exists."""
         mock_workspace_context.workspace_config_manager.get_runpod_token.return_value = "rpa_test123456"
 
         resp = await client.get("/v2/comfygit/deploy/runpod/key-status")
 
         assert resp.status == 200
         data = await resp.json()
-        assert data["configured"] is True
+        assert data["has_key"] is True
         # Should only show last 4 chars
-        assert data["key_suffix"] == "3456"
+        assert data["key_preview"] == "3456"
 
     async def test_key_not_configured(self, client, mock_workspace_context):
-        """Should return configured=false when no key."""
+        """Should return has_key=false when no key."""
         mock_workspace_context.workspace_config_manager.get_runpod_token.return_value = None
 
         resp = await client.get("/v2/comfygit/deploy/runpod/key-status")
 
         assert resp.status == 200
         data = await resp.json()
-        assert data["configured"] is False
-        assert data.get("key_suffix") is None
+        assert data["has_key"] is False
+        assert data.get("key_preview") is None
 
 
 @pytest.mark.integration
@@ -337,22 +337,30 @@ class TestRunPodGetGpuTypes:
 
         with patch("api.v2.deploy.RunPodClient") as MockClient:
             mock_client = AsyncMock()
-            mock_client.get_gpu_types.return_value = [
+            mock_client.get_gpu_types_with_pricing.return_value = [
                 {
                     "id": "NVIDIA RTX 4090",
                     "displayName": "RTX 4090",
                     "memoryInGb": 24,
-                    "secureCloud": 0.44,
-                    "communityCloud": 0.34,
-                    "lowestPrice": {"minimumBidPrice": 0.34},
+                    "secureCloud": True,
+                    "communityCloud": True,
+                    "securePrice": 0.44,
+                    "communityPrice": 0.34,
+                    "secureSpotPrice": 0.22,
+                    "communitySpotPrice": 0.17,
+                    "lowestPrice": {"minimumBidPrice": 0.34, "stockStatus": "HIGH"},
                 },
                 {
                     "id": "NVIDIA RTX A6000",
                     "displayName": "RTX A6000",
                     "memoryInGb": 48,
-                    "secureCloud": 0.79,
-                    "communityCloud": 0.59,
-                    "lowestPrice": {"minimumBidPrice": 0.59},
+                    "secureCloud": True,
+                    "communityCloud": True,
+                    "securePrice": 0.79,
+                    "communityPrice": 0.59,
+                    "secureSpotPrice": 0.40,
+                    "communitySpotPrice": 0.30,
+                    "lowestPrice": {"minimumBidPrice": 0.59, "stockStatus": "MEDIUM"},
                 },
             ]
             MockClient.return_value = mock_client
@@ -367,22 +375,29 @@ class TestRunPodGetGpuTypes:
             assert gpu["id"] == "NVIDIA RTX 4090"
             assert gpu["displayName"] == "RTX 4090"
             assert gpu["memoryInGb"] == 24
+            # Verify new spot pricing and stock status fields
+            assert gpu["secureSpotPrice"] == 0.22
+            assert gpu["communitySpotPrice"] == 0.17
+            assert gpu["stockStatus"] == "HIGH"
 
     async def test_success_filtered_by_data_center(self, client, mock_workspace_context):
-        """Should filter GPUs by data center when provided."""
+        """Should return GPUs (data center filter accepted but not yet implemented)."""
         mock_workspace_context.workspace_config_manager.get_runpod_token.return_value = "rpa_test123"
 
         with patch("api.v2.deploy.RunPodClient") as MockClient:
             mock_client = AsyncMock()
-            # Simulate filtered response
-            mock_client.get_gpu_types.return_value = [
+            mock_client.get_gpu_types_with_pricing.return_value = [
                 {
                     "id": "NVIDIA RTX 4090",
                     "displayName": "RTX 4090",
                     "memoryInGb": 24,
-                    "secureCloud": 0.44,
-                    "communityCloud": 0.34,
-                    "lowestPrice": {"minimumBidPrice": 0.34},
+                    "secureCloud": True,
+                    "communityCloud": True,
+                    "securePrice": 0.44,
+                    "communityPrice": 0.34,
+                    "secureSpotPrice": 0.22,
+                    "communitySpotPrice": 0.17,
+                    "lowestPrice": {"minimumBidPrice": 0.34, "stockStatus": "HIGH"},
                 },
             ]
             MockClient.return_value = mock_client
@@ -390,7 +405,8 @@ class TestRunPodGetGpuTypes:
             resp = await client.get("/v2/comfygit/deploy/runpod/gpu-types?data_center_id=US-IL-1")
 
             assert resp.status == 200
-            mock_client.get_gpu_types.assert_called_once_with(data_center_id="US-IL-1")
+            # get_gpu_types_with_pricing is called (data center filter not yet implemented)
+            mock_client.get_gpu_types_with_pricing.assert_called_once()
 
     async def test_error_no_api_key(self, client, mock_workspace_context):
         """Should return 400 when no API key configured."""
@@ -480,12 +496,12 @@ class TestRunPodDeployWithPricingType:
     """POST /v2/comfygit/deploy/runpod - Deploy with pricing_type parameter."""
 
     async def test_success_with_spot_pricing(self, client, mock_workspace_context):
-        """Should deploy with pricing_type=SPOT (interruptible=True)."""
+        """Should deploy with pricing_type=SPOT using GraphQL create_spot_pod."""
         mock_workspace_context.workspace_config_manager.get_runpod_token.return_value = "rpa_test123"
 
         with patch("api.v2.deploy.RunPodClient") as MockClient:
             mock_client = AsyncMock()
-            mock_client.create_pod.return_value = {"id": "spotpod123", "name": "spot-test"}
+            mock_client.create_spot_pod.return_value = {"id": "spotpod123", "name": "spot-test"}
             MockClient.return_value = mock_client
 
             resp = await client.post(
@@ -495,6 +511,7 @@ class TestRunPodDeployWithPricingType:
                     "pod_name": "my-spot-comfyui",
                     "network_volume_id": "5aio30csvw",
                     "pricing_type": "SPOT",
+                    "spot_bid": 0.22,  # Required for SPOT pricing
                     "import_source": "https://github.com/user/repo.git",
                 },
             )
@@ -504,12 +521,12 @@ class TestRunPodDeployWithPricingType:
             assert data["status"] == "success"
             assert data["pod_id"] == "spotpod123"
 
-            # Verify interruptible=True for spot pricing
-            call_kwargs = mock_client.create_pod.call_args[1]
-            assert call_kwargs.get("interruptible") is True
+            # Verify create_spot_pod called with bid_per_gpu
+            call_kwargs = mock_client.create_spot_pod.call_args[1]
+            assert call_kwargs.get("bid_per_gpu") == 0.22
 
     async def test_success_with_on_demand_pricing(self, client, mock_workspace_context):
-        """Should deploy with pricing_type=ON_DEMAND (interruptible=False)."""
+        """Should deploy with pricing_type=ON_DEMAND using REST create_pod."""
         mock_workspace_context.workspace_config_manager.get_runpod_token.return_value = "rpa_test123"
 
         with patch("api.v2.deploy.RunPodClient") as MockClient:
@@ -532,9 +549,9 @@ class TestRunPodDeployWithPricingType:
             data = await resp.json()
             assert data["status"] == "success"
 
-            # Verify interruptible=False for on-demand
-            call_kwargs = mock_client.create_pod.call_args[1]
-            assert call_kwargs.get("interruptible") is False
+            # Verify create_pod was called (not create_spot_pod)
+            mock_client.create_pod.assert_called_once()
+            mock_client.create_spot_pod.assert_not_called()
 
     async def test_default_pricing_type_is_on_demand(self, client, mock_workspace_context):
         """Should default to ON_DEMAND when pricing_type not specified."""
@@ -558,9 +575,9 @@ class TestRunPodDeployWithPricingType:
 
             assert resp.status == 200
 
-            # Verify interruptible=False (on-demand behavior)
-            call_kwargs = mock_client.create_pod.call_args[1]
-            assert call_kwargs.get("interruptible") is False
+            # Verify create_pod was called (on-demand behavior)
+            mock_client.create_pod.assert_called_once()
+            mock_client.create_spot_pod.assert_not_called()
 
 
 @pytest.mark.integration

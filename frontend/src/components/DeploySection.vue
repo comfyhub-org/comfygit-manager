@@ -152,7 +152,7 @@
                 :disabled="!gpu.available"
               >
                 {{ gpu.displayName }} ({{ gpu.memoryInGb }}GB) - ${{ selectedCloudType === 'SECURE' ? gpu.securePrice.toFixed(2) : gpu.communityPrice.toFixed(2) }}/hr
-                {{ !gpu.available ? ' [Unavailable]' : '' }}
+                {{ gpu.stockStatus ? `[${gpu.stockStatus}]` : '' }}{{ !gpu.available ? ' [Unavailable]' : '' }}
               </option>
             </select>
           </div>
@@ -176,16 +176,16 @@
           <div class="config-row">
             <label class="config-label">
               Pricing
-              <span class="info-tooltip" title="On-Demand pods run until you stop them. Spot pods are ~50% cheaper but may be interrupted if capacity is needed. Good for experimentation.">ⓘ</span>
+              <span class="info-tooltip" title="On-Demand pods run until you stop them. Spot pods are cheaper but may be interrupted if capacity is needed. Good for experimentation.">ⓘ</span>
             </label>
             <div class="radio-group">
               <label class="radio-option">
                 <input type="radio" v-model="selectedPricingType" value="ON_DEMAND" />
-                <span class="radio-label">On-Demand</span>
+                <span class="radio-label">On-Demand (${{ getSelectedGpuPrice('ON_DEMAND') }}/hr)</span>
               </label>
               <label class="radio-option">
                 <input type="radio" v-model="selectedPricingType" value="SPOT" />
-                <span class="radio-label">Spot (~50% cheaper)</span>
+                <span class="radio-label">Spot (${{ getSelectedGpuPrice('SPOT') }}/hr)</span>
               </label>
             </div>
           </div>
@@ -582,10 +582,21 @@ const canDeploy = computed(() => {
   return isConnected.value && selectedVolumeId.value && selectedGpu.value && importSource.value && !isDeploying.value
 })
 
-const getSelectedGpuPrice = (cloudType: 'SECURE' | 'COMMUNITY') => {
+const getSelectedGpuPrice = (type: 'SECURE' | 'COMMUNITY' | 'ON_DEMAND' | 'SPOT') => {
   const gpu = gpuTypes.value.find(g => g.id === selectedGpu.value)
   if (!gpu) return '0.00'
-  return cloudType === 'SECURE' ? gpu.securePrice.toFixed(2) : gpu.communityPrice.toFixed(2)
+
+  // Handle cloud type selection (SECURE/COMMUNITY)
+  if (type === 'SECURE') return gpu.securePrice.toFixed(2)
+  if (type === 'COMMUNITY') return gpu.communityPrice.toFixed(2)
+
+  // Handle pricing type selection (ON_DEMAND/SPOT) - uses current cloud type
+  const isSecure = selectedCloudType.value === 'SECURE'
+  if (type === 'ON_DEMAND') {
+    return isSecure ? gpu.securePrice.toFixed(2) : gpu.communityPrice.toFixed(2)
+  }
+  // SPOT pricing
+  return isSecure ? gpu.secureSpotPrice.toFixed(2) : gpu.communitySpotPrice.toFixed(2)
 }
 
 // Pricing summary for deployment
@@ -595,14 +606,16 @@ const pricingSummary = computed(() => {
 
   if (!gpu) return null
 
-  const gpuPrice = selectedCloudType.value === 'SECURE'
-    ? gpu.securePrice
-    : gpu.communityPrice
+  const isSecure = selectedCloudType.value === 'SECURE'
+  const isSpot = selectedPricingType.value === 'SPOT'
 
-  // Spot is approximately 50% of on-demand
-  const effectiveGpuPrice = selectedPricingType.value === 'SPOT'
-    ? gpuPrice * 0.5
-    : gpuPrice
+  // Use actual spot prices from API
+  let gpuPrice: number
+  if (isSpot) {
+    gpuPrice = isSecure ? gpu.secureSpotPrice : gpu.communitySpotPrice
+  } else {
+    gpuPrice = isSecure ? gpu.securePrice : gpu.communityPrice
+  }
 
   // Network volume: ~$0.10/GB/month = ~$0.00014/GB/hr
   const volumePrice = volume ? volume.size_gb * 0.00014 : 0
@@ -611,10 +624,10 @@ const pricingSummary = computed(() => {
   const containerPrice = 0.004
 
   return {
-    gpu: effectiveGpuPrice,
+    gpu: gpuPrice,
     volume: volumePrice,
     container: containerPrice,
-    total: effectiveGpuPrice + volumePrice + containerPrice
+    total: gpuPrice + volumePrice + containerPrice
   }
 })
 
@@ -788,12 +801,22 @@ async function handleDeploy() {
   deployResult.value = null
 
   try {
+    // Get spot bid price if using spot pricing
+    let spotBid: number | undefined
+    if (selectedPricingType.value === 'SPOT') {
+      const gpu = gpuTypes.value.find(g => g.id === selectedGpu.value)
+      if (gpu) {
+        spotBid = selectedCloudType.value === 'SECURE' ? gpu.secureSpotPrice : gpu.communitySpotPrice
+      }
+    }
+
     const result = await deployToRunPod({
       gpu_type_id: selectedGpu.value,
       pod_name: podName.value || 'my-comfyui-deploy',
       network_volume_id: selectedVolumeId.value,
       cloud_type: selectedCloudType.value,
       pricing_type: selectedPricingType.value,
+      spot_bid: spotBid,
       import_source: importSource.value
     })
 

@@ -345,10 +345,11 @@ class RunPodClient:
         volume_mount_path: str = "/workspace",
         min_vcpu_count: int = 2,
         min_memory_in_gb: int = 15,
+        docker_start_cmd: str | None = None,
     ) -> dict:
         """Create a spot/interruptible pod using GraphQL API.
 
-        Spot pods are ~50% cheaper but can be interrupted if capacity is needed.
+        Spot pods are cheaper but can be interrupted if capacity is needed.
 
         Args:
             name: Pod name
@@ -365,11 +366,12 @@ class RunPodClient:
             volume_mount_path: Mount path for volume (default "/workspace")
             min_vcpu_count: Minimum vCPUs (default 2)
             min_memory_in_gb: Minimum RAM in GB (default 15)
+            docker_start_cmd: Container start command (shell script)
 
         Returns:
             Created pod object with id, name, desiredStatus, costPerHr, machineId
         """
-        # Build mutation with inline values (GraphQL doesn't require input type for this)
+        # Build mutation with inline values
         env_str = "[]"
         if env:
             env_items = ", ".join(f'{{key: "{e["key"]}", value: "{e["value"]}"}}' for e in env)
@@ -378,6 +380,13 @@ class RunPodClient:
         network_volume_part = ""
         if network_volume_id:
             network_volume_part = f'networkVolumeId: "{network_volume_id}",'
+
+        # Escape and format docker start command for GraphQL
+        docker_cmd_part = ""
+        if docker_start_cmd:
+            # Escape quotes and newlines for GraphQL string
+            escaped_cmd = docker_start_cmd.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n")
+            docker_cmd_part = f'dockerArgs: "{escaped_cmd}",'
 
         query = f"""
         mutation {{
@@ -396,6 +405,7 @@ class RunPodClient:
                 minMemoryInGb: {min_memory_in_gb}
                 env: {env_str}
                 {network_volume_part}
+                {docker_cmd_part}
             }}) {{
                 id
                 name

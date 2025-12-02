@@ -871,10 +871,13 @@ export interface RunPodGpuType {
   id: string
   displayName: string
   memoryInGb: number
-  securePrice: number      // $/hr for secure cloud
-  communityPrice: number   // $/hr for community cloud
+  securePrice: number           // $/hr for secure cloud (on-demand)
+  communityPrice: number        // $/hr for community cloud (on-demand)
+  secureSpotPrice: number       // $/hr for secure cloud (spot)
+  communitySpotPrice: number    // $/hr for community cloud (spot)
+  stockStatus: 'HIGH' | 'MEDIUM' | 'LOW' | null  // GPU availability level
   available: boolean
-  data_center_id?: string  // Which data center this GPU is in
+  data_center_id?: string       // Which data center this GPU is in
 }
 
 export interface DeployConfig {
@@ -883,8 +886,9 @@ export interface DeployConfig {
   network_volume_id: string  // Network volume ID instead of ephemeral storage
   cloud_type: 'SECURE' | 'COMMUNITY'
   pricing_type: 'ON_DEMAND' | 'SPOT'
-  import_source: string       // Git URL or tarball path for cg import
-  branch?: string             // Optional git branch/tag
+  spot_bid?: number          // Bid price for SPOT pricing (required when pricing_type is SPOT)
+  import_source: string      // Git URL or tarball path for cg import
+  branch?: string            // Optional git branch/tag
 }
 
 export interface EnvironmentDeploySummary {

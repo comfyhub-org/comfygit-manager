@@ -239,6 +239,7 @@ async def deploy_to_runpod(request: web.Request, workspace) -> web.Response:
         network_volume_id: Network volume to attach (for persistent storage)
         cloud_type: "SECURE" or "COMMUNITY" (optional, default "SECURE")
         pricing_type: "ON_DEMAND" or "SPOT" (optional, default "ON_DEMAND")
+        spot_bid: Bid price for spot instances (required for SPOT pricing_type)
         import_source: Git URL or tarball path for cg import (required)
         branch: Git branch/tag for import (optional)
 
@@ -260,6 +261,7 @@ async def deploy_to_runpod(request: web.Request, workspace) -> web.Response:
     network_volume_id = data.get("network_volume_id")
     cloud_type = data.get("cloud_type", "SECURE")
     pricing_type = data.get("pricing_type", "ON_DEMAND")
+    spot_bid = data.get("spot_bid")  # Required for SPOT pricing
     import_source = data.get("import_source")
     branch = data.get("branch")
 
@@ -270,8 +272,14 @@ async def deploy_to_runpod(request: web.Request, workspace) -> web.Response:
             status=400,
         )
 
-    # Convert pricing_type to interruptible flag
-    interruptible = pricing_type == "SPOT"
+    is_spot = pricing_type == "SPOT"
+
+    # Validate spot_bid for spot instances
+    if is_spot and not spot_bid:
+        return web.json_response(
+            {"status": "error", "error": "spot_bid is required for SPOT pricing"},
+            status=400,
+        )
 
     # Generate unique deployment ID
     env_name = pod_name.replace("comfygit-", "") if pod_name else "deploy"
@@ -287,20 +295,33 @@ async def deploy_to_runpod(request: web.Request, workspace) -> web.Response:
     client = RunPodClient(api_key)
 
     try:
-        # Create pod with ComfyUI setup
-        # Container disk hardcoded at 30GB per MVP spec
-        pod = await client.create_pod(
-            name=pod_name,
-            image_name="runpod/pytorch:2.1.0-py3.10-cuda11.8.0-devel-ubuntu22.04",
-            gpu_type_id=gpu_type_id,
-            cloud_type=cloud_type,
-            network_volume_id=network_volume_id,
-            container_disk_in_gb=30,
-            ports=["8188/http", "22/tcp"],
-            interruptible=interruptible,
-            env={"COMFYGIT_HOME": "/workspace/comfygit"},
-            docker_start_cmd=["/bin/bash", "-c", startup_script],
-        )
+        if is_spot:
+            # Use GraphQL mutation for spot pods
+            pod = await client.create_spot_pod(
+                name=pod_name,
+                image_name="runpod/pytorch:2.1.0-py3.10-cuda11.8.0-devel-ubuntu22.04",
+                gpu_type_id=gpu_type_id,
+                bid_per_gpu=float(spot_bid),
+                cloud_type=cloud_type,
+                network_volume_id=network_volume_id,
+                container_disk_in_gb=30,
+                ports="8188/http,22/tcp",
+                env=[{"key": "COMFYGIT_HOME", "value": "/workspace/comfygit"}],
+                docker_start_cmd=startup_script,
+            )
+        else:
+            # Use REST API for on-demand pods
+            pod = await client.create_pod(
+                name=pod_name,
+                image_name="runpod/pytorch:2.1.0-py3.10-cuda11.8.0-devel-ubuntu22.04",
+                gpu_type_id=gpu_type_id,
+                cloud_type=cloud_type,
+                network_volume_id=network_volume_id,
+                container_disk_in_gb=30,
+                ports=["8188/http", "22/tcp"],
+                env={"COMFYGIT_HOME": "/workspace/comfygit"},
+                docker_start_cmd=["/bin/bash", "-c", startup_script],
+            )
 
         return web.json_response({
             "status": "success",
@@ -443,12 +464,18 @@ async def get_runpod_gpu_types(request: web.Request, workspace) -> web.Response:
         if not secure_price and not community_price:
             continue
 
+        # Extract lowest price info (contains stock status)
+        lowest_price = gpu.get("lowestPrice") or {}
+
         gpu_types.append({
             "id": gpu.get("id"),
             "displayName": gpu.get("displayName"),
             "memoryInGb": gpu.get("memoryInGb"),
             "securePrice": secure_price or 0,
             "communityPrice": community_price or 0,
+            "secureSpotPrice": gpu.get("secureSpotPrice") or 0,
+            "communitySpotPrice": gpu.get("communitySpotPrice") or 0,
+            "stockStatus": lowest_price.get("stockStatus"),  # HIGH, MEDIUM, LOW, or None
             "available": gpu.get("secureCloud") or gpu.get("communityCloud") or False,
         })
 
