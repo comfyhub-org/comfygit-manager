@@ -620,7 +620,7 @@ const {
   getDeploymentStatus,
   getStoredRunPodKey,
   clearRunPodKey,
-  validateExport,
+  validateDeploy,
   getRemotes,
   getRemoteSyncStatus,
   fetchRemote,
@@ -933,8 +933,15 @@ async function loadNetworkVolumes() {
         })
       }
     }
-    dataCenters.value = Array.from(dcMap.values())
-    console.log('[Deploy] Data centers from volumes:', dataCenters.value)
+
+    // If no volumes exist, fetch data centers directly so user can see available regions
+    if (result.volumes.length === 0) {
+      console.log('[Deploy] No volumes found, loading data centers directly...')
+      await loadDataCenters()
+    } else {
+      dataCenters.value = Array.from(dcMap.values())
+    }
+    console.log('[Deploy] Data centers:', dataCenters.value)
 
     // Auto-select first volume if available and set region from it
     if (networkVolumes.value.length > 0) {
@@ -950,6 +957,10 @@ async function loadNetworkVolumes() {
       } else {
         console.warn('[Deploy] Volume has no data_center_id!')
       }
+    } else if (dataCenters.value.length > 0) {
+      // No volumes but we have data centers - auto-select first region
+      selectedRegion.value = dataCenters.value[0].id
+      console.log('[Deploy] No volumes, auto-selected region:', selectedRegion.value)
     }
   } catch (err) {
     emit('toast', 'Failed to load network volumes', 'error')
@@ -1064,7 +1075,7 @@ async function handleDeploy() {
   deployResult.value = null
 
   try {
-    const result = await validateExport()
+    const result = await validateDeploy()
     validationResult.value = result
 
     if (!result.can_export) {
@@ -1095,7 +1106,7 @@ async function handleDeployConfirmed() {
 
 async function handleRevalidate() {
   try {
-    const result = await validateExport()
+    const result = await validateDeploy()
     validationResult.value = result
   } catch (err) {
     console.error('Re-validation failed:', err)

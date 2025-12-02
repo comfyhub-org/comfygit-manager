@@ -1585,6 +1585,7 @@ onMounted(async () => {
   flex: 1;
   overflow-y: auto;
   padding: var(--cg-space-4);
+  user-select: text;
 }
 
 .loading {
@@ -1599,6 +1600,8 @@ onMounted(async () => {
   padding: var(--cg-space-3);
   color: var(--cg-color-error);
   font-size: var(--cg-font-size-sm);
+  user-select: text;
+  cursor: text;
 }
 
 .view-placeholder {

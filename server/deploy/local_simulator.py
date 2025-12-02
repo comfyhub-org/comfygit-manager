@@ -411,20 +411,39 @@ class LocalSimulatorClient:
         return True
 
     async def list_network_volumes(self) -> list[dict]:
-        """List simulated network volumes (Docker volumes with our prefix)."""
+        """List simulated network volumes (Docker volumes with our prefix).
+
+        Always includes a default 'workspace' volume for easy testing.
+        """
         volumes = self.docker.volumes.list(
             filters={"name": self.VOLUME_PREFIX}
         )
 
-        return [
+        result = [
             {
                 "id": vol.name.replace(self.VOLUME_PREFIX, ""),
                 "name": vol.name,
                 "dataCenterId": "LOCAL-SIM",
+                "dataCenter": "LOCAL-SIM",
+                "dataCenterName": "Local Simulator",
                 "size": 100,
             }
             for vol in volumes
         ]
+
+        # Always include a default volume for testing (creates on first use)
+        default_vol_id = "workspace"
+        if not any(v["id"] == default_vol_id for v in result):
+            result.insert(0, {
+                "id": default_vol_id,
+                "name": f"{self.VOLUME_PREFIX}{default_vol_id}",
+                "dataCenterId": "LOCAL-SIM",
+                "dataCenter": "LOCAL-SIM",
+                "dataCenterName": "Local Simulator",
+                "size": 100,
+            })
+
+        return result
 
     async def get_gpu_types_with_pricing(self, data_center_id: str | None = None) -> list[dict]:
         """Get simulated GPU types."""

@@ -1,5 +1,11 @@
 /* ComfyGit Panel Theme System - Base Variables */
 
+/* Ensure text is selectable in ComfyGit panel (ComfyUI may override this) */
+[data-comfygit-theme] {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
 :root {
   /* ============================================
      THEME VARIABLE DEFINITIONS

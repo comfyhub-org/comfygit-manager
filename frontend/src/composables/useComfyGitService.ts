@@ -327,6 +327,25 @@ export function useComfyGitService() {
     })
   }
 
+  async function validateDeploy(): Promise<ExportValidationResult> {
+    // Deploy validation doesn't check for uncommitted changes
+    // because deploys pull from git remotes, not local files
+    if (USE_MOCK) {
+      // Mock always allows deploy
+      return {
+        can_export: true,
+        blocking_issues: [],
+        warnings: { models_without_sources: [] }
+      }
+    }
+
+    return fetchApi<ExportValidationResult>('/v2/comfygit/deploy/validate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({})
+    })
+  }
+
   async function exportEnvWithForce(outputPath?: string): Promise<ExportResult> {
     if (USE_MOCK) return mockApi.exportEnvWithForce(outputPath)
 
@@ -1398,6 +1417,7 @@ export function useComfyGitService() {
     getHistory,
     exportEnv,
     validateExport,
+    validateDeploy,
     exportEnvWithForce,
     // Git Operations
     getBranches,

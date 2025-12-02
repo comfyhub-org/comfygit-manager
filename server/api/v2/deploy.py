@@ -67,6 +67,74 @@ async def get_deploy_summary(request: web.Request, env) -> web.Response:
     return web.json_response(summary)
 
 
+def _validate_deploy(env):
+    """Validate environment for deployment (sync helper).
+
+    Unlike export validation, deploy validation does NOT check for uncommitted
+    changes because deployments pull from git remotes, not local files.
+    """
+    warnings = {
+        "models_without_sources": [],
+    }
+
+    # Check for models without sources (warning only)
+    pyproject = env.pyproject
+    models_by_hash = {
+        m.hash: m
+        for m in pyproject.models.get_all()
+        if not m.sources
+    }
+
+    if models_by_hash:
+        models_without_sources = []
+        all_workflows = pyproject.workflows.get_all_with_resolutions()
+        for workflow_name in all_workflows.keys():
+            workflow_models = pyproject.workflows.get_workflow_models(workflow_name)
+            for wf_model in workflow_models:
+                if wf_model.hash and wf_model.hash in models_by_hash:
+                    existing = next(
+                        (m for m in models_without_sources if m["hash"] == wf_model.hash),
+                        None
+                    )
+                    if existing:
+                        existing["workflows"].append(workflow_name)
+                    else:
+                        model_data = models_by_hash[wf_model.hash]
+                        models_without_sources.append({
+                            "filename": model_data.filename,
+                            "hash": wf_model.hash,
+                            "workflows": [workflow_name]
+                        })
+
+        warnings["models_without_sources"] = models_without_sources
+
+    return {
+        "can_export": True,  # Always allow deploy (pulls from remote)
+        "blocking_issues": [],
+        "warnings": warnings
+    }
+
+
+@routes.post("/v2/comfygit/deploy/validate")
+@requires_environment
+async def validate_deploy(request: web.Request, env) -> web.Response:
+    """Validate environment for deployment.
+
+    Unlike export validation, this does NOT check for uncommitted changes
+    because deployments pull code from git remotes, not local files.
+
+    Only checks for warnings (like models without sources) that the user
+    should be aware of before deploying.
+
+    Returns:
+        can_deploy: Always true (no blocking issues for deploy)
+        blocking_issues: Always empty
+        warnings: Models without download sources, etc.
+    """
+    result = await run_sync(_validate_deploy, env)
+    return web.json_response(result)
+
+
 @routes.post("/v2/comfygit/deploy/runpod/test")
 @requires_workspace
 async def test_runpod_connection(request: web.Request, workspace) -> web.Response:
