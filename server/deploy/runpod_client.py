@@ -3,9 +3,12 @@
 REST API v1: https://rest.runpod.io/v1
 GraphQL API: https://api.runpod.io/graphql
 """
+import time
 import aiohttp
 from typing import Any
 from dataclasses import dataclass
+
+from .runpod_api_logger import log_api_exchange, log_graphql_exchange
 
 # RunPod data centers from OpenAPI spec (static list - no REST endpoint available)
 DATA_CENTERS = [
@@ -179,71 +182,106 @@ class RunPodClient:
 
                 return response
 
-    async def _get(self, path: str, params: dict | None = None) -> Any:
+    async def _get(self, path: str, params: dict | None = None, operation: str = "get") -> Any:
         """Make GET request and return JSON response."""
+        start = time.perf_counter()
         async with aiohttp.ClientSession() as session:
             async with session.get(
                 f"{self.base_url}{path}",
                 params=params,
                 headers=self._headers(),
             ) as response:
+                latency = (time.perf_counter() - start) * 1000
                 if response.status >= 400:
-                    await self._handle_error(response)
-                return await response.json()
+                    await self._handle_error(response, operation, path, params, latency)
+                result = await response.json()
+                log_api_exchange(operation, {"method": "GET", "path": path, "payload": params}, result, latency)
+                return result
 
-    async def _post(self, path: str, data: dict | None = None) -> Any:
+    async def _post(self, path: str, data: dict | None = None, operation: str = "post") -> Any:
         """Make POST request and return JSON response."""
+        start = time.perf_counter()
         async with aiohttp.ClientSession() as session:
             async with session.post(
                 f"{self.base_url}{path}",
                 json=data,
                 headers=self._headers(),
             ) as response:
+                latency = (time.perf_counter() - start) * 1000
                 if response.status >= 400:
-                    await self._handle_error(response)
+                    await self._handle_error(response, operation, path, data, latency)
                 if response.status == 204:
+                    log_api_exchange(operation, {"method": "POST", "path": path, "payload": data}, None, latency)
                     return None
                 try:
-                    return await response.json()
+                    result = await response.json()
+                    log_api_exchange(operation, {"method": "POST", "path": path, "payload": data}, result, latency)
+                    return result
                 except Exception:
+                    log_api_exchange(operation, {"method": "POST", "path": path, "payload": data}, None, latency)
                     return None
 
-    async def _delete(self, path: str) -> None:
+    async def _delete(self, path: str, operation: str = "delete") -> None:
         """Make DELETE request."""
+        start = time.perf_counter()
         async with aiohttp.ClientSession() as session:
             async with session.delete(
                 f"{self.base_url}{path}",
                 headers=self._headers(),
             ) as response:
+                latency = (time.perf_counter() - start) * 1000
                 if response.status >= 400:
-                    await self._handle_error(response)
+                    await self._handle_error(response, operation, path, None, latency)
+                log_api_exchange(operation, {"method": "DELETE", "path": path}, {"status": "ok"}, latency)
 
-    async def _patch(self, path: str, data: dict | None = None) -> Any:
+    async def _patch(self, path: str, data: dict | None = None, operation: str = "patch") -> Any:
         """Make PATCH request and return JSON response."""
+        start = time.perf_counter()
         async with aiohttp.ClientSession() as session:
             async with session.patch(
                 f"{self.base_url}{path}",
                 json=data,
                 headers=self._headers(),
             ) as response:
+                latency = (time.perf_counter() - start) * 1000
                 if response.status >= 400:
-                    await self._handle_error(response)
-                return await response.json()
+                    await self._handle_error(response, operation, path, data, latency)
+                result = await response.json()
+                log_api_exchange(operation, {"method": "PATCH", "path": path, "payload": data}, result, latency)
+                return result
 
-    async def _handle_error(self, response: aiohttp.ClientResponse) -> None:
-        """Handle error response."""
+    async def _handle_error(
+        self,
+        response: aiohttp.ClientResponse,
+        operation: str = "unknown",
+        path: str = "",
+        payload: Any = None,
+        latency_ms: float | None = None,
+    ) -> None:
+        """Handle error response and log it."""
         try:
             error_body = await response.json()
             message = error_body.get("message", error_body.get("error", str(error_body)))
         except Exception:
             message = await response.text() or f"HTTP {response.status}"
+
+        # Log the error
+        log_api_exchange(
+            operation,
+            {"method": response.method, "path": path, "payload": payload},
+            {"status_code": response.status, "error": message},
+            latency_ms,
+            error=message,
+        )
         raise RunPodAPIError(message, response.status)
 
     # =========================================================================
     # GraphQL API
     # =========================================================================
 
-    async def _graphql_query(self, query: str, variables: dict | None = None) -> dict:
+    async def _graphql_query(
+        self, query: str, variables: dict | None = None, operation: str = "graphql"
+    ) -> dict:
         """Execute a GraphQL query against RunPod API.
 
         Note: RunPod GraphQL uses API key as URL parameter, not Bearer token.
@@ -251,6 +289,7 @@ class RunPodClient:
         Args:
             query: GraphQL query string
             variables: Optional query variables
+            operation: Operation name for logging
 
         Returns:
             Full GraphQL response dict (may contain "data" and/or "errors")
@@ -260,18 +299,23 @@ class RunPodClient:
         if variables:
             payload["variables"] = variables
 
+        start = time.perf_counter()
         async with aiohttp.ClientSession() as session:
             async with session.post(
                 url,
                 json=payload,
                 headers={"Content-Type": "application/json"},
             ) as response:
-                return await response.json()
+                result = await response.json()
+                latency = (time.perf_counter() - start) * 1000
+                log_graphql_exchange(operation, query, variables, result, latency)
+                return result
 
-    def _handle_graphql_errors(self, result: dict) -> None:
+    def _handle_graphql_errors(self, result: dict, operation: str = "graphql") -> None:
         """Raise exception if GraphQL response contains errors."""
         if "errors" in result:
             error_msg = result["errors"][0].get("message", "GraphQL error")
+            log_api_exchange(operation, {"method": "POST", "path": "/graphql"}, result, error=error_msg)
             raise RunPodAPIError(error_msg, 400)
 
     async def get_user_info(self) -> dict[str, Any]:
@@ -293,8 +337,8 @@ class RunPodClient:
             }
         }
         """
-        result = await self._graphql_query(query)
-        self._handle_graphql_errors(result)
+        result = await self._graphql_query(query, operation="get_user_info")
+        self._handle_graphql_errors(result, "get_user_info")
 
         # Handle null data (happens with invalid/truncated API keys)
         if not result.get("data") or not result["data"].get("myself"):
@@ -343,8 +387,8 @@ class RunPodClient:
             }}
         }}
         """
-        result = await self._graphql_query(query)
-        self._handle_graphql_errors(result)
+        result = await self._graphql_query(query, operation="get_gpu_types_with_pricing")
+        self._handle_graphql_errors(result, "get_gpu_types_with_pricing")
         return result["data"]["gpuTypes"]
 
     async def get_data_centers_from_api(self) -> list[dict]:
@@ -367,8 +411,8 @@ class RunPodClient:
             }
         }
         """
-        result = await self._graphql_query(query)
-        self._handle_graphql_errors(result)
+        result = await self._graphql_query(query, operation="get_data_centers")
+        self._handle_graphql_errors(result, "get_data_centers")
         return result["data"]["myself"]["datacenters"]
 
     async def create_spot_pod(
@@ -458,8 +502,8 @@ class RunPodClient:
         }}
         """
 
-        result = await self._graphql_query(query)
-        self._handle_graphql_errors(result)
+        result = await self._graphql_query(query, operation="create_spot_pod")
+        self._handle_graphql_errors(result, "create_spot_pod")
         return result["data"]["podRentInterruptable"]
 
     # =========================================================================
@@ -512,7 +556,7 @@ class RunPodClient:
         if include_machine:
             params["includeMachine"] = "true"
 
-        return await self._get("/pods", params=params or None)
+        return await self._get("/pods", params=params or None, operation="list_pods")
 
     async def get_pod(
         self,
@@ -532,7 +576,7 @@ class RunPodClient:
         if include_machine:
             params["includeMachine"] = "true"
 
-        return await self._get(f"/pods/{pod_id}", params=params or None)
+        return await self._get(f"/pods/{pod_id}", params=params or None, operation="get_pod")
 
     async def create_pod(
         self,
@@ -592,7 +636,7 @@ class RunPodClient:
         if data_center_ids:
             data["dataCenterIds"] = data_center_ids
 
-        return await self._post("/pods", data=data)
+        return await self._post("/pods", data=data, operation="create_pod")
 
     async def update_pod(
         self,
@@ -632,7 +676,7 @@ class RunPodClient:
         if env is not None:
             data["env"] = env
 
-        return await self._patch(f"/pods/{pod_id}", data=data)
+        return await self._patch(f"/pods/{pod_id}", data=data, operation="update_pod")
 
     async def delete_pod(self, pod_id: str) -> bool:
         """Delete a pod.
@@ -643,7 +687,7 @@ class RunPodClient:
         Returns:
             True on success
         """
-        await self._delete(f"/pods/{pod_id}")
+        await self._delete(f"/pods/{pod_id}", operation="delete_pod")
         return True
 
     async def start_pod(self, pod_id: str) -> dict:
@@ -664,8 +708,8 @@ class RunPodClient:
             }}
         }}
         """
-        result = await self._graphql_query(query)
-        self._handle_graphql_errors(result)
+        result = await self._graphql_query(query, operation="start_pod")
+        self._handle_graphql_errors(result, "start_pod")
         return result["data"]["podResume"]
 
     async def stop_pod(self, pod_id: str) -> dict:
@@ -687,8 +731,8 @@ class RunPodClient:
             }}
         }}
         """
-        result = await self._graphql_query(query)
-        self._handle_graphql_errors(result)
+        result = await self._graphql_query(query, operation="stop_pod")
+        self._handle_graphql_errors(result, "stop_pod")
         return result["data"]["podStop"]
 
     async def restart_pod(self, pod_id: str) -> bool:
@@ -700,7 +744,7 @@ class RunPodClient:
         Returns:
             True on success
         """
-        await self._post(f"/pods/{pod_id}/restart")
+        await self._post(f"/pods/{pod_id}/restart", operation="restart_pod")
         return True
 
     # =========================================================================
@@ -727,7 +771,7 @@ class RunPodClient:
         if include_runpod:
             params["includeRunpodTemplates"] = "true"
 
-        return await self._get("/templates", params=params or None)
+        return await self._get("/templates", params=params or None, operation="list_templates")
 
     async def get_template(self, template_id: str) -> dict:
         """Get template by ID.
@@ -738,7 +782,7 @@ class RunPodClient:
         Returns:
             Template object
         """
-        return await self._get(f"/templates/{template_id}")
+        return await self._get(f"/templates/{template_id}", operation="get_template")
 
     async def create_template(
         self,
@@ -785,7 +829,7 @@ class RunPodClient:
         if env:
             data["env"] = env
 
-        return await self._post("/templates", data=data)
+        return await self._post("/templates", data=data, operation="create_template")
 
     async def delete_template(self, template_id: str) -> bool:
         """Delete a template.
@@ -796,7 +840,7 @@ class RunPodClient:
         Returns:
             True on success
         """
-        await self._delete(f"/templates/{template_id}")
+        await self._delete(f"/templates/{template_id}", operation="delete_template")
         return True
 
     # =========================================================================
@@ -809,7 +853,7 @@ class RunPodClient:
         Returns:
             List of network volume objects
         """
-        return await self._get("/networkvolumes")
+        return await self._get("/networkvolumes", operation="list_network_volumes")
 
     async def get_network_volume(self, volume_id: str) -> dict:
         """Get network volume by ID.
@@ -820,7 +864,7 @@ class RunPodClient:
         Returns:
             Network volume object
         """
-        return await self._get(f"/networkvolumes/{volume_id}")
+        return await self._get(f"/networkvolumes/{volume_id}", operation="get_network_volume")
 
     async def create_network_volume(
         self,
@@ -844,7 +888,7 @@ class RunPodClient:
             "dataCenterId": data_center_id,
         }
 
-        return await self._post("/networkvolumes", data=data)
+        return await self._post("/networkvolumes", data=data, operation="create_network_volume")
 
     async def delete_network_volume(self, volume_id: str) -> bool:
         """Delete a network volume.
@@ -855,7 +899,7 @@ class RunPodClient:
         Returns:
             True on success
         """
-        await self._delete(f"/networkvolumes/{volume_id}")
+        await self._delete(f"/networkvolumes/{volume_id}", operation="delete_network_volume")
         return True
 
     # =========================================================================
