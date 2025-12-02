@@ -75,6 +75,7 @@ import type {
   NodesResult,
   ExportValidationResult,
   ExportResult,
+  DataCenter,
   EnvironmentDeploySummary,
   NetworkVolume,
   RunPodGpuType,
@@ -2145,6 +2146,18 @@ export const mockApi = {
     return {
       status: 'error',
       message: 'Invalid API key format. Keys should start with "rp_"'
+    }
+  },
+
+  getDataCenters: async (): Promise<{ data_centers: DataCenter[] }> => {
+    await delay(300)
+    return {
+      data_centers: [
+        { id: 'US-IL-1', name: 'United States', available: true },
+        { id: 'EU-CZ-1', name: 'Europe (Czech)', available: true },
+        { id: 'EU-RO-1', name: 'Europe (Romania)', available: true },
+        { id: 'CA-MTL-1', name: 'Canada (Montreal)', available: true }
+      ]
     }
   },
 

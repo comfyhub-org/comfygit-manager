@@ -43,6 +43,7 @@ import type {
   InitializeProgress,
   ValidatePathRequest,
   ValidatePathResult,
+  DataCenter,
   EnvironmentDeploySummary,
   NetworkVolume,
   RunPodGpuType,
@@ -1296,6 +1297,11 @@ export function useComfyGitService() {
     return fetchApi<EnvironmentDeploySummary>('/v2/comfygit/deploy/summary')
   }
 
+  async function getDataCenters(): Promise<{ data_centers: DataCenter[] }> {
+    if (USE_MOCK) return mockApi.getDataCenters()
+    return fetchApi<{ data_centers: DataCenter[] }>('/v2/comfygit/deploy/runpod/data-centers')
+  }
+
   async function testRunPodConnection(apiKey: string, saveKey: boolean): Promise<RunPodConnectionResult> {
     if (USE_MOCK) return mockApi.testRunPodConnection(apiKey, saveKey)
     return fetchApi<RunPodConnectionResult>('/v2/comfygit/deploy/runpod/test', {
@@ -1448,6 +1454,7 @@ export function useComfyGitService() {
     validatePath,
     // Deploy Operations
     getDeploySummary,
+    getDataCenters,
     testRunPodConnection,
     getNetworkVolumes,
     getRunPodGpuTypes,

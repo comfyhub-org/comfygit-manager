@@ -71,14 +71,34 @@
       <!-- Configuration Section (only show when connected) -->
       <SectionGroup v-if="isConnected" title="CONFIGURATION">
         <div class="config-card">
+          <!-- Region -->
+          <div class="config-row">
+            <label class="config-label">Region</label>
+            <select
+              v-model="selectedRegion"
+              class="config-select"
+              :disabled="isLoadingDataCenters"
+            >
+              <option v-if="isLoadingDataCenters" value="">Loading...</option>
+              <option
+                v-for="dc in dataCenters"
+                :key="dc.id"
+                :value="dc.id"
+                :disabled="!dc.available"
+              >
+                {{ dc.id }} ({{ dc.name }}){{ !dc.available ? ' [Unavailable]' : '' }}
+              </option>
+            </select>
+          </div>
+
           <!-- Network Volume -->
           <div class="config-row">
             <label class="config-label">Network Volume</label>
             <div v-if="isLoadingVolumes" class="loading-inline">Loading volumes...</div>
-            <template v-else-if="networkVolumes.length === 0">
+            <template v-else-if="filteredVolumes.length === 0">
               <div class="no-volumes-state">
                 <span class="no-volumes-icon">⚠</span>
-                <span class="no-volumes-text">No network volumes found</span>
+                <span class="no-volumes-text">No volumes in {{ selectedRegion || 'this region' }}</span>
               </div>
               <p class="volume-help">
                 Network volumes provide persistent storage that survives pod termination.
@@ -96,11 +116,11 @@
             <template v-else>
               <select v-model="selectedVolumeId" class="config-select">
                 <option
-                  v-for="vol in networkVolumes"
+                  v-for="vol in filteredVolumes"
                   :key="vol.id"
                   :value="vol.id"
                 >
-                  {{ vol.name }} ({{ vol.size_gb }}GB, {{ vol.data_center_id }})
+                  {{ vol.name }} ({{ vol.size_gb }}GB)
                 </option>
               </select>
               <a
@@ -148,6 +168,24 @@
               <label class="radio-option">
                 <input type="radio" v-model="selectedCloudType" value="COMMUNITY" />
                 <span class="radio-label">Community (${{ getSelectedGpuPrice('COMMUNITY') }}/hr)</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Pricing Type -->
+          <div class="config-row">
+            <label class="config-label">
+              Pricing
+              <span class="info-tooltip" title="On-Demand pods run until you stop them. Spot pods are ~50% cheaper but may be interrupted if capacity is needed. Good for experimentation.">ⓘ</span>
+            </label>
+            <div class="radio-group">
+              <label class="radio-option">
+                <input type="radio" v-model="selectedPricingType" value="ON_DEMAND" />
+                <span class="radio-label">On-Demand</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" v-model="selectedPricingType" value="SPOT" />
+                <span class="radio-label">Spot (~50% cheaper)</span>
               </label>
             </div>
           </div>
@@ -200,6 +238,49 @@
         </div>
       </SectionGroup>
 
+      <!-- Deployment Summary (Pricing + Specs) -->
+      <SectionGroup v-if="isConnected && pricingSummary" title="DEPLOYMENT SUMMARY">
+        <div class="deployment-summary">
+          <div class="summary-columns">
+            <div class="summary-column">
+              <div class="column-header">Pricing</div>
+              <div class="pricing-row">
+                <span class="pricing-label">GPU:</span>
+                <span class="pricing-value">${{ pricingSummary.gpu.toFixed(2) }}/hr</span>
+              </div>
+              <div class="pricing-row">
+                <span class="pricing-label">Volume:</span>
+                <span class="pricing-value">${{ pricingSummary.volume.toFixed(3) }}/hr</span>
+              </div>
+              <div class="pricing-row">
+                <span class="pricing-label">Disk:</span>
+                <span class="pricing-value">${{ pricingSummary.container.toFixed(3) }}/hr</span>
+              </div>
+              <div class="pricing-divider"></div>
+              <div class="pricing-row total">
+                <span class="pricing-label">Total:</span>
+                <span class="pricing-value">~${{ pricingSummary.total.toFixed(2) }}/hr</span>
+              </div>
+            </div>
+            <div class="summary-column">
+              <div class="column-header">Pod Specs</div>
+              <div class="spec-row">
+                <span>{{ gpuTypes.find(g => g.id === selectedGpu)?.displayName || 'GPU' }} ({{ gpuTypes.find(g => g.id === selectedGpu)?.memoryInGb || 0 }}GB VRAM)</span>
+              </div>
+              <div class="spec-row">
+                <span>Region: {{ selectedRegion }}</span>
+              </div>
+              <div class="spec-row" v-if="selectedVolume">
+                <span>Volume: {{ selectedVolume.name }}</span>
+              </div>
+              <div v-if="selectedPricingType === 'SPOT'" class="spec-row spot-warning">
+                <span>⚠ Spot instance - may be interrupted</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </SectionGroup>
+
       <!-- Deploy Actions -->
       <div v-if="isConnected" class="deploy-actions">
         <ActionButton
@@ -214,17 +295,6 @@
             <path d="M14 12v2H2v-2H0v4h16v-4h-2z"/>
           </svg>
           Deploy to RunPod
-        </ActionButton>
-        <ActionButton
-          variant="secondary"
-          size="md"
-          :loading="isExporting"
-          @click="handleExportPackage"
-        >
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-            <path d="M8 1L3 6h3v5h4V6h3L8 1z"/>
-          </svg>
-          Export Package
         </ActionButton>
       </div>
 
@@ -312,37 +382,6 @@
         </div>
       </SectionGroup>
 
-      <!-- Export Result -->
-      <SectionGroup v-if="exportResult" title="EXPORT RESULT">
-        <ItemCard :status="exportResult.status === 'success' ? 'synced' : 'broken'">
-          <template #icon>{{ exportResult.status === 'success' ? '✓' : '✕' }}</template>
-          <template #title>
-            {{ exportResult.status === 'success' ? 'Package Created' : 'Export Failed' }}
-          </template>
-          <template #subtitle>
-            {{ exportResult.message }}
-          </template>
-          <template v-if="exportResult.package_path" #details>
-            <DetailRow label="Saved to:">
-              <FilePath :path="exportResult.package_path" />
-            </DetailRow>
-            <DetailRow label="Size:" :value="`${exportResult.package_size_mb} MB`" />
-          </template>
-          <template #actions>
-            <ActionButton
-              v-if="exportResult.package_path"
-              variant="secondary"
-              size="sm"
-              @click="copyPath(exportResult.package_path!)"
-            >
-              Copy Path
-            </ActionButton>
-            <ActionButton variant="ghost" size="sm" @click="exportResult = null">
-              Dismiss
-            </ActionButton>
-          </template>
-        </ItemCard>
-      </SectionGroup>
     </template>
   </PanelLayout>
 
@@ -380,12 +419,12 @@
 import { ref, onMounted, computed, watch } from 'vue'
 import { useComfyGitService } from '@/composables/useComfyGitService'
 import type {
+  DataCenter,
   EnvironmentDeploySummary,
   NetworkVolume,
   RunPodGpuType,
   RunPodInstance,
-  DeployResult,
-  DeployPackageResult
+  DeployResult
 } from '@/types/comfygit'
 import PanelLayout from '@/components/base/organisms/PanelLayout.vue'
 import PanelHeader from '@/components/base/molecules/PanelHeader.vue'
@@ -393,7 +432,6 @@ import SectionGroup from '@/components/base/molecules/SectionGroup.vue'
 import ItemCard from '@/components/base/molecules/ItemCard.vue'
 import DetailRow from '@/components/base/molecules/DetailRow.vue'
 import ActionButton from '@/components/base/atoms/ActionButton.vue'
-import FilePath from '@/components/base/atoms/FilePath.vue'
 import InfoPopover from '@/components/base/molecules/InfoPopover.vue'
 
 const emit = defineEmits<{
@@ -402,13 +440,13 @@ const emit = defineEmits<{
 
 const {
   getDeploySummary,
+  getDataCenters,
   testRunPodConnection,
   getNetworkVolumes,
   getRunPodGpuTypes,
   deployToRunPod,
   getRunPodPods,
   terminateRunPodPod,
-  exportDeployPackage,
   getStoredRunPodKey,
   clearRunPodKey
 } = useComfyGitService()
@@ -425,12 +463,16 @@ const connectionStatus = ref<{ type: 'success' | 'error'; message: string } | nu
 const creditBalance = ref<number | null>(null)
 
 // Configuration State
+const selectedRegion = ref('')
 const selectedVolumeId = ref('')
 const selectedGpu = ref('')
 const selectedCloudType = ref<'SECURE' | 'COMMUNITY'>('SECURE')
+const selectedPricingType = ref<'ON_DEMAND' | 'SPOT'>('ON_DEMAND')
 const podName = ref('my-comfyui-deploy')
 
 // Data State
+const dataCenters = ref<DataCenter[]>([])
+const isLoadingDataCenters = ref(false)
 const networkVolumes = ref<NetworkVolume[]>([])
 const isLoadingVolumes = ref(false)
 const gpuTypes = ref<RunPodGpuType[]>([])
@@ -443,13 +485,17 @@ const isLoadingPods = ref(false)
 // Action State
 const isDeploying = ref(false)
 const deployResult = ref<DeployResult | null>(null)
-const isExporting = ref(false)
-const exportResult = ref<DeployPackageResult | null>(null)
 const terminatingPodId = ref<string | null>(null)
 
 // Computed
 const selectedVolume = computed(() => {
   return networkVolumes.value.find(v => v.id === selectedVolumeId.value) || null
+})
+
+// Filter volumes by selected region
+const filteredVolumes = computed(() => {
+  if (!selectedRegion.value) return networkVolumes.value
+  return networkVolumes.value.filter(v => v.data_center_id === selectedRegion.value)
 })
 
 const canDeploy = computed(() => {
@@ -461,6 +507,36 @@ const getSelectedGpuPrice = (cloudType: 'SECURE' | 'COMMUNITY') => {
   if (!gpu) return '0.00'
   return cloudType === 'SECURE' ? gpu.securePrice.toFixed(2) : gpu.communityPrice.toFixed(2)
 }
+
+// Pricing summary for deployment
+const pricingSummary = computed(() => {
+  const gpu = gpuTypes.value.find(g => g.id === selectedGpu.value)
+  const volume = networkVolumes.value.find(v => v.id === selectedVolumeId.value)
+
+  if (!gpu) return null
+
+  const gpuPrice = selectedCloudType.value === 'SECURE'
+    ? gpu.securePrice
+    : gpu.communityPrice
+
+  // Spot is approximately 50% of on-demand
+  const effectiveGpuPrice = selectedPricingType.value === 'SPOT'
+    ? gpuPrice * 0.5
+    : gpuPrice
+
+  // Network volume: ~$0.10/GB/month = ~$0.00014/GB/hr
+  const volumePrice = volume ? volume.size_gb * 0.00014 : 0
+
+  // Container disk: ~$0.004/hr for 30GB
+  const containerPrice = 0.004
+
+  return {
+    gpu: effectiveGpuPrice,
+    volume: volumePrice,
+    container: containerPrice,
+    total: effectiveGpuPrice + volumePrice + containerPrice
+  }
+})
 
 // Methods
 async function handleTestConnection() {
@@ -479,6 +555,7 @@ async function handleTestConnection() {
 
       // Load additional data
       await Promise.all([
+        loadDataCenters(),
         loadNetworkVolumes(),
         loadSummary(),
         loadPods()
@@ -503,6 +580,8 @@ async function handleClearKey() {
     isConnected.value = false
     connectionStatus.value = null
     creditBalance.value = null
+    dataCenters.value = []
+    selectedRegion.value = ''
     networkVolumes.value = []
     selectedVolumeId.value = ''
     gpuTypes.value = []
@@ -512,6 +591,23 @@ async function handleClearKey() {
     emit('toast', 'API key cleared', 'info')
   } catch (err) {
     emit('toast', 'Failed to clear key', 'error')
+  }
+}
+
+async function loadDataCenters() {
+  isLoadingDataCenters.value = true
+  try {
+    const result = await getDataCenters()
+    dataCenters.value = result.data_centers
+    // Auto-select first available data center
+    const firstAvailable = dataCenters.value.find(dc => dc.available)
+    if (firstAvailable) {
+      selectedRegion.value = firstAvailable.id
+    }
+  } catch (err) {
+    emit('toast', 'Failed to load data centers', 'error')
+  } finally {
+    isLoadingDataCenters.value = false
   }
 }
 
@@ -550,16 +646,34 @@ async function loadGpuTypes(dataCenterId?: string) {
   }
 }
 
-// Watch for volume selection changes to filter GPUs
-watch(selectedVolumeId, async (newVolumeId) => {
-  if (!newVolumeId) {
+// Watch for region changes: filter volumes, clear GPU if region changes, reload GPUs
+watch(selectedRegion, async (newRegion) => {
+  if (!newRegion) return
+
+  // If current volume is in a different region, clear it
+  const currentVolume = networkVolumes.value.find(v => v.id === selectedVolumeId.value)
+  if (currentVolume && currentVolume.data_center_id !== newRegion) {
+    selectedVolumeId.value = ''
+  }
+
+  // Reload GPUs for this region
+  await loadGpuTypes(newRegion)
+})
+
+// Watch for volume changes: update region to match volume's data center
+watch(selectedVolumeId, async (volumeId) => {
+  if (!volumeId) {
     gpuTypes.value = []
     selectedGpu.value = ''
     return
   }
 
-  const volume = networkVolumes.value.find(v => v.id === newVolumeId)
-  if (volume) {
+  const volume = networkVolumes.value.find(v => v.id === volumeId)
+  if (volume && volume.data_center_id !== selectedRegion.value) {
+    // Update region to match volume's data center (will trigger loadGpuTypes via region watcher)
+    selectedRegion.value = volume.data_center_id
+  } else if (volume) {
+    // Same region, just load GPUs
     await loadGpuTypes(volume.data_center_id)
   }
 })
@@ -598,7 +712,8 @@ async function handleDeploy() {
       gpu_type_id: selectedGpu.value,
       pod_name: podName.value || 'my-comfyui-deploy',
       network_volume_id: selectedVolumeId.value,
-      cloud_type: selectedCloudType.value
+      cloud_type: selectedCloudType.value,
+      pricing_type: selectedPricingType.value
     })
 
     deployResult.value = result
@@ -618,30 +733,6 @@ async function handleDeploy() {
     emit('toast', 'Deployment failed', 'error')
   } finally {
     isDeploying.value = false
-  }
-}
-
-async function handleExportPackage() {
-  isExporting.value = true
-  exportResult.value = null
-
-  try {
-    const result = await exportDeployPackage()
-    exportResult.value = result
-
-    if (result.status === 'success') {
-      emit('toast', 'Package created!', 'success')
-    } else {
-      emit('toast', result.message || 'Export failed', 'error')
-    }
-  } catch (err) {
-    exportResult.value = {
-      status: 'error',
-      message: err instanceof Error ? err.message : 'Export failed'
-    }
-    emit('toast', 'Export failed', 'error')
-  } finally {
-    isExporting.value = false
   }
 }
 
@@ -666,11 +757,6 @@ async function handleTerminatePod(podId: string) {
 
 function openComfyUI(url: string) {
   window.open(url, '_blank', 'noopener,noreferrer')
-}
-
-function copyPath(path: string) {
-  navigator.clipboard.writeText(path)
-  emit('toast', 'Path copied to clipboard', 'info')
 }
 
 function formatUptime(seconds: number): string {
@@ -1127,5 +1213,85 @@ onMounted(async () => {
 
 .info-section li strong {
   font-size: var(--cg-font-size-xs);
+}
+
+/* Info Tooltip */
+.info-tooltip {
+  cursor: help;
+  color: var(--cg-color-text-muted);
+  font-size: 12px;
+  margin-left: var(--cg-space-1);
+}
+
+/* Deployment Summary Panel */
+.deployment-summary {
+  background: var(--cg-color-bg-tertiary);
+  border: 1px solid var(--cg-color-border-subtle);
+  padding: var(--cg-space-4);
+}
+
+.summary-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--cg-space-4);
+}
+
+.summary-column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cg-space-2);
+}
+
+.column-header {
+  color: var(--cg-color-text-secondary);
+  font-size: var(--cg-font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--cg-letter-spacing-wide);
+  padding-bottom: var(--cg-space-2);
+  border-bottom: 1px solid var(--cg-color-border-subtle);
+  margin-bottom: var(--cg-space-1);
+}
+
+.pricing-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pricing-label {
+  color: var(--cg-color-text-secondary);
+  font-size: var(--cg-font-size-sm);
+}
+
+.pricing-value {
+  color: var(--cg-color-text-primary);
+  font-size: var(--cg-font-size-sm);
+  font-family: var(--cg-font-mono);
+}
+
+.pricing-divider {
+  height: 1px;
+  background: var(--cg-color-border-subtle);
+  margin: var(--cg-space-1) 0;
+}
+
+.pricing-row.total .pricing-label,
+.pricing-row.total .pricing-value {
+  font-weight: var(--cg-font-weight-semibold);
+}
+
+.pricing-row.total .pricing-value {
+  color: var(--cg-color-accent);
+}
+
+.spec-row {
+  color: var(--cg-color-text-primary);
+  font-size: var(--cg-font-size-sm);
+}
+
+.spec-row.spot-warning {
+  color: var(--cg-color-warning);
+  font-size: var(--cg-font-size-xs);
+  margin-top: var(--cg-space-2);
 }
 </style>

@@ -851,6 +851,12 @@ export interface ImportProgress {
 // Deploy Types
 // =============================================================================
 
+export interface DataCenter {
+  id: string              // e.g., 'US-IL-1', 'EU-CZ-1'
+  name: string            // e.g., 'United States', 'Europe (Czech)'
+  available: boolean
+}
+
 export interface NetworkVolume {
   id: string
   name: string
@@ -876,6 +882,7 @@ export interface DeployConfig {
   pod_name: string
   network_volume_id: string  // Network volume ID instead of ephemeral storage
   cloud_type: 'SECURE' | 'COMMUNITY'
+  pricing_type: 'ON_DEMAND' | 'SPOT'
 }
 
 export interface EnvironmentDeploySummary {
