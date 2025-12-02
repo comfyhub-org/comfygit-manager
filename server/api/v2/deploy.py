@@ -5,6 +5,7 @@ from aiohttp import web
 from cgm_core.decorators import requires_workspace, requires_environment
 from cgm_utils.async_helpers import run_sync
 from deploy.runpod_client import RunPodClient
+from deploy.client_factory import get_deploy_client, is_simulator_mode
 from deploy.startup_script import generate_startup_script, generate_deployment_id
 
 routes = web.RouteTableDef()
@@ -71,14 +72,35 @@ async def get_deploy_summary(request: web.Request, env) -> web.Response:
 async def test_runpod_connection(request: web.Request, workspace) -> web.Response:
     """Test RunPod API key and optionally save it.
 
+    In simulator mode, tests Docker connectivity instead.
+
     Request body:
-        api_key: RunPod API key to test
+        api_key: RunPod API key to test (ignored in simulator mode)
         save_key: If true, save key to workspace config on success
 
     Returns:
         status: "success" or "error"
         message: Human-readable message
     """
+    # Simulator mode - test Docker instead
+    if is_simulator_mode():
+        from deploy.local_simulator import LocalSimulatorClient
+        client = LocalSimulatorClient()
+        result = await client.test_connection()
+        if result.get("success"):
+            return web.json_response({
+                "status": "success",
+                "message": "Connected to Local Simulator",
+                "credit_balance": result.get("credit_balance"),
+                "warning": result.get("warning"),
+                "simulator": True,
+            })
+        else:
+            return web.json_response(
+                {"status": "error", "message": result.get("error", "Simulator error")},
+                status=500,
+            )
+
     data = await request.json()
     api_key = data.get("api_key")
     save_key = data.get("save_key", False)
@@ -119,13 +141,13 @@ async def get_runpod_pods(request: web.Request, workspace) -> web.Response:
         pods: List of pod objects with id, name, status, cost info
     """
     api_key = workspace.workspace_config_manager.get_runpod_token()
-    if not api_key:
+    if not api_key and not is_simulator_mode():
         return web.json_response(
             {"status": "error", "error": "RunPod API key not configured"},
             status=400,
         )
 
-    client = RunPodClient(api_key)
+    client = get_deploy_client(api_key)
     pods = await client.list_pods()
 
     # Transform pods to include all fields expected by frontend RunPodInstance type
@@ -145,7 +167,7 @@ async def get_runpod_pods(request: web.Request, workspace) -> web.Response:
             "cost_per_hour": cost_per_hour,
             "uptime_seconds": uptime_seconds,
             "total_cost": round(total_cost, 4),
-            "comfyui_url": RunPodClient.get_comfyui_url(pod),
+            "comfyui_url": client.get_comfyui_url(pod),
         }
         result_pods.append(result_pod)
 
@@ -166,13 +188,13 @@ async def terminate_runpod_pod(request: web.Request, workspace) -> web.Response:
     pod_id = request.match_info["pod_id"]
 
     api_key = workspace.workspace_config_manager.get_runpod_token()
-    if not api_key:
+    if not api_key and not is_simulator_mode():
         return web.json_response(
             {"status": "error", "error": "RunPod API key not configured"},
             status=400,
         )
 
-    client = RunPodClient(api_key)
+    client = get_deploy_client(api_key)
     try:
         await client.delete_pod(pod_id)
         return web.json_response({
@@ -200,13 +222,13 @@ async def stop_runpod_pod(request: web.Request, workspace) -> web.Response:
     pod_id = request.match_info["pod_id"]
 
     api_key = workspace.workspace_config_manager.get_runpod_token()
-    if not api_key:
+    if not api_key and not is_simulator_mode():
         return web.json_response(
             {"status": "error", "error": "RunPod API key not configured"},
             status=400,
         )
 
-    client = RunPodClient(api_key)
+    client = get_deploy_client(api_key)
     try:
         result = await client.stop_pod(pod_id)
         return web.json_response({
@@ -236,13 +258,13 @@ async def start_runpod_pod(request: web.Request, workspace) -> web.Response:
     pod_id = request.match_info["pod_id"]
 
     api_key = workspace.workspace_config_manager.get_runpod_token()
-    if not api_key:
+    if not api_key and not is_simulator_mode():
         return web.json_response(
             {"status": "error", "error": "RunPod API key not configured"},
             status=400,
         )
 
-    client = RunPodClient(api_key)
+    client = get_deploy_client(api_key)
     try:
         result = await client.start_pod(pod_id)
         return web.json_response({
@@ -278,13 +300,13 @@ async def get_deployment_status(request: web.Request, workspace) -> web.Response
     pod_id = request.match_info["pod_id"]
 
     api_key = workspace.workspace_config_manager.get_runpod_token()
-    if not api_key:
+    if not api_key and not is_simulator_mode():
         return web.json_response(
             {"status": "error", "error": "RunPod API key not configured"},
             status=400,
         )
 
-    client = RunPodClient(api_key)
+    client = get_deploy_client(api_key)
 
     try:
         pod = await client.get_pod(pod_id)
@@ -323,21 +345,23 @@ async def get_deployment_status(request: web.Request, workspace) -> web.Response
 
     # Pod is running - probe ComfyUI to check if it's ready
     if desired_status == "RUNNING":
-        comfyui_url = get_comfyui_url(pod_id)
+        # Use client method for URL (handles both RunPod and simulator)
+        comfyui_url = client.get_comfyui_url(pod)
 
-        try:
-            timeout = aiohttp.ClientTimeout(total=5)
-            async with aiohttp.ClientSession(timeout=timeout) as session:
-                async with session.get(comfyui_url) as resp:
-                    if resp.status == 200:
-                        return web.json_response({
-                            "phase": "READY",
-                            "phase_detail": "ComfyUI is running",
-                            "comfyui_url": comfyui_url,
-                            "console_url": console_url,
-                        })
-        except Exception:
-            pass  # ComfyUI not responding yet
+        if comfyui_url:
+            try:
+                timeout = aiohttp.ClientTimeout(total=5)
+                async with aiohttp.ClientSession(timeout=timeout) as session:
+                    async with session.get(comfyui_url) as resp:
+                        if resp.status == 200:
+                            return web.json_response({
+                                "phase": "READY",
+                                "phase_detail": "ComfyUI is running",
+                                "comfyui_url": comfyui_url,
+                                "console_url": console_url,
+                            })
+            except Exception:
+                pass  # ComfyUI not responding yet
 
         return web.json_response({
             "phase": "SETTING_UP",
@@ -376,7 +400,7 @@ async def deploy_to_runpod(request: web.Request, workspace) -> web.Response:
         deployment_id: Unique deployment identifier
     """
     api_key = workspace.workspace_config_manager.get_runpod_token()
-    if not api_key:
+    if not api_key and not is_simulator_mode():
         return web.json_response(
             {"status": "error", "error": "RunPod API key not configured"},
             status=400,
@@ -401,8 +425,8 @@ async def deploy_to_runpod(request: web.Request, workspace) -> web.Response:
 
     is_spot = pricing_type == "SPOT"
 
-    # Validate spot_bid for spot instances
-    if is_spot and not spot_bid:
+    # Validate spot_bid for spot instances (not applicable in simulator mode)
+    if is_spot and not spot_bid and not is_simulator_mode():
         return web.json_response(
             {"status": "error", "error": "spot_bid is required for SPOT pricing"},
             status=400,
@@ -419,10 +443,11 @@ async def deploy_to_runpod(request: web.Request, workspace) -> web.Response:
         branch=branch,
     )
 
-    client = RunPodClient(api_key)
+    client = get_deploy_client(api_key)
 
     try:
-        if is_spot:
+        # Spot pods only supported on real RunPod (not simulator)
+        if is_spot and not is_simulator_mode():
             # Use GraphQL mutation for spot pods
             pod = await client.create_spot_pod(
                 name=pod_name,
@@ -437,7 +462,7 @@ async def deploy_to_runpod(request: web.Request, workspace) -> web.Response:
                 docker_start_cmd=startup_script,
             )
         else:
-            # Use REST API for on-demand pods
+            # Use create_pod for both on-demand and simulator
             pod = await client.create_pod(
                 name=pod_name,
                 image_name="runpod/pytorch:2.1.0-py3.10-cuda11.8.0-devel-ubuntu22.04",
@@ -484,6 +509,8 @@ async def clear_runpod_key(request: web.Request, workspace) -> web.Response:
 async def get_runpod_key_status(request: web.Request, workspace) -> web.Response:
     """Check if RunPod API key is configured, optionally verifying it.
 
+    In simulator mode, always returns success (no key needed).
+
     Query params:
         verify: If "true", test the stored key against RunPod API
 
@@ -494,6 +521,16 @@ async def get_runpod_key_status(request: web.Request, workspace) -> web.Response
         credit_balance: (only if verify=true and valid) Account balance
         error: (only if verify=true and invalid) Error message
     """
+    # Simulator mode - no key needed
+    if is_simulator_mode():
+        return web.json_response({
+            "has_key": True,
+            "key_preview": "SIMU",
+            "valid": True,
+            "simulator": True,
+            "credit_balance": 999.99,
+        })
+
     api_key = workspace.workspace_config_manager.get_runpod_token()
 
     if not api_key:
@@ -540,13 +577,13 @@ async def get_runpod_volumes(request: web.Request, workspace) -> web.Response:
         volumes: List of volume objects with id, name, size_gb, data_center_id
     """
     api_key = workspace.workspace_config_manager.get_runpod_token()
-    if not api_key:
+    if not api_key and not is_simulator_mode():
         return web.json_response(
             {"status": "error", "error": "RunPod API key not configured"},
             status=400,
         )
 
-    client = RunPodClient(api_key)
+    client = get_deploy_client(api_key)
     volumes = await client.list_network_volumes()
 
     # Transform to consistent API format
@@ -573,13 +610,13 @@ async def get_runpod_data_centers(request: web.Request, workspace) -> web.Respon
         data_centers: List of data center objects with id, name, available
     """
     api_key = workspace.workspace_config_manager.get_runpod_token()
-    if not api_key:
+    if not api_key and not is_simulator_mode():
         return web.json_response(
             {"status": "error", "error": "RunPod API key not configured"},
             status=400,
         )
 
-    client = RunPodClient(api_key)
+    client = get_deploy_client(api_key)
     data_centers = await client.get_data_centers()
 
     return web.json_response({"data_centers": data_centers})
@@ -598,7 +635,7 @@ async def get_runpod_gpu_types(request: web.Request, workspace) -> web.Response:
         gpu_types: List of GPU type objects with pricing and stock status
     """
     api_key = workspace.workspace_config_manager.get_runpod_token()
-    if not api_key:
+    if not api_key and not is_simulator_mode():
         return web.json_response(
             {"status": "error", "error": "RunPod API key not configured"},
             status=400,
@@ -607,7 +644,7 @@ async def get_runpod_gpu_types(request: web.Request, workspace) -> web.Response:
     # Get data center filter - this is passed to lowestPrice for regional availability
     data_center_id = request.query.get("data_center_id")
 
-    client = RunPodClient(api_key)
+    client = get_deploy_client(api_key)
 
     try:
         raw_gpu_types = await client.get_gpu_types_with_pricing(data_center_id)
@@ -616,6 +653,24 @@ async def get_runpod_gpu_types(request: web.Request, workspace) -> web.Response:
             {"status": "error", "error": f"Failed to fetch GPU types: {e}"},
             status=500,
         )
+
+    # Simulator returns pre-formatted GPU types
+    if is_simulator_mode():
+        gpu_types = [
+            {
+                "id": gpu.get("id"),
+                "displayName": gpu.get("displayName"),
+                "memoryInGb": gpu.get("memoryInGb"),
+                "securePrice": gpu.get("securePrice") or 0,
+                "communityPrice": gpu.get("communityPrice") or 0,
+                "secureSpotPrice": gpu.get("secureSpotPrice") or 0,
+                "communitySpotPrice": gpu.get("communitySpotPrice") or 0,
+                "stockStatus": (gpu.get("lowestPrice") or {}).get("stockStatus"),
+                "available": True,
+            }
+            for gpu in raw_gpu_types
+        ]
+        return web.json_response({"gpu_types": gpu_types})
 
     # Transform to frontend-expected format
     gpu_types = []
