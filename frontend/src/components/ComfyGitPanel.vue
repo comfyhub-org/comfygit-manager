@@ -484,8 +484,8 @@ const {
 
 const orchestratorService = useOrchestratorService()
 
-// Get live instance count for sidebar badge
-const { liveInstanceCount } = useDeployInstances()
+// Get live instance count for sidebar badge (autoStart fetches on panel load)
+const { liveInstanceCount } = useDeployInstances({ autoStart: true })
 
 type ViewName = 'status' | 'workflows' | 'models-env' | 'branches' | 'history' | 'nodes' | 'debug-env' |
                 'environments' | 'model-index' | 'settings' | 'debug-workspace' |

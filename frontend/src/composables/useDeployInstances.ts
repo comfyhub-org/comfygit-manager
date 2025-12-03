@@ -100,7 +100,7 @@ export function useDeployInstances(options?: { autoStart?: boolean }) {
       if (USE_MOCK) {
         await mockApi.stopRunPodPod(id)
       } else {
-        const response = await fetchApi(`/v2/comfygit/deploy/runpod/pods/${id}/stop`, {
+        const response = await fetchApi(`/v2/comfygit/deploy/runpod/${id}/stop`, {
           method: 'POST'
         })
         if (!response.ok) {
@@ -121,7 +121,7 @@ export function useDeployInstances(options?: { autoStart?: boolean }) {
       if (USE_MOCK) {
         await mockApi.startRunPodPod(id)
       } else {
-        const response = await fetchApi(`/v2/comfygit/deploy/runpod/pods/${id}/start`, {
+        const response = await fetchApi(`/v2/comfygit/deploy/runpod/${id}/start`, {
           method: 'POST'
         })
         if (!response.ok) {
@@ -141,7 +141,7 @@ export function useDeployInstances(options?: { autoStart?: boolean }) {
       if (USE_MOCK) {
         await mockApi.terminateRunPodPod(id)
       } else {
-        const response = await fetchApi(`/v2/comfygit/deploy/runpod/pods/${id}`, {
+        const response = await fetchApi(`/v2/comfygit/deploy/runpod/${id}`, {
           method: 'DELETE'
         })
         if (!response.ok) {

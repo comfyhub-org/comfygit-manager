@@ -10,9 +10,10 @@
       </span>
     </div>
 
-    <!-- Details: GPU, Uptime, Cost -->
+    <!-- Details: GPU, URL, Uptime, Cost -->
     <div class="instance-details">
       <span v-if="instance.gpu_type" class="detail">{{ instance.gpu_type }}</span>
+      <span v-if="instance.comfyui_url" class="detail instance-url">{{ instance.comfyui_url }}</span>
       <span v-if="instance.uptime_seconds" class="detail">{{ formatUptime(instance.uptime_seconds) }}</span>
       <span v-if="instance.cost_per_hour" class="detail">${{ instance.cost_per_hour.toFixed(2) }}/hr</span>
       <span v-if="instance.total_cost" class="detail total-cost">${{ instance.total_cost.toFixed(2) }} total</span>
@@ -258,6 +259,12 @@ function formatUptime(seconds: number): string {
 
 .instance-details .total-cost {
   color: var(--cg-color-text-secondary);
+}
+
+.instance-details .instance-url {
+  color: var(--cg-color-accent);
+  word-break: break-all;
+  flex-basis: 100%;
 }
 
 /* Deployment progress */

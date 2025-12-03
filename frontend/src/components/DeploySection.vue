@@ -8,13 +8,15 @@
       />
     </template>
 
-    <template #content>
-      <!-- Tabs -->
+    <!-- Tabs above scroll area -->
+    <template #search>
       <BaseTabs
         v-model="activeTab"
         :tabs="tabs"
       />
+    </template>
 
+    <template #content>
       <!-- Instances Tab -->
       <InstancesTab
         v-if="activeTab === 'instances'"
@@ -36,6 +38,18 @@
       />
     </template>
   </PanelLayout>
+
+  <!-- Terminate Confirmation -->
+  <ConfirmDialog
+    v-if="pendingTerminateId"
+    title="Terminate Instance"
+    :message="`Are you sure you want to terminate '${pendingTerminateInstance?.name || pendingTerminateId}'?`"
+    warning="This will permanently delete the instance and all data stored on it. This action cannot be undone."
+    confirm-label="Terminate"
+    :destructive="true"
+    @confirm="confirmTerminate"
+    @cancel="pendingTerminateId = null"
+  />
 
   <!-- Info Popover -->
   <InfoPopover
@@ -76,6 +90,7 @@ import InfoPopover from '@/components/base/molecules/InfoPopover.vue'
 import BaseTabs from '@/components/base/atoms/BaseTabs.vue'
 import InstancesTab from '@/components/deploy/InstancesTab.vue'
 import RunPodTab from '@/components/deploy/RunPodTab.vue'
+import ConfirmDialog from '@/components/ConfirmDialog.vue'
 
 const emit = defineEmits<{
   toast: [message: string, type: 'info' | 'success' | 'warning' | 'error']
@@ -99,6 +114,7 @@ const {
 const showInfo = ref(false)
 const activeTab = ref('instances')
 const actionLoadingId = ref<string | null>(null)
+const pendingTerminateId = ref<string | null>(null)
 
 // Tabs with dynamic badge
 const tabs = computed(() => [
@@ -138,7 +154,16 @@ async function handleStartInstance(id: string) {
   }
 }
 
-async function handleTerminateInstance(id: string) {
+function handleTerminateInstance(id: string) {
+  // Show confirmation dialog
+  pendingTerminateId.value = id
+}
+
+async function confirmTerminate() {
+  const id = pendingTerminateId.value
+  if (!id) return
+
+  pendingTerminateId.value = null
   actionLoadingId.value = id
   try {
     await terminateInstance(id)
@@ -149,6 +174,11 @@ async function handleTerminateInstance(id: string) {
     actionLoadingId.value = null
   }
 }
+
+// Get instance name for confirmation dialog
+const pendingTerminateInstance = computed(() =>
+  instances.value.find(i => i.id === pendingTerminateId.value)
+)
 
 async function handleDeployed() {
   // Refresh instances when a new deployment is started
