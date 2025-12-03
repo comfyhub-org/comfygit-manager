@@ -4,7 +4,6 @@ Provides /v2/ endpoints that the built-in Manager UI expects.
 """
 
 import asyncio
-import logging
 import sys
 import uuid
 from pathlib import Path

@@ -6,7 +6,6 @@ on RunPod pods using the cg CLI.
 import sys
 from pathlib import Path
 
-import pytest
 
 # Add server directory to path for imports
 server_dir = Path(__file__).parent.parent.parent / "server"

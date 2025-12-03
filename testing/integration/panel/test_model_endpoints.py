@@ -9,7 +9,7 @@ helpers_dir = Path(__file__).parent.parent.parent / "helpers"
 if str(helpers_dir) not in sys.path:
     sys.path.insert(0, str(helpers_dir))
 
-from mock_helpers import create_mock_resolution
+from mock_helpers import create_mock_resolution  # noqa: E402
 
 
 @pytest.mark.integration
@@ -197,7 +197,7 @@ class TestEnvironmentModelsEndpoint:
 
         # Verify
         assert resp.status == 200
-        data = await resp.json()
+        await resp.json()
         # Since resolved_model is None, the endpoint might skip it or handle it differently
         # This test might need adjustment based on actual implementation behavior
 

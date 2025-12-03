@@ -2,7 +2,7 @@
 
 from pathlib import Path
 import pytest
-from unittest.mock import Mock, MagicMock, call, patch
+from unittest.mock import Mock
 import subprocess
 
 
@@ -138,7 +138,7 @@ class TestRuntimeEnvironmentSwitch:
 
         # Track status updates
         status_updates = []
-        status_file = metadata_dir / ".switch_status.json"
+        metadata_dir / ".switch_status.json"
 
         original_write = json.dump
         def capture_status_writes(data, f, **kwargs):

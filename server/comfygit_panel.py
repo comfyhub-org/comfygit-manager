@@ -34,10 +34,10 @@ except Exception as e:
     WorkspaceLogger = None
 
 # Import error handler middleware
-from api.middleware.error_handler import error_handler_middleware
+from api.middleware.error_handler import error_handler_middleware  # noqa: E402
 
 # Import all endpoint modules
-from api.v2 import status, git, workflows, operations, environments, debug, models, config, nodes, remotes, import_ops, setup, deploy
+from api.v2 import status, git, workflows, operations, environments, debug, models, config, nodes, remotes, import_ops, setup, deploy  # noqa: E402
 
 # Get routes object from ComfyUI
 routes = PromptServer.instance.routes

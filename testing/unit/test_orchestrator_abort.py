@@ -8,8 +8,7 @@ Following the revised design document from 2025-11-20 Phase 2.
 import json
 import os
 import time
-from pathlib import Path
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch
 import pytest
 
 
@@ -308,7 +307,7 @@ class TestOrchestratorAbortHandler:
         orch._handle_abort_switch_command = Mock()
 
         with patch('time.sleep'):  # Speed up test
-            result = Orchestrator._wait_with_polling(orch, mock_proc)
+            Orchestrator._wait_with_polling(orch, mock_proc)
 
         # Should have called abort handler
         orch._handle_abort_switch_command.assert_called_once()

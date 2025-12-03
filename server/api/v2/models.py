@@ -218,7 +218,7 @@ async def delete_workspace_model(request: web.Request, env) -> web.Response:
         details = await run_sync(env.workspace.get_model_details, identifier)
     except ValueError as e:
         return web.json_response({"error": str(e)}, status=400)
-    except KeyError as e:
+    except KeyError:
         return web.json_response({"error": f"Model not found: {identifier}"}, status=404)
     except Exception as e:
         return web.json_response({"error": str(e)}, status=500)

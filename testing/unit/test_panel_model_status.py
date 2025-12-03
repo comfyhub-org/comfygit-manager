@@ -6,7 +6,6 @@ in workflow details and environment models endpoints.
 """
 
 import pytest
-from unittest.mock import Mock
 from dataclasses import dataclass
 
 

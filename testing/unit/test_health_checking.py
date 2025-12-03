@@ -2,8 +2,6 @@
 
 import time
 import socket
-import subprocess
-from pathlib import Path
 import pytest
 from unittest.mock import Mock, MagicMock
 

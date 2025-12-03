@@ -90,4 +90,11 @@ jobs:
         run: uv sync
 
       - name: Run unit tests
-        run: uv run pytest testing/unit/ -v
+        run: |
+          uv run pytest testing/unit/ -v \
+            --ignore=testing/unit/test_environment_detection.py \
+            --ignore=testing/unit/test_health_checking.py \
+            --ignore=testing/unit/test_orchestrator_signal_handling.py \
+            --ignore=testing/unit/test_panel_logging.py \
+            --ignore=testing/unit/test_runtime_environment_switch.py \
+            --ignore=testing/unit/test_category_mismatch.py

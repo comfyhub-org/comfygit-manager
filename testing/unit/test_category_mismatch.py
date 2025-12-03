@@ -3,7 +3,6 @@
 These tests verify that models in the wrong directory (e.g., LoRA in checkpoints/)
 are detected and reported as 'category_mismatch' status - a blocking issue.
 """
-import pytest
 import sys
 from pathlib import Path
 from unittest.mock import Mock
@@ -13,7 +12,7 @@ server_dir = Path(__file__).parent.parent.parent / "server"
 if str(server_dir) not in sys.path:
     sys.path.insert(0, str(server_dir))
 
-from cgm_core.serializers import serialize_workflow_details, serialize_environment_status
+from cgm_core.serializers import serialize_workflow_details, serialize_environment_status  # noqa: E402
 
 
 class TestDetermineModelStatus:

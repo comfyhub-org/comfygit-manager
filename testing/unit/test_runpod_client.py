@@ -3,7 +3,7 @@
 Tests client behavior with mocked HTTP responses.
 """
 import pytest
-from unittest.mock import AsyncMock, patch, MagicMock
+from unittest.mock import AsyncMock, patch
 from pathlib import Path
 import sys
 
@@ -340,11 +340,13 @@ class TestRunPodClientPodActions:
         from server.deploy.runpod_client import RunPodClient
 
         client = RunPodClient(api_key="test")
+        mock_response = {"data": {"podResume": {"id": "abc123", "desiredStatus": "RUNNING", "costPerHr": 0.5}}}
 
-        with patch.object(client, '_post', AsyncMock(return_value=None)):
+        with patch.object(client, '_graphql_query', AsyncMock(return_value=mock_response)):
             result = await client.start_pod("abc123")
 
-        assert result is True
+        assert result["id"] == "abc123"
+        assert result["desiredStatus"] == "RUNNING"
 
     @pytest.mark.asyncio
     async def test_stop_pod(self):
@@ -352,11 +354,13 @@ class TestRunPodClientPodActions:
         from server.deploy.runpod_client import RunPodClient
 
         client = RunPodClient(api_key="test")
+        mock_response = {"data": {"podStop": {"id": "abc123", "desiredStatus": "EXITED"}}}
 
-        with patch.object(client, '_post', AsyncMock(return_value=None)):
+        with patch.object(client, '_graphql_query', AsyncMock(return_value=mock_response)):
             result = await client.stop_pod("abc123")
 
-        assert result is True
+        assert result["id"] == "abc123"
+        assert result["desiredStatus"] == "EXITED"
 
     @pytest.mark.asyncio
     async def test_restart_pod(self):

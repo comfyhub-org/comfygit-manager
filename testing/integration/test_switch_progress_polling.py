@@ -5,7 +5,6 @@ These tests verify that the frontend can poll progress through the orchestrator'
 control server even when the ComfyUI server is down during environment switches.
 """
 
-import json
 import time
 import pytest
 import requests

@@ -1,7 +1,6 @@
 """Integration tests for sync and export panel endpoints."""
 import pytest
 from unittest.mock import Mock
-from pathlib import Path
 
 
 @pytest.mark.integration
