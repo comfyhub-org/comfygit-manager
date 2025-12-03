@@ -1,8 +1,5 @@
-"""Unit test fixtures."""
-import sys
-from pathlib import Path
+"""Unit test fixtures.
 
-# Add server directory to path for API imports
-server_dir = Path(__file__).parent.parent.parent / "server"
-if str(server_dir) not in sys.path:
-    sys.path.insert(0, str(server_dir))
+Note: Server module mocking and path setup is handled by the root testing/conftest.py.
+This file exists for any unit-test-specific fixtures.
+"""

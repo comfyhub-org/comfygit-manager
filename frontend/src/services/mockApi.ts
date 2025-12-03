@@ -86,7 +86,8 @@ import type {
   DeployPackageResult,
   DeployConfig,
   DeploymentStatus,
-  DeployPhase
+  DeployPhase,
+  InstancesResponse
 } from '@/types/comfygit'
 import { useMockControls } from '@/composables/useMockControls'
 
@@ -2278,6 +2279,58 @@ export const mockApi = {
     await delay(800)
     console.log(`[MOCK] Starting pod: ${podId}`)
     return { status: 'success', message: 'Pod starting', cost_per_hour: 0.44 }
+  },
+
+  /**
+   * Get all instances from all providers (unified view)
+   * GET /v2/comfygit/deploy/instances
+   */
+  getInstances: async (): Promise<InstancesResponse> => {
+    await delay(500)
+    return {
+      instances: [
+        {
+          id: 'mock_abc123',
+          provider: 'runpod',
+          name: 'my-comfyui-deploy',
+          status: 'running',
+          gpu_type: 'NVIDIA RTX 4090',
+          cost_per_hour: 0.44,
+          uptime_seconds: 3600,
+          total_cost: 0.44,
+          created_at: new Date(Date.now() - 3600000).toISOString(),
+          comfyui_url: 'https://mock_abc123-8188.proxy.runpod.net',
+          console_url: 'https://www.runpod.io/console/pods/mock_abc123'
+        },
+        {
+          id: 'mock_def456',
+          provider: 'runpod',
+          name: 'test-deployment',
+          status: 'stopped',
+          gpu_type: 'NVIDIA RTX 3090',
+          cost_per_hour: 0.22,
+          uptime_seconds: 0,
+          total_cost: 0.06,
+          created_at: new Date(Date.now() - 86400000).toISOString(),
+          console_url: 'https://www.runpod.io/console/pods/mock_def456'
+        },
+        {
+          id: 'mock_ghi789',
+          provider: 'runpod',
+          name: 'deploying-instance',
+          status: 'deploying',
+          deployment_phase: 'SETTING_UP',
+          deployment_message: 'Installing ComfyGit and importing environment...',
+          deployment_progress: 45,
+          gpu_type: 'NVIDIA A100',
+          cost_per_hour: 1.29,
+          uptime_seconds: 120,
+          total_cost: 0.04,
+          created_at: new Date(Date.now() - 120000).toISOString(),
+          console_url: 'https://www.runpod.io/console/pods/mock_ghi789'
+        }
+      ]
+    }
   },
 
   exportDeployPackage: async (outputPath?: string): Promise<DeployPackageResult> => {

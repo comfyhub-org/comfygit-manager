@@ -7,6 +7,7 @@ import shutil
 import tempfile
 from pathlib import Path
 from typing import Generator
+from unittest.mock import MagicMock
 import pytest
 
 # Add parent directory to Python path so tests can import server module
@@ -17,7 +18,20 @@ if str(parent_dir) not in sys.path:
 # Add server directory to path so deploy module can be found
 # Force insert at position 0 to ensure it takes precedence
 server_dir = parent_dir / "server"
-sys.path.insert(0, str(server_dir))
+if str(server_dir) not in sys.path:
+    sys.path.insert(0, str(server_dir))
+
+# Mock the ComfyUI 'server' module before any imports that depend on it.
+# This is required because comfygit_panel.py imports from server.PromptServer.
+if 'server' not in sys.modules:
+    mock_server_module = MagicMock()
+    mock_server_module.PromptServer = MagicMock()
+    sys.modules['server'] = mock_server_module
+
+# Pre-import deploy modules to ensure they're cached before tests run.
+# This fixes an issue where running unit and integration tests together
+# would fail due to module import order issues.
+from deploy.runpod_client import RunPodClient  # noqa: F401, E402
 
 
 @pytest.fixture

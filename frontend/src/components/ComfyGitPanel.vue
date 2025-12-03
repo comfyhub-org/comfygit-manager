@@ -147,6 +147,7 @@
               @click="selectView('deploy', 'sharing')"
             >
               DEPLOY
+              <span v-if="liveInstanceCount > 0" class="sidebar-badge">{{ liveInstanceCount }}</span>
             </button>
             <button
               :class="['sidebar-item', { active: currentView === 'export' }]"
@@ -452,6 +453,7 @@ import FooterInfo from './base/atoms/FooterInfo.vue'
 import FirstTimeSetupWizard from './FirstTimeSetupWizard.vue'
 import { useComfyGitService } from '@/composables/useComfyGitService'
 import { useOrchestratorService } from '@/composables/useOrchestratorService'
+import { useDeployInstances } from '@/composables/useDeployInstances'
 import type { ComfyGitStatus, CommitInfo, BranchInfo, EnvironmentInfo, SetupStatus, SetupState } from '@/types/comfygit'
 
 const props = defineProps<{
@@ -481,6 +483,9 @@ const {
 } = useComfyGitService()
 
 const orchestratorService = useOrchestratorService()
+
+// Get live instance count for sidebar badge
+const { liveInstanceCount } = useDeployInstances()
 
 type ViewName = 'status' | 'workflows' | 'models-env' | 'branches' | 'history' | 'nodes' | 'debug-env' |
                 'environments' | 'model-index' | 'settings' | 'debug-workspace' |
@@ -1572,6 +1577,16 @@ onMounted(async () => {
   border-left-color: var(--cg-color-accent);
   color: var(--cg-color-accent);
   background: var(--cg-color-bg-hover);
+}
+
+.sidebar-badge {
+  margin-left: auto;
+  padding: 1px 6px;
+  background: var(--cg-color-success);
+  color: var(--cg-color-bg-primary);
+  border-radius: var(--cg-radius-sm);
+  font-size: var(--cg-font-size-xs);
+  font-weight: var(--cg-font-weight-semibold);
 }
 
 .sidebar-divider {
