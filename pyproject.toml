@@ -17,6 +17,10 @@ dev = [
     "pytest-mock>=3.15.1",
 ]
 
+[project.urls]
+Repository = "https://github.com/comfyhub-org/comfygit-manager"
+#  Used by Comfy Registry https://comfyregistry.org
+
 [tool.comfy]
 PublisherId = "akatz"
 DisplayName = "ComfyGit Manager"
