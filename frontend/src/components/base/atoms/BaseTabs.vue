@@ -57,7 +57,7 @@ function selectTab(id: string) {
   border-bottom: 2px solid transparent;
   color: var(--cg-color-text-secondary);
   font-family: var(--cg-font-body);
-  font-size: var(--cg-font-size-sm);
+  font-size: var(--cg-font-size-xs);
   font-weight: var(--cg-font-weight-medium);
   cursor: pointer;
   transition: all var(--cg-transition-fast);

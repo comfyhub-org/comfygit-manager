@@ -27,7 +27,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, nextTick } from 'vue'
+import { ref, computed, watch, nextTick, onMounted } from 'vue'
 import type { LogEntry } from '@/types/comfygit'
 
 const props = defineProps<{
@@ -53,14 +53,18 @@ const formattedLines = computed(() => {
   })
 })
 
-// Scroll to bottom when logs change
-watch(() => props.logs, async () => {
+// Scroll to bottom helper
+async function scrollToBottom() {
   await nextTick()
   const scrollContainer = logOutputElement.value?.closest('.panel-layout-content') as HTMLElement | null
   if (scrollContainer) {
     scrollContainer.scrollTop = scrollContainer.scrollHeight
   }
-})
+}
+
+// Scroll to bottom on mount and when logs change
+onMounted(scrollToBottom)
+watch(() => props.logs, scrollToBottom)
 
 async function copyLogs() {
   if (formattedLines.value.length === 0) return
