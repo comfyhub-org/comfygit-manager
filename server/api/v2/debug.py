@@ -10,6 +10,53 @@ from cgm_utils.async_helpers import run_sync
 routes = web.RouteTableDef()
 
 
+def parse_raw_log_file(log_file: Path, lines: int = 500) -> list[dict]:
+    """
+    Parse a raw stdout/stderr log file (like orchestrator.log).
+
+    Returns each line as a log entry with basic level detection.
+    """
+    if not log_file.exists():
+        return []
+
+    try:
+        with open(log_file, 'r', encoding='utf-8', errors='replace') as f:
+            all_lines = f.readlines()
+
+        # Take last N lines
+        recent_lines = all_lines[-lines:] if len(all_lines) > lines else all_lines
+
+        entries = []
+        for line in recent_lines:
+            line = line.rstrip('\n\r')
+            if not line:
+                continue
+
+            # Detect log level from common patterns
+            level = 'INFO'
+            line_lower = line.lower()
+            if 'error' in line_lower or 'exception' in line_lower or 'traceback' in line_lower:
+                level = 'ERROR'
+            elif 'warning' in line_lower or 'warn' in line_lower:
+                level = 'WARNING'
+            elif 'debug' in line_lower:
+                level = 'DEBUG'
+
+            entries.append({
+                'timestamp': '',
+                'name': 'orchestrator',
+                'level': level,
+                'func': '',
+                'line': 0,
+                'message': line
+            })
+
+        return entries
+
+    except Exception:
+        return []
+
+
 def parse_log_file(log_file: Path, level_filter: str | None = None, lines: int = 100) -> list[dict]:
     """
     Parse Python logging file and return raw log entries matching CLI format.
@@ -166,6 +213,48 @@ async def get_workspace_log_path(request: web.Request) -> web.Response:
         return web.json_response({"error": "No environment detected"}, status=500)
 
     log_file = env.workspace.path / "logs" / "workspace" / "full.log"
+
+    return web.json_response({
+        "path": str(log_file),
+        "exists": log_file.exists()
+    })
+
+
+@routes.get("/v2/workspace/debug/orchestrator-logs")
+async def get_orchestrator_logs(request: web.Request) -> web.Response:
+    """
+    Get orchestrator logs from <workspace>/.metadata/orchestrator.log.
+
+    This file contains raw stdout/stderr from ComfyUI, not structured Python logs.
+
+    Query params:
+        - lines: Number of lines to return (default: 500)
+    """
+    from comfygit_server import get_environment_from_cwd
+
+    lines = int(request.query.get('lines', '500'))
+
+    env = get_environment_from_cwd()
+    if not env:
+        return web.json_response({"error": "No environment detected"}, status=500)
+
+    log_file = env.workspace.path / ".metadata" / "orchestrator.log"
+
+    logs = await run_sync(parse_raw_log_file, log_file, lines)
+
+    return web.json_response(logs)
+
+
+@routes.get("/v2/workspace/debug/orchestrator-logs/path")
+async def get_orchestrator_log_path(request: web.Request) -> web.Response:
+    """Get the file path to the orchestrator log file."""
+    from comfygit_server import get_environment_from_cwd
+
+    env = get_environment_from_cwd()
+    if not env:
+        return web.json_response({"error": "No environment detected"}, status=500)
+
+    log_file = env.workspace.path / ".metadata" / "orchestrator.log"
 
     return web.json_response({
         "path": str(log_file),

@@ -770,6 +770,27 @@ export function useComfyGitService() {
     return fetchApi<{ path: string; exists: boolean }>('/v2/workspace/debug/logs/path')
   }
 
+  async function getOrchestratorLogs(level?: string, lines?: number): Promise<LogEntry[]> {
+    if (USE_MOCK) return mockApi.getWorkspaceLogs(level, lines) // Reuse mock for now
+
+    try {
+      const params = new URLSearchParams()
+      if (level) params.append('level', level)
+      if (lines) params.append('lines', lines.toString())
+      return fetchApi<LogEntry[]>(`/v2/workspace/debug/orchestrator-logs?${params}`)
+    } catch {
+      return []
+    }
+  }
+
+  async function getOrchestratorLogPath(): Promise<{ path: string; exists: boolean }> {
+    if (USE_MOCK) {
+      return { path: '/mock/workspace/.metadata/orchestrator.log', exists: true }
+    }
+
+    return fetchApi<{ path: string; exists: boolean }>('/v2/workspace/debug/orchestrator-logs/path')
+  }
+
   async function openFile(path: string): Promise<{ status: string }> {
     if (USE_MOCK) {
       console.log(`[MOCK] Opening file: ${path}`)
@@ -1460,6 +1481,8 @@ export function useComfyGitService() {
     getWorkspaceLogs,
     getEnvironmentLogPath,
     getWorkspaceLogPath,
+    getOrchestratorLogs,
+    getOrchestratorLogPath,
     openFile,
     // Node Management
     getNodes,

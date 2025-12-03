@@ -911,3 +911,32 @@
   color: var(--cg-color-accent);
   background: transparent;
 }
+
+/* === Tabs Component === */
+[data-comfygit-theme="phosphor"] .base-tabs {
+  border-bottom-color: var(--cg-color-border);
+}
+
+[data-comfygit-theme="phosphor"] .base-tabs__tab {
+  text-shadow: none;
+}
+
+[data-comfygit-theme="phosphor"] .base-tabs__tab::before {
+  content: '';
+}
+
+[data-comfygit-theme="phosphor"] .base-tabs__tab.active::before {
+  content: '> ';
+  opacity: 0.7;
+}
+
+[data-comfygit-theme="phosphor"] .base-tabs__tab.active {
+  text-shadow: 0 0 8px var(--cg-color-accent);
+  border-bottom-color: var(--cg-color-accent);
+  box-shadow: 0 2px 8px var(--cg-shadow-accent);
+}
+
+[data-comfygit-theme="phosphor"] .base-tabs__tab:hover:not(.disabled):not(.active) {
+  color: var(--cg-color-accent);
+  text-shadow: 0 0 4px var(--cg-color-accent);
+}

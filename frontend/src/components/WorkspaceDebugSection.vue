@@ -2,7 +2,7 @@
   <PanelLayout>
     <template #header>
       <PanelHeader
-        title="DEBUG (WORKSPACE LOGS)"
+        title="DEBUG (LOGS)"
         :show-info="true"
         @info-click="showPopover = true"
       >
@@ -11,7 +11,7 @@
             variant="secondary"
             size="sm"
             @click="openLogFile"
-            :disabled="!logFilePath || openingLogFile"
+            :disabled="!currentLogPath || openingLogFile"
             title="Open log file in default editor"
           >
             {{ openingLogFile ? 'Opening...' : 'Open Log File' }}
@@ -28,9 +28,20 @@
       </PanelHeader>
     </template>
 
+    <!-- Tabs above scroll area -->
+    <template #search>
+      <BaseTabs
+        v-model="activeTab"
+        :tabs="[
+          { id: 'workspace', label: 'Workspace' },
+          { id: 'orchestrator', label: 'Orchestrator' }
+        ]"
+      />
+    </template>
+
     <template #content>
       <template v-if="loading">
-        <LoadingState message="Loading workspace logs..." />
+        <LoadingState :message="`Loading ${activeTab} logs...`" />
       </template>
       <template v-else-if="error">
         <ErrorState :message="error" :retry="true" @retry="loadLogs" />
@@ -39,19 +50,13 @@
         <EmptyState
           v-if="logs.length === 0"
           icon="📝"
-          message="No workspace logs available"
+          :message="`No ${activeTab} logs available`"
         />
-
-        <!-- Simple text output for logs -->
-        <div v-else ref="logOutputElement" class="log-output">
-          <div
-            v-for="(line, index) in formattedLogs"
-            :key="index"
-            :class="`log-line log-level-${line.level.toLowerCase()}`"
-          >
-            {{ line.text }}
-          </div>
-        </div>
+        <LogViewer
+          v-else
+          :logs="logs"
+          :raw-format="activeTab === 'orchestrator'"
+        />
       </template>
     </template>
   </PanelLayout>
@@ -59,13 +64,17 @@
   <!-- Info Popover -->
   <InfoPopover
     :show="showPopover"
-    title="About Workspace Logs"
+    title="About Logs"
     @close="showPopover = false"
   >
     <template #content>
       <p>
-        Workspace logs show system-level events and operations for the entire ComfyGit workspace,
+        <strong>Workspace Logs:</strong> System-level events for the entire ComfyGit workspace,
         including operations that affect multiple environments.
+      </p>
+      <p style="margin-top: var(--cg-space-2)">
+        <strong>Orchestrator Logs:</strong> Process management events including ComfyUI
+        startup, restarts, environment switches, and any errors during handoff.
       </p>
       <p style="margin-top: var(--cg-space-2)">
         <strong>Log Levels:</strong><br>
@@ -73,9 +82,6 @@
         <strong>WARNING:</strong> Potential issues or deprecated features<br>
         <strong>INFO:</strong> General operational information<br>
         <strong>DEBUG:</strong> Detailed debugging information
-      </p>
-      <p style="margin-top: var(--cg-space-2)">
-        Use the filter bar to show/hide specific log levels.
       </p>
     </template>
     <template #actions>
@@ -87,80 +93,75 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useComfyGitService } from '@/composables/useComfyGitService'
 import type { LogEntry } from '@/types/comfygit'
 import PanelLayout from '@/components/base/organisms/PanelLayout.vue'
 import PanelHeader from '@/components/base/molecules/PanelHeader.vue'
 import ActionButton from '@/components/base/atoms/ActionButton.vue'
+import BaseTabs from '@/components/base/atoms/BaseTabs.vue'
 import EmptyState from '@/components/base/molecules/EmptyState.vue'
 import LoadingState from '@/components/base/organisms/LoadingState.vue'
 import ErrorState from '@/components/base/organisms/ErrorState.vue'
 import InfoPopover from '@/components/base/molecules/InfoPopover.vue'
+import LogViewer from '@/components/base/molecules/LogViewer.vue'
 
-const { getWorkspaceLogs, getWorkspaceLogPath, openFile } = useComfyGitService()
+const {
+  getWorkspaceLogs,
+  getWorkspaceLogPath,
+  getOrchestratorLogs,
+  getOrchestratorLogPath,
+  openFile
+} = useComfyGitService()
 
+const activeTab = ref<'workspace' | 'orchestrator'>('workspace')
 const logs = ref<LogEntry[]>([])
 const loading = ref(false)
 const error = ref<string | null>(null)
 const showPopover = ref(false)
-const logOutputElement = ref<HTMLPreElement | null>(null)
-const logFilePath = ref<string | null>(null)
+const workspaceLogPath = ref<string | null>(null)
+const orchestratorLogPath = ref<string | null>(null)
 const openingLogFile = ref(false)
 
-// Format logs to match CLI output exactly
-const formattedLogs = computed(() => {
-  if (logs.value.length === 0) return []
-
-  // Display in order received (already oldest->newest from backend)
-  return logs.value.map(log => {
-    // Match CLI format: timestamp - name - level - func:line - message
-    const text = `${log.timestamp} - ${log.name} - ${log.level} - ${log.func}:${log.line} - ${log.message}`
-
-    return {
-      text,
-      level: log.level
-    }
-  })
+const currentLogPath = computed(() => {
+  return activeTab.value === 'workspace' ? workspaceLogPath.value : orchestratorLogPath.value
 })
 
 async function loadLogs() {
   loading.value = true
   error.value = null
   try {
-    // Backend returns logs in file order (oldest->newest), display as-is
-    logs.value = await getWorkspaceLogs(undefined, 500)
+    if (activeTab.value === 'workspace') {
+      logs.value = await getWorkspaceLogs(undefined, 500)
+    } else {
+      logs.value = await getOrchestratorLogs(undefined, 500)
+    }
   } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Failed to load workspace logs'
+    error.value = err instanceof Error ? err.message : `Failed to load ${activeTab.value} logs`
   } finally {
     loading.value = false
-
-    // Scroll parent container to bottom after rendering completes
-    setTimeout(() => {
-      if (logOutputElement.value?.parentElement) {
-        logOutputElement.value.parentElement.scrollTop = logOutputElement.value.parentElement.scrollHeight
-      }
-    }, 0)
   }
 }
 
-async function loadLogPath() {
+async function loadLogPaths() {
   try {
-    const result = await getWorkspaceLogPath()
-    if (result.exists) {
-      logFilePath.value = result.path
-    }
+    const [wsResult, orchResult] = await Promise.all([
+      getWorkspaceLogPath(),
+      getOrchestratorLogPath()
+    ])
+    if (wsResult.exists) workspaceLogPath.value = wsResult.path
+    if (orchResult.exists) orchestratorLogPath.value = orchResult.path
   } catch {
-    // Ignore error, button will remain disabled
+    // Ignore errors, buttons will remain disabled
   }
 }
 
 async function openLogFile() {
-  if (!logFilePath.value) return
+  if (!currentLogPath.value) return
 
   openingLogFile.value = true
   try {
-    await openFile(logFilePath.value)
+    await openFile(currentLogPath.value)
   } catch (err) {
     console.error('Failed to open log file:', err)
   } finally {
@@ -168,41 +169,13 @@ async function openLogFile() {
   }
 }
 
+// Reload logs when tab changes
+watch(activeTab, () => {
+  loadLogs()
+})
+
 onMounted(() => {
   loadLogs()
-  loadLogPath()
+  loadLogPaths()
 })
 </script>
-
-<style scoped>
-.log-output {
-  font-family: var(--cg-font-mono);
-  font-size: var(--cg-font-size-xs);
-  background: var(--cg-color-bg-tertiary);
-  border: 1px solid var(--cg-color-border-subtle);
-  padding: var(--cg-space-3);
-  margin: 0;
-}
-
-.log-line {
-  line-height: 1.5;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-}
-
-.log-level-error {
-  color: #ff5555;
-}
-
-.log-level-warning {
-  color: #ffb86c;
-}
-
-.log-level-info {
-  color: #50fa7b;
-}
-
-.log-level-debug {
-  color: #6272a4;
-}
-</style>
