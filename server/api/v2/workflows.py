@@ -6,7 +6,6 @@ from pathlib import Path
 from aiohttp import web
 
 from comfygit_core.strategies.auto import AutoNodeStrategy, AutoModelStrategy
-from comfygit_core.models.protocols import NodeResolutionStrategy, ModelResolutionStrategy
 from comfygit_core.models.workflow import (
     NodeResolutionContext, ModelResolutionContext,
     ResolvedNodePackage, ResolvedModel, WorkflowNodeWidgetRef,

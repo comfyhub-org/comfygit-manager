@@ -1,10 +1,7 @@
 """Integration tests for restart handling flow."""
 
 import os
-import sys
-import time
 import subprocess
-from pathlib import Path
 import pytest
 
 

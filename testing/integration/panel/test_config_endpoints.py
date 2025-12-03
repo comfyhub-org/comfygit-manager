@@ -1,6 +1,6 @@
 """Integration tests for configuration panel endpoints."""
 import pytest
-from unittest.mock import Mock, MagicMock
+from unittest.mock import Mock
 from pathlib import Path
 
 

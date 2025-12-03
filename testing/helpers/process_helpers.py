@@ -7,6 +7,11 @@ import time
 from pathlib import Path
 from typing import Optional
 
+try:
+    import psutil
+except ImportError:
+    psutil = None  # type: ignore
+
 
 class ProcessMonitor:
     """Helper for monitoring and controlling test processes."""
@@ -157,20 +162,24 @@ def get_free_port() -> int:
 
 def kill_process_tree(pid: int):
     """Kill a process and all its children."""
-    try:
-        parent = psutil.Process(pid)
-        children = parent.children(recursive=True)
-
-        for child in children:
-            try:
-                child.kill()
-            except psutil.NoSuchProcess:
-                pass
-
-        parent.kill()
-    except (psutil.NoSuchProcess, ImportError):
-        # Fallback if psutil not available
+    if psutil is not None:
         try:
-            os.kill(pid, signal.SIGKILL)
-        except ProcessLookupError:
-            pass
+            parent = psutil.Process(pid)
+            children = parent.children(recursive=True)
+
+            for child in children:
+                try:
+                    child.kill()
+                except psutil.NoSuchProcess:
+                    pass
+
+            parent.kill()
+            return
+        except psutil.NoSuchProcess:
+            return
+
+    # Fallback if psutil not available
+    try:
+        os.kill(pid, signal.SIGKILL)
+    except ProcessLookupError:
+        pass

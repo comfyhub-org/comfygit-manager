@@ -1,7 +1,6 @@
 """Unit tests for environment detection logic."""
 
 import os
-from pathlib import Path
 import pytest
 from unittest.mock import Mock
 

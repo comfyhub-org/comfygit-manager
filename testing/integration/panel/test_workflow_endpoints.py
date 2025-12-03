@@ -9,7 +9,7 @@ helpers_dir = Path(__file__).parent.parent.parent / "helpers"
 if str(helpers_dir) not in sys.path:
     sys.path.insert(0, str(helpers_dir))
 
-from mock_helpers import create_mock_resolution, create_mock_resolved_node
+from mock_helpers import create_mock_resolution, create_mock_resolved_node  # noqa: E402
 
 
 @pytest.mark.integration

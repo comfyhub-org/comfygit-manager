@@ -6,8 +6,7 @@ to prevent "Unknown message type" errors.
 
 import json
 import pytest
-from unittest.mock import Mock, MagicMock
-from pathlib import Path
+from unittest.mock import Mock
 
 
 @pytest.mark.integration

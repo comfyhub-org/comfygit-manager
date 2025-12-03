@@ -143,6 +143,12 @@
           <div class="sidebar-section">
             <div class="sidebar-section-title">SHARING</div>
             <button
+              :class="['sidebar-item', { active: currentView === 'deploy' }]"
+              @click="selectView('deploy', 'sharing')"
+            >
+              DEPLOY
+            </button>
+            <button
               :class="['sidebar-item', { active: currentView === 'export' }]"
               @click="selectView('export', 'sharing')"
             >
@@ -258,6 +264,13 @@
 
           <!-- Debug (Workspace) View -->
           <WorkspaceDebugSection v-else-if="currentView === 'debug-workspace'" />
+
+          <!-- Deploy View -->
+          <DeploySection
+            v-else-if="currentView === 'deploy'"
+            @toast="handleToast"
+            @navigate="handleNavigate"
+          />
 
           <!-- Export View -->
           <ExportSection v-else-if="currentView === 'export'" />
@@ -427,6 +440,7 @@ import DebugEnvSection from './DebugEnvSection.vue'
 import EnvironmentsSection from './EnvironmentsSection.vue'
 import ExportSection from './ExportSection.vue'
 import ImportSection from './ImportSection.vue'
+import DeploySection from './DeploySection.vue'
 import CommitDetailModal from './CommitDetailModal.vue'
 import ConfirmDialog from './ConfirmDialog.vue'
 import CommitPopover from './CommitPopover.vue'
@@ -470,7 +484,7 @@ const orchestratorService = useOrchestratorService()
 
 type ViewName = 'status' | 'workflows' | 'models-env' | 'branches' | 'history' | 'nodes' | 'debug-env' |
                 'environments' | 'model-index' | 'settings' | 'debug-workspace' |
-                'export' | 'import' | 'remotes'
+                'export' | 'import' | 'remotes' | 'deploy'
 
 type SectionName = 'this-env' | 'all-envs' | 'sharing'
 
@@ -524,7 +538,8 @@ function selectView(view: ViewName, section: SectionName) {
 
 function handleNavigate(view: string) {
   const viewMap: Record<string, { view: ViewName; section: SectionName }> = {
-    'model-index': { view: 'model-index', section: 'all-envs' }
+    'model-index': { view: 'model-index', section: 'all-envs' },
+    'remotes': { view: 'remotes', section: 'sharing' }
   }
   const target = viewMap[view]
   if (target) {
@@ -1570,6 +1585,7 @@ onMounted(async () => {
   flex: 1;
   overflow-y: auto;
   padding: var(--cg-space-4);
+  user-select: text;
 }
 
 .loading {
@@ -1584,6 +1600,8 @@ onMounted(async () => {
   padding: var(--cg-space-3);
   color: var(--cg-color-error);
   font-size: var(--cg-font-size-sm);
+  user-select: text;
+  cursor: text;
 }
 
 .view-placeholder {

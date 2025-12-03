@@ -155,10 +155,12 @@ info "Symlinking worktree to environment's custom_nodes..."
 CUSTOM_NODES_DIR="$ENV_PATH/ComfyUI/custom_nodes"
 ln -s "$WORKTREE_PATH" "$CUSTOM_NODES_DIR/comfygit-manager"
 
-# Step 5: Install dependencies with local core
+# Step 5: Install comfygit-manager dependencies
+# Note: comfygit-manager is a "system node" and cannot use `cg node add`.
+# System nodes are managed at workspace level, so we install deps directly.
 info "Installing comfygit-manager dependencies..."
-cg -e "$ENV_NAME" node add comfygit-manager --dev
-# cg -e "$ENV_NAME" py uv add -r "$WORKTREE_PATH/requirements.txt" --group comfygit
+# comfygit-core source is already configured above; add it plus remaining deps
+cg -e "$ENV_NAME" py uv add comfygit-core "watchdog>=6.0.0"
 
 info "Syncing all dependency groups..."
 cg -e "$ENV_NAME" py uv sync --all-groups

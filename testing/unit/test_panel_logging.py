@@ -237,7 +237,7 @@ class TestBackendOperationsLogging:
 
             # Patch get_environment_from_cwd
             with patch.object(comfygit_server, 'get_environment_from_cwd', return_value=mock_env_for_operations):
-                result = await comfygit_server.process_task({
+                await comfygit_server.process_task({
                     "kind": "install",
                     "params": {"id": "TestNode", "version": "1.0.0"}
                 })
@@ -273,7 +273,7 @@ class TestBackendOperationsLogging:
             comfygit_server.EnvironmentLogger = EnvironmentLogger
 
             with patch.object(comfygit_server, 'get_environment_from_cwd', return_value=mock_env_for_operations):
-                result = await comfygit_server.process_task({
+                await comfygit_server.process_task({
                     "kind": "uninstall",
                     "params": {"node_name": "SomeNode"}
                 })
@@ -308,7 +308,7 @@ class TestBackendOperationsLogging:
             comfygit_server.EnvironmentLogger = EnvironmentLogger
 
             with patch.object(comfygit_server, 'get_environment_from_cwd', return_value=mock_env_for_operations):
-                result = await comfygit_server.process_task({
+                await comfygit_server.process_task({
                     "kind": "update",
                     "params": {"node_name": "UpdateNode"}
                 })
@@ -365,7 +365,7 @@ class TestCoreLevelLoggingNotSuppressed:
             mock_env_for_operations.node_manager.add_node = mock_add_with_logging
 
             with patch.object(comfygit_server, 'get_environment_from_cwd', return_value=mock_env_for_operations):
-                result = await comfygit_server.process_task({
+                await comfygit_server.process_task({
                     "kind": "install",
                     "params": {"id": "TestNode"}
                 })

@@ -1,9 +1,8 @@
 """Integration tests for environment management panel endpoints."""
 import pytest
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, MagicMock
 import json
 from pathlib import Path
-import threading
 
 
 @pytest.mark.integration

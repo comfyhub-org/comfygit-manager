@@ -7,8 +7,7 @@ This addresses the bug where orchestrator shut down but left zombie ComfyUI proc
 
 import pytest
 import signal
-from unittest.mock import Mock, patch, MagicMock
-from pathlib import Path
+from unittest.mock import Mock, patch
 
 
 @pytest.mark.unit

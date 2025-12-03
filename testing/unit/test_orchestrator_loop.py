@@ -2,7 +2,7 @@
 
 from pathlib import Path
 import pytest
-from unittest.mock import Mock, MagicMock, call
+from unittest.mock import Mock
 
 
 @pytest.mark.unit
@@ -29,7 +29,7 @@ class TestOrchestratorLoop:
         from server.orchestrator import Orchestrator
         import os
 
-        orch = Orchestrator(
+        Orchestrator(
             workspace_root=mock_workspace,
             initial_env="env1",
             args=[]

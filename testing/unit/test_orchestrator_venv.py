@@ -1,7 +1,6 @@
 """Unit tests for orchestrator virtual environment setup."""
 
 import sys
-from pathlib import Path
 import pytest
 
 
@@ -16,8 +15,8 @@ class TestOrchestratorVenv:
         venv_path = temp_dir / ".orchestrator_venv"
 
         # Mock venv.create and subprocess.run to avoid actual venv creation
-        mock_venv_create = mocker.patch("venv.create")
-        mock_subprocess_run = mocker.patch("subprocess.run")
+        mocker.patch("venv.create")
+        mocker.patch("subprocess.run")
 
         # Create the expected directory structure to simulate venv creation
         venv_path.mkdir()

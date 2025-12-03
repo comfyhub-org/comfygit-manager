@@ -9,7 +9,7 @@ server_dir = Path(__file__).parent.parent.parent / "server"
 if str(server_dir) not in sys.path:
     sys.path.insert(0, str(server_dir))
 
-from cgm_core.serializers import serialize_environment_status
+from cgm_core.serializers import serialize_environment_status  # noqa: E402
 
 
 @pytest.mark.unit

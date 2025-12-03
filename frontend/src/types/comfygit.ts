@@ -847,6 +847,113 @@ export interface ImportProgress {
   error?: string | null
 }
 
+// =============================================================================
+// Deploy Types
+// =============================================================================
+
+export interface DataCenter {
+  id: string              // e.g., 'US-IL-1', 'EU-CZ-1'
+  name: string            // e.g., 'United States', 'Europe (Czech)'
+  location?: string       // e.g., 'Illinois, USA'
+  region?: string         // e.g., 'NORTH_AMERICA', 'EUROPE'
+  available: boolean
+}
+
+export interface NetworkVolume {
+  id: string
+  name: string
+  size_gb: number
+  data_center_id: string        // e.g., "US-IL-1", "EU-CZ-1"
+  data_center_name: string      // e.g., "United States", "Europe"
+  used_gb?: number              // Optional: current usage
+  created_at?: string
+}
+
+export interface RunPodGpuType {
+  id: string
+  displayName: string
+  memoryInGb: number
+  securePrice: number           // $/hr for secure cloud (on-demand)
+  communityPrice: number        // $/hr for community cloud (on-demand)
+  secureSpotPrice: number       // $/hr for secure cloud (spot)
+  communitySpotPrice: number    // $/hr for community cloud (spot)
+  stockStatus: 'HIGH' | 'MEDIUM' | 'LOW' | null  // GPU availability level
+  available: boolean            // true if has stock (HIGH/MEDIUM/LOW)
+}
+
+export interface DeployConfig {
+  gpu_type_id: string
+  pod_name: string
+  network_volume_id: string  // Network volume ID instead of ephemeral storage
+  cloud_type: 'SECURE' | 'COMMUNITY'
+  pricing_type: 'ON_DEMAND' | 'SPOT'
+  spot_bid?: number          // Bid price for SPOT pricing (required when pricing_type is SPOT)
+  import_source: string      // Git URL or tarball path for cg import
+  branch?: string            // Optional git branch/tag
+}
+
+export interface EnvironmentDeploySummary {
+  comfyui_version: string
+  node_count: number
+  model_count: number
+  models_with_sources: number
+  models_without_sources: number
+  workflow_count: number
+  estimated_package_size_mb: number
+}
+
+export interface DeployResult {
+  status: 'success' | 'error'
+  pod_id?: string
+  deployment_id?: string
+  message: string
+}
+
+export interface RunPodInstance {
+  id: string
+  name: string
+  gpu_type: string
+  gpu_count: number
+  status: 'CREATED' | 'RUNNING' | 'EXITED' | 'TERMINATED' | 'STOPPED'
+  created_at: string
+  cost_per_hour: number
+  uptime_seconds: number
+  total_cost: number
+  // Connection info (when running)
+  pod_url?: string
+  comfyui_url?: string      // Proxied port 8188
+}
+
+export interface DeployPackageResult {
+  status: 'success' | 'error'
+  package_path?: string
+  package_size_mb?: number
+  message?: string
+}
+
+export interface RunPodConnectionResult {
+  status: 'success' | 'error'
+  message: string
+  credit_balance?: number
+}
+
+export interface RunPodKeyStatus {
+  has_key: boolean
+  key_preview?: string
+  valid?: boolean
+  credit_balance?: number
+  error?: string
+}
+
+export type DeployPhase = 'STARTING_POD' | 'SETTING_UP' | 'READY' | 'STOPPED' | 'ERROR'
+
+export interface DeploymentStatus {
+  phase: DeployPhase
+  phase_detail: string
+  comfyui_url: string | null
+  console_url: string
+}
+
 // First-Time Setup Types
 export type SetupState = 'no_workspace' | 'empty_workspace' | 'unmanaged' | 'managed'
 
