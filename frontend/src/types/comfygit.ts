@@ -924,6 +924,41 @@ export interface RunPodInstance {
   comfyui_url?: string      // Proxied port 8188
 }
 
+// Provider-agnostic Instance types for unified Instances tab
+export type InstanceProvider = 'runpod' | 'vast' | 'custom'
+export type InstanceStatus = 'deploying' | 'running' | 'stopped' | 'error' | 'terminated'
+
+export interface Instance {
+  id: string
+  provider: InstanceProvider
+  name: string
+  status: InstanceStatus
+
+  // Deployment tracking (when deploying)
+  deployment_phase?: string        // e.g., "STARTING_POD", "SETTING_UP"
+  deployment_message?: string      // Human-readable status
+  deployment_progress?: number     // 0-100 for progress indicators
+
+  // Connection info (when running)
+  comfyui_url?: string            // URL to open ComfyUI
+  console_url?: string            // Provider console link (not for 'custom')
+
+  // Provider-specific metadata
+  gpu_type?: string
+  region?: string
+  cost_per_hour?: number
+  uptime_seconds?: number
+  total_cost?: number
+
+  // Timestamps
+  created_at: string
+  started_at?: string
+}
+
+export interface InstancesResponse {
+  instances: Instance[]
+}
+
 export interface DeployPackageResult {
   status: 'success' | 'error'
   package_path?: string

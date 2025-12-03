@@ -14,6 +14,11 @@ parent_dir = Path(__file__).parent.parent
 if str(parent_dir) not in sys.path:
     sys.path.insert(0, str(parent_dir))
 
+# Add server directory to path so deploy module can be found
+# Force insert at position 0 to ensure it takes precedence
+server_dir = parent_dir / "server"
+sys.path.insert(0, str(server_dir))
+
 
 @pytest.fixture
 def temp_dir() -> Generator[Path, None, None]:

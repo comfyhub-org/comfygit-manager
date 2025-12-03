@@ -177,6 +177,10 @@ def panel_routes():
     # Mock sys.modules to inject our fake server
     sys.modules['server'] = mock_server_module
 
+    # Ensure server directory is on path (pytest may have modified it)
+    # Force insert at position 0 to take precedence over pytest's additions
+    sys.path.insert(0, str(server_dir))
+
     # Now import comfygit_panel which will register routes on our mock
     import comfygit_panel
 

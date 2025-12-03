@@ -200,6 +200,70 @@ async def test_runpod_connection(request: web.Request, workspace) -> web.Respons
         )
 
 
+# Status mapping from RunPod status to unified Instance status
+RUNPOD_STATUS_MAP = {
+    'RUNNING': 'running',
+    'EXITED': 'stopped',
+    'STOPPED': 'stopped',
+    'CREATED': 'deploying',
+    'TERMINATED': 'terminated',
+}
+
+
+def _convert_runpod_pod_to_instance(pod: dict, client) -> dict:
+    """Convert a RunPod pod to unified Instance format."""
+    status = pod.get("desiredStatus", "UNKNOWN")
+    uptime_seconds = pod.get("uptimeSeconds", 0)
+    cost_per_hour = pod.get("costPerHr", 0)
+    total_cost = (uptime_seconds / 3600) * cost_per_hour
+    pod_id = pod.get("id")
+
+    return {
+        "id": pod_id,
+        "provider": "runpod",
+        "name": pod.get("name", pod_id),
+        "status": RUNPOD_STATUS_MAP.get(status, "error"),
+        "comfyui_url": client.get_comfyui_url(pod) if status == "RUNNING" else None,
+        "console_url": get_runpod_console_url(pod_id),
+        "gpu_type": pod.get("machine", {}).get("gpuDisplayName", "Unknown"),
+        "cost_per_hour": cost_per_hour,
+        "uptime_seconds": uptime_seconds,
+        "total_cost": round(total_cost, 4),
+        "created_at": pod.get("created_at", ""),
+    }
+
+
+@routes.get("/v2/comfygit/deploy/instances")
+@requires_workspace
+async def get_all_instances(request: web.Request, workspace) -> web.Response:
+    """Get all instances from all configured providers.
+
+    Returns a unified Instance format that's provider-agnostic.
+    Currently supports RunPod; future: Vast, Custom.
+
+    Returns:
+        instances: List of Instance objects
+    """
+    instances = []
+
+    # RunPod instances (if key configured)
+    api_key = workspace.workspace_config_manager.get_runpod_token()
+    if api_key or is_simulator_mode():
+        try:
+            client = get_deploy_client(api_key)
+            pods = await client.list_pods()
+            for pod in pods:
+                instances.append(_convert_runpod_pod_to_instance(pod, client))
+        except Exception:
+            # Graceful degradation - if RunPod API fails, just return empty
+            pass
+
+    # Future: Vast instances
+    # Future: Custom instances
+
+    return web.json_response({"instances": instances})
+
+
 @routes.get("/v2/comfygit/deploy/runpod/pods")
 @requires_workspace
 async def get_runpod_pods(request: web.Request, workspace) -> web.Response:

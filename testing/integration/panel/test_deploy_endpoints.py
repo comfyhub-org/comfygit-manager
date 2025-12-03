@@ -1176,3 +1176,43 @@ class TestRunPodDeploymentStatus:
                 assert resp.status == 200
                 data = await resp.json()
                 assert data["console_url"] == "https://www.runpod.io/console/pods/mypod456"
+
+
+# ============================================================================
+# Unified Instances Endpoint Tests
+# ============================================================================
+
+@pytest.mark.integration
+class TestUnifiedInstancesEndpoint:
+    """GET /v2/comfygit/deploy/instances - Unified provider-agnostic instances.
+
+    This endpoint aggregates instances from all configured providers (RunPod,
+    future: Vast, Custom) into a common Instance format for the Instances tab.
+
+    Note: Full mocking of the deploy client requires updates to the test
+    infrastructure. Unit tests for the conversion function are in
+    testing/unit/test_instance_conversion.py
+    """
+
+    async def test_returns_empty_list_when_no_providers_configured(self, client, mock_workspace_context):
+        """Should return empty instances list when no API key configured."""
+        mock_workspace_context.workspace_config_manager.get_runpod_token.return_value = None
+
+        resp = await client.get("/v2/comfygit/deploy/instances")
+
+        assert resp.status == 200
+        data = await resp.json()
+        assert "instances" in data
+        assert data["instances"] == []
+
+    async def test_endpoint_exists_and_returns_json(self, client, mock_workspace_context):
+        """Should return 200 with JSON response when no key configured."""
+        mock_workspace_context.workspace_config_manager.get_runpod_token.return_value = None
+
+        resp = await client.get("/v2/comfygit/deploy/instances")
+
+        assert resp.status == 200
+        data = await resp.json()
+        assert isinstance(data, dict)
+        assert "instances" in data
+        assert isinstance(data["instances"], list)
