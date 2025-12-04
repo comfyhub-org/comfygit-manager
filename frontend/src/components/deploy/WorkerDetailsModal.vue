@@ -1,11 +1,11 @@
 <template>
   <BaseModal
-    :title="`WORKER: ${worker.name}`"
+    :title="`WORKER: ${worker?.name ?? 'Loading...'}`"
     size="md"
     @close="$emit('close')"
   >
     <template #body>
-      <div class="worker-details-content">
+      <div v-if="worker" class="worker-details-content">
         <!-- Connection Section -->
         <div class="section">
           <div class="section-label">CONNECTION</div>

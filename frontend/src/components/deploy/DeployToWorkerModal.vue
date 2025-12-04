@@ -262,11 +262,14 @@ async function handleDeploy() {
       name: instanceName.value || undefined
     })
 
-    if (result.status === 'success') {
-      emit('toast', 'Deployment started', 'success')
+    // Success if we got an instance ID back (status will be "deploying")
+    if (result.id) {
+      emit('toast', `Deployment started: ${result.name || result.id}`, 'success')
       emit('deployed')
+    } else if (result.status === 'error') {
+      emit('toast', result.message || 'Deployment failed', 'error')
     } else {
-      emit('toast', result.message, 'error')
+      emit('toast', 'Unexpected response from worker', 'error')
     }
   } catch (err) {
     emit('toast', err instanceof Error ? err.message : 'Deployment failed', 'error')

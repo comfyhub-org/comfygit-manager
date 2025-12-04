@@ -200,6 +200,17 @@ async function handleAddWorker(request: AddWorkerRequest) {
   }
 }
 
+async function handleAddWorkerFromDiscovered(request: AddWorkerRequest) {
+  try {
+    await addCustomWorker(request)
+    emit('toast', `Worker '${request.name}' added`, 'success')
+    showDiscoveredModal.value = false
+    await loadWorkers()
+  } catch (err) {
+    emit('toast', err instanceof Error ? err.message : 'Failed to add worker', 'error')
+  }
+}
+
 async function handleRemove(workerName: string) {
   actionLoadingWorker.value = workerName
   try {
