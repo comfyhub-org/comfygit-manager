@@ -195,6 +195,49 @@ PYEOF
     echo "[comfygit-dev] Managed environments pyproject.toml OK"
 fi
 
+# Refresh system-nodes dependency group from comfygit-manager/pyproject.toml
+# This ensures new dependencies (like zeroconf) are picked up
+if [[ -d "$WORKSPACE_PATH/environments" ]] && [[ -f "$MANAGER_PATH/pyproject.toml" ]]; then
+    echo "[comfygit-dev] Refreshing system-nodes dependencies from manager..."
+    for ENV_DIR in "$WORKSPACE_PATH/environments"/*/; do
+        ENV_NAME=$(basename "$ENV_DIR")
+        PYPROJECT="$ENV_DIR.cec/pyproject.toml"
+
+        if [[ -f "$PYPROJECT" ]]; then
+            # Use uv run from manager dir to get tomlkit
+            cd "$MANAGER_PATH"
+            uv run python << PYEOF
+import tomlkit
+
+# Read manager dependencies
+with open("$MANAGER_PATH/pyproject.toml", "r") as f:
+    manager_doc = tomlkit.load(f)
+manager_deps = manager_doc.get("project", {}).get("dependencies", [])
+
+if not manager_deps:
+    exit(0)
+
+# Read environment pyproject
+with open("$PYPROJECT", "r") as f:
+    env_doc = tomlkit.load(f)
+
+# Get current system-nodes deps
+if "dependency-groups" not in env_doc:
+    env_doc["dependency-groups"] = {}
+current_deps = set(env_doc.get("dependency-groups", {}).get("system-nodes", []))
+new_deps = set(manager_deps)
+
+# Only update if different
+if current_deps != new_deps:
+    print(f"[comfygit-dev] Updating system-nodes in $ENV_NAME: {sorted(new_deps)}")
+    env_doc["dependency-groups"]["system-nodes"] = sorted(list(new_deps))
+    with open("$PYPROJECT", "w") as f:
+        tomlkit.dump(env_doc, f)
+PYEOF
+        fi
+    done
+fi
+
 # Add docker dependency to managed environments when simulator mode is enabled
 if [[ "$SIMULATOR_MODE" == "true" ]] && [[ -d "$WORKSPACE_PATH/environments" ]]; then
     for ENV_DIR in "$WORKSPACE_PATH/environments"/*/; do

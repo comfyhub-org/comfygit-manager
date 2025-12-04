@@ -69,14 +69,19 @@
       <button class="dismiss-btn" @click="scanResult = null">×</button>
     </div>
 
-    <!-- Add Worker Modal -->
+    <!-- Discovered Workers Modal (from scan) -->
+    <DiscoveredWorkersModal
+      v-if="showDiscoveredModal"
+      :workers="discoveredWorkers"
+      @close="showDiscoveredModal = false"
+      @add="handleAddWorkerFromDiscovered"
+    />
+
+    <!-- Add Worker Modal (manual entry) -->
     <AddWorkerModal
       v-if="showAddModal"
-      :discovered-workers="discoveredWorkers"
-      :is-scanning="isScanning"
       @close="showAddModal = false"
       @add="handleAddWorker"
-      @scan="handleScan"
     />
 
     <!-- Deploy to Worker Modal -->
@@ -106,6 +111,7 @@ import type { CustomWorker, DiscoveredWorker, AddWorkerRequest } from '@/types/c
 import ActionButton from '@/components/base/atoms/ActionButton.vue'
 import WorkerCard from './WorkerCard.vue'
 import AddWorkerModal from './AddWorkerModal.vue'
+import DiscoveredWorkersModal from './DiscoveredWorkersModal.vue'
 import DeployToWorkerModal from './DeployToWorkerModal.vue'
 import WorkerDetailsModal from './WorkerDetailsModal.vue'
 
@@ -130,6 +136,7 @@ const actionLoadingWorker = ref<string | null>(null)
 
 // Modals
 const showAddModal = ref(false)
+const showDiscoveredModal = ref(false)
 const deployingToWorker = ref<CustomWorker | null>(null)
 const managingWorker = ref<CustomWorker | null>(null)
 
@@ -153,22 +160,17 @@ async function handleScan() {
   scanResult.value = null
   try {
     const result = await scanForWorkers()
-    discoveredWorkers.value = result.discovered
 
     // Filter out already registered workers
     const newWorkers = result.discovered.filter(
       d => !workers.value.some(w => w.host === d.host && w.port === d.port)
     )
 
+    discoveredWorkers.value = newWorkers
+
     if (newWorkers.length > 0) {
-      scanResult.value = {
-        type: 'success',
-        message: `Found ${newWorkers.length} new worker${newWorkers.length !== 1 ? 's' : ''} on the network`
-      }
-      // Open add modal if not already open
-      if (!showAddModal.value) {
-        showAddModal.value = true
-      }
+      // Open discovered workers modal
+      showDiscoveredModal.value = true
     } else if (result.discovered.length > 0) {
       scanResult.value = {
         type: 'info',

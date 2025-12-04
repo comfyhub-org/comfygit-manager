@@ -171,19 +171,26 @@ async def scan_workers(request: web.Request, workspace) -> web.Response:
     Note: mDNS scanning requires zeroconf library and may not work
     in all environments. This is a best-effort discovery feature.
     """
+    import logging
+    logger = logging.getLogger("comfygit.custom_workers")
+
     discovered = []
+    logger.info("Starting mDNS scan for workers...")
 
     try:
         from zeroconf import Zeroconf, ServiceBrowser
+        logger.info("zeroconf imported successfully")
 
         class WorkerListener:
             def __init__(self):
                 self.workers = []
 
             def add_service(self, zc, service_type, name):
+                logger.info(f"mDNS: Found service: {name}")
                 info = zc.get_service_info(service_type, name)
                 if info:
                     addresses = [str(addr) for addr in info.parsed_addresses()]
+                    logger.info(f"mDNS: Service info - addresses={addresses}, port={info.port}, props={info.properties}")
                     if addresses:
                         self.workers.append({
                             "name": name.replace(f".{service_type}", ""),
@@ -202,6 +209,7 @@ async def scan_workers(request: web.Request, workspace) -> web.Response:
         zc = Zeroconf()
         listener = WorkerListener()
         browser = ServiceBrowser(zc, "_cg-deploy._tcp.local.", listener)
+        logger.info("mDNS: ServiceBrowser started, waiting 3 seconds...")
 
         # Wait for discovery
         await asyncio.sleep(3.0)
@@ -210,13 +218,12 @@ async def scan_workers(request: web.Request, workspace) -> web.Response:
         zc.close()
 
         discovered = listener.workers
+        logger.info(f"mDNS scan complete. Found {len(discovered)} workers: {discovered}")
 
-    except ImportError:
-        # zeroconf not installed - return empty list silently
-        pass
-    except Exception:
-        # mDNS scanning failed - return empty list
-        pass
+    except ImportError as e:
+        logger.warning(f"zeroconf not installed: {e}")
+    except Exception as e:
+        logger.error(f"mDNS scanning failed: {e}", exc_info=True)
 
     return web.json_response({"discovered": discovered})
 

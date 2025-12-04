@@ -1,41 +1,11 @@
 <template>
   <BaseModal
-    title="ADD CUSTOM WORKER"
+    title="ADD WORKER MANUALLY"
     size="md"
     @close="$emit('close')"
   >
     <template #body>
       <div class="add-worker-content">
-        <!-- Discovered Workers Section -->
-        <div v-if="filteredDiscovered.length > 0" class="discovered-section">
-          <div class="section-label">Discovered Workers</div>
-          <div class="discovered-list">
-            <div
-              v-for="worker in filteredDiscovered"
-              :key="`${worker.host}:${worker.port}`"
-              class="discovered-item"
-            >
-              <div class="discovered-info">
-                <span class="discovered-name">{{ worker.name }}</span>
-                <span class="discovered-address">({{ worker.host }}:{{ worker.port }})</span>
-                <span v-if="worker.gpu_info" class="discovered-gpu">{{ worker.gpu_info }}</span>
-              </div>
-              <ActionButton
-                variant="secondary"
-                size="xs"
-                @click="selectDiscovered(worker)"
-              >
-                Add
-              </ActionButton>
-            </div>
-          </div>
-        </div>
-
-        <div v-if="filteredDiscovered.length > 0" class="divider">
-          <span>Or Enter Manually</span>
-        </div>
-
-        <!-- Manual Entry Form -->
         <div class="manual-form">
           <div class="form-row">
             <label class="form-label">Worker Name</label>
@@ -43,7 +13,7 @@
               v-model="form.name"
               type="text"
               class="form-input"
-              placeholder="my-worker"
+              placeholder="my-gpu-worker"
             />
           </div>
 
@@ -131,19 +101,13 @@
 <script setup lang="ts">
 import { ref, reactive, computed } from 'vue'
 import { useComfyGitService } from '@/composables/useComfyGitService'
-import type { DiscoveredWorker, AddWorkerRequest } from '@/types/comfygit'
+import type { AddWorkerRequest } from '@/types/comfygit'
 import BaseModal from '@/components/base/BaseModal.vue'
 import ActionButton from '@/components/base/atoms/ActionButton.vue'
-
-const props = defineProps<{
-  discoveredWorkers: DiscoveredWorker[]
-  isScanning?: boolean
-}>()
 
 const emit = defineEmits<{
   close: []
   add: [request: AddWorkerRequest]
-  scan: []
 }>()
 
 const { testWorkerConnection } = useComfyGitService()
@@ -165,13 +129,6 @@ const testResult = ref<{
   gpu_info?: string
 } | null>(null)
 
-// Filter out workers that are already being shown (name filled in)
-const filteredDiscovered = computed(() => {
-  return props.discoveredWorkers.filter(w =>
-    !(form.host === w.host && form.port === w.port)
-  )
-})
-
 const canTest = computed(() => {
   return form.host && form.port && form.apiKey
 })
@@ -179,13 +136,6 @@ const canTest = computed(() => {
 const canAdd = computed(() => {
   return form.name && form.host && form.port && form.apiKey
 })
-
-function selectDiscovered(worker: DiscoveredWorker) {
-  form.name = worker.name
-  form.host = worker.host
-  form.port = worker.port
-  testResult.value = null
-}
 
 async function handleTest() {
   if (!canTest.value) return
@@ -244,76 +194,6 @@ function handleAdd() {
   display: flex;
   flex-direction: column;
   gap: var(--cg-space-4);
-}
-
-/* Discovered Section */
-.discovered-section {
-  background: var(--cg-color-bg-tertiary);
-  border: 1px solid var(--cg-color-border-subtle);
-  padding: var(--cg-space-3);
-}
-
-.section-label {
-  font-size: var(--cg-font-size-xs);
-  color: var(--cg-color-text-muted);
-  text-transform: uppercase;
-  letter-spacing: var(--cg-letter-spacing-wide);
-  margin-bottom: var(--cg-space-2);
-}
-
-.discovered-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--cg-space-2);
-}
-
-.discovered-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--cg-space-2);
-  background: var(--cg-color-bg-secondary);
-  border: 1px solid var(--cg-color-border);
-}
-
-.discovered-info {
-  display: flex;
-  align-items: center;
-  gap: var(--cg-space-2);
-  font-size: var(--cg-font-size-sm);
-}
-
-.discovered-name {
-  color: var(--cg-color-text-primary);
-  font-weight: var(--cg-font-weight-medium);
-}
-
-.discovered-address {
-  color: var(--cg-color-text-muted);
-  font-family: var(--cg-font-mono);
-  font-size: var(--cg-font-size-xs);
-}
-
-.discovered-gpu {
-  color: var(--cg-color-text-secondary);
-  font-size: var(--cg-font-size-xs);
-}
-
-/* Divider */
-.divider {
-  display: flex;
-  align-items: center;
-  gap: var(--cg-space-3);
-  color: var(--cg-color-text-muted);
-  font-size: var(--cg-font-size-xs);
-}
-
-.divider::before,
-.divider::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--cg-color-border-subtle);
 }
 
 /* Form */

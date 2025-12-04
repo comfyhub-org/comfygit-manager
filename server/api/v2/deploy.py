@@ -992,3 +992,74 @@ async def get_runpod_gpu_types(request: web.Request, workspace) -> web.Response:
     gpu_types.sort(key=lambda g: g.get("communityPrice") or g.get("securePrice") or 999)
 
     return web.json_response({"gpu_types": gpu_types})
+
+
+@routes.post("/v2/comfygit/deploy/test-git-auth")
+@requires_environment
+async def test_git_auth(request: web.Request, env) -> web.Response:
+    """Test GitHub PAT authentication by attempting to fetch from origin remote.
+
+    This endpoint tests if the provided token can authenticate against the
+    configured origin remote. The token is not stored - it's used only for
+    this single request.
+
+    Request body:
+        token: GitHub Personal Access Token
+
+    Returns:
+        status: "success" or "error"
+        message: Human-readable message
+    """
+    from comfygit_core.utils.git import git_ls_remote_with_auth
+
+    data = await request.json()
+    token = data.get("token")
+
+    if not token:
+        return web.json_response(
+            {"status": "error", "message": "Token is required"},
+            status=400,
+        )
+
+    # Get origin remote URL
+    try:
+        git_dir = env.env_path
+        result = await run_sync(
+            lambda: env.pyproject.git.get_remotes()
+        )
+        origin = next((r for r in result if r.get("name") == "origin"), None)
+
+        if not origin:
+            return web.json_response(
+                {"status": "error", "message": "No origin remote configured"},
+                status=400,
+            )
+
+        remote_url = origin.get("url", "")
+
+        # Check if SSH remote
+        if remote_url.startswith("git@") or remote_url.startswith("ssh://"):
+            return web.json_response({
+                "status": "error",
+                "message": "SSH remotes do not support PAT authentication. Convert to HTTPS."
+            })
+
+        # Test auth by doing ls-remote
+        success = await run_sync(git_ls_remote_with_auth, git_dir, remote_url, token)
+
+        if success:
+            return web.json_response({
+                "status": "success",
+                "message": "GitHub authentication successful"
+            })
+        else:
+            return web.json_response({
+                "status": "error",
+                "message": "Authentication failed. Check your token has repo access."
+            })
+
+    except Exception as e:
+        return web.json_response({
+            "status": "error",
+            "message": f"Test failed: {str(e)}"
+        })
