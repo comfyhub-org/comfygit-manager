@@ -58,14 +58,14 @@
 
   <!-- Terminate Confirmation -->
   <ConfirmDialog
-    v-if="pendingTerminateId"
+    v-if="pendingTerminateInstance"
     title="Terminate Instance"
-    :message="`Are you sure you want to terminate '${pendingTerminateInstance?.name || pendingTerminateId}'?`"
+    :message="`Are you sure you want to terminate '${pendingTerminateInstance.name}'?`"
     warning="This will permanently delete the instance and all data stored on it. This action cannot be undone."
     confirm-label="Terminate"
     :destructive="true"
     @confirm="confirmTerminate"
-    @cancel="pendingTerminateId = null"
+    @cancel="pendingTerminateInstance = null"
   />
 
   <!-- Info Popover -->
@@ -107,6 +107,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import type { Instance } from '@/types/comfygit'
 import { useDeployInstances } from '@/composables/useDeployInstances'
 import PanelLayout from '@/components/base/organisms/PanelLayout.vue'
 import PanelHeader from '@/components/base/molecules/PanelHeader.vue'
@@ -142,7 +143,7 @@ const showInfo = ref(false)
 const showSettings = ref(false)
 const activeTab = ref('instances')
 const actionLoadingId = ref<string | null>(null)
-const pendingTerminateId = ref<string | null>(null)
+const pendingTerminateInstance = ref<Instance | null>(null)
 
 // Tabs with dynamic badge
 const tabs = computed(() => [
@@ -162,10 +163,10 @@ const tabs = computed(() => [
 ])
 
 // Action handlers with loading state
-async function handleStopInstance(id: string) {
-  actionLoadingId.value = id
+async function handleStopInstance(instance: Instance) {
+  actionLoadingId.value = instance.id
   try {
-    await stopInstance(id)
+    await stopInstance(instance)
     emit('toast', 'Instance stopped', 'success')
   } catch (err) {
     emit('toast', err instanceof Error ? err.message : 'Failed to stop instance', 'error')
@@ -174,10 +175,10 @@ async function handleStopInstance(id: string) {
   }
 }
 
-async function handleStartInstance(id: string) {
-  actionLoadingId.value = id
+async function handleStartInstance(instance: Instance) {
+  actionLoadingId.value = instance.id
   try {
-    await startInstance(id)
+    await startInstance(instance)
     emit('toast', 'Instance starting...', 'success')
   } catch (err) {
     emit('toast', err instanceof Error ? err.message : 'Failed to start instance', 'error')
@@ -186,19 +187,19 @@ async function handleStartInstance(id: string) {
   }
 }
 
-function handleTerminateInstance(id: string) {
-  // Show confirmation dialog
-  pendingTerminateId.value = id
+function handleTerminateInstance(instance: Instance) {
+  // Show confirmation dialog - store instance for later
+  pendingTerminateInstance.value = instance
 }
 
 async function confirmTerminate() {
-  const id = pendingTerminateId.value
-  if (!id) return
+  const instance = pendingTerminateInstance.value
+  if (!instance) return
 
-  pendingTerminateId.value = null
-  actionLoadingId.value = id
+  pendingTerminateInstance.value = null
+  actionLoadingId.value = instance.id
   try {
-    await terminateInstance(id)
+    await terminateInstance(instance)
     emit('toast', 'Instance terminated', 'success')
   } catch (err) {
     emit('toast', err instanceof Error ? err.message : 'Failed to terminate instance', 'error')
@@ -206,11 +207,6 @@ async function confirmTerminate() {
     actionLoadingId.value = null
   }
 }
-
-// Get instance name for confirmation dialog
-const pendingTerminateInstance = computed(() =>
-  instances.value.find(i => i.id === pendingTerminateId.value)
-)
 
 async function handleDeployed() {
   // Refresh instances when a new deployment is started

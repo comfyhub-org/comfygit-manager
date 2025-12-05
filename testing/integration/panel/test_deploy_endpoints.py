@@ -7,7 +7,7 @@ from unittest.mock import Mock, AsyncMock, patch
 
 
 @pytest.fixture
-def mock_workspace_context(mock_environment, monkeypatch):
+def mock_workspace_context(mock_environment, monkeypatch, tmp_path):
     """Fixture to properly mock workspace for @requires_workspace endpoints.
 
     This patches get_workspace_from_cwd() which is called by the app context
@@ -17,6 +17,7 @@ def mock_workspace_context(mock_environment, monkeypatch):
     mock_workspace.workspace_config_manager = Mock()
     mock_workspace.workspace_config_manager.set_runpod_token = Mock()
     mock_workspace.workspace_config_manager.get_runpod_token = Mock(return_value=None)
+    mock_workspace.path = tmp_path  # Set a real path for CustomWorkersStore
     mock_environment.workspace = mock_workspace
 
     # Patch get_workspace_from_cwd in comfygit_panel to return our mock
@@ -1281,3 +1282,366 @@ class TestBatchStatusEndpoint:
             assert "unknown456" not in data["statuses"]
         finally:
             complete_deployment("batch123")
+
+
+# ============================================================================
+# Custom Worker Instance Aggregation Tests
+# ============================================================================
+
+@pytest.mark.integration
+class TestUnifiedInstancesWithCustomWorkers:
+    """GET /v2/comfygit/deploy/instances - Custom worker instance aggregation.
+
+    When users deploy to custom workers (self-hosted GPU machines), those
+    instances should appear in the unified Instances tab alongside RunPod
+    instances. This requires aggregating instances from all registered workers.
+    """
+
+    async def test_includes_custom_worker_instances(self, client, mock_workspace_context):
+        """Should include instances from registered custom workers."""
+        mock_workspace_context.workspace_config_manager.get_runpod_token.return_value = None
+
+        # Mock the CustomWorkersStore to return a registered worker
+        mock_worker = {
+            "name": "my-gpu-box",
+            "host": "192.168.1.100",
+            "port": 9090,
+            "api_key": "test-key-123",
+        }
+
+        with patch("api.v2.deploy.CustomWorkersStore") as MockStore:
+            mock_store = Mock()
+            mock_store.get_all_workers.return_value = [mock_worker]
+            MockStore.return_value = mock_store
+
+            # Mock the worker API response
+            with patch("api.v2.deploy._fetch_worker_instances") as mock_fetch:
+                mock_fetch.return_value = [
+                    {
+                        "id": "comfy-123",
+                        "name": "production",
+                        "status": "running",
+                        "comfyui_url": "http://192.168.1.100:8188",
+                        "uptime_seconds": 3600,
+                        "created_at": "2025-01-01T00:00:00Z",
+                    }
+                ]
+
+                resp = await client.get("/v2/comfygit/deploy/instances")
+
+                assert resp.status == 200
+                data = await resp.json()
+
+                # Should include the custom worker instance
+                assert len(data["instances"]) == 1
+                instance = data["instances"][0]
+                assert instance["id"] == "my-gpu-box:comfy-123"  # Namespaced ID
+                assert instance["provider"] == "custom"
+                assert instance["name"] == "production"
+                assert instance["status"] == "running"
+                assert instance["worker_name"] == "my-gpu-box"
+
+    async def test_aggregates_runpod_and_custom_instances(self, client, mock_workspace_context):
+        """Should show both RunPod and custom worker instances together."""
+        mock_workspace_context.workspace_config_manager.get_runpod_token.return_value = "rpa_test123"
+
+        # Mock custom workers
+        mock_worker = {
+            "name": "home-server",
+            "host": "192.168.1.50",
+            "port": 9090,
+            "api_key": "local-key",
+            "gpu_info": "RTX 3090",
+        }
+
+        # Mock RunPod client via get_deploy_client
+        with patch("api.v2.deploy.get_deploy_client") as mock_get_client:
+            mock_client = AsyncMock()
+            mock_client.list_pods.return_value = [
+                {
+                    "id": "runpod-abc",
+                    "name": "cloud-instance",
+                    "desiredStatus": "RUNNING",
+                    "costPerHr": 0.44,
+                    "uptimeSeconds": 1800,
+                    "machine": {"gpuDisplayName": "RTX 4090"},
+                }
+            ]
+            # get_comfyui_url is a sync method, use Mock not AsyncMock
+            mock_client.get_comfyui_url = Mock(return_value="https://runpod-abc-8188.proxy.runpod.net")
+            mock_get_client.return_value = mock_client
+
+            with patch("api.v2.deploy.CustomWorkersStore") as MockStore:
+                mock_store = Mock()
+                mock_store.get_all_workers.return_value = [mock_worker]
+                MockStore.return_value = mock_store
+
+                with patch("api.v2.deploy._fetch_worker_instances") as mock_fetch:
+                    mock_fetch.return_value = [
+                        {
+                            "id": "local-1",
+                            "name": "dev-instance",
+                            "status": "running",
+                            "comfyui_url": "http://192.168.1.50:8188",
+                            "uptime_seconds": 7200,
+                            "created_at": "2025-01-01T00:00:00Z",
+                        }
+                    ]
+
+                    resp = await client.get("/v2/comfygit/deploy/instances")
+
+                    assert resp.status == 200
+                    data = await resp.json()
+
+                    # Should have both instances
+                    assert len(data["instances"]) == 2
+
+                    # Find instances by provider
+                    providers = {i["provider"]: i for i in data["instances"]}
+                    assert "runpod" in providers
+                    assert "custom" in providers
+
+                    # Verify RunPod instance
+                    assert providers["runpod"]["id"] == "runpod-abc"
+
+                    # Verify custom instance with namespaced ID
+                    assert providers["custom"]["id"] == "home-server:local-1"
+                    assert providers["custom"]["worker_name"] == "home-server"
+
+    async def test_gracefully_handles_offline_workers(self, client, mock_workspace_context):
+        """Should skip workers that are offline or unreachable."""
+        mock_workspace_context.workspace_config_manager.get_runpod_token.return_value = None
+
+        # Mock two workers - one online, one offline
+        workers = [
+            {"name": "online-worker", "host": "192.168.1.10", "port": 9090, "api_key": "key1"},
+            {"name": "offline-worker", "host": "192.168.1.20", "port": 9090, "api_key": "key2"},
+        ]
+
+        with patch("api.v2.deploy.CustomWorkersStore") as MockStore:
+            mock_store = Mock()
+            mock_store.get_all_workers.return_value = workers
+            MockStore.return_value = mock_store
+
+            with patch("api.v2.deploy._fetch_worker_instances") as mock_fetch:
+                # First call succeeds, second raises exception
+                async def side_effect(worker):
+                    if worker["name"] == "online-worker":
+                        return [{"id": "inst-1", "name": "test", "status": "running"}]
+                    raise Exception("Connection refused")
+
+                mock_fetch.side_effect = side_effect
+
+                resp = await client.get("/v2/comfygit/deploy/instances")
+
+                assert resp.status == 200
+                data = await resp.json()
+
+                # Should only have the instance from the online worker
+                assert len(data["instances"]) == 1
+                assert data["instances"][0]["id"] == "online-worker:inst-1"
+
+    async def test_namespaces_instance_ids_to_prevent_collision(self, client, mock_workspace_context):
+        """Instance IDs should be namespaced with worker name to prevent collisions."""
+        mock_workspace_context.workspace_config_manager.get_runpod_token.return_value = None
+
+        # Two workers with instances that have the same local ID
+        workers = [
+            {"name": "worker-a", "host": "10.0.0.1", "port": 9090, "api_key": "key1"},
+            {"name": "worker-b", "host": "10.0.0.2", "port": 9090, "api_key": "key2"},
+        ]
+
+        with patch("api.v2.deploy.CustomWorkersStore") as MockStore:
+            mock_store = Mock()
+            mock_store.get_all_workers.return_value = workers
+            MockStore.return_value = mock_store
+
+            with patch("api.v2.deploy._fetch_worker_instances") as mock_fetch:
+                # Both workers have an instance with id "comfy-1"
+                async def side_effect(worker):
+                    return [{"id": "comfy-1", "name": f"{worker['name']}-instance", "status": "running"}]
+
+                mock_fetch.side_effect = side_effect
+
+                resp = await client.get("/v2/comfygit/deploy/instances")
+
+                assert resp.status == 200
+                data = await resp.json()
+
+                # Should have 2 instances with unique namespaced IDs
+                assert len(data["instances"]) == 2
+                ids = {i["id"] for i in data["instances"]}
+                assert ids == {"worker-a:comfy-1", "worker-b:comfy-1"}
+
+    async def test_custom_instance_format_matches_unified_instance(self, client, mock_workspace_context):
+        """Custom instances should match the unified Instance format used by RunPod."""
+        mock_workspace_context.workspace_config_manager.get_runpod_token.return_value = None
+
+        mock_worker = {
+            "name": "test-worker",
+            "host": "192.168.1.100",
+            "port": 9090,
+            "api_key": "test-key",
+            "gpu_info": "RTX 4090",  # From health check
+        }
+
+        with patch("api.v2.deploy.CustomWorkersStore") as MockStore:
+            mock_store = Mock()
+            mock_store.get_all_workers.return_value = [mock_worker]
+            MockStore.return_value = mock_store
+
+            with patch("api.v2.deploy._fetch_worker_instances") as mock_fetch:
+                mock_fetch.return_value = [
+                    {
+                        "id": "inst-123",
+                        "name": "my-instance",
+                        "status": "running",
+                        "comfyui_url": "http://192.168.1.100:8188",
+                        "uptime_seconds": 3600,
+                        "created_at": "2025-01-01T12:00:00Z",
+                    }
+                ]
+
+                resp = await client.get("/v2/comfygit/deploy/instances")
+
+                assert resp.status == 200
+                data = await resp.json()
+                instance = data["instances"][0]
+
+                # All required Instance fields should be present
+                assert "id" in instance
+                assert "provider" in instance
+                assert instance["provider"] == "custom"
+                assert "name" in instance
+                assert "status" in instance
+                assert "comfyui_url" in instance
+                assert "gpu_type" in instance  # Should use worker's gpu_info
+                assert instance["gpu_type"] == "RTX 4090"
+                assert "cost_per_hour" in instance
+                assert instance["cost_per_hour"] == 0  # Self-hosted, no cost
+                assert "uptime_seconds" in instance
+                assert "total_cost" in instance
+                assert instance["total_cost"] == 0  # Self-hosted
+                assert "created_at" in instance
+                assert "worker_name" in instance  # Extra field for custom instances
+
+    async def test_maps_worker_status_to_unified_status(self, client, mock_workspace_context):
+        """Worker instance statuses should map to unified Instance statuses."""
+        mock_workspace_context.workspace_config_manager.get_runpod_token.return_value = None
+
+        mock_worker = {"name": "test", "host": "localhost", "port": 9090, "api_key": "key"}
+
+        with patch("api.v2.deploy.CustomWorkersStore") as MockStore:
+            mock_store = Mock()
+            mock_store.get_all_workers.return_value = [mock_worker]
+            MockStore.return_value = mock_store
+
+            # Test different status mappings
+            status_cases = [
+                ("running", "running"),
+                ("stopped", "stopped"),
+                ("starting", "deploying"),
+                ("error", "error"),
+            ]
+
+            for worker_status, expected_status in status_cases:
+                with patch("api.v2.deploy._fetch_worker_instances") as mock_fetch:
+                    mock_fetch.return_value = [
+                        {"id": f"inst-{worker_status}", "name": "test", "status": worker_status}
+                    ]
+
+                    resp = await client.get("/v2/comfygit/deploy/instances")
+                    data = await resp.json()
+
+                    assert data["instances"][0]["status"] == expected_status, \
+                        f"Worker status '{worker_status}' should map to '{expected_status}'"
+
+
+@pytest.mark.integration
+class TestCustomWorkerInstanceActions:
+    """Instance actions (stop/start/terminate) for custom worker instances.
+
+    When a custom instance is controlled via the unified Instances tab,
+    the action should be routed to the correct worker's API endpoint.
+    """
+
+    async def test_stop_custom_instance(self, client, mock_workspace_context):
+        """POST /v2/comfygit/deploy/custom/{worker}/instances/{id}/stop."""
+        mock_workspace_context.workspace_config_manager.get_runpod_token.return_value = None
+
+        mock_worker = {"name": "my-worker", "host": "192.168.1.100", "port": 9090, "api_key": "key123"}
+
+        with patch("api.v2.custom_workers._get_workers_store") as mock_get_store:
+            mock_store = Mock()
+            mock_store.get_worker.return_value = mock_worker
+            mock_get_store.return_value = mock_store
+
+            with patch("api.v2.custom_workers._proxy_to_worker") as mock_proxy:
+                mock_proxy.return_value = {"status": "success", "message": "Instance stopped"}
+
+                resp = await client.post("/v2/comfygit/deploy/custom/my-worker/instances/inst-123/stop")
+
+                assert resp.status == 200
+                data = await resp.json()
+                assert data["status"] == "success"
+
+                # Verify proxy was called correctly
+                mock_proxy.assert_called_once()
+                call_args = mock_proxy.call_args
+                assert call_args[0][1] == "POST"
+                assert "/api/v1/instances/inst-123/stop" in call_args[0][2]
+
+    async def test_start_custom_instance(self, client, mock_workspace_context):
+        """POST /v2/comfygit/deploy/custom/{worker}/instances/{id}/start."""
+        mock_workspace_context.workspace_config_manager.get_runpod_token.return_value = None
+
+        mock_worker = {"name": "my-worker", "host": "192.168.1.100", "port": 9090, "api_key": "key123"}
+
+        with patch("api.v2.custom_workers._get_workers_store") as mock_get_store:
+            mock_store = Mock()
+            mock_store.get_worker.return_value = mock_worker
+            mock_get_store.return_value = mock_store
+
+            with patch("api.v2.custom_workers._proxy_to_worker") as mock_proxy:
+                mock_proxy.return_value = {"status": "success", "message": "Instance started"}
+
+                resp = await client.post("/v2/comfygit/deploy/custom/my-worker/instances/inst-123/start")
+
+                assert resp.status == 200
+                data = await resp.json()
+                assert data["status"] == "success"
+
+    async def test_terminate_custom_instance(self, client, mock_workspace_context):
+        """DELETE /v2/comfygit/deploy/custom/{worker}/instances/{id}."""
+        mock_workspace_context.workspace_config_manager.get_runpod_token.return_value = None
+
+        mock_worker = {"name": "my-worker", "host": "192.168.1.100", "port": 9090, "api_key": "key123"}
+
+        with patch("api.v2.custom_workers._get_workers_store") as mock_get_store:
+            mock_store = Mock()
+            mock_store.get_worker.return_value = mock_worker
+            mock_get_store.return_value = mock_store
+
+            with patch("api.v2.custom_workers._proxy_to_worker") as mock_proxy:
+                mock_proxy.return_value = {"status": "success", "message": "Instance terminated"}
+
+                resp = await client.delete("/v2/comfygit/deploy/custom/my-worker/instances/inst-123")
+
+                assert resp.status == 200
+                data = await resp.json()
+                assert data["status"] == "success"
+
+    async def test_action_returns_404_for_unknown_worker(self, client, mock_workspace_context):
+        """Should return 404 when trying to control instance on unknown worker."""
+        mock_workspace_context.workspace_config_manager.get_runpod_token.return_value = None
+
+        with patch("api.v2.custom_workers._get_workers_store") as mock_get_store:
+            mock_store = Mock()
+            mock_store.get_worker.return_value = None  # Worker not found
+            mock_get_store.return_value = mock_store
+
+            resp = await client.post("/v2/comfygit/deploy/custom/unknown-worker/instances/inst-123/stop")
+
+            assert resp.status == 404
+            data = await resp.json()
+            assert "not found" in data.get("message", "").lower()

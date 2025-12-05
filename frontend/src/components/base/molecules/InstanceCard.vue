@@ -51,7 +51,7 @@
         size="xs"
         :loading="isLoading"
         :disabled="isLoading"
-        @click="$emit('stop', instance.id)"
+        @click="$emit('stop', instance)"
       >
         Stop
       </ActionButton>
@@ -62,7 +62,7 @@
         size="xs"
         :loading="isLoading"
         :disabled="isLoading"
-        @click="$emit('start', instance.id)"
+        @click="$emit('start', instance)"
       >
         Start
       </ActionButton>
@@ -72,7 +72,7 @@
         size="xs"
         :loading="isLoading"
         :disabled="isLoading"
-        @click="$emit('terminate', instance.id)"
+        @click="$emit('terminate', instance)"
       >
         Terminate
       </ActionButton>
@@ -92,12 +92,16 @@ const props = defineProps<{
 }>()
 
 defineEmits<{
-  stop: [id: string]
-  start: [id: string]
-  terminate: [id: string]
+  stop: [instance: Instance]
+  start: [instance: Instance]
+  terminate: [instance: Instance]
 }>()
 
 const providerLabel = computed(() => {
+  // For custom workers, show the worker name instead of just "Custom"
+  if (props.instance.provider === 'custom' && props.instance.worker_name) {
+    return props.instance.worker_name
+  }
   const labels: Record<string, string> = {
     runpod: 'RunPod',
     vast: 'Vast.ai',

@@ -95,14 +95,36 @@ export function useDeployInstances(options?: { autoStart?: boolean }) {
     }
   }
 
-  async function stopInstance(id: string): Promise<void> {
+  /**
+   * Get the API endpoint for instance actions based on provider.
+   * Custom instances route through the worker-specific proxy endpoint.
+   */
+  function getInstanceEndpoint(instance: Instance, action: 'stop' | 'start' | 'terminate'): string {
+    if (instance.provider === 'custom' && instance.worker_name) {
+      // Custom worker instances: route through worker proxy
+      // Parse the local instance ID (remove worker_name: prefix)
+      const localId = instance.id.includes(':')
+        ? instance.id.split(':').slice(1).join(':')
+        : instance.id
+      if (action === 'terminate') {
+        return `/v2/comfygit/deploy/custom/${instance.worker_name}/instances/${localId}`
+      }
+      return `/v2/comfygit/deploy/custom/${instance.worker_name}/instances/${localId}/${action}`
+    }
+    // RunPod/Vast: use provider-specific endpoint
+    if (action === 'terminate') {
+      return `/v2/comfygit/deploy/${instance.provider}/${instance.id}`
+    }
+    return `/v2/comfygit/deploy/${instance.provider}/${instance.id}/${action}`
+  }
+
+  async function stopInstance(instance: Instance): Promise<void> {
     try {
       if (USE_MOCK) {
-        await mockApi.stopRunPodPod(id)
+        await mockApi.stopRunPodPod(instance.id)
       } else {
-        const response = await fetchApi(`/v2/comfygit/deploy/runpod/${id}/stop`, {
-          method: 'POST'
-        })
+        const endpoint = getInstanceEndpoint(instance, 'stop')
+        const response = await fetchApi(endpoint, { method: 'POST' })
         if (!response.ok) {
           const data = await response.json()
           throw new Error(data.message || 'Failed to stop instance')
@@ -116,14 +138,13 @@ export function useDeployInstances(options?: { autoStart?: boolean }) {
     }
   }
 
-  async function startInstance(id: string): Promise<void> {
+  async function startInstance(instance: Instance): Promise<void> {
     try {
       if (USE_MOCK) {
-        await mockApi.startRunPodPod(id)
+        await mockApi.startRunPodPod(instance.id)
       } else {
-        const response = await fetchApi(`/v2/comfygit/deploy/runpod/${id}/start`, {
-          method: 'POST'
-        })
+        const endpoint = getInstanceEndpoint(instance, 'start')
+        const response = await fetchApi(endpoint, { method: 'POST' })
         if (!response.ok) {
           const data = await response.json()
           throw new Error(data.message || 'Failed to start instance')
@@ -136,14 +157,13 @@ export function useDeployInstances(options?: { autoStart?: boolean }) {
     }
   }
 
-  async function terminateInstance(id: string): Promise<void> {
+  async function terminateInstance(instance: Instance): Promise<void> {
     try {
       if (USE_MOCK) {
-        await mockApi.terminateRunPodPod(id)
+        await mockApi.terminateRunPodPod(instance.id)
       } else {
-        const response = await fetchApi(`/v2/comfygit/deploy/runpod/${id}`, {
-          method: 'DELETE'
-        })
+        const endpoint = getInstanceEndpoint(instance, 'terminate')
+        const response = await fetchApi(endpoint, { method: 'DELETE' })
         if (!response.ok) {
           const data = await response.json()
           throw new Error(data.message || 'Failed to terminate instance')

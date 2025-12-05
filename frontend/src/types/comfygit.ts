@@ -950,6 +950,9 @@ export interface Instance {
   uptime_seconds?: number
   total_cost?: number
 
+  // Custom worker specific (provider === 'custom')
+  worker_name?: string   // Which worker this instance belongs to
+
   // Timestamps
   created_at: string
   started_at?: string

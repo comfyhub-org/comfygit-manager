@@ -33,9 +33,9 @@
         :key="instance.id"
         :instance="instance"
         :is-loading="actionLoadingId === instance.id"
-        @stop="id => $emit('stop', id)"
-        @start="id => $emit('start', id)"
-        @terminate="id => $emit('terminate', id)"
+        @stop="inst => $emit('stop', inst)"
+        @start="inst => $emit('start', inst)"
+        @terminate="inst => $emit('terminate', inst)"
       />
     </div>
   </div>
@@ -57,9 +57,9 @@ const props = defineProps<{
 
 defineEmits<{
   refresh: []
-  stop: [id: string]
-  start: [id: string]
-  terminate: [id: string]
+  stop: [instance: Instance]
+  start: [instance: Instance]
+  terminate: [instance: Instance]
 }>()
 
 // Sort: deploying first, then running, then stopped

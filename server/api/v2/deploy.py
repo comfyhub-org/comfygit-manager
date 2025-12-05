@@ -1,6 +1,7 @@
 """Deploy API endpoints for RunPod cloud deployment."""
 import time
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Dict
 
 import aiohttp
@@ -11,6 +12,7 @@ from cgm_utils.async_helpers import run_sync
 from deploy.runpod_client import RunPodClient
 from deploy.client_factory import get_deploy_client, is_simulator_mode
 from deploy.startup_script import generate_startup_script, generate_deployment_id
+from deploy.custom_workers_store import CustomWorkersStore
 
 routes = web.RouteTableDef()
 
@@ -280,6 +282,61 @@ RUNPOD_STATUS_MAP = {
     'TERMINATED': 'terminated',
 }
 
+# Status mapping from custom worker instance status to unified Instance status
+WORKER_STATUS_MAP = {
+    'running': 'running',
+    'stopped': 'stopped',
+    'starting': 'deploying',
+    'error': 'error',
+}
+
+
+async def _fetch_worker_instances(worker: dict) -> list[dict]:
+    """Fetch instances from a custom worker.
+
+    Args:
+        worker: Worker dict with host, port, api_key fields
+
+    Returns:
+        List of instance dicts from the worker API
+    """
+    url = f"http://{worker['host']}:{worker['port']}/api/v1/instances"
+    headers = {"Authorization": f"Bearer {worker.get('api_key', '')}"}
+
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url, headers=headers, timeout=5.0) as resp:
+            if resp.status == 200:
+                data = await resp.json()
+                return data.get("instances", [])
+    return []
+
+
+def _convert_worker_instance(inst: dict, worker: dict) -> dict:
+    """Convert a worker instance to unified Instance format.
+
+    Args:
+        inst: Instance dict from worker API
+        worker: Worker dict with name, gpu_info, etc.
+
+    Returns:
+        Unified Instance format dict
+    """
+    return {
+        "id": f"{worker['name']}:{inst['id']}",
+        "provider": "custom",
+        "name": inst.get("name", inst["id"]),
+        "status": WORKER_STATUS_MAP.get(inst.get("status"), "error"),
+        "comfyui_url": inst.get("comfyui_url"),
+        "console_url": None,  # Custom workers don't have a console URL
+        "gpu_type": worker.get("gpu_info"),
+        "region": worker.get("name"),  # Use worker name as "region"
+        "cost_per_hour": 0,  # Self-hosted, no cost tracking
+        "uptime_seconds": inst.get("uptime_seconds", 0),
+        "total_cost": 0,
+        "created_at": inst.get("created_at", ""),
+        "worker_name": worker["name"],  # Extra field for custom instances
+    }
+
 
 def _convert_runpod_pod_to_instance(pod: dict, client) -> dict:
     """Convert a RunPod pod to unified Instance format."""
@@ -311,7 +368,7 @@ async def get_all_instances(request: web.Request, workspace) -> web.Response:
 
     Returns a unified Instance format that's provider-agnostic.
     Includes both provider API instances and locally-tracked deploying instances.
-    Currently supports RunPod; future: Vast, Custom.
+    Supports RunPod and Custom Workers.
 
     Returns:
         instances: List of Instance objects
@@ -343,8 +400,21 @@ async def get_all_instances(request: web.Request, workspace) -> web.Response:
             # Graceful degradation - if RunPod API fails, just return empty
             pass
 
-    # Future: Vast instances
-    # Future: Custom instances
+    # 3. Custom worker instances
+    store = CustomWorkersStore(Path(workspace.path))
+    workers = store.get_all_workers()
+
+    for worker in workers:
+        try:
+            worker_instances = await _fetch_worker_instances(worker)
+            for inst in worker_instances:
+                instance_id = f"{worker['name']}:{inst['id']}"
+                if instance_id not in seen_ids:
+                    instances.append(_convert_worker_instance(inst, worker))
+                    seen_ids.add(instance_id)
+        except Exception:
+            # Worker offline, skip gracefully
+            pass
 
     return web.json_response({"instances": instances})
 
