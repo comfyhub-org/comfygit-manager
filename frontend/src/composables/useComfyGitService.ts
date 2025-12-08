@@ -53,7 +53,14 @@ import type {
   DeployResult,
   DeployPackageResult,
   DeployConfig,
-  DeploymentStatus
+  DeploymentStatus,
+  CustomWorkersResponse,
+  AddWorkerRequest,
+  WorkerScanResponse,
+  WorkerTestResult,
+  CustomWorkerSystemInfo,
+  WorkerInstancesResponse,
+  DeployToWorkerRequest
 } from '@/types/comfygit'
 import { mockApi, isMockApi } from '@/services/mockApi'
 import { useMockControls } from '@/composables/useMockControls'
@@ -770,6 +777,27 @@ export function useComfyGitService() {
     return fetchApi<{ path: string; exists: boolean }>('/v2/workspace/debug/logs/path')
   }
 
+  async function getOrchestratorLogs(level?: string, lines?: number): Promise<LogEntry[]> {
+    if (USE_MOCK) return mockApi.getWorkspaceLogs(level, lines) // Reuse mock for now
+
+    try {
+      const params = new URLSearchParams()
+      if (level) params.append('level', level)
+      if (lines) params.append('lines', lines.toString())
+      return fetchApi<LogEntry[]>(`/v2/workspace/debug/orchestrator-logs?${params}`)
+    } catch {
+      return []
+    }
+  }
+
+  async function getOrchestratorLogPath(): Promise<{ path: string; exists: boolean }> {
+    if (USE_MOCK) {
+      return { path: '/mock/workspace/.metadata/orchestrator.log', exists: true }
+    }
+
+    return fetchApi<{ path: string; exists: boolean }>('/v2/workspace/debug/orchestrator-logs/path')
+  }
+
   async function openFile(path: string): Promise<{ status: string }> {
     if (USE_MOCK) {
       console.log(`[MOCK] Opening file: ${path}`)
@@ -893,14 +921,20 @@ export function useComfyGitService() {
     })
   }
 
-  async function fetchRemote(name: string): Promise<RemoteOperationResult> {
+  async function fetchRemote(name: string, authToken?: string): Promise<RemoteOperationResult> {
     if (USE_MOCK) {
       await mockApi.fetchRemote(name)
       return { status: 'success', remote_name: name }
     }
 
+    const headers: Record<string, string> = {}
+    if (authToken) {
+      headers['X-Git-Auth-Token'] = authToken
+    }
+
     return fetchApi<RemoteOperationResult>(`/v2/comfygit/remotes/${encodeURIComponent(name)}/fetch`, {
-      method: 'POST'
+      method: 'POST',
+      headers
     })
   }
 
@@ -950,12 +984,18 @@ export function useComfyGitService() {
 
   async function pullFromRemote(
     remote: string,
-    options: { modelStrategy?: string; force?: boolean; resolutions?: any[] } = {}
+    options: { modelStrategy?: string; force?: boolean; resolutions?: any[]; authToken?: string } = {}
   ): Promise<PullResult> {
     if (USE_MOCK) return mockApi.pullFromRemote(remote, options)
+
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+    if (options.authToken) {
+      headers['X-Git-Auth-Token'] = options.authToken
+    }
+
     return fetchApi<PullResult>(`/v2/comfygit/remotes/${encodeURIComponent(remote)}/pull`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify({
         model_strategy: options.modelStrategy || 'skip',
         force: options.force || false,
@@ -974,12 +1014,18 @@ export function useComfyGitService() {
 
   async function pushToRemote(
     remote: string,
-    options: { force?: boolean } = {}
+    options: { force?: boolean; authToken?: string } = {}
   ): Promise<PushResult> {
     if (USE_MOCK) return mockApi.pushToRemote(remote, options)
+
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+    if (options.authToken) {
+      headers['X-Git-Auth-Token'] = options.authToken
+    }
+
     return fetchApi<PushResult>(`/v2/comfygit/remotes/${encodeURIComponent(remote)}/push`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify({ force: options.force || false })
     })
   }
@@ -1409,6 +1455,96 @@ export function useComfyGitService() {
     })
   }
 
+  // Custom Worker Operations
+  async function getCustomWorkers(): Promise<CustomWorkersResponse> {
+    if (USE_MOCK) {
+      return { workers: [] }
+    }
+    return fetchApi<CustomWorkersResponse>('/v2/comfygit/deploy/custom/workers')
+  }
+
+  async function addCustomWorker(request: AddWorkerRequest): Promise<{ status: 'success' }> {
+    return fetchApi('/v2/comfygit/deploy/custom/workers', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request)
+    })
+  }
+
+  async function removeCustomWorker(name: string): Promise<{ status: 'success' }> {
+    return fetchApi(`/v2/comfygit/deploy/custom/workers/${encodeURIComponent(name)}`, {
+      method: 'DELETE'
+    })
+  }
+
+  async function testWorkerConnection(params: { host: string; port: number; api_key: string }): Promise<WorkerTestResult> {
+    return fetchApi<WorkerTestResult>('/v2/comfygit/deploy/custom/test', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(params)
+    })
+  }
+
+  async function scanForWorkers(): Promise<WorkerScanResponse> {
+    if (USE_MOCK) {
+      return { discovered: [] }
+    }
+    return fetchApi<WorkerScanResponse>('/v2/comfygit/deploy/custom/scan', {
+      method: 'POST'
+    })
+  }
+
+  async function getWorkerSystemInfo(workerName: string): Promise<CustomWorkerSystemInfo> {
+    return fetchApi<CustomWorkerSystemInfo>(`/v2/comfygit/deploy/custom/${encodeURIComponent(workerName)}/info`)
+  }
+
+  async function getWorkerInstances(workerName: string): Promise<WorkerInstancesResponse> {
+    return fetchApi<WorkerInstancesResponse>(`/v2/comfygit/deploy/custom/${encodeURIComponent(workerName)}/instances`)
+  }
+
+  async function deployToWorker(workerName: string, request: DeployToWorkerRequest): Promise<DeployResult> {
+    return fetchApi<DeployResult>(`/v2/comfygit/deploy/custom/${encodeURIComponent(workerName)}/instances`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request)
+    })
+  }
+
+  async function startWorkerInstance(workerName: string, instanceId: string): Promise<{ status: 'success' }> {
+    return fetchApi(`/v2/comfygit/deploy/custom/${encodeURIComponent(workerName)}/instances/${encodeURIComponent(instanceId)}/start`, {
+      method: 'POST'
+    })
+  }
+
+  async function stopWorkerInstance(workerName: string, instanceId: string): Promise<{ status: 'success' }> {
+    return fetchApi(`/v2/comfygit/deploy/custom/${encodeURIComponent(workerName)}/instances/${encodeURIComponent(instanceId)}/stop`, {
+      method: 'POST'
+    })
+  }
+
+  async function terminateWorkerInstance(workerName: string, instanceId: string): Promise<{ status: 'success' }> {
+    return fetchApi(`/v2/comfygit/deploy/custom/${encodeURIComponent(workerName)}/instances/${encodeURIComponent(instanceId)}`, {
+      method: 'DELETE'
+    })
+  }
+
+  // Git Authentication (for cloud deployments)
+  async function testGitAuth(token: string): Promise<{ status: 'success' | 'error'; message: string }> {
+    if (USE_MOCK) {
+      // Mock: simulate token validation
+      await new Promise(resolve => setTimeout(resolve, 500))
+      if (token.startsWith('ghp_')) {
+        return { status: 'success', message: 'GitHub authentication successful' }
+      }
+      return { status: 'error', message: 'Invalid token format' }
+    }
+    return fetchApi<{ status: 'success' | 'error'; message: string }>('/v2/comfygit/deploy/test-git-auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token })
+    })
+  }
+
   return {
     isLoading,
     error,
@@ -1460,6 +1596,8 @@ export function useComfyGitService() {
     getWorkspaceLogs,
     getEnvironmentLogPath,
     getWorkspaceLogPath,
+    getOrchestratorLogs,
+    getOrchestratorLogPath,
     openFile,
     // Node Management
     getNodes,
@@ -1510,6 +1648,20 @@ export function useComfyGitService() {
     getDeploymentStatus,
     exportDeployPackage,
     getStoredRunPodKey,
-    clearRunPodKey
+    clearRunPodKey,
+    // Custom Worker Operations
+    getCustomWorkers,
+    addCustomWorker,
+    removeCustomWorker,
+    testWorkerConnection,
+    scanForWorkers,
+    getWorkerSystemInfo,
+    getWorkerInstances,
+    deployToWorker,
+    startWorkerInstance,
+    stopWorkerInstance,
+    terminateWorkerInstance,
+    // Git Authentication
+    testGitAuth
   }
 }

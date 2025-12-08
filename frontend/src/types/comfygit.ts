@@ -924,6 +924,44 @@ export interface RunPodInstance {
   comfyui_url?: string      // Proxied port 8188
 }
 
+// Provider-agnostic Instance types for unified Instances tab
+export type InstanceProvider = 'runpod' | 'vast' | 'custom'
+export type InstanceStatus = 'deploying' | 'running' | 'stopped' | 'error' | 'terminated'
+
+export interface Instance {
+  id: string
+  provider: InstanceProvider
+  name: string
+  status: InstanceStatus
+
+  // Deployment tracking (when deploying)
+  deployment_phase?: string        // e.g., "STARTING_POD", "SETTING_UP"
+  deployment_message?: string      // Human-readable status
+  deployment_progress?: number     // 0-100 for progress indicators
+
+  // Connection info (when running)
+  comfyui_url?: string            // URL to open ComfyUI
+  console_url?: string            // Provider console link (not for 'custom')
+
+  // Provider-specific metadata
+  gpu_type?: string
+  region?: string
+  cost_per_hour?: number
+  uptime_seconds?: number
+  total_cost?: number
+
+  // Custom worker specific (provider === 'custom')
+  worker_name?: string   // Which worker this instance belongs to
+
+  // Timestamps
+  created_at: string
+  started_at?: string
+}
+
+export interface InstancesResponse {
+  instances: Instance[]
+}
+
 export interface DeployPackageResult {
   status: 'success' | 'error'
   package_path?: string
@@ -992,4 +1030,112 @@ export interface ValidatePathResult {
   error?: string
   suggestion?: string
   model_count?: number
+}
+
+// =============================================================================
+// Custom Worker Types (for self-hosted GPU workers)
+// =============================================================================
+
+/** Registered custom worker */
+export interface CustomWorker {
+  name: string
+  host: string
+  port: number
+  api_key_preview: string  // Last 4 chars only for display
+  added_at: string
+
+  // Runtime info (from health check)
+  status: 'online' | 'offline' | 'unknown'
+  gpu_info?: string
+  mode?: 'docker' | 'native'
+  instance_count?: number
+  running_count?: number
+}
+
+/** System info returned by worker health endpoint */
+export interface CustomWorkerSystemInfo {
+  worker_version: string
+  workspace_path: string
+  default_mode: 'docker' | 'native'
+  gpu: {
+    name: string
+    driver_version: string
+    memory_total_mb: number
+    memory_free_mb: number
+  }
+  docker: {
+    available: boolean
+    nvidia_runtime: boolean
+  }
+  instances: {
+    total: number
+    running: number
+    stopped: number
+  }
+  ports: {
+    range_start: number
+    range_end: number
+    allocated: number[]
+    available: number
+  }
+}
+
+/** Worker discovered via mDNS scan */
+export interface DiscoveredWorker {
+  name: string
+  host: string
+  port: number
+  gpu_info?: string
+  mode?: string
+}
+
+/** Instance running on a custom worker */
+export interface WorkerInstance {
+  id: string
+  name: string
+  environment_name: string
+  status: 'deploying' | 'running' | 'stopped' | 'error'
+  mode: 'docker' | 'native'
+  assigned_port: number
+  comfyui_url?: string
+  uptime_seconds?: number
+  created_at: string
+}
+
+/** Request to add a new worker */
+export interface AddWorkerRequest {
+  name: string
+  host: string
+  port: number
+  api_key: string
+}
+
+/** Request to deploy to a worker */
+export interface DeployToWorkerRequest {
+  import_source: string
+  branch?: string
+  mode: 'docker' | 'native'
+  name?: string
+}
+
+/** API Responses */
+export interface CustomWorkersResponse {
+  workers: CustomWorker[]
+}
+
+export interface WorkerScanResponse {
+  discovered: DiscoveredWorker[]
+}
+
+export interface WorkerInstancesResponse {
+  instances: WorkerInstance[]
+  port_range: { start: number; end: number }
+  ports_available: number
+}
+
+export interface WorkerTestResult {
+  status: 'success' | 'error'
+  message: string
+  gpu_info?: string
+  mode?: string
 }

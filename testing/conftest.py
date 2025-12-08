@@ -7,12 +7,54 @@ import shutil
 import tempfile
 from pathlib import Path
 from typing import Generator
+from unittest.mock import MagicMock
 import pytest
+
+
+def pytest_collection_modifyitems(config, items):
+    """Reorder tests so unit tests run before integration tests.
+
+    The panel integration tests modify sys.modules['server'] which would break
+    unit tests that import from server.orchestrator. By running unit tests first,
+    we avoid this pollution issue.
+    """
+    unit_tests = []
+    integration_tests = []
+    other_tests = []
+
+    for item in items:
+        if "/unit/" in str(item.fspath):
+            unit_tests.append(item)
+        elif "/integration/" in str(item.fspath):
+            integration_tests.append(item)
+        else:
+            other_tests.append(item)
+
+    # Reorder: unit tests first, then integration tests, then anything else
+    items[:] = unit_tests + integration_tests + other_tests
 
 # Add parent directory to Python path so tests can import server module
 parent_dir = Path(__file__).parent.parent
 if str(parent_dir) not in sys.path:
     sys.path.insert(0, str(parent_dir))
+
+# Add server directory to path so deploy module can be found
+# Force insert at position 0 to ensure it takes precedence
+server_dir = parent_dir / "server"
+if str(server_dir) not in sys.path:
+    sys.path.insert(0, str(server_dir))
+
+# Import the real server package first (from parent_dir/server/)
+# This prevents the mock from shadowing it
+import server as real_server_package  # noqa: E402
+
+# Now add a mock PromptServer to it for ComfyUI compatibility
+# This allows comfygit_panel.py to import from server.PromptServer
+if not hasattr(real_server_package, 'PromptServer'):
+    real_server_package.PromptServer = MagicMock()
+
+# Note: We intentionally don't pre-import deploy modules here.
+# Pre-importing would interfere with mocking in panel tests.
 
 
 @pytest.fixture
@@ -223,4 +265,6 @@ def mock_workspace_factory(mocker, temp_dir):
     mock_workspace_obj.paths.metadata = test_workspace / ".metadata"
 
     mocker.patch("server.orchestrator.WorkspaceFactory.find", return_value=mock_workspace_obj)
+    # Also mock the control server to avoid port binding issues in tests
+    mocker.patch("server.orchestrator.Orchestrator._start_control_server")
     return mock_workspace_obj

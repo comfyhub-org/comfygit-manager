@@ -4,12 +4,22 @@ Uses Docker SDK to create/manage containers that mimic RunPod pods.
 Supports both GPU (NVIDIA runtime) and CPU-only modes.
 """
 
+import json
+import logging
+import os
 import secrets
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any
 
-import docker
-from docker.errors import APIError
+try:
+    import docker
+    from docker.errors import APIError
+    DOCKER_AVAILABLE = True
+except ImportError:
+    docker = None  # type: ignore
+    APIError = Exception  # type: ignore
+    DOCKER_AVAILABLE = False
 
 
 class LocalSimulatorError(Exception):
@@ -39,6 +49,9 @@ class LocalSimulatorClient:
         "Local CPU": {"cost": 0.00, "memory": 0, "vcpu": 8, "ram": 32},
     }
 
+    # Port mappings storage file (persists random ports across stop/start)
+    PORT_MAPPINGS_FILE = Path.home() / ".comfygit" / "simulator_ports.json"
+
     def __init__(self, docker_client=None, gpu_mode: str = "gpu"):
         """Initialize simulator.
 
@@ -46,6 +59,11 @@ class LocalSimulatorClient:
             docker_client: Optional Docker client (for testing)
             gpu_mode: "gpu" to use NVIDIA runtime, "cpu" for CPU-only
         """
+        if not DOCKER_AVAILABLE:
+            raise LocalSimulatorError(
+                "Docker SDK not installed. Install with: pip install docker",
+                status_code=501
+            )
         self.docker = docker_client or docker.from_env()
         self.gpu_mode = gpu_mode.lower()
 
@@ -69,6 +87,41 @@ class LocalSimulatorClient:
             labels.update(extra)
         return labels
 
+    def _load_port_mappings(self) -> dict[str, int]:
+        """Load saved port mappings from disk."""
+        if not self.PORT_MAPPINGS_FILE.exists():
+            return {}
+        try:
+            return json.loads(self.PORT_MAPPINGS_FILE.read_text())
+        except (json.JSONDecodeError, OSError):
+            return {}
+
+    def _save_port_mapping(self, pod_id: str, port: int) -> None:
+        """Save a port mapping to disk."""
+        mappings = self._load_port_mappings()
+        mappings[pod_id] = port
+        self.PORT_MAPPINGS_FILE.parent.mkdir(parents=True, exist_ok=True)
+        self.PORT_MAPPINGS_FILE.write_text(json.dumps(mappings))
+
+    def _remove_port_mapping(self, pod_id: str) -> None:
+        """Remove a port mapping from disk."""
+        mappings = self._load_port_mappings()
+        if pod_id in mappings:
+            del mappings[pod_id]
+            self.PORT_MAPPINGS_FILE.write_text(json.dumps(mappings))
+
+    def _find_free_port(self, start: int = 20000, end: int = 30000) -> int:
+        """Find a free port in the given range."""
+        import socket
+        for port in range(start, end):
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                try:
+                    s.bind(("", port))
+                    return port
+                except OSError:
+                    continue
+        raise LocalSimulatorError("No free ports available", 500)
+
     def _container_to_pod(self, container) -> dict:
         """Transform Docker container to RunPod pod response format."""
         labels = container.labels
@@ -86,12 +139,20 @@ class LocalSimulatorClient:
         }
         desired_status = status_map.get(container.status, "UNKNOWN")
 
-        # Get port mappings
-        ports = container.ports or {}
+        # Get port mappings - use stored port if available (persists across stop/start)
         port_mappings = {}
         public_ip = ""
+        stored_ports = self._load_port_mappings()
 
-        if desired_status == "RUNNING":
+        if stored_ports.get(pod_id):
+            # Use stored port (consistent across restarts)
+            port_mappings["8188"] = stored_ports[pod_id]
+            # Only show localhost when container is running
+            if desired_status == "RUNNING":
+                public_ip = "localhost"
+        elif desired_status == "RUNNING":
+            # Fallback to reading from container (first start)
+            ports = container.ports or {}
             for container_port, host_bindings in ports.items():
                 if host_bindings:
                     port_num = container_port.split("/")[0]
@@ -243,12 +304,10 @@ class LocalSimulatorClient:
         # Determine GPU type for simulation
         simulated_gpu = "Local CPU" if self.gpu_mode == "cpu" else "Local RTX 4090"
 
-        # Port mappings - expose 8188 to random port
-        port_bindings = {"8188/tcp": None}
-        if ports:
-            for port_spec in ports:
-                port_num = port_spec.split("/")[0]
-                port_bindings[f"{port_num}/tcp"] = None
+        # Port mappings - use explicit port so it persists across stop/start
+        host_port = self._find_free_port()
+        port_bindings = {"8188/tcp": host_port}
+        self._save_port_mapping(pod_id, host_port)
 
         # Volume mount - use named Docker volume for persistence
         volumes = {}
@@ -263,6 +322,32 @@ class LocalSimulatorClient:
             volume_name = f"{self.VOLUME_PREFIX}{pod_id}"
             self.docker.volumes.create(volume_name)
             volumes[volume_name] = {"bind": "/workspace", "mode": "rw"}
+
+        # Mount local models folder for easy testing
+        # Set COMFYGIT_SIMULATOR_MODELS to override, defaults to ~/comfyui/ComfyUI/models
+        models_path = os.environ.get("COMFYGIT_SIMULATOR_MODELS", "")
+        if not models_path:
+            models_path = os.path.expanduser("~/comfyui/ComfyUI/models")
+        if os.path.isdir(models_path):
+            volumes[models_path] = {"bind": "/workspace/comfygit/models", "mode": "ro"}
+            logging.getLogger(__name__).info(f"Models mount: {models_path} -> /workspace/comfygit/models")
+
+        # Dev mode: add bind mounts from environment variable
+        # Format: "host_path=container_path:host_path2=container_path2"
+        # Example: COMFYGIT_DEV_CUSTOM_NODES="/home/user/dev=/workspace/dev_nodes"
+        dev_mounts = os.environ.get("COMFYGIT_DEV_CUSTOM_NODES", "")
+        if dev_mounts:
+            logger = logging.getLogger(__name__)
+            for mount_spec in dev_mounts.split(":"):
+                if "=" in mount_spec:
+                    src, dst = mount_spec.split("=", 1)
+                    src = os.path.expanduser(src.strip())
+                    dst = dst.strip()
+                    if os.path.exists(src):
+                        volumes[src] = {"bind": dst, "mode": "rw"}
+                        logger.info(f"Dev mount: {src} -> {dst}")
+                    else:
+                        logger.warning(f"Dev mount source does not exist: {src}")
 
         # Environment variables
         container_env = {
@@ -314,6 +399,8 @@ class LocalSimulatorClient:
         # Create and start container
         try:
             container = self.docker.containers.run(**container_config)
+            # Reload container to get updated status (run() returns immediately)
+            container.reload()
         except docker.errors.ImageNotFound:
             raise LocalSimulatorError(
                 f"Image not found: {actual_image}. Run: docker pull {actual_image}",
@@ -354,10 +441,13 @@ class LocalSimulatorClient:
             except Exception:
                 pass
 
+        # Clean up stored port mapping
+        self._remove_port_mapping(pod_id)
+
         return True
 
     async def start_pod(self, pod_id: str) -> dict:
-        """Start stopped container."""
+        """Start stopped container (port persists due to explicit binding at creation)."""
         containers = self.docker.containers.list(
             all=True,
             filters={"label": f"comfygit.deploy.pod_id={pod_id}"}

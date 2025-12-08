@@ -3,9 +3,23 @@ from aiohttp import web
 
 from cgm_core.decorators import requires_environment, logged_operation
 from cgm_utils.async_helpers import run_sync
-from comfygit_core.utils.git import git_config_get
+from comfygit_core.utils.git import (
+    git_config_get,
+    git_fetch_with_auth,
+    git_push_with_auth,
+    git_pull_with_auth,
+)
 
 routes = web.RouteTableDef()
+
+
+def _get_auth_token(request: web.Request) -> str | None:
+    """Extract git auth token from request header.
+
+    The token is passed from the frontend in the X-Git-Auth-Token header.
+    It's stored only in the user's browser localStorage and never persisted on server.
+    """
+    return request.headers.get("X-Git-Auth-Token")
 
 
 def _consolidate_remotes(remote_list: list[tuple[str, str, str]]) -> list[dict]:
@@ -161,11 +175,26 @@ async def update_remote_url(request: web.Request, env) -> web.Response:
 @routes.post("/v2/comfygit/remotes/{name}/fetch")
 @logged_operation("fetch remote")
 async def fetch_remote(request: web.Request, env) -> web.Response:
-    """Fetch from a remote."""
+    """Fetch from a remote.
+
+    Supports optional X-Git-Auth-Token header for authenticated fetch
+    to private repositories on cloud instances.
+    """
     name = request.match_info["name"]
+    auth_token = _get_auth_token(request)
 
     try:
-        await run_sync(env.git_manager.fetch, name)
+        if auth_token:
+            # Use authenticated fetch
+            await run_sync(
+                git_fetch_with_auth,
+                env.git_manager.repo_path,
+                name,
+                auth_token
+            )
+        else:
+            # Standard fetch (relies on machine credentials)
+            await run_sync(env.git_manager.fetch, name)
     except ValueError as e:
         # Remote not found
         return web.json_response({"error": str(e)}, status=404)
@@ -257,8 +286,13 @@ async def get_pull_preview(request: web.Request, env) -> web.Response:
 @routes.post("/v2/comfygit/remotes/{name}/pull")
 @logged_operation("pull from remote")
 async def pull_from_remote(request: web.Request, env) -> web.Response:
-    """Pull changes from remote and sync environment."""
+    """Pull changes from remote and sync environment.
+
+    Supports optional X-Git-Auth-Token header for authenticated pull
+    to private repositories on cloud instances.
+    """
     name = request.match_info["name"]
+    auth_token = _get_auth_token(request)
     json_data = await request.json()
     branch = json_data.get("branch")
     model_strategy = json_data.get("model_strategy", "skip")
@@ -283,12 +317,29 @@ async def pull_from_remote(request: web.Request, env) -> web.Response:
             await run_sync(env.checkout, "HEAD", strategy=None, force=True)
 
     try:
-        result = await run_sync(
-            env.pull_and_repair,
-            name,
-            branch,
-            model_strategy
-        )
+        # Use authenticated pull if token provided
+        if auth_token:
+            # Do authenticated fetch + merge manually
+            await run_sync(
+                git_pull_with_auth,
+                env.git_manager.repo_path,
+                name,
+                auth_token,
+                branch
+            )
+            # Then run repair/sync
+            result = await run_sync(
+                env.repair_after_pull,
+                model_strategy
+            )
+        else:
+            # Standard pull_and_repair (relies on machine credentials)
+            result = await run_sync(
+                env.pull_and_repair,
+                name,
+                branch,
+                model_strategy
+            )
 
         # Extract sync result info
         sync_result = result.get("sync_result")
@@ -363,8 +414,13 @@ async def get_push_preview(request: web.Request, env) -> web.Response:
 @routes.post("/v2/comfygit/remotes/{name}/push")
 @logged_operation("push to remote")
 async def push_to_remote(request: web.Request, env) -> web.Response:
-    """Push commits to remote."""
+    """Push commits to remote.
+
+    Supports optional X-Git-Auth-Token header for authenticated push
+    to private repositories on cloud instances.
+    """
     name = request.match_info["name"]
+    auth_token = _get_auth_token(request)
     json_data = await request.json()
     branch = json_data.get("branch")
     force = json_data.get("force", False)
@@ -385,7 +441,19 @@ async def push_to_remote(request: web.Request, env) -> web.Response:
     commits_ahead = sync_status["ahead"]
 
     try:
-        output = await run_sync(env.push_commits, name, branch, force)
+        if auth_token:
+            # Use authenticated push
+            output = await run_sync(
+                git_push_with_auth,
+                env.git_manager.repo_path,
+                name,
+                auth_token,
+                branch,
+                force
+            )
+        else:
+            # Standard push (relies on machine credentials)
+            output = await run_sync(env.push_commits, name, branch, force)
 
         return web.json_response({
             "status": "success",

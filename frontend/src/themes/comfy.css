@@ -559,3 +559,20 @@
 [data-comfygit-theme="comfy"] .complete-icon.error {
   box-shadow: 0 0 16px var(--cg-shadow-error);
 }
+
+/* === Tabs Component === */
+[data-comfygit-theme="comfy"] .base-tabs {
+  border-bottom-color: var(--cg-color-border-subtle);
+}
+
+[data-comfygit-theme="comfy"] .base-tabs__tab {
+  border-radius: var(--cg-radius-sm) var(--cg-radius-sm) 0 0;
+}
+
+[data-comfygit-theme="comfy"] .base-tabs__tab:hover:not(.disabled) {
+  background: var(--cg-color-bg-hover);
+}
+
+[data-comfygit-theme="comfy"] .base-tabs__tab.active {
+  background: var(--cg-color-accent-muted);
+}
