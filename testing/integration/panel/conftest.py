@@ -120,17 +120,27 @@ def mock_get_environment(monkeypatch, mock_environment):
     return mock_environment
 
 
-# Module-level cache for routes
+# Module-level cache for routes and original sys.modules state
 _PANEL_ROUTES = None
+_ORIGINAL_SERVER_MODULE = None
+_ORIGINAL_SYS_PATH = None
 
 
 @pytest.fixture(scope="session")
-def panel_routes():
-    """Register panel routes once per test session."""
-    global _PANEL_ROUTES
+def panel_routes(request):
+    """Register panel routes once per test session.
+
+    This fixture modifies sys.modules['server'] to inject a mock ComfyUI server.
+    It properly cleans up after the session to avoid polluting other test suites.
+    """
+    global _PANEL_ROUTES, _ORIGINAL_SERVER_MODULE, _ORIGINAL_SYS_PATH
 
     if _PANEL_ROUTES is not None:
         return _PANEL_ROUTES
+
+    # Save original state for cleanup
+    _ORIGINAL_SERVER_MODULE = sys.modules.get('server')
+    _ORIGINAL_SYS_PATH = sys.path.copy()
 
     mock_routes_list = []
 
@@ -187,6 +197,18 @@ def panel_routes():
     # Disable logging
     comfygit_panel.EnvironmentLogger = None
     comfygit_panel.WorkspaceLogger = None
+
+    def cleanup():
+        """Restore original sys.modules and sys.path state."""
+        global _ORIGINAL_SERVER_MODULE, _ORIGINAL_SYS_PATH
+        if _ORIGINAL_SERVER_MODULE is not None:
+            sys.modules['server'] = _ORIGINAL_SERVER_MODULE
+        elif 'server' in sys.modules:
+            del sys.modules['server']
+        if _ORIGINAL_SYS_PATH is not None:
+            sys.path[:] = _ORIGINAL_SYS_PATH
+
+    request.addfinalizer(cleanup)
 
     _PANEL_ROUTES = mock_routes_list
     return mock_routes_list

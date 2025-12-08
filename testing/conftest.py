@@ -10,6 +10,29 @@ from typing import Generator
 from unittest.mock import MagicMock
 import pytest
 
+
+def pytest_collection_modifyitems(config, items):
+    """Reorder tests so unit tests run before integration tests.
+
+    The panel integration tests modify sys.modules['server'] which would break
+    unit tests that import from server.orchestrator. By running unit tests first,
+    we avoid this pollution issue.
+    """
+    unit_tests = []
+    integration_tests = []
+    other_tests = []
+
+    for item in items:
+        if "/unit/" in str(item.fspath):
+            unit_tests.append(item)
+        elif "/integration/" in str(item.fspath):
+            integration_tests.append(item)
+        else:
+            other_tests.append(item)
+
+    # Reorder: unit tests first, then integration tests, then anything else
+    items[:] = unit_tests + integration_tests + other_tests
+
 # Add parent directory to Python path so tests can import server module
 parent_dir = Path(__file__).parent.parent
 if str(parent_dir) not in sys.path:
@@ -30,10 +53,8 @@ import server as real_server_package
 if not hasattr(real_server_package, 'PromptServer'):
     real_server_package.PromptServer = MagicMock()
 
-# Pre-import deploy modules to ensure they're cached before tests run.
-# This fixes an issue where running unit and integration tests together
-# would fail due to module import order issues.
-from deploy.runpod_client import RunPodClient  # noqa: F401, E402
+# Note: We intentionally don't pre-import deploy modules here.
+# Pre-importing would interfere with mocking in panel tests.
 
 
 @pytest.fixture

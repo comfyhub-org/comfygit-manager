@@ -3,7 +3,7 @@
 Tests for RunPod deployment and package export functionality.
 """
 import pytest
-from unittest.mock import Mock, AsyncMock, patch
+from unittest.mock import Mock, AsyncMock, patch, MagicMock
 
 
 @pytest.fixture
@@ -220,6 +220,10 @@ class TestRunPodTestConnection:
         assert "api_key" in data.get("error", "").lower() or "required" in data.get("error", "").lower()
 
 
+# Note: Tests in this class that mock RunPodClient for endpoints using get_deploy_client()
+# need to patch "deploy.runpod_client.RunPodClient" not "api.v2.deploy.RunPodClient",
+# and also need mock_client.get_comfyui_url = Mock(return_value=...) for non-async behavior.
+# See test_success_with_pods for the fixed pattern.
 @pytest.mark.integration
 class TestRunPodGetPods:
     """GET /v2/comfygit/deploy/runpod/pods - List user's pods."""
@@ -228,7 +232,8 @@ class TestRunPodGetPods:
         """Should return 200 with pods list."""
         mock_workspace_context.workspace_config_manager.get_runpod_token.return_value = "rpa_test123"
 
-        with patch("api.v2.deploy.RunPodClient") as MockClient:
+        # Patch where RunPodClient is dynamically imported in client_factory.get_deploy_client()
+        with patch("deploy.runpod_client.RunPodClient") as MockClient:
             mock_client = AsyncMock()
             mock_client.list_pods.return_value = [
                 {
@@ -239,9 +244,9 @@ class TestRunPodGetPods:
                     "machine": {"gpuDisplayName": "RTX 4090"},
                 }
             ]
+            # Make get_comfyui_url a regular (non-async) method
+            mock_client.get_comfyui_url = Mock(return_value="https://pod123-8188.proxy.runpod.net")
             MockClient.return_value = mock_client
-            # Mock the static method to work with our test data
-            MockClient.get_comfyui_url.return_value = "https://pod123-8188.proxy.runpod.net"
 
             resp = await client.get("/v2/comfygit/deploy/runpod/pods")
 
@@ -262,7 +267,7 @@ class TestRunPodGetPods:
         """
         mock_workspace_context.workspace_config_manager.get_runpod_token.return_value = "rpa_test123"
 
-        with patch("api.v2.deploy.RunPodClient") as MockClient:
+        with patch("deploy.runpod_client.RunPodClient") as MockClient:
             mock_client = AsyncMock()
             mock_client.list_pods.return_value = [
                 {
@@ -275,8 +280,8 @@ class TestRunPodGetPods:
                     "machine": {"gpuDisplayName": "RTX 4090"},
                 }
             ]
+            mock_client.get_comfyui_url = Mock(return_value="https://pod123-8188.proxy.runpod.net")
             MockClient.return_value = mock_client
-            MockClient.get_comfyui_url.return_value = "https://pod123-8188.proxy.runpod.net"
 
             resp = await client.get("/v2/comfygit/deploy/runpod/pods")
 
