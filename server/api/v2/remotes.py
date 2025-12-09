@@ -379,7 +379,7 @@ async def get_push_preview(request: web.Request, env) -> web.Response:
         branch = await run_sync(env.get_current_branch)
 
     try:
-        # Get sync status (ahead/behind counts)
+        # Get sync status (ahead/behind counts + remote_branch_exists flag)
         sync_status = await run_sync(env.git_manager.get_sync_status, name, branch)
     except ValueError as e:
         return web.json_response({"error": str(e)}, status=404)
@@ -389,6 +389,9 @@ async def get_push_preview(request: web.Request, env) -> web.Response:
     # Check for uncommitted changes
     status = await run_sync(env.status)
     has_uncommitted = status.git.has_changes
+
+    # First push = remote branch doesn't exist yet
+    is_first_push = not sync_status.get("remote_branch_exists", True)
 
     # Determine if force is needed (remote has new commits)
     remote_has_new = sync_status["behind"] > 0
@@ -407,7 +410,8 @@ async def get_push_preview(request: web.Request, env) -> web.Response:
         "remote_has_new_commits": remote_has_new,
         "can_push": can_push,
         "needs_force": needs_force,
-        "block_reason": block_reason
+        "block_reason": block_reason,
+        "is_first_push": is_first_push
     })
 
 

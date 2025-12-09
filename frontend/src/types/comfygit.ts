@@ -476,6 +476,7 @@ export interface PushPreview {
   can_push: boolean
   needs_force: boolean
   block_reason: string | null
+  is_first_push: boolean
 }
 
 export interface PushResult {
