@@ -20,6 +20,7 @@ export default defineConfig({
   plugins: [vue()],
   define: {
     __APP_VERSION__: JSON.stringify(APP_VERSION),
+    'process.env.NODE_ENV': JSON.stringify('production'),
   },
   test: {
     globals: true,
@@ -41,12 +42,7 @@ export default defineConfig({
         // ComfyUI scripts (relative from js/ output dir)
         '../../scripts/app.js',
         '../../scripts/api.js',
-        // Runtime-provided dependencies
-        'vue',
-        'vue-i18n',
-        'pinia',
-        /^primevue\/?.*/,
-        /^@primevue\/themes\/?.*/,
+        // Vue and dependencies are now bundled (import map removed in ComfyUI frontend v1.33.9+)
       ],
       output: {
         dir: '../js',
