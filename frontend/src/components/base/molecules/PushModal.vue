@@ -62,7 +62,18 @@
           <template v-else-if="preview">
             <div class="commit-summary">
               <span class="icon">📤</span>
-              Pushing {{ preview.commits_ahead }} commit{{ preview.commits_ahead !== 1 ? 's' : '' }} to {{ preview.remote }}/{{ preview.branch }}
+              <span v-if="preview.is_first_push">
+                Creating {{ preview.remote }}/{{ preview.branch }} with {{ preview.commits_ahead }} commit{{ preview.commits_ahead !== 1 ? 's' : '' }}
+              </span>
+              <span v-else>
+                Pushing {{ preview.commits_ahead }} commit{{ preview.commits_ahead !== 1 ? 's' : '' }} to {{ preview.remote }}/{{ preview.branch }}
+              </span>
+            </div>
+
+            <!-- First push info -->
+            <div v-if="preview.is_first_push" class="info-box">
+              <span class="info-icon">ℹ</span>
+              <span>This will create the remote branch for the first time.</span>
             </div>
 
             <!-- Outgoing commits -->
@@ -260,6 +271,22 @@ function handlePush(force: boolean) {
 .warning-box p {
   margin: var(--cg-space-1) 0 0 0;
   font-size: var(--cg-font-size-sm);
+}
+
+.info-box {
+  display: flex;
+  align-items: center;
+  gap: var(--cg-space-2);
+  padding: var(--cg-space-3);
+  background: var(--cg-color-info-muted);
+  border: 1px solid var(--cg-color-info);
+  border-radius: var(--cg-radius-sm);
+  color: var(--cg-color-info);
+  font-size: var(--cg-font-size-sm);
+}
+
+.info-icon {
+  flex-shrink: 0;
 }
 
 .commits-section {

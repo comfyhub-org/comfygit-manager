@@ -1340,7 +1340,8 @@ export const mockApi = {
       remote_has_new_commits: false,
       can_push: true,
       needs_force: false,
-      block_reason: null
+      block_reason: null,
+      is_first_push: false
     }
   },
 
