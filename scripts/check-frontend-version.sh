@@ -18,8 +18,8 @@ if [[ ! -f "$JS_FILE" ]]; then
     exit 1
 fi
 
-# The version is embedded as a string like 'v0.0.4' in the minified JS
-JS_VERSION=$(grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' "$JS_FILE" | head -1 | sed 's/^v//')
+# The version is embedded as "v0.0.X" (with quotes) - use this to avoid matching Vue's version
+JS_VERSION=$(grep -oE '"v[0-9]+\.[0-9]+\.[0-9]+"' "$JS_FILE" | head -1 | sed 's/"//g; s/^v//')
 
 if [[ -z "$JS_VERSION" ]]; then
     echo "ERROR: Could not extract version from $JS_FILE"
