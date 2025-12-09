@@ -8,7 +8,7 @@ Workflows. Models. Custom nodes. Environments. All tracked, all switchable, all 
 
 [![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL%203.0-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![Docs](https://img.shields.io/badge/docs-comfyhub.org-green)](https://docs.comfyhub.org/comfygit/)
-[![Discord](https://img.shields.io/discord/1234567890?color=5865F2&label=Discord&logo=discord&logoColor=white)](https://discord.gg/2h5rSTeh6Y)
+[![Discord](https://img.shields.io/badge/Discord-Join-5865F2?logo=discord&logoColor=white)](https://discord.gg/2h5rSTeh6Y)
 
 ---
 
