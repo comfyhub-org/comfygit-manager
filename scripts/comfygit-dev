@@ -10,12 +10,34 @@
 
 set -e
 
-# Resolve symlinks to get actual script location
-SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
+# Resolve symlinks to get actual script location (portable across macOS/Linux)
+if command -v realpath &> /dev/null; then
+    SCRIPT_PATH="$(realpath "${BASH_SOURCE[0]}")"
+elif command -v readlink &> /dev/null && readlink -f / &> /dev/null; then
+    SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
+else
+    # Fallback for macOS without coreutils
+    SCRIPT_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/$(basename "${BASH_SOURCE[0]}")"
+fi
 SCRIPT_DIR="$(dirname "$SCRIPT_PATH")"
 MANAGER_PATH="$(dirname "$SCRIPT_DIR")"
-CORE_PATH="/home/akatzfey/projects/comfyhub/comfygit/packages/core"
-DEFAULT_COMFYUI="/home/akatzfey/projects/ComfyUI_dev/ComfyUI"
+
+# Auto-detect CORE_PATH relative to manager (sibling repo)
+# Expected structure: comfyhub/comfygit-manager and comfyhub/comfygit/packages/core
+CORE_PATH="$(dirname "$MANAGER_PATH")/comfygit/packages/core"
+if [[ ! -d "$CORE_PATH" ]]; then
+    echo "Error: comfygit-core not found at $CORE_PATH"
+    echo "Expected directory structure:"
+    echo "  comfyhub/"
+    echo "    comfygit-manager/  (this repo)"
+    echo "    comfygit/"
+    echo "      packages/"
+    echo "        core/"
+    exit 1
+fi
+
+# Default ComfyUI path (can be overridden by first argument)
+DEFAULT_COMFYUI="$HOME/ComfyUI"
 RUNPOD_IMAGE="runpod/pytorch:2.1.0-py3.10-cuda11.8.0-devel-ubuntu22.04"
 
 # Parse arguments
