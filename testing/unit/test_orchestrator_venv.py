@@ -8,29 +8,6 @@ import pytest
 class TestOrchestratorVenv:
     """Test orchestrator venv creation and setup."""
 
-    def test_ensure_orchestrator_venv_creates_venv(self, temp_dir, mocker):
-        """Should create orchestrator venv if it doesn't exist."""
-        from server.orchestrator import ensure_orchestrator_venv
-
-        venv_path = temp_dir / ".orchestrator_venv"
-
-        # Mock venv.create and subprocess.run to avoid actual venv creation
-        mocker.patch("venv.create")
-        mocker.patch("subprocess.run")
-
-        # Create the expected directory structure to simulate venv creation
-        venv_path.mkdir()
-        (venv_path / "bin").mkdir()
-        (venv_path / "bin" / "python").touch()
-        (venv_path / "bin" / "pip").touch()
-
-        ensure_orchestrator_venv(venv_path)
-
-        # Verify venv was not recreated (idempotent check)
-        assert venv_path.exists()
-        assert (venv_path / "bin" / "python").exists()
-        assert (venv_path / "bin" / "pip").exists()
-
     def test_ensure_orchestrator_venv_idempotent(self, mock_orchestrator_venv):
         """Should not recreate venv if it already exists."""
         from server.orchestrator import ensure_orchestrator_venv
@@ -46,30 +23,54 @@ class TestOrchestratorVenv:
         assert marker.exists()
         assert marker.stat().st_mtime == original_mtime
 
-    def test_ensure_orchestrator_venv_installs_comfygit_core(self, temp_dir, mocker):
-        """Should install comfygit-core in orchestrator venv."""
+    def test_ensure_orchestrator_venv_tries_uv_first(self, temp_dir, mocker):
+        """Should try UVCommand first, fall back to venv module on failure."""
         from server.orchestrator import ensure_orchestrator_venv
 
         venv_path = temp_dir / ".orchestrator_venv"
 
-        # Mock venv.create to avoid actual venv creation
+        # Mock _create_venv_with_uv to succeed
+        mock_uv_create = mocker.patch(
+            "server.orchestrator._create_venv_with_uv",
+            return_value=True
+        )
+
+        # Mock venv.create as fallback (shouldn't be called if uv succeeds)
         mock_venv_create = mocker.patch("venv.create")
-
-        # Mock subprocess to capture pip install
-        mock_run = mocker.patch("subprocess.run")
-
-        # Create minimal directory structure so function doesn't early return
-        # (but don't create python executable so it goes through creation path)
 
         ensure_orchestrator_venv(venv_path)
 
-        # Verify venv.create was called
-        mock_venv_create.assert_called_once_with(venv_path, with_pip=True, clear=True)
+        # _create_venv_with_uv should have been called
+        mock_uv_create.assert_called_once()
+        # venv.create should NOT have been called (uv succeeded)
+        mock_venv_create.assert_not_called()
 
-        # Verify pip install was called with comfygit-core
+    def test_ensure_orchestrator_venv_falls_back_to_stdlib(self, temp_dir, mocker):
+        """Should fall back to venv module if UVCommand fails."""
+        from server.orchestrator import ensure_orchestrator_venv
+
+        venv_path = temp_dir / ".orchestrator_venv"
+
+        # Make UVCommand raise an exception to trigger fallback
+        mocker.patch(
+            "server.orchestrator._create_venv_with_uv",
+            return_value=False
+        )
+
+        # Mock venv.create and subprocess.run for fallback
+        mock_venv_create = mocker.patch("venv.create")
+        mock_run = mocker.patch("subprocess.run")
+
+        ensure_orchestrator_venv(venv_path)
+
+        # venv.create should have been called with symlinks=True
+        mock_venv_create.assert_called_once_with(
+            venv_path, with_pip=True, clear=True, symlinks=True
+        )
+
+        # pip install should have been called
         mock_run.assert_called_once()
         args = mock_run.call_args[0][0]
-        assert "pip" in str(args[0])  # First arg should be pip executable
         assert "install" in args
         assert "comfygit-core" in args
 

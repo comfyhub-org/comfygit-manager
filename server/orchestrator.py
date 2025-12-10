@@ -539,10 +539,63 @@ def _get_venv_executables(venv_path: Path) -> tuple[Path, Path]:
         )
 
 
+def _create_venv_with_uv(venv_path: Path, python_exe: Path) -> bool:
+    """
+    Create venv using UVCommand from comfygit-core.
+
+    Uses bundled uv binary which creates symlinks on macOS,
+    avoiding the @executable_path dylib issue.
+
+    Returns True on success, False if uv unavailable.
+    """
+    try:
+        from comfygit_core.integrations.uv_command import UVCommand
+
+        uv = UVCommand()
+        uv.venv(venv_path, python="3.12")
+
+        # Install comfygit-core using uv pip (doesn't need pip in venv)
+        dev_core_path = os.environ.get("COMFYGIT_DEV_CORE_PATH")
+        if dev_core_path:
+            print(f"[ComfyGit] Dev mode: installing core from {dev_core_path}")
+            uv.pip_install(["-e", dev_core_path], python=python_exe)
+        else:
+            uv.pip_install(["comfygit-core"], python=python_exe)
+
+        return True
+
+    except ImportError:
+        print("[ComfyGit] UVCommand not available, falling back to venv module")
+        return False
+    except Exception as e:
+        print(f"[ComfyGit] uv venv failed ({e}), falling back to venv module")
+        return False
+
+
+def _create_venv_with_stdlib(venv_path: Path, pip_exe: Path) -> None:
+    """
+    Create venv using stdlib venv module with symlinks=True.
+
+    Symlinks avoid the macOS @executable_path dylib issue by keeping
+    the python binary in its original location where the dylib exists.
+    """
+    venv.create(venv_path, with_pip=True, clear=True, symlinks=True)
+
+    dev_core_path = os.environ.get("COMFYGIT_DEV_CORE_PATH")
+    if dev_core_path:
+        print(f"[ComfyGit] Dev mode: installing core from {dev_core_path}")
+        subprocess.run([str(pip_exe), "install", "-e", dev_core_path, "--quiet"], check=True)
+    else:
+        subprocess.run([str(pip_exe), "install", "comfygit-core", "--quiet"], check=True)
+
+
 def ensure_orchestrator_venv(venv_path: Path) -> None:
     """
     Create dedicated virtual environment for orchestrator.
     This runs once when custom node first loads.
+
+    Uses uv (bundled with comfygit-core) if available, falls back to stdlib venv.
+    Both methods use symlinks to avoid macOS dylib loading issues.
     """
     python_exe, pip_exe = _get_venv_executables(venv_path)
 
@@ -551,16 +604,9 @@ def ensure_orchestrator_venv(venv_path: Path) -> None:
 
     print("[ComfyGit] Setting up orchestrator environment...")
 
-    # Create venv
-    venv.create(venv_path, with_pip=True, clear=True)
-
-    # Dev mode: install from local path as editable
-    dev_core_path = os.environ.get("COMFYGIT_DEV_CORE_PATH")
-    if dev_core_path:
-        print(f"[ComfyGit] Dev mode: installing core from {dev_core_path}")
-        subprocess.run([str(pip_exe), "install", "-e", dev_core_path, "--quiet"], check=True)
-    else:
-        subprocess.run([str(pip_exe), "install", "comfygit-core", "--quiet"], check=True)
+    # Try uv first (preferred), fall back to stdlib venv
+    if not _create_venv_with_uv(venv_path, python_exe):
+        _create_venv_with_stdlib(venv_path, pip_exe)
 
     print("[ComfyGit] Orchestrator environment ready")
 
@@ -884,8 +930,12 @@ class Orchestrator:
                 backend = version.split('+')[1]
                 print(f"[Orchestrator] Detected PyTorch backend: {backend}")
                 return []
+            elif sys.platform == "darwin":
+                # macOS: no suffix means MPS build (Apple Silicon GPU)
+                print("[Orchestrator] Detected macOS PyTorch (MPS)")
+                return []
             else:
-                # No suffix = CPU-only build
+                # Linux/Windows without suffix = CPU-only build
                 print("[Orchestrator] Detected CPU-only PyTorch, adding --cpu flag")
                 return ["--cpu"]
 
